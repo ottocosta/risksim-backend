@@ -3,9 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RiskSim Backend</title>
+    <title>Interactive Chat Interface</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #map { height: 400px; width: 100%; }
+        #chat { margin-top: 20px; }
+        .recommended-questions { margin-top: 20px; }
+    </style>
 </head>
 <body>
-    <h1>RiskSim Backend is running</h1>
+
+<h1>Supply Chain Risk Chat</h1>
+
+<div id="map"></div>
+
+<div id="chat">
+    <h2>Chat Interface</h2>
+    <input type="text" id="userInput" placeholder="Ask a question..."/>
+    <button id="sendButton">Send</button>
+    <div id="responses"></div>
+</div>
+
+<div class="recommended-questions">
+    <h3>Recommended Questions</h3>
+    <ul>
+        <li>What are the risks associated with suppliers in Region X?</li>
+        <li>How do weather conditions affect supply chain risks?</li>
+        <li>What is the impact of political instability on supply chains?</li>
+    </ul>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    // Initialize the map
+    var map = L.map('map').setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+    }).addTo(map);
+
+    // Function to handle sending messages
+    document.getElementById('sendButton').onclick = function() {
+        var userInput = document.getElementById('userInput').value;
+        document.getElementById('responses').innerHTML += '<p>You: ' + userInput + '</p>';
+        
+        // Here you would integrate with the Claude API
+        // Example: fetch('API_URL', { method: 'POST', body: JSON.stringify({ question: userInput }) })
+        //          .then(response => response.json())
+        //          .then(data => {
+        //              document.getElementById('responses').innerHTML += '<p>Claude: ' + data.response + '</p>';
+        //          });
+          
+        document.getElementById('userInput').value = ''; // Clear input
+    };
+</script>
+
 </body>
 </html>
