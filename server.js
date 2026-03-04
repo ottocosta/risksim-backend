@@ -1,35 +1,27 @@
-// Import the required modules
 const express = require('express');
-const { Configuration, OpenAIApi } = require('openai');
-const { Anthropic } = require('anthropic'); // Import the Anthropic SDK
+const { AnthropicClient } = require('anthropic-sdk');
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
+const claudeApiKey = process.env.CLAUDE_API_KEY;
+const client = new AnthropicClient(claudeApiKey);
 
-// Shopify App Proxy endpoint
-app.get('/proxy', (req, res) => {
-    const html = `<!DOCTYPE html>\n<html>\n<head>\n    <title>Proxy Page</title>\n</head>\n<body>\n    <h1>Shopify App Proxy</h1>\n    <p>This is a Shopify App Proxy endpoint.</p>\n</body>\n</html>`;
-    res.send(html);
-});
-
-// Initialize the Claude API integration
-const configuration = new Configuration({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-});
-const anthropic = new Anthropic({ apiKey: configuration.apiKey });
-
-app.post('/claude', async (req, res) => {
-    const input = req.body.input; // Getting input from request
+// Root route
+app.get('/', async (req, res) => {
     try {
-        const response = await anthropic.Completions.create({
-            prompt: input,
+        const response = await client.callModel('claude-3-5-sonnet-20241022', {
+            prompt: 'Hello, Claude!',
+            max_tokens: 100
         });
-        res.json(response);
+        res.send(response);
     } catch (error) {
-        res.status(500).send('Error with Claude API: ' + error.message);
+        console.error('Error calling Claude API:', error);
+        res.status(500).send('Internal Server Error');
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+// Start the server
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
