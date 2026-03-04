@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chat</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box">
+            <ul class="messages" id="messages"></ul>
+            <input type="text" id="questionInput" placeholder="Type a question..." />
+            <button id="sendButton">Send</button>
+        </div>
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+        <div class="recommended-questions">
+            <h3>Recommended Questions:</h3>
+            <ul>
+                <li>What are risks involved?</li>
+                <li>How to mitigate risks?</li>
+                <li>What is the estimated cost?</li>
+                <li>How would you handle unforeseen circumstances?</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+    <script>
+        function initMap() {
+            // Initialize the map
+            const map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 2,
+                center: { lat: 20, lng: 0 },
+            });
+        }
+
+        $(document).ready(function() {
+            $('#sendButton').on('click', function() {
+                const question = $('#questionInput').val();
+                if (question) {
+                    $('#messages').append(`<li>${question}</li>`);
+                    $('#questionInput').val('');
+                    // Add Shopify integration code here
+                }
+            });
+        });
+    </script>
+</body>
+</html>
