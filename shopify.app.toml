@@ -1,0 +1,6 @@
+scopes = "read_inventory,read_orders,read_products,write_products"
+name = "risksim.ai"
+
+[app_url]
+development = "https://risksim-backend.onrender.com"
+production = "https://risksim-backend.onrender.com"
