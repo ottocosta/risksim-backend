@@ -1,0 +1,4 @@
+# Includes files to be ignored by Git
+node_modules/
+dist/
+.env
