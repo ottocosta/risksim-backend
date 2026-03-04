@@ -1,34 +1,35 @@
-'use strict';
-
+// Import the required modules
 const express = require('express');
-const path = require('path');
-const morgan = require('morgan');
+const { Configuration, OpenAIApi } = require('openai');
+const { Anthropic } = require('anthropic'); // Import the Anthropic SDK
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-// Middleware for logging requests
-app.use(morgan('dev'));
-
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Root route
-app.get('/', (req, res) => {
-    res.send('<h1>Welcome to RiskSim</h1>');
+// Shopify App Proxy endpoint
+app.get('/proxy', (req, res) => {
+    const html = `<!DOCTYPE html>\n<html>\n<head>\n    <title>Proxy Page</title>\n</head>\n<body>\n    <h1>Shopify App Proxy</h1>\n    <p>This is a Shopify App Proxy endpoint.</p>\n</body>\n</html>`;
+    res.send(html);
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+// Initialize the Claude API integration
+const configuration = new Configuration({
+    apiKey: process.env.ANTHROPIC_API_KEY,
+});
+const anthropic = new Anthropic({ apiKey: configuration.apiKey });
+
+app.post('/claude', async (req, res) => {
+    const input = req.body.input; // Getting input from request
+    try {
+        const response = await anthropic.Completions.create({
+            prompt: input,
+        });
+        res.json(response);
+    } catch (error) {
+        res.status(500).send('Error with Claude API: ' + error.message);
+    }
 });
 
-// 404 handling
-app.use((req, res) => {
-    res.status(404).send('Sorry, cannot find that!');
-});
-
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
