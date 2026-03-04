@@ -1,1 +1,9 @@
-{"name": "risksim-backend", "version": "1.0.0", "description": "A risk simulation backend.", "main": "index.js", "scripts": {"start": "node index.js"}, "dependencies": {"express": "^4.17.1", "cors": "^2.8.5", "helmet": "^4.6.0", "dotenv": "^8.2.0", "pg": "^8.7.1", "jsonwebtoken": "^8.5.1", "bcryptjs": "^2.4.3"}}
+{
+  "name": "risksim-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {} 
+}
