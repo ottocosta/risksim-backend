@@ -1054,25 +1054,44 @@
     askQuestion(q);
   };
 
+  // Store popup action strings safely, keyed by sanitized country name
+  window._popupData = {};
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function safeKey(name) {
+    return name.replace(/\W+/g, '_');
+  }
+
   function popupHTML(name, risk) {
+    var displayName = esc(name);
+    var key = safeKey(name);
+
     if (!risk) {
+      window._popupData[key] = 'What are the supply chain considerations and risks for ' + name + '?';
       return '<div style="min-width:200px;font-family:Inter,sans-serif;">' +
-        '<div class="popup-country">' + name + '</div>' +
+        '<div class="popup-country">' + displayName + '</div>' +
         '<div style="font-size:12px;color:#64748b;">No risk data available</div>' +
-        '<button class="popup-btn" onclick="window._askQ(\'What are supply chain considerations for ' + name + '?\')">Ask Claude about ' + name + ' \u2192</button>' +
+        '<button class="popup-btn" onclick="window._askQ(window._popupData[\'' + key + '\'])">Ask Claude about ' + displayName + ' \u2192</button>' +
         '</div>';
     }
     var levelColors = { CRITICAL:'#ff0040', HIGH:'#ff8c00', MEDIUM:'#f5c518', LOW:'#00e676' };
     var badgeBg = levelColors[risk.level] + '22';
-    var factors = risk.factors.map(function(f) { return '<div class="popup-factor">\u25b8 ' + f + '</div>'; }).join('');
-    var q = 'Provide a detailed supply chain risk analysis for ' + name + '. Risk level: ' + risk.level + ' (score ' + risk.score + '/100). Key factors: ' + risk.factors.join(', ') + '. Trade: ' + risk.trade + '. Give actionable recommendations.';
+    var factors = risk.factors.map(function(f) { return '<div class="popup-factor">\u25b8 ' + esc(f) + '</div>'; }).join('');
+    window._popupData[key] = 'Provide a detailed supply chain risk analysis for ' + name +
+      '. Risk level: ' + risk.level + ' (score ' + risk.score + '/100).' +
+      ' Key factors: ' + risk.factors.join(', ') + '.' +
+      ' Trade volume: ' + risk.trade + '.' +
+      ' Include actionable recommendations for supply chain managers.';
     return '<div style="min-width:220px;font-family:Inter,sans-serif;">' +
-      '<div class="popup-country">' + name + '</div>' +
-      '<div class="popup-badge" style="background:' + badgeBg + ';color:' + risk.color + ';border:1px solid ' + risk.color + '44;">' + risk.level + '</div>' +
-      '<div class="popup-row"><span>Risk Score</span><span class="popup-row-val" style="color:' + risk.color + ';">' + risk.score + '/100</span></div>' +
-      '<div class="popup-row"><span>Trade Volume</span><span class="popup-row-val">' + risk.trade + '</span></div>' +
+      '<div class="popup-country">' + displayName + '</div>' +
+      '<div class="popup-badge" style="background:' + esc(badgeBg) + ';color:' + esc(risk.color) + ';border:1px solid ' + esc(risk.color) + '44;">' + esc(risk.level) + '</div>' +
+      '<div class="popup-row"><span>Risk Score</span><span class="popup-row-val" style="color:' + esc(risk.color) + ';">' + esc(String(risk.score)) + '/100</span></div>' +
+      '<div class="popup-row"><span>Trade Volume</span><span class="popup-row-val">' + esc(risk.trade) + '</span></div>' +
       '<div class="popup-factors"><div class="popup-factors-title">Key Risk Factors</div>' + factors + '</div>' +
-      '<button class="popup-btn" onclick="window._askQ(\'' + q.replace(/'/g, "\\'") + '\')">Deep Dive Analysis \u2192</button>' +
+      '<button class="popup-btn" onclick="window._askQ(window._popupData[\'' + key + '\'])">Deep Dive Analysis \u2192</button>' +
       '</div>';
   }
 
