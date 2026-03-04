@@ -1,38 +1,34 @@
+'use strict';
+
 const express = require('express');
-const cors = require('cors');
-const axios = require('axios');
+const path = require('path');
+const morgan = require('morgan');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Middleware for logging requests
+app.use(morgan('dev'));
 
-// Initialize the Claude API Client
-const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY; // set your Claude API key in environment variables
-const CLAUDE_API_URL = 'https://api.claude.ai/chat';
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Chat Endpoint
-app.post('/api/chat', async (req, res) => {
-    const { question } = req.body;
-
-    try {
-        const response = await axios.post(CLAUDE_API_URL, {
-            question: question,
-        }, {
-            headers: {
-                'Authorization': `Bearer ${CLAUDE_API_KEY}`,
-                'Content-Type': 'application/json',
-            },
-        });
-        return res.json({ answer: response.data.answer });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error processing your request.' });
-    }
+// Root route
+app.get('/', (req, res) => {
+    res.send('<h1>Welcome to RiskSim</h1>');
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+
+// 404 handling
+app.use((req, res) => {
+    res.status(404).send('Sorry, cannot find that!');
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
