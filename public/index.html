@@ -700,6 +700,163 @@
     .popup-btn:hover {
       background: rgba(0,212,255,0.2);
     }
+
+    /* ─── COST IMPACT OVERLAY ─────────────────────────────────── */
+    .map-view-toggle {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 1000;
+      display: flex;
+      gap: 4px;
+      background: rgba(6, 10, 26, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 5px;
+    }
+
+    .view-btn {
+      padding: 5px 14px;
+      border: none;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: 0.4px;
+      transition: all 0.18s;
+      color: var(--text-muted);
+      background: transparent;
+    }
+
+    .view-btn.active {
+      background: rgba(0, 212, 255, 0.15);
+      color: var(--cyan);
+      box-shadow: 0 0 10px rgba(0,212,255,0.15);
+    }
+
+    .view-btn:hover:not(.active) { color: var(--text-secondary); }
+
+    .popup-cost {
+      margin-top: 8px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .popup-cost-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #4b5563;
+      margin-bottom: 4px;
+    }
+
+    .popup-cost-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 3px;
+    }
+
+    .popup-cost-val { font-weight: 600; }
+
+    .cost-label-marker {
+      background: rgba(6,10,26,0.82);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 5px;
+      padding: 2px 5px;
+      font-size: 9px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+      pointer-events: none;
+      color: #fff;
+    }
+
+    /* ─── CHAT B&W THEME ──────────────────────────────────────── */
+    .chat-panel {
+      --chat-accent: #e2e8f0;
+      --chat-accent-dim: rgba(226,232,240,0.10);
+      --chat-accent-border: rgba(226,232,240,0.18);
+      --chat-accent-glow: rgba(226,232,240,0.06);
+    }
+
+    .chat-panel .ai-badge {
+      background: linear-gradient(120deg, #4b5563, #94a3b8);
+    }
+
+    .chat-panel .msg-avatar.user {
+      background: linear-gradient(135deg, #4b5563, #374151);
+    }
+
+    .chat-panel .msg-avatar.bot {
+      background: linear-gradient(135deg, #1f2937, #374151);
+    }
+
+    .chat-panel .bubble strong { color: #e2e8f0; }
+    .chat-panel .bubble h3 { color: #cbd5e1; }
+    .chat-panel .bubble code {
+      background: rgba(226,232,240,0.08);
+      color: #cbd5e1;
+    }
+
+    .chat-panel .message.user .bubble {
+      background: linear-gradient(135deg, rgba(226,232,240,0.10), rgba(203,213,225,0.06));
+      border: 1px solid rgba(226,232,240,0.18);
+    }
+
+    .chat-panel .message.bot .bubble {
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid rgba(226,232,240,0.09);
+    }
+
+    .chat-panel .typing-dot { background: #94a3b8; }
+
+    .chat-panel .chip {
+      background: rgba(226,232,240,0.05);
+      border-color: rgba(226,232,240,0.16);
+      color: #cbd5e1;
+    }
+
+    .chat-panel .chip:hover {
+      background: rgba(226,232,240,0.12);
+      border-color: #94a3b8;
+      box-shadow: 0 4px 14px rgba(226,232,240,0.10);
+    }
+
+    .chat-panel #messageInput:focus {
+      border-color: rgba(226,232,240,0.35);
+      box-shadow: 0 0 0 3px rgba(226,232,240,0.06);
+    }
+
+    .chat-panel .send-btn {
+      background: linear-gradient(135deg, #4b5563, #374151);
+      color: #e2e8f0;
+    }
+
+    .chat-panel .send-btn:hover:not(:disabled) {
+      box-shadow: 0 8px 22px rgba(226,232,240,0.15);
+    }
+
+    .chat-panel .messages-container::-webkit-scrollbar-thumb {
+      background: rgba(226,232,240,0.12);
+    }
+
+    .legend-cost-title {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 10px 0 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
@@ -707,7 +864,16 @@
   <!-- ─── NAVBAR ─────────────────────────────────────────────── -->
   <nav class="navbar">
     <div class="nav-brand">
-      <div class="brand-logo">⚡</div>
+      <div class="brand-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.5"/>
+          <path d="M12 3C9.5 6 8 9 8 12C8 15 9.5 18 12 21" stroke="white" stroke-width="1.4" fill="none"/>
+          <path d="M12 3C14.5 6 16 9 16 12C16 15 14.5 18 12 21" stroke="white" stroke-width="1.4" fill="none"/>
+          <line x1="3" y1="12" x2="21" y2="12" stroke="white" stroke-width="1.4"/>
+          <line x1="4" y1="8" x2="20" y2="8" stroke="white" stroke-width="1.1"/>
+          <line x1="4" y1="16" x2="20" y2="16" stroke="white" stroke-width="1.1"/>
+        </svg>
+      </div>
       <div>
         <div class="brand-name">RiskSim</div>
         <div class="brand-tagline">Supply Chain Intelligence</div>
@@ -716,7 +882,7 @@
 
     <div class="nav-center">
       <div class="nav-stat">
-        <div class="nav-stat-value">34+</div>
+        <div class="nav-stat-value">50+</div>
         <div class="nav-stat-label">Countries Monitored</div>
       </div>
       <div class="nav-stat">
@@ -743,31 +909,60 @@
       <div id="map"></div>
 
       <div class="map-overlay-header">
-        <div class="map-overlay-title">🌐 Global Risk Map</div>
+        <div class="map-overlay-title">🌐 Global Risk &amp; Cost Map</div>
         <div class="map-overlay-sub">Hover to preview • Click country for AI deep-dive</div>
       </div>
 
+      <div class="map-view-toggle">
+        <button class="view-btn active" id="btnRiskView">⚠ RISK</button>
+        <button class="view-btn" id="btnCostView">💲 COST</button>
+      </div>
+
       <div class="map-legend">
-        <div class="legend-title">Risk Level</div>
-        <div class="legend-item">
-          <div class="legend-swatch" style="background:#ff0040; box-shadow: 0 0 6px #ff0040;"></div>
-          <span class="legend-label">Critical</span>
+        <div class="legend-title" id="legendModeLabel">Risk Level</div>
+        <div id="legendRisk">
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#ff0040; box-shadow: 0 0 6px #ff0040;"></div>
+            <span class="legend-label">Critical</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#ff8c00; box-shadow: 0 0 6px #ff8c00;"></div>
+            <span class="legend-label">High</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#f5c518; box-shadow: 0 0 6px #f5c518;"></div>
+            <span class="legend-label">Medium</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#00e676; box-shadow: 0 0 6px #00e676;"></div>
+            <span class="legend-label">Low</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#334155;"></div>
+            <span class="legend-label">No Data</span>
+          </div>
         </div>
-        <div class="legend-item">
-          <div class="legend-swatch" style="background:#ff8c00; box-shadow: 0 0 6px #ff8c00;"></div>
-          <span class="legend-label">High</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-swatch" style="background:#f5c518; box-shadow: 0 0 6px #f5c518;"></div>
-          <span class="legend-label">Medium</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-swatch" style="background:#00e676; box-shadow: 0 0 6px #00e676;"></div>
-          <span class="legend-label">Low</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-swatch" style="background:#334155;"></div>
-          <span class="legend-label">No Data</span>
+        <div id="legendCost" style="display:none;">
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#ff0040; box-shadow: 0 0 6px #ff0040;"></div>
+            <span class="legend-label">Severe (&gt;100%)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#ff8c00; box-shadow: 0 0 6px #ff8c00;"></div>
+            <span class="legend-label">High (25–99%)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#f5c518; box-shadow: 0 0 6px #f5c518;"></div>
+            <span class="legend-label">Medium (10–24%)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#00e676; box-shadow: 0 0 6px #00e676;"></div>
+            <span class="legend-label">Low (&lt;10%)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#00d4ff; box-shadow: 0 0 6px #00d4ff;"></div>
+            <span class="legend-label">Domestic (US)</span>
+          </div>
         </div>
       </div>
     </div>
@@ -823,47 +1018,71 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
   // ══════════════════════════════════════════════════════════════
-  //  RISK DATA — 34+ countries
+  //  RISK DATA — 50+ countries  (level, score, risk color, tariff, costImpact)
+  //  tariff  = representative US import tariff rate (2025 context)
+  //  costImpact = SEVERE | HIGH | MEDIUM | LOW | BASELINE | RESTRICTED
   // ══════════════════════════════════════════════════════════════
   var RISK = {
-    // CRITICAL
-    'China':       { level:'CRITICAL', score:92, color:'#ff0040', factors:['US-China trade war','Taiwan strait tensions','Export control escalation'], trade:'$2.1T exports/yr' },
-    'Taiwan':      { level:'CRITICAL', score:88, color:'#ff0040', factors:['Cross-strait military tensions','Semiconductor chokepoint','Invasion risk scenario'], trade:'$480B exports/yr' },
-    'Russia':      { level:'CRITICAL', score:96, color:'#ff0040', factors:['Ukraine war ongoing','G7 sanctions regime','Energy supply disruption'], trade:'Severely restricted' },
-    'North Korea': { level:'CRITICAL', score:99, color:'#ff0040', factors:['Total UN sanctions','Zero legitimate trade','Military threat vector'], trade:'Essentially zero' },
-    'Iran':        { level:'CRITICAL', score:94, color:'#ff0040', factors:['US/EU sanctions','Nuclear program tensions','Strait of Hormuz risk'], trade:'Severely restricted' },
-    'Myanmar':     { level:'CRITICAL', score:87, color:'#ff0040', factors:['Military coup 2021','Civil war ongoing','Western sanctions'], trade:'Severely limited' },
-    // HIGH
-    'Vietnam':     { level:'HIGH', score:65, color:'#ff8c00', factors:['Infrastructure bottlenecks','Labor rights scrutiny','Regulatory unpredictability'], trade:'$380B exports/yr' },
-    'India':       { level:'HIGH', score:60, color:'#ff8c00', factors:['Infrastructure gaps','Bureaucratic friction','Border tensions (China/Pakistan)'], trade:'$775B exports/yr' },
-    'Bangladesh':  { level:'HIGH', score:72, color:'#ff8c00', factors:['Labor standards issues','Climate/flood vulnerability','Political turbulence'], trade:'$55B exports/yr' },
-    'Pakistan':    { level:'HIGH', score:79, color:'#ff8c00', factors:['Economic crisis','Debt default risk','Security environment'], trade:'$31B exports/yr' },
-    'Turkey':      { level:'HIGH', score:64, color:'#ff8c00', factors:['Currency volatility','NATO-Russia balancing','High inflation'], trade:'$254B exports/yr' },
-    'Ukraine':     { level:'HIGH', score:93, color:'#ff8c00', factors:['Active war zone','Infrastructure destruction','Port access impaired'], trade:'Severely impacted' },
-    'Venezuela':   { level:'HIGH', score:84, color:'#ff8c00', factors:['Economic collapse','Maduro government','US oil sanctions'], trade:'Severely limited' },
-    'Ethiopia':    { level:'HIGH', score:70, color:'#ff8c00', factors:['Tigray conflict aftermath','Infrastructure gaps','Political instability'], trade:'$3.5B exports/yr' },
-    // MEDIUM
-    'Brazil':      { level:'MEDIUM', score:52, color:'#f5c518', factors:['Political polarisation','Currency risk (BRL)','Environmental regulation changes'], trade:'$340B exports/yr' },
-    'Philippines': { level:'MEDIUM', score:47, color:'#f5c518', factors:['Typhoon & disaster exposure','South China Sea tensions','Infrastructure gaps'], trade:'$75B exports/yr' },
-    'Indonesia':   { level:'MEDIUM', score:45, color:'#f5c518', factors:['Earthquake & volcanic risk','Regulatory complexity','Nickel export controls'], trade:'$260B exports/yr' },
-    'Mexico':      { level:'MEDIUM', score:51, color:'#f5c518', factors:['Cartel security risks','Nearshoring dependency','Currency volatility'], trade:'$580B exports/yr' },
-    'Thailand':    { level:'MEDIUM', score:44, color:'#f5c518', factors:['Political coups history','Flood risk','Rising labor costs'], trade:'$287B exports/yr' },
-    'Malaysia':    { level:'MEDIUM', score:38, color:'#f5c518', factors:['Supply chain concentration','Political transitions','Talent gaps'], trade:'$310B exports/yr' },
-    'Egypt':       { level:'MEDIUM', score:56, color:'#f5c518', factors:['Currency crisis','Suez Canal chokepoint','IMF dependency'], trade:'$49B exports/yr' },
-    'Nigeria':     { level:'MEDIUM', score:60, color:'#f5c518', factors:['Security (Boko Haram)','Currency FX controls','Infrastructure deficit'], trade:'$46B exports/yr' },
-    'South Africa':{ level:'MEDIUM', score:50, color:'#f5c518', factors:['Load-shedding blackouts','Port congestion (Durban)','High crime'], trade:'$125B exports/yr' },
-    'Colombia':    { level:'MEDIUM', score:47, color:'#f5c518', factors:['Guerrilla/criminal risk','Political uncertainty','Infrastructure'], trade:'$43B exports/yr' },
-    'Argentina':   { level:'MEDIUM', score:59, color:'#f5c518', factors:['Hyperinflation risk','Capital controls','Political volatility'], trade:'$88B exports/yr' },
-    // LOW
-    'Japan':       { level:'LOW', score:22, color:'#00e676', factors:['Earthquake/tsunami risk','Aging workforce','Semiconductor concentration'], trade:'$705B exports/yr' },
-    'South Korea': { level:'LOW', score:27, color:'#00e676', factors:['North Korea proximity','Strong institutions','Chip sector dependency'], trade:'$683B exports/yr' },
-    'Singapore':   { level:'LOW', score:14, color:'#00e676', factors:['Small domestic market','Very stable governance','World-class logistics'], trade:'$500B exports/yr' },
-    'Germany':     { level:'LOW', score:25, color:'#00e676', factors:['Energy transition cost','Russia gas legacy','Industrial slowdown'], trade:'$1.7T exports/yr' },
-    'Canada':      { level:'LOW', score:20, color:'#00e676', factors:['US trade dependency','Resource-driven economy','Stable governance'], trade:'$573B exports/yr' },
-    'Australia':   { level:'LOW', score:18, color:'#00e676', factors:['Remote geography','China trade tensions','Stable institutions'], trade:'$342B exports/yr' },
-    'United Kingdom':{ level:'LOW', score:28, color:'#00e676', factors:['Post-Brexit trade friction','Services-heavy economy','Stable rule of law'], trade:'$471B exports/yr' },
-    'Netherlands': { level:'LOW', score:15, color:'#00e676', factors:['EU regulatory burden','Major Rotterdam hub','Stable governance'], trade:'$885B exports/yr' },
-    'United States':{ level:'LOW', score:30, color:'#00e676', factors:['Political polarisation','Tariff policy swings','Strong institutions'], trade:'$3.0T exports/yr' },
+    // ── CRITICAL ───────────────────────────────────────────────
+    'China':       { level:'CRITICAL', score:92, color:'#ff0040', factors:['US-China trade war','Taiwan strait tensions','Export control escalation'], trade:'$2.1T exports/yr', tariff:'145%+ (Section 301)', costImpact:'SEVERE' },
+    'Taiwan':      { level:'CRITICAL', score:88, color:'#ff0040', factors:['Cross-strait military tensions','Semiconductor chokepoint','Invasion risk scenario'], trade:'$480B exports/yr', tariff:'32% (proposed)', costImpact:'HIGH' },
+    'Russia':      { level:'CRITICAL', score:96, color:'#ff0040', factors:['Ukraine war ongoing','G7 sanctions regime','Energy supply disruption'], trade:'Severely restricted', tariff:'N/A (banned)', costImpact:'RESTRICTED' },
+    'North Korea': { level:'CRITICAL', score:99, color:'#ff0040', factors:['Total UN sanctions','Zero legitimate trade','Military threat vector'], trade:'Essentially zero', tariff:'N/A (banned)', costImpact:'RESTRICTED' },
+    'Iran':        { level:'CRITICAL', score:94, color:'#ff0040', factors:['US/EU sanctions','Nuclear program tensions','Strait of Hormuz risk'], trade:'Severely restricted', tariff:'N/A (banned)', costImpact:'RESTRICTED' },
+    'Myanmar':     { level:'CRITICAL', score:87, color:'#ff0040', factors:['Military coup 2021','Civil war ongoing','Western sanctions'], trade:'Severely limited', tariff:'40%+ (restricted)', costImpact:'HIGH' },
+    // ── HIGH ───────────────────────────────────────────────────
+    'Vietnam':     { level:'HIGH', score:65, color:'#ff8c00', factors:['Infrastructure bottlenecks','Labor rights scrutiny','Regulatory unpredictability'], trade:'$380B exports/yr', tariff:'46% (reciprocal)', costImpact:'HIGH' },
+    'India':       { level:'HIGH', score:60, color:'#ff8c00', factors:['Infrastructure gaps','Bureaucratic friction','Border tensions (China/Pakistan)'], trade:'$775B exports/yr', tariff:'26% (reciprocal)', costImpact:'HIGH' },
+    'Bangladesh':  { level:'HIGH', score:72, color:'#ff8c00', factors:['Labor standards issues','Climate/flood vulnerability','Political turbulence'], trade:'$55B exports/yr', tariff:'37% (reciprocal)', costImpact:'HIGH' },
+    'Pakistan':    { level:'HIGH', score:79, color:'#ff8c00', factors:['Economic crisis','Debt default risk','Security environment'], trade:'$31B exports/yr', tariff:'29% (reciprocal)', costImpact:'HIGH' },
+    'Turkey':      { level:'HIGH', score:64, color:'#ff8c00', factors:['Currency volatility','NATO-Russia balancing','High inflation'], trade:'$254B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
+    'Ukraine':     { level:'HIGH', score:93, color:'#ff8c00', factors:['Active war zone','Infrastructure destruction','Port access impaired'], trade:'Severely impacted', tariff:'0% (USTR exemption)', costImpact:'LOW' },
+    'Venezuela':   { level:'HIGH', score:84, color:'#ff8c00', factors:['Economic collapse','Maduro government','US oil sanctions'], trade:'Severely limited', tariff:'15% (MFN)', costImpact:'MEDIUM' },
+    'Ethiopia':    { level:'HIGH', score:70, color:'#ff8c00', factors:['Tigray conflict aftermath','Infrastructure gaps','Political instability'], trade:'$3.5B exports/yr', tariff:'0% (AGOA)', costImpact:'LOW' },
+    'Israel':      { level:'HIGH', score:68, color:'#ff8c00', factors:['Gaza conflict ongoing','Regional war escalation risk','Tech sector resilience'], trade:'$68B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
+    // ── MEDIUM ─────────────────────────────────────────────────
+    'Brazil':      { level:'MEDIUM', score:52, color:'#f5c518', factors:['Political polarisation','Currency risk (BRL)','Environmental regulation changes'], trade:'$340B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
+    'Philippines': { level:'MEDIUM', score:47, color:'#f5c518', factors:['Typhoon & disaster exposure','South China Sea tensions','Infrastructure gaps'], trade:'$75B exports/yr', tariff:'17% (reciprocal)', costImpact:'MEDIUM' },
+    'Indonesia':   { level:'MEDIUM', score:45, color:'#f5c518', factors:['Earthquake & volcanic risk','Regulatory complexity','Nickel export controls'], trade:'$260B exports/yr', tariff:'32% (reciprocal)', costImpact:'MEDIUM' },
+    'Mexico':      { level:'MEDIUM', score:51, color:'#f5c518', factors:['Cartel security risks','Nearshoring dependency','Currency volatility'], trade:'$580B exports/yr', tariff:'25% (IEEPA)', costImpact:'HIGH' },
+    'Thailand':    { level:'MEDIUM', score:44, color:'#f5c518', factors:['Political coups history','Flood risk','Rising labor costs'], trade:'$287B exports/yr', tariff:'36% (reciprocal)', costImpact:'HIGH' },
+    'Malaysia':    { level:'MEDIUM', score:38, color:'#f5c518', factors:['Supply chain concentration','Political transitions','Talent gaps'], trade:'$310B exports/yr', tariff:'24% (reciprocal)', costImpact:'MEDIUM' },
+    'Egypt':       { level:'MEDIUM', score:56, color:'#f5c518', factors:['Currency crisis','Suez Canal chokepoint','IMF dependency'], trade:'$49B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
+    'Nigeria':     { level:'MEDIUM', score:60, color:'#f5c518', factors:['Security (Boko Haram)','Currency FX controls','Infrastructure deficit'], trade:'$46B exports/yr', tariff:'14% (MFN)', costImpact:'MEDIUM' },
+    'South Africa':{ level:'MEDIUM', score:50, color:'#f5c518', factors:['Load-shedding blackouts','Port congestion (Durban)','High crime'], trade:'$125B exports/yr', tariff:'30% (proposed)', costImpact:'MEDIUM' },
+    'Colombia':    { level:'MEDIUM', score:47, color:'#f5c518', factors:['Guerrilla/criminal risk','Political uncertainty','Infrastructure'], trade:'$43B exports/yr', tariff:'3.5% (CTPA)', costImpact:'LOW' },
+    'Argentina':   { level:'MEDIUM', score:59, color:'#f5c518', factors:['Hyperinflation risk','Capital controls','Political volatility'], trade:'$88B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
+    'Greece':      { level:'MEDIUM', score:38, color:'#f5c518', factors:['Government debt legacy','Shipping sector exposure','Migration pressure'], trade:'$54B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Romania':     { level:'MEDIUM', score:35, color:'#f5c518', factors:['Corruption risk','Infrastructure gaps','Currency (RON) volatility'], trade:'$95B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Hungary':     { level:'MEDIUM', score:40, color:'#f5c518', factors:['Rule-of-law concerns','Russia energy dependence','Political autocracy risk'], trade:'$140B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Morocco':     { level:'MEDIUM', score:42, color:'#f5c518', factors:['Regional instability','Water scarcity','FTA advantage at risk'], trade:'$42B exports/yr', tariff:'5% (FTA)', costImpact:'LOW' },
+    'Saudi Arabia':{ level:'MEDIUM', score:48, color:'#f5c518', factors:['Oil price dependence','Regional tensions','Vision 2030 transition risk'], trade:'$255B exports/yr', tariff:'5.5% (MFN)', costImpact:'LOW' },
+    // ── LOW ────────────────────────────────────────────────────
+    'Japan':        { level:'LOW', score:22, color:'#00e676', factors:['Earthquake/tsunami risk','Aging workforce','Semiconductor concentration'], trade:'$705B exports/yr', tariff:'24% (reciprocal)', costImpact:'MEDIUM' },
+    'South Korea':  { level:'LOW', score:27, color:'#00e676', factors:['North Korea proximity','Strong institutions','Chip sector dependency'], trade:'$683B exports/yr', tariff:'25% (reciprocal)', costImpact:'MEDIUM' },
+    'Singapore':    { level:'LOW', score:14, color:'#00e676', factors:['Small domestic market','Very stable governance','World-class logistics'], trade:'$500B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
+    'Germany':      { level:'LOW', score:25, color:'#00e676', factors:['Energy transition cost','Russia gas legacy','Industrial slowdown'], trade:'$1.7T exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Canada':       { level:'LOW', score:20, color:'#00e676', factors:['US trade dependency','Resource-driven economy','Stable governance'], trade:'$573B exports/yr', tariff:'25% (IEEPA)', costImpact:'HIGH' },
+    'Australia':    { level:'LOW', score:18, color:'#00e676', factors:['Remote geography','China trade tensions','Stable institutions'], trade:'$342B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
+    'United Kingdom':{ level:'LOW', score:28, color:'#00e676', factors:['Post-Brexit trade friction','Services-heavy economy','Stable rule of law'], trade:'$471B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
+    'Netherlands':  { level:'LOW', score:15, color:'#00e676', factors:['EU regulatory burden','Major Rotterdam hub','Stable governance'], trade:'$885B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'United States':{ level:'LOW', score:30, color:'#00e676', factors:['Political polarisation','Tariff policy swings','Strong institutions'], trade:'$3.0T exports/yr', tariff:'N/A (domestic)', costImpact:'BASELINE' },
+    // ── EU ADDITIONS ───────────────────────────────────────────
+    'France':        { level:'LOW', score:22, color:'#00e676', factors:['Social unrest & strikes','EU regulatory burden','Energy cost volatility'], trade:'$591B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Italy':         { level:'LOW', score:26, color:'#00e676', factors:['High public debt','Political fragility','Mafia/corruption pockets'], trade:'$552B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Spain':         { level:'LOW', score:23, color:'#00e676', factors:['High unemployment','Separatist tensions (Catalonia)','Energy dependence'], trade:'$345B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Poland':        { level:'LOW', score:28, color:'#00e676', factors:['Russia border proximity','Defense spending pressure','EU rule-of-law friction'], trade:'$297B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Sweden':        { level:'LOW', score:14, color:'#00e676', factors:['NATO transition costs','Gang crime rise','Strong institutions'], trade:'$188B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Austria':       { level:'LOW', score:16, color:'#00e676', factors:['Energy import dependence','Small domestic market','Political shifts'], trade:'$180B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Belgium':       { level:'LOW', score:18, color:'#00e676', factors:['Political deadlock','Major port hub Antwerp','Terrorism history'], trade:'$375B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Czech Republic':{ level:'LOW', score:24, color:'#00e676', factors:['Energy transition costs','Export-heavy economy','Skilled labor shortage'], trade:'$185B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Portugal':      { level:'LOW', score:20, color:'#00e676', factors:['High external debt','Tourism dependence','Skilled emigration'], trade:'$80B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Denmark':       { level:'LOW', score:12, color:'#00e676', factors:['Small domestic market','Shipping (Maersk) concentration','Strong governance'], trade:'$130B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Finland':       { level:'LOW', score:15, color:'#00e676', factors:['Russia border risk','NATO new member','Tech & forestry focus'], trade:'$75B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Ireland':       { level:'LOW', score:17, color:'#00e676', factors:['Tech hub concentration','Brexit proximity friction','Pharma export reliance'], trade:'$190B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
+    'Norway':        { level:'LOW', score:13, color:'#00e676', factors:['Non-EU trade friction','Energy wealth','Stable governance'], trade:'$185B exports/yr', tariff:'3.8% (MFN)', costImpact:'LOW' },
+    'Switzerland':   { level:'LOW', score:16, color:'#00e676', factors:['Non-EU friction','Strong CHF risk','Pharma concentration'], trade:'$340B exports/yr', tariff:'3.2% (MFN)', costImpact:'LOW' },
+    'UAE':           { level:'LOW', score:22, color:'#00e676', factors:['Regional instability exposure','Oil dependence','Regulatory innovation'], trade:'$400B exports/yr', tariff:'3.9% (MFN)', costImpact:'LOW' },
   };
 
   var NAME_ALIAS = {
@@ -881,6 +1100,14 @@
     'Great Britain':'United Kingdom',
     'Myanmar (Burma)':'Myanmar',
     'Burma':'Myanmar',
+    'Czechia':'Czech Republic',
+    'Czech Rep.':'Czech Republic',
+    'United Arab Emirates':'UAE',
+    'Türkiye':'Turkey',
+    'Korea':'South Korea',
+    'Republic of Ireland':'Ireland',
+    'Slovak Republic':'Slovakia',
+    'Bosnia and Herz.':'Bosnia and Herzegovina',
   };
 
   function getRisk(name) {
@@ -1078,18 +1305,31 @@
         '</div>';
     }
     var levelColors = { CRITICAL:'#ff0040', HIGH:'#ff8c00', MEDIUM:'#f5c518', LOW:'#00e676' };
+    var costColors  = { SEVERE:'#ff0040', HIGH:'#ff8c00', MEDIUM:'#f5c518', LOW:'#00e676', BASELINE:'#00d4ff', RESTRICTED:'#64748b' };
+    var costIcons   = { SEVERE:'\uD83D\uDCB8\uD83D\uDCB8\uD83D\uDCB8', HIGH:'\uD83D\uDCB8\uD83D\uDCB8', MEDIUM:'\uD83D\uDCB8', LOW:'\u2714 Low', BASELINE:'\u2605 Domestic', RESTRICTED:'\u26D4 Banned' };
     var badgeBg = levelColors[risk.level] + '22';
     var factors = risk.factors.map(function(f) { return '<div class="popup-factor">\u25b8 ' + esc(f) + '</div>'; }).join('');
+    var costColor = costColors[risk.costImpact] || '#94a3b8';
+    var costIcon  = costIcons[risk.costImpact]  || '';
+    var costBlock = risk.tariff
+      ? '<div class="popup-cost">' +
+          '<div class="popup-cost-label">US Import Cost Impact</div>' +
+          '<div class="popup-cost-row"><span>Tariff Rate</span><span class="popup-cost-val" style="color:' + esc(costColor) + ';">' + esc(risk.tariff) + '</span></div>' +
+          '<div class="popup-cost-row"><span>Cost Level</span><span class="popup-cost-val" style="color:' + esc(costColor) + ';">' + esc(costIcon + ' ' + (risk.costImpact || '')) + '</span></div>' +
+        '</div>'
+      : '';
     window._popupData[key] = 'Provide a detailed supply chain risk analysis for ' + name +
       '. Risk level: ' + risk.level + ' (score ' + risk.score + '/100).' +
       ' Key factors: ' + risk.factors.join(', ') + '.' +
       ' Trade volume: ' + risk.trade + '.' +
+      (risk.tariff ? ' US tariff: ' + risk.tariff + ' (cost impact: ' + risk.costImpact + ').' : '') +
       ' Include actionable recommendations for supply chain managers.';
-    return '<div style="min-width:220px;font-family:Inter,sans-serif;">' +
+    return '<div style="min-width:240px;font-family:Inter,sans-serif;">' +
       '<div class="popup-country">' + displayName + '</div>' +
       '<div class="popup-badge" style="background:' + esc(badgeBg) + ';color:' + esc(risk.color) + ';border:1px solid ' + esc(risk.color) + '44;">' + esc(risk.level) + '</div>' +
       '<div class="popup-row"><span>Risk Score</span><span class="popup-row-val" style="color:' + esc(risk.color) + ';">' + esc(String(risk.score)) + '/100</span></div>' +
       '<div class="popup-row"><span>Trade Volume</span><span class="popup-row-val">' + esc(risk.trade) + '</span></div>' +
+      costBlock +
       '<div class="popup-factors"><div class="popup-factors-title">Key Risk Factors</div>' + factors + '</div>' +
       '<button class="popup-btn" onclick="window._askQ(window._popupData[\'' + key + '\'])">Deep Dive Analysis \u2192</button>' +
       '</div>';
@@ -1110,12 +1350,91 @@
       maxZoom: 19,
     }).addTo(leafletMap);
 
+    // ── View mode: 'risk' or 'cost' ─────────────────────────────
+    var viewMode = 'risk';
+    var COST_COLORS = { SEVERE:'#ff0040', HIGH:'#ff8c00', MEDIUM:'#f5c518', LOW:'#00e676', BASELINE:'#00d4ff', RESTRICTED:'#334155' };
+
     function countryStyle(risk) {
       if (!risk) return { fillColor:'#1a2540', fillOpacity:0.3, color:'#2d3f5e', weight:0.5, opacity:0.6 };
+      if (viewMode === 'cost') {
+        var cc = COST_COLORS[risk.costImpact] || '#334155';
+        return { fillColor: cc, fillOpacity: 0.38, color: cc, weight: 1.5, opacity: 0.85 };
+      }
       return { fillColor: risk.color, fillOpacity: 0.3, color: risk.color, weight: 1.5, opacity: 0.85 };
     }
 
     var geoLayer = null;
+
+    // Country centroid lookup for cost labels
+    var CENTROIDS = {
+      'China':[35.86,104.2],'Taiwan':[23.63,120.96],'Russia':[61.52,105.32],
+      'North Korea':[40.34,127.51],'Iran':[32.43,53.69],'Myanmar':[19.15,95.96],
+      'Vietnam':[14.06,108.28],'India':[20.59,78.96],'Bangladesh':[23.68,90.36],
+      'Pakistan':[30.38,69.35],'Turkey':[38.96,35.24],'Ukraine':[48.38,31.16],
+      'Venezuela':[6.42,-66.58],'Ethiopia':[9.15,40.49],
+      'Brazil':[-14.24,-51.93],'Philippines':[12.88,121.77],'Indonesia':[-0.79,113.92],
+      'Mexico':[23.63,-102.55],'Thailand':[15.87,100.99],'Malaysia':[4.21,108.96],
+      'Egypt':[26.82,30.80],'Nigeria':[9.08,8.68],'South Africa':[-30.56,22.94],
+      'Colombia':[4.57,-74.30],'Argentina':[-38.42,-63.62],
+      'Japan':[36.2,138.25],'South Korea':[35.91,127.77],'Singapore':[1.35,103.82],
+      'Germany':[51.17,10.45],'Canada':[56.13,-106.35],'Australia':[-25.27,133.78],
+      'United Kingdom':[55.38,-3.44],'Netherlands':[52.13,5.29],'United States':[37.09,-95.71],
+      'France':[46.23,2.21],'Italy':[41.87,12.57],'Spain':[40.46,-3.75],
+      'Poland':[51.92,19.15],'Sweden':[60.13,18.64],'Austria':[47.52,14.55],
+      'Belgium':[50.50,4.47],'Czech Republic':[49.82,15.47],'Portugal':[39.40,-8.22],
+      'Denmark':[56.26,9.50],'Finland':[61.92,25.75],'Ireland':[53.41,-8.24],
+      'Norway':[60.47,8.47],'Switzerland':[46.82,8.23],'Greece':[39.07,21.82],
+      'Romania':[45.94,24.97],'Hungary':[47.16,19.50],'Israel':[31.05,34.86],
+      'Saudi Arabia':[23.89,45.08],'UAE':[23.42,53.85],'Morocco':[31.79,-7.09],
+    };
+
+    // Cost label layer (shown only in cost view)
+    var costLabelGroup = L.layerGroup();
+
+    function buildCostLabels() {
+      costLabelGroup.clearLayers();
+      Object.keys(RISK).forEach(function(name) {
+        var coords = CENTROIDS[name];
+        if (!coords) return;
+        var r = RISK[name];
+        if (!r.tariff || r.costImpact === 'BASELINE') return;
+        var cc = COST_COLORS[r.costImpact] || '#fff';
+        var shortTariff = r.tariff.replace(/ \(.+\)/, ''); // e.g. "145%+"
+        var icon = L.divIcon({
+          html: '<div class="cost-label-marker" style="color:' + cc + ';border-color:' + cc + '44;">' + shortTariff + '</div>',
+          className: '',
+          iconSize: null,
+          iconAnchor: [20, 8],
+        });
+        L.marker(coords, { icon: icon, interactive: false }).addTo(costLabelGroup);
+      });
+    }
+
+    function setViewMode(mode) {
+      viewMode = mode;
+      document.getElementById('btnRiskView').classList.toggle('active', mode === 'risk');
+      document.getElementById('btnCostView').classList.toggle('active', mode === 'cost');
+      document.getElementById('legendRisk').style.display = mode === 'risk' ? '' : 'none';
+      document.getElementById('legendCost').style.display = mode === 'cost' ? '' : 'none';
+      document.getElementById('legendModeLabel').textContent = mode === 'risk' ? 'Risk Level' : 'US Cost Impact';
+      if (geoLayer) {
+        geoLayer.eachLayer(function(layer) {
+          var name = layer.feature && layer.feature.properties && layer.feature.properties.name;
+          geoLayer.resetStyle(layer);
+        });
+      }
+      if (mode === 'cost') {
+        costLabelGroup.addTo(leafletMap);
+      } else {
+        if (leafletMap.hasLayer(costLabelGroup)) leafletMap.removeLayer(costLabelGroup);
+      }
+    }
+
+    document.getElementById('btnRiskView').addEventListener('click', function() { setViewMode('risk'); });
+    document.getElementById('btnCostView').addEventListener('click', function() {
+      buildCostLabels();
+      setViewMode('cost');
+    });
 
     fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson')
       .then(function(r) { return r.json(); })
@@ -1129,14 +1448,14 @@
             var risk = getRisk(name);
             layer.on({
               mouseover: function(e) {
-                e.target.setStyle({ weight: 2.5, fillOpacity: risk ? 0.55 : 0.4, opacity: 1 });
+                e.target.setStyle({ weight: 2.5, fillOpacity: risk ? 0.6 : 0.4, opacity: 1 });
                 e.target.bringToFront();
               },
               mouseout: function(e) {
                 geoLayer.resetStyle(e.target);
               },
               click: function(e) {
-                layer.bindPopup(popupHTML(name, risk), { maxWidth: 280 }).openPopup(e.latlng);
+                layer.bindPopup(popupHTML(name, risk), { maxWidth: 300 }).openPopup(e.latlng);
                 if (risk) {
                   leafletMap.flyTo(e.latlng, Math.max(leafletMap.getZoom(), 4), { duration: 1.2 });
                 }
@@ -1147,29 +1466,15 @@
       })
       .catch(function(err) {
         console.warn('GeoJSON unavailable, using circle markers:', err);
-        var FALLBACK = {
-          'China':[35.86,104.2],'Taiwan':[23.63,120.96],'Russia':[61.52,105.32],
-          'North Korea':[40.34,127.51],'Iran':[32.43,53.69],'Myanmar':[19.15,95.96],
-          'Vietnam':[14.06,108.28],'India':[20.59,78.96],'Bangladesh':[23.68,90.36],
-          'Pakistan':[30.38,69.35],'Turkey':[38.96,35.24],'Ukraine':[48.38,31.16],
-          'Venezuela':[6.42,-66.58],'Ethiopia':[9.15,40.49],
-          'Brazil':[-14.24,-51.93],'Philippines':[12.88,121.77],'Indonesia':[-0.79,113.92],
-          'Mexico':[23.63,-102.55],'Thailand':[15.87,100.99],'Malaysia':[4.21,108.96],
-          'Egypt':[26.82,30.80],'Nigeria':[9.08,8.68],'South Africa':[-30.56,22.94],
-          'Colombia':[4.57,-74.30],'Argentina':[-38.42,-63.62],
-          'Japan':[36.2,138.25],'South Korea':[35.91,127.77],'Singapore':[1.35,103.82],
-          'Germany':[51.17,10.45],'Canada':[56.13,-106.35],'Australia':[-25.27,133.78],
-          'United Kingdom':[55.38,-3.44],'Netherlands':[52.13,5.29],'United States':[37.09,-95.71],
-        };
         Object.keys(RISK).forEach(function(name) {
-          var coords = FALLBACK[name];
+          var coords = CENTROIDS[name];
           if (!coords) return;
           var risk = RISK[name];
           L.circleMarker(coords, {
             radius: 8, fillColor: risk.color, color: risk.color,
             weight: 2, fillOpacity: 0.5, opacity: 0.9,
           }).addTo(leafletMap)
-            .bindPopup(popupHTML(name, risk), { maxWidth: 280 });
+            .bindPopup(popupHTML(name, risk), { maxWidth: 300 });
         });
       });
 
