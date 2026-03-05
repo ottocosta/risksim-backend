@@ -1405,10 +1405,17 @@ function addWelcomeMessage() {
   container.innerHTML = '';
   chatHistory = [];
   if (!appProfile) return;
+  hasShownWelcome = true;
   var text = 'Hello! I\'m **RiskSim AI**, your supply chain intelligence analyst. Based on your **' +
     appProfile.industry + '** profile in **' + appProfile.homeCountry + '**, I\'m ready to help you ' +
     'reduce costs and manage risk. What would you like to analyze today?';
-  addMessage(text, 'bot');
+  // Add directly to DOM without calling addMessage() to avoid triggering expandChatPanel()
+  var div = document.createElement('div');
+  div.className = 'message bot';
+  div.innerHTML = '<div class="msg-avatar bot">' + BOT_AVATAR_SVG + '</div>' +
+    '<div class="msg-bubble">' + renderMarkdown(text) + '</div>';
+  container.appendChild(div);
+  chatHistory.push({ role: 'assistant', content: text });
 }
 
 function escapeHtml(str) {
