@@ -69,4 +69,4 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => console.log(`✅ RiskSim running on ${PORT}`));
+app.listen(PORT, () => console.log(`RiskSim running on ${PORT}`));
