@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RiskSim — Supply Chain Intelligence Platform</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <title>RiskSim — Supply Chain Intelligence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
+    /* ===== CSS VARIABLES ===== */
     :root {
       --bg-primary: #060a1a;
       --bg-secondary: #0a0f2e;
@@ -17,6 +18,7 @@
       --cyan: #00d4ff;
       --cyan-dark: #0099ff;
       --purple: #7c3aed;
+      --green: #00e676;
       --text-primary: #f0f4f8;
       --text-secondary: #94a3b8;
       --text-muted: #4b5563;
@@ -26,1477 +28,1680 @@
       --risk-low: #00e676;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
       height: 100%;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      overflow: hidden;
+      overflow-x: hidden;
+      font-family: 'Inter', sans-serif;
     }
 
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      position: relative;
+    }
+
+    /* Grid pattern */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background-image: radial-gradient(circle at 1px 1px, rgba(0, 212, 255, 0.04) 1px, transparent 0);
-      background-size: 40px 40px;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
       pointer-events: none;
       z-index: 0;
     }
 
-    /* ─── NAVBAR ──────────────────────────────────────────────── */
+    /* Aurora background */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 50%, rgba(124, 58, 237, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 85% 20%, rgba(0, 212, 255, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+      animation: aurora-shift 20s ease infinite alternate;
+    }
+
+    @keyframes aurora-shift {
+      0%   { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+
+    /* ===== NAVBAR ===== */
     .navbar {
-      position: relative;
-      z-index: 100;
-      background: rgba(6, 10, 26, 0.97);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 24px;
-      height: 64px;
+      height: 60px;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-shrink: 0;
+      padding: 0 20px;
+      background: rgba(6, 10, 26, 0.97);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.12);
+      position: relative;
+      z-index: 100;
     }
 
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .navbar-left  { display: flex; align-items: center; gap: 12px; }
+    .navbar-center { display: flex; align-items: center; gap: 24px; }
+    .navbar-right  { display: flex; align-items: center; gap: 12px; }
 
-    .brand-logo {
-      width: 38px;
-      height: 38px;
-      background: linear-gradient(135deg, var(--cyan), var(--purple));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
-      box-shadow: 0 0 16px rgba(0, 212, 255, 0.3);
-    }
+    .brand-text    { display: flex; flex-direction: column; }
+    .brand-name    { font-size: 18px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
+    .brand-tagline { font-size: 9px; font-weight: 500; color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase; }
 
-    .brand-name {
-      font-size: 21px;
-      font-weight: 800;
-      background: linear-gradient(120deg, var(--cyan) 0%, var(--cyan-dark) 50%, var(--purple) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -0.3px;
-    }
+    .nav-stat         { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .nav-stat-value   { font-size: 15px; font-weight: 700; color: var(--cyan); }
+    .nav-stat-label   { font-size: 9px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.8px; text-transform: uppercase; }
+    .nav-divider      { width: 1px; height: 28px; background: rgba(0, 212, 255, 0.15); }
 
-    .brand-tagline {
-      font-size: 10px;
-      color: var(--text-muted);
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      color: var(--text-secondary);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
       font-weight: 500;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      margin-top: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-ghost:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 212, 255, 0.05);
+      transform: translateY(-1px);
+      box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
     }
 
-    .nav-center {
-      display: flex;
-      gap: 28px;
+    .live-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0, 230, 118, 0.1);
+      border: 1px solid rgba(0, 230, 118, 0.3);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 11px; font-weight: 600;
+      color: var(--green);
+    }
+    .live-dot {
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: live-pulse 1.5s ease infinite;
+    }
+    @keyframes live-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.35; }
     }
 
-    .nav-stat {
+    /* ===== MAIN LAYOUT ===== */
+    .main-layout {
+      flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
-      align-items: center;
-    }
-
-    .nav-stat-value {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--cyan);
-    }
-
-    .nav-stat-label {
-      font-size: 9px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-top: 1px;
-    }
-
-    .nav-status {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 6px 14px;
-      background: rgba(0, 230, 118, 0.06);
-      border: 1px solid rgba(0, 230, 118, 0.2);
-      border-radius: 20px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background: #00e676;
-      border-radius: 50%;
-      animation: pulse-green 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse-green {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.6); }
-      50% { opacity: 0.9; box-shadow: 0 0 0 5px rgba(0, 230, 118, 0); }
-    }
-
-    .status-text {
-      font-size: 11px;
-      color: #00e676;
-      font-weight: 600;
-    }
-
-    /* ─── MAIN LAYOUT ─────────────────────────────────────────── */
-    .main-layout {
-      display: grid;
-      grid-template-columns: 60% 40%;
-      height: calc(100vh - 64px);
+      overflow: hidden;
       position: relative;
       z-index: 1;
     }
 
-    /* ─── MAP PANEL ───────────────────────────────────────────── */
+    /* ===== MAP PANEL ===== */
     .map-panel {
+      flex: 6;
+      min-height: 0;
       position: relative;
       overflow: hidden;
-      background: #050810;
+      transition: flex 0.4s cubic-bezier(.4,0,.2,1);
     }
 
-    #map {
-      width: 100%;
-      height: 100%;
-    }
+    #map { position: absolute; inset: 0; }
 
+    /* Map overlay header */
     .map-overlay-header {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      z-index: 1000;
-      background: rgba(6, 10, 26, 0.88);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 16px;
-      pointer-events: none;
-    }
-
-    .map-overlay-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .map-overlay-sub {
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-top: 3px;
-      letter-spacing: 0.2px;
-    }
-
-    .map-legend {
-      position: absolute;
-      bottom: 24px;
-      left: 16px;
-      z-index: 1000;
+      position: absolute; top: 12px; left: 12px;
+      z-index: 500;
       background: rgba(6, 10, 26, 0.9);
       backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 16px;
-      min-width: 148px;
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 10px;
+      padding: 10px 14px;
+      pointer-events: none;
     }
+    .map-layer-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .map-layer-sub  { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
 
-    .legend-title {
-      font-size: 9px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
+    /* Layer controls */
+    .layer-controls {
+      position: absolute; top: 12px; right: 12px;
+      z-index: 500;
+      display: flex; flex-direction: column; gap: 6px;
     }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 7px;
-    }
-
-    .legend-item:last-child { margin-bottom: 0; }
-
-    .legend-swatch {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .legend-label {
-      font-size: 11px;
+    .layer-btn {
+      background: rgba(6, 10, 26, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 8px;
+      padding: 7px 12px;
       color: var(--text-secondary);
-      font-weight: 500;
+      font-size: 11px; font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+    .layer-btn:hover {
+      border-color: var(--cyan);
+      color: var(--text-primary);
+      background: rgba(0, 212, 255, 0.08);
+    }
+    .layer-btn.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 212, 255, 0.12);
+      box-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
     }
 
-    /* ─── CHAT PANEL ──────────────────────────────────────────── */
+    /* Legend */
+    .map-legend {
+      position: absolute; bottom: 24px; left: 12px;
+      z-index: 500;
+      background: rgba(6, 10, 26, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .legend-title { font-size: 9px; font-weight: 600; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .legend-items { display: flex; flex-direction: column; gap: 5px; }
+    .legend-item  { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--text-secondary); }
+    .legend-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Map markers */
+    .map-marker   { position: relative; width: 14px; height: 14px; }
+    .marker-dot   { width: 14px; height: 14px; border-radius: 50%; position: absolute; }
+    .marker-pulse {
+      position: absolute;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      animation: marker-pulse 2s ease-out infinite;
+      opacity: 0;
+    }
+    @keyframes marker-pulse {
+      0%   { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+
+    /* Leaflet overrides */
+    .leaflet-popup-content-wrapper {
+      background: rgba(11, 15, 40, 0.98) !important;
+      border: 1px solid rgba(0, 212, 255, 0.2) !important;
+      border-radius: 10px !important;
+      color: var(--text-primary) !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+    }
+    .leaflet-popup-tip { background: rgba(11, 15, 40, 0.98) !important; }
+    .leaflet-popup-content { margin: 0 !important; }
+    .leaflet-control-attribution {
+      background: rgba(6, 10, 26, 0.8) !important;
+      color: #4b5563 !important;
+      font-size: 9px !important;
+    }
+    .leaflet-control-attribution a { color: #4b5563 !important; }
+
+    .popup-inner   { padding: 12px 14px; min-width: 210px; }
+    .popup-header  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .popup-country { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    .popup-risk-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; }
+    .popup-stats   { display: flex; flex-direction: column; gap: 5px; }
+    .popup-stat    { display: flex; justify-content: space-between; font-size: 11px; }
+    .popup-stat-label { color: var(--text-muted); }
+    .popup-stat-value { color: var(--text-secondary); font-weight: 500; }
+    .popup-analysis { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,212,255,0.1); font-size: 10px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ===== CHAT PANEL ===== */
     .chat-panel {
+      flex: 4;
+      min-height: 52px;
       display: flex;
       flex-direction: column;
       background: var(--bg-panel);
-      border-left: 1px solid var(--border);
+      border-top: 1px solid rgba(0, 212, 255, 0.12);
       overflow: hidden;
+      transition: flex 0.4s cubic-bezier(.4,0,.2,1);
     }
+    .chat-panel.collapsed { flex: 0 0 52px !important; }
+    .chat-panel.collapsed .chat-body { display: none; }
 
     .chat-header {
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(6, 10, 26, 0.6);
-      flex-shrink: 0;
+      height: 52px; min-height: 52px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.12);
     }
+    .chat-header-left  { display: flex; align-items: center; gap: 10px; }
+    .chat-header-right { display: flex; align-items: center; gap: 10px; }
 
-    .chat-header-row {
+    .chat-ai-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan-dark));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .chat-title-group { display: flex; flex-direction: column; gap: 2px; }
+    .chat-title    { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .chat-subtitle { font-size: 10px; color: var(--text-muted); }
+
+    .claude-badge {
+      font-size: 9px; font-weight: 600;
+      color: var(--purple);
+      background: rgba(124, 58, 237, 0.15);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      border-radius: 10px;
+      padding: 3px 8px;
+    }
+    .profile-summary {
+      font-size: 10px; color: var(--text-secondary);
+      padding: 3px 8px;
+      background: rgba(0, 212, 255, 0.07);
+      border-radius: 10px;
+      border: 1px solid rgba(0, 212, 255, 0.12);
+    }
+    .toggle-btn {
+      background: transparent;
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      color: var(--text-secondary);
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    .toggle-btn:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(0,212,255,0.08); }
+
+    .chat-body {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
       display: flex;
-      align-items: center;
-      gap: 10px;
+      flex-direction: column;
     }
 
-    .chat-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
+    /* Quick actions */
+    .quick-actions {
+      display: flex; gap: 6px;
+      padding: 8px 12px;
+      overflow-x: auto;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.08);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,212,255,0.2) transparent;
+    }
+    .quick-actions::-webkit-scrollbar { height: 3px; }
+    .quick-actions::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 2px; }
+
+    .quick-btn {
+      background: rgba(0, 212, 255, 0.06);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      color: var(--text-secondary);
+      padding: 5px 11px;
+      border-radius: 16px;
+      font-size: 11px; font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .quick-btn:hover {
+      background: rgba(0,212,255,0.12);
+      border-color: var(--cyan);
+      color: var(--cyan);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,212,255,0.15);
     }
 
-    .ai-badge {
-      font-size: 9px;
-      font-weight: 700;
-      background: linear-gradient(120deg, var(--cyan), var(--purple));
-      color: #fff;
-      padding: 2px 8px;
-      border-radius: 20px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .chat-subtitle {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    /* ─── MESSAGES ────────────────────────────────────────────── */
-    .messages-container {
+    /* Messages */
+    .messages {
       flex: 1;
       overflow-y: auto;
-      padding: 16px 20px;
-      scroll-behavior: smooth;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,212,255,0.15) transparent;
     }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 2px; }
 
-    .messages-container::-webkit-scrollbar { width: 3px; }
-    .messages-container::-webkit-scrollbar-track { background: transparent; }
-    .messages-container::-webkit-scrollbar-thumb {
-      background: rgba(0, 212, 255, 0.18);
-      border-radius: 2px;
-    }
-
-    .message {
-      margin-bottom: 16px;
-      animation: msg-appear 0.28s ease;
-    }
-
+    .message { display: flex; gap: 8px; animation: msg-appear 0.25s ease; }
+    .message.user { flex-direction: row-reverse; }
     @keyframes msg-appear {
       from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .msg-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 5px;
-    }
-
     .msg-avatar {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      flex-shrink: 0;
-    }
-
-    .msg-avatar.user { background: linear-gradient(135deg, var(--cyan), var(--cyan-dark)); }
-    .msg-avatar.bot  { background: linear-gradient(135deg, var(--purple), var(--cyan-dark)); }
-
-    .msg-name {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
-
-    .msg-time {
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-left: 4px;
-    }
-
-    .msg-body {
-      padding-left: 32px;
-    }
-
-    .bubble {
-      display: inline-block;
-      padding: 10px 14px;
-      border-radius: 0 12px 12px 12px;
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
       font-size: 13px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .msg-avatar.bot  { background: linear-gradient(135deg, var(--purple), var(--cyan-dark)); }
+    .msg-avatar.user { background: rgba(0,212,255,0.15); border: 1px solid rgba(0,212,255,0.2); }
+
+    .msg-bubble {
+      max-width: 80%;
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-size: 12px;
       line-height: 1.6;
-      max-width: 100%;
-      word-break: break-word;
     }
-
-    .message.user .bubble {
-      background: linear-gradient(135deg, rgba(0, 212, 255, 0.13), rgba(0, 153, 255, 0.08));
-      border: 1px solid rgba(0, 212, 255, 0.22);
+    .message.bot .msg-bubble {
+      background: var(--bg-card);
+      border: 1px solid rgba(0,212,255,0.1);
       color: var(--text-primary);
-      display: inline-block;
+      border-bottom-left-radius: 3px;
     }
-
-    .message.bot .bubble {
-      background: rgba(13, 20, 40, 0.9);
-      border: 1px solid var(--border);
+    .message.user .msg-bubble {
+      background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,153,255,0.12));
+      border: 1px solid rgba(0,212,255,0.2);
       color: var(--text-primary);
-      display: block;
+      border-bottom-right-radius: 3px;
+    }
+    .message.error .msg-bubble {
+      background: rgba(255,0,64,0.08);
+      border: 1px solid rgba(255,0,64,0.2);
+      color: #ff6b6b;
     }
 
-    /* Markdown within bubbles */
-    .bubble strong { color: var(--cyan); font-weight: 600; }
-    .bubble em { color: var(--text-secondary); font-style: italic; }
-    .bubble h1 { font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 10px 0 5px; }
-    .bubble h2 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 8px 0 4px; }
-    .bubble h3 { font-size: 13px; font-weight: 700; color: var(--cyan); margin: 7px 0 4px; }
-    .bubble ul, .bubble ol { margin: 6px 0 6px 18px; }
-    .bubble li { margin-bottom: 4px; font-size: 13px; }
-    .bubble p { margin-bottom: 6px; }
-    .bubble p:last-child { margin-bottom: 0; }
-    .bubble code {
-      background: rgba(0, 212, 255, 0.1);
-      color: var(--cyan);
+    /* Markdown styles in bubbles */
+    .msg-bubble h3     { font-size: 13px; font-weight: 600; color: var(--cyan); margin: 8px 0 4px; }
+    .msg-bubble strong { color: var(--text-primary); font-weight: 600; }
+    .msg-bubble em     { color: var(--text-secondary); font-style: italic; }
+    .msg-bubble ul, .msg-bubble ol { padding-left: 16px; margin: 4px 0; }
+    .msg-bubble li     { margin: 2px 0; }
+    .msg-bubble p      { margin: 4px 0; }
+    .msg-bubble p:first-child { margin-top: 0; }
+    .msg-bubble p:last-child  { margin-bottom: 0; }
+    .msg-bubble code {
+      background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.15);
       padding: 1px 5px;
-      border-radius: 4px;
+      border-radius: 3px;
+      font-size: 11px;
       font-family: 'Courier New', monospace;
-      font-size: 12px;
-    }
-    .bubble hr {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 8px 0;
     }
 
-    /* ─── TYPING INDICATOR ────────────────────────────────────── */
-    .typing-wrap {
-      display: none;
-      padding: 0 20px 12px;
+    /* Typing indicator */
+    .typing-indicator {
+      display: flex; gap: 8px;
+      padding: 0 12px 8px;
       flex-shrink: 0;
     }
-
-    .typing-wrap.active { display: block; }
-
-    .typing-inner {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .typing-avatar {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      background: linear-gradient(135deg, var(--purple), var(--cyan-dark));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      flex-shrink: 0;
-    }
-
     .typing-dots {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 9px 14px;
-      background: rgba(13, 20, 40, 0.9);
-      border: 1px solid var(--border);
-      border-radius: 0 12px 12px 12px;
+      display: flex; gap: 4px;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border: 1px solid rgba(0,212,255,0.1);
+      border-radius: 12px;
+      border-bottom-left-radius: 3px;
     }
-
     .typing-dot {
-      width: 6px;
-      height: 6px;
-      background: var(--cyan);
+      width: 6px; height: 6px;
+      background: var(--text-muted);
       border-radius: 50%;
-      animation: dot-bounce 1.4s ease-in-out infinite;
+      animation: typing-bounce 1.4s infinite;
     }
-
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes dot-bounce {
-      0%, 100% { transform: translateY(0); opacity: 0.4; }
-      50% { transform: translateY(-5px); opacity: 1; }
+    @keyframes typing-bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30%           { transform: translateY(-5px); }
     }
 
-    /* ─── QUICK ACTIONS ───────────────────────────────────────── */
-    .quick-actions {
-      padding: 10px 20px 12px;
-      border-top: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .quick-label {
-      font-size: 9px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-
-    .quick-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .chip {
-      padding: 5px 11px;
-      background: rgba(0, 212, 255, 0.04);
-      border: 1px solid rgba(0, 212, 255, 0.18);
-      border-radius: 20px;
-      color: var(--cyan);
-      font-size: 11px;
-      font-weight: 500;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.18s ease;
-      white-space: nowrap;
-      line-height: 1;
-    }
-
-    .chip:hover {
-      background: rgba(0, 212, 255, 0.13);
-      border-color: var(--cyan);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(0, 212, 255, 0.2);
-    }
-
-    .chip:active { transform: translateY(0); }
-
-    /* ─── CHAT INPUT ──────────────────────────────────────────── */
+    /* Chat input area */
     .chat-input-area {
-      padding: 12px 20px 16px;
-      border-top: 1px solid var(--border);
-      background: rgba(6, 10, 26, 0.5);
+      padding: 10px 12px;
+      border-top: 1px solid rgba(0,212,255,0.08);
+      display: flex; gap: 8px;
+      align-items: flex-end;
+      background: var(--bg-secondary);
       flex-shrink: 0;
     }
-
-    .input-row {
-      display: flex;
-      gap: 10px;
-      align-items: flex-end;
-    }
-
-    #messageInput {
+    .chat-textarea {
       flex: 1;
-      background: rgba(13, 20, 40, 0.85);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 10px;
+      padding: 8px 12px;
       color: var(--text-primary);
-      font-size: 13px;
-      font-family: inherit;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
       resize: none;
-      min-height: 40px;
-      max-height: 120px;
+      min-height: 36px;
+      max-height: 96px;
       overflow-y: auto;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
       line-height: 1.5;
+      transition: border-color 0.2s;
     }
-
-    #messageInput:focus {
+    .chat-textarea:focus {
       outline: none;
-      border-color: rgba(0, 212, 255, 0.45);
-      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.07);
+      border-color: rgba(0,212,255,0.4);
+      box-shadow: 0 0 8px rgba(0,212,255,0.1);
     }
-
-    #messageInput::placeholder { color: var(--text-muted); }
+    .chat-textarea::placeholder { color: var(--text-muted); }
 
     .send-btn {
-      width: 40px;
-      height: 40px;
+      width: 36px; height: 36px;
       background: linear-gradient(135deg, var(--cyan), var(--cyan-dark));
-      border: none;
-      border-radius: 10px;
+      border: none; border-radius: 10px;
+      color: #000;
       cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .send-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,212,255,0.3); }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ===== MODALS ===== */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      color: #060a1a;
-      font-weight: 700;
-      transition: all 0.2s ease;
-      flex-shrink: 0;
+      padding: 20px;
     }
+    .modal-backdrop.hidden { display: none; }
 
-    .send-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 22px rgba(0, 212, 255, 0.4);
-    }
-
-    .send-btn:active:not(:disabled) { transform: translateY(0); }
-
-    .send-btn:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
-
-    /* ─── LEAFLET OVERRIDES ───────────────────────────────────── */
-    .leaflet-container { background: #050810 !important; }
-
-    .leaflet-control-zoom {
-      border: 1px solid var(--border) !important;
-      background: transparent !important;
-    }
-
-    .leaflet-control-zoom a {
-      background: rgba(6, 10, 26, 0.92) !important;
-      color: var(--cyan) !important;
-      border-bottom: 1px solid var(--border) !important;
-      font-weight: 600;
-    }
-
-    .leaflet-control-zoom a:hover { background: rgba(0, 212, 255, 0.1) !important; }
-
-    .leaflet-popup-content-wrapper {
-      background: rgba(13, 20, 40, 0.97) !important;
-      border: 1px solid rgba(0, 212, 255, 0.2) !important;
-      border-radius: 14px !important;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0,212,255,0.08) !important;
-      color: var(--text-primary) !important;
-      backdrop-filter: blur(20px);
-    }
-
-    .leaflet-popup-tip { background: rgba(13, 20, 40, 0.97) !important; }
-
-    .leaflet-popup-close-button {
-      color: var(--text-muted) !important;
-      font-size: 16px !important;
-    }
-
-    .leaflet-popup-close-button:hover { color: var(--cyan) !important; }
-
-    .leaflet-attribution-flag { display: none !important; }
-
-    /* ─── PULSE MARKERS ───────────────────────────────────────── */
-    .pulse-wrap { position: relative; width: 20px; height: 20px; }
-
-    .pulse-core {
-      width: 10px;
-      height: 10px;
-      background: var(--risk-critical);
-      border-radius: 50%;
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 8px var(--risk-critical);
-    }
-
-    .pulse-ring {
-      width: 20px;
-      height: 20px;
-      border: 2px solid var(--risk-critical);
-      border-radius: 50%;
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      animation: ring-expand 2s ease-out infinite;
-    }
-
-    @keyframes ring-expand {
-      0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(2.8); opacity: 0; }
-    }
-
-    /* ─── POPUP CONTENT ───────────────────────────────────────── */
-    .popup-country { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
-
-    .popup-badge {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    .popup-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: #94a3b8;
-      margin-bottom: 5px;
-    }
-
-    .popup-row-val { color: #f0f4f8; font-weight: 500; }
-
-    .popup-factors { margin-top: 8px; }
-
-    .popup-factors-title {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: #4b5563;
-      margin-bottom: 5px;
-    }
-
-    .popup-factor {
-      font-size: 11px;
-      color: #94a3b8;
-      padding: 2px 0;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .popup-btn {
-      display: block;
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 16px;
       width: 100%;
-      margin-top: 10px;
-      padding: 7px;
-      background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(0,153,255,0.08));
-      border: 1px solid rgba(0,212,255,0.25);
-      border-radius: 8px;
-      color: var(--cyan);
-      font-size: 11px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.18s;
-      text-align: center;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 40px rgba(0,212,255,0.05);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,212,255,0.2) transparent;
     }
+    .modal::-webkit-scrollbar { width: 4px; }
+    .modal::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 2px; }
 
-    .popup-btn:hover {
-      background: rgba(0,212,255,0.2);
-    }
+    .modal-header  { padding: 24px 28px 0; }
+    .modal-title   { font-size: 22px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
+    .modal-subtitle { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+    .modal-divider { height: 1px; background: rgba(0,212,255,0.1); margin: 20px 0; }
+    .modal-body    { padding: 0 28px; }
+    .modal-footer  { padding: 20px 28px 28px; }
+    .form-error    { display: none; color: #ff6b6b; font-size: 12px; margin-bottom: 10px; padding: 8px 12px; background: rgba(255,0,64,0.08); border: 1px solid rgba(255,0,64,0.2); border-radius: 6px; }
 
-    /* ─── COST IMPACT OVERLAY ─────────────────────────────────── */
-    .map-view-toggle {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      z-index: 1000;
-      display: flex;
-      gap: 4px;
-      background: rgba(6, 10, 26, 0.88);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 5px;
-    }
-
-    .view-btn {
-      padding: 5px 14px;
-      border: none;
-      border-radius: 7px;
-      font-size: 11px;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      letter-spacing: 0.4px;
-      transition: all 0.18s;
-      color: var(--text-muted);
-      background: transparent;
-    }
-
-    .view-btn.active {
-      background: rgba(0, 212, 255, 0.15);
-      color: var(--cyan);
-      box-shadow: 0 0 10px rgba(0,212,255,0.15);
-    }
-
-    .view-btn:hover:not(.active) { color: var(--text-secondary); }
-
-    .popup-cost {
-      margin-top: 8px;
-      padding: 7px 10px;
-      border-radius: 8px;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.07);
-    }
-
-    .popup-cost-label {
-      font-size: 9px;
-      font-weight: 700;
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-size: 11px; font-weight: 600;
+      color: var(--text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      color: #4b5563;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
-
-    .popup-cost-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: #94a3b8;
-      margin-bottom: 3px;
-    }
-
-    .popup-cost-val { font-weight: 600; }
-
-    .cost-label-marker {
-      background: rgba(6,10,26,0.82);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 5px;
-      padding: 2px 5px;
-      font-size: 9px;
-      font-weight: 700;
+    .form-select {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text-primary);
+      font-size: 13px;
       font-family: 'Inter', sans-serif;
-      white-space: nowrap;
-      pointer-events: none;
-      color: #fff;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
     }
+    .form-select:focus { outline: none; border-color: rgba(0,212,255,0.4); }
+    .form-select option { background: #111827; color: var(--text-primary); }
 
-    /* ─── CHAT B&W THEME ──────────────────────────────────────── */
-    .chat-panel {
-      --chat-accent: #e2e8f0;
-      --chat-accent-dim: rgba(226,232,240,0.10);
-      --chat-accent-border: rgba(226,232,240,0.18);
-      --chat-accent-glow: rgba(226,232,240,0.06);
+    .sourcing-container {
+      background: var(--bg-card);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 8px;
+      padding: 10px;
+      max-height: 160px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 8px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,212,255,0.2) transparent;
     }
+    .sourcing-container::-webkit-scrollbar { width: 4px; }
+    .sourcing-container::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 2px; }
 
-    .chat-panel .ai-badge {
-      background: linear-gradient(120deg, #4b5563, #94a3b8);
+    .sourcing-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px 5px;
+      border-radius: 4px;
+      transition: background 0.15s;
     }
+    .sourcing-label:hover { background: rgba(0,212,255,0.07); color: var(--text-primary); }
+    .sourcing-label input[type="checkbox"] { accent-color: var(--cyan); width: 13px; height: 13px; cursor: pointer; }
 
-    .chat-panel .msg-avatar.user {
-      background: linear-gradient(135deg, #4b5563, #374151);
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--cyan), var(--cyan-dark));
+      border: none; border-radius: 10px;
+      padding: 13px;
+      color: #000;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
     }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,212,255,0.35); }
 
-    .chat-panel .msg-avatar.bot {
-      background: linear-gradient(135deg, #1f2937, #374151);
+    .modal-footer-row { display: flex; gap: 10px; }
+    .modal-footer-row .btn-ghost {
+      flex: 1; padding: 13px; font-size: 13px;
+      border-radius: 10px;
     }
-
-    .chat-panel .bubble strong { color: #e2e8f0; }
-    .chat-panel .bubble h3 { color: #cbd5e1; }
-    .chat-panel .bubble code {
-      background: rgba(226,232,240,0.08);
-      color: #cbd5e1;
-    }
-
-    .chat-panel .message.user .bubble {
-      background: linear-gradient(135deg, rgba(226,232,240,0.10), rgba(203,213,225,0.06));
-      border: 1px solid rgba(226,232,240,0.18);
-    }
-
-    .chat-panel .message.bot .bubble {
-      background: rgba(17, 24, 39, 0.95);
-      border: 1px solid rgba(226,232,240,0.09);
-    }
-
-    .chat-panel .typing-dot { background: #94a3b8; }
-
-    .chat-panel .chip {
-      background: rgba(226,232,240,0.05);
-      border-color: rgba(226,232,240,0.16);
-      color: #cbd5e1;
-    }
-
-    .chat-panel .chip:hover {
-      background: rgba(226,232,240,0.12);
-      border-color: #94a3b8;
-      box-shadow: 0 4px 14px rgba(226,232,240,0.10);
-    }
-
-    .chat-panel #messageInput:focus {
-      border-color: rgba(226,232,240,0.35);
-      box-shadow: 0 0 0 3px rgba(226,232,240,0.06);
-    }
-
-    .chat-panel .send-btn {
-      background: linear-gradient(135deg, #4b5563, #374151);
-      color: #e2e8f0;
-    }
-
-    .chat-panel .send-btn:hover:not(:disabled) {
-      box-shadow: 0 8px 22px rgba(226,232,240,0.15);
-    }
-
-    .chat-panel .messages-container::-webkit-scrollbar-thumb {
-      background: rgba(226,232,240,0.12);
-    }
-
-    .legend-cost-title {
-      font-size: 9px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin: 10px 0 8px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border);
-    }
+    .modal-footer-row .btn-primary { flex: 2; }
   </style>
 </head>
 <body>
 
-  <!-- ─── NAVBAR ─────────────────────────────────────────────── -->
-  <nav class="navbar">
-    <div class="nav-brand">
-      <div class="brand-logo">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.5"/>
-          <path d="M12 3C9.5 6 8 9 8 12C8 15 9.5 18 12 21" stroke="white" stroke-width="1.4" fill="none"/>
-          <path d="M12 3C14.5 6 16 9 16 12C16 15 14.5 18 12 21" stroke="white" stroke-width="1.4" fill="none"/>
-          <line x1="3" y1="12" x2="21" y2="12" stroke="white" stroke-width="1.4"/>
-          <line x1="4" y1="8" x2="20" y2="8" stroke="white" stroke-width="1.1"/>
-          <line x1="4" y1="16" x2="20" y2="16" stroke="white" stroke-width="1.1"/>
-        </svg>
-      </div>
-      <div>
-        <div class="brand-name">RiskSim</div>
-        <div class="brand-tagline">Supply Chain Intelligence</div>
-      </div>
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+  <div class="navbar-left">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="RiskSim logo" role="img">
+      <title>RiskSim Supply Chain Intelligence Platform Logo</title>
+      <rect width="36" height="36" rx="8" fill="#111"/>
+      <g transform="translate(18,18)">
+        <path d="M0,0 C2,-6 8,-11 12,-7 C15,-4 11,3 0,0Z" fill="white"/>
+        <path d="M0,0 C6,2 11,8 7,12 C4,15 -3,11 0,0Z" fill="white"/>
+        <path d="M0,0 C-2,6 -8,11 -12,7 C-15,4 -11,-3 0,0Z" fill="white"/>
+        <path d="M0,0 C-6,-2 -11,-8 -7,-12 C-4,-15 3,-11 0,0Z" fill="white"/>
+      </g>
+    </svg>
+    <div class="brand-text">
+      <span class="brand-name">RiskSim</span>
+      <span class="brand-tagline">Supply Chain Intelligence</span>
+    </div>
+  </div>
+
+  <div class="navbar-center">
+    <div class="nav-stat">
+      <span class="nav-stat-value" id="statCountries">0</span>
+      <span class="nav-stat-label">Countries</span>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-stat">
+      <span class="nav-stat-value" id="statAnalysis" style="font-size:12px;">—</span>
+      <span class="nav-stat-label">Analysis</span>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-stat">
+      <span class="nav-stat-value" id="statAI">AI</span>
+      <span class="nav-stat-label">Powered</span>
+    </div>
+  </div>
+
+  <div class="navbar-right">
+    <button class="btn-ghost" onclick="showEditModal()">Edit Profile</button>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      Live
+    </div>
+  </div>
+</nav>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="main-layout">
+
+  <!-- Map Panel -->
+  <div class="map-panel" id="mapPanel">
+    <div id="map"></div>
+
+    <!-- Overlay header -->
+    <div class="map-overlay-header">
+      <div class="map-layer-name" id="overlayName">&#x1F6E1;&#xFE0F; Risk Levels</div>
+      <div class="map-layer-sub" id="overlaySub">Geopolitical &amp; operational risk by country</div>
     </div>
 
-    <div class="nav-center">
-      <div class="nav-stat">
-        <div class="nav-stat-value">50+</div>
-        <div class="nav-stat-label">Countries Monitored</div>
-      </div>
-      <div class="nav-stat">
-        <div class="nav-stat-value">Real-Time</div>
-        <div class="nav-stat-label">Analysis</div>
-      </div>
-      <div class="nav-stat">
-        <div class="nav-stat-value">Claude AI</div>
-        <div class="nav-stat-label">Powered</div>
-      </div>
+    <!-- Layer controls -->
+    <div class="layer-controls">
+      <button class="layer-btn active" id="btnRisk"     onclick="updateMapLayer('risk')">&#x1F6E1;&#xFE0F; Risk Levels</button>
+      <button class="layer-btn"        id="btnShipping" onclick="updateMapLayer('shipping')">&#x1F4B0; Shipping Cost</button>
+      <button class="layer-btn"        id="btnLabor"    onclick="updateMapLayer('labor')">&#x1F477; Labor Cost</button>
+      <button class="layer-btn"        id="btnCost"     onclick="updateMapLayer('cost')">&#x1F4CA; Total Score</button>
     </div>
 
-    <div class="nav-status">
-      <div class="status-dot"></div>
-      <span class="status-text">Systems Online</span>
+    <!-- Legend -->
+    <div class="map-legend">
+      <div class="legend-title" id="legendTitle">Risk Score</div>
+      <div class="legend-items" id="legendItems">
+        <div class="legend-item"><div class="legend-swatch" style="background:#ff0040"></div>Critical (80–100)</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#ff8c00"></div>High (60–79)</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#f5c518"></div>Medium-High (45–59)</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#8bc34a"></div>Medium (30–44)</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#00e676"></div>Low-Medium (15–29)</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#00bcd4"></div>Low (0–14)</div>
+      </div>
     </div>
-  </nav>
+  </div>
 
-  <!-- ─── MAIN LAYOUT ────────────────────────────────────────── -->
-  <div class="main-layout">
-
-    <!-- MAP PANEL -->
-    <div class="map-panel">
-      <div id="map"></div>
-
-      <div class="map-overlay-header">
-        <div class="map-overlay-title">🌐 Global Risk &amp; Cost Map</div>
-        <div class="map-overlay-sub">Hover to preview • Click country for AI deep-dive</div>
-      </div>
-
-      <div class="map-view-toggle">
-        <button class="view-btn active" id="btnRiskView">⚠ RISK</button>
-        <button class="view-btn" id="btnCostView">💲 COST</button>
-      </div>
-
-      <div class="map-legend">
-        <div class="legend-title" id="legendModeLabel">Risk Level</div>
-        <div id="legendRisk">
-          <div class="legend-item">
-            <div class="legend-swatch" style="background:#ff0040; box-shadow: 0 0 6px #ff0040;"></div>
-            <span class="legend-label">Critical</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="background:#ff8c00; box-shadow: 0 0 6px #ff8c00;"></div>
-            <span class="legend-label">High</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="background:#f5c518; box-shadow: 0 0 6px #f5c518;"></div>
-            <span class="legend-label">Medium</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="background:#00e676; box-shadow: 0 0 6px #00e676;"></div>
-            <span class="legend-label">Low</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="background:#334155;"></div>
-            <span class="legend-label">No Data</span>
-          </div>
-        </div>
-        <div id="legendCost" style="display:none;">
-          <div class="legend-item">
-            <div class="legend-swatch" style="background:#ff0040; box-shadow: 0 0 6px #ff0040;"></div>
-            <span class="legend-label">Severe (&gt;100%)</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="background:#ff8c00; box-shadow: 0 0 6px #ff8c00;"></div>
-            <span class="legend-label">High (25–99%)</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="background:#f5c518; box-shadow: 0 0 6px #f5c518;"></div>
-            <span class="legend-label">Medium (10–24%)</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="background:#00e676; box-shadow: 0 0 6px #00e676;"></div>
-            <span class="legend-label">Low (&lt;10%)</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-swatch" style="background:#00d4ff; box-shadow: 0 0 6px #00d4ff;"></div>
-            <span class="legend-label">Domestic (US)</span>
-          </div>
+  <!-- Chat Panel -->
+  <div class="chat-panel" id="chatPanel">
+    <!-- Chat header -->
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-ai-icon">&#x1F916;</div>
+        <div class="chat-title-group">
+          <div class="chat-title">RiskSim AI</div>
+          <div class="chat-subtitle" id="chatSubtitle">Set up your profile to begin</div>
         </div>
       </div>
+      <div class="chat-header-right">
+        <span class="claude-badge">Powered by Claude</span>
+        <span class="profile-summary" id="profileBadge" style="display:none;"></span>
+        <button class="toggle-btn" id="toggleBtn" onclick="toggleChatPanel(event)" title="Toggle chat size">&#x25B2;</button>
+      </div>
     </div>
 
-    <!-- CHAT PANEL -->
-    <div class="chat-panel">
-      <div class="chat-header">
-        <div class="chat-header-row">
-          <div class="chat-title">AI Analysis</div>
-          <span class="ai-badge">Claude</span>
-        </div>
-        <div class="chat-subtitle">Ask about risks, tariffs, disruptions, or click a country on the map</div>
+    <!-- Chat body -->
+    <div class="chat-body" id="chatBody">
+      <!-- Quick actions -->
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="sendQuickMessage('audit')">&#x1F50D; Full Supply Chain Audit</button>
+        <button class="quick-btn" onclick="sendQuickMessage('cost')">&#x1F4B0; Cost Comparison</button>
+        <button class="quick-btn" onclick="sendQuickMessage('risk')">&#x26A0;&#xFE0F; Live Risk Alerts</button>
+        <button class="quick-btn" onclick="sendQuickMessage('optimize')">&#x1F4C8; Optimization Tips</button>
+        <button class="quick-btn" onclick="sendQuickMessage('alternatives')">&#x1F504; Alternative Suppliers</button>
       </div>
 
-      <div class="messages-container" id="messagesContainer"></div>
+      <!-- Messages -->
+      <div class="messages" id="messagesContainer"></div>
 
       <!-- Typing indicator -->
-      <div class="typing-wrap" id="typingWrap">
-        <div class="typing-inner">
-          <div class="typing-avatar">🤖</div>
-          <div class="typing-dots">
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick action chips -->
-      <div class="quick-actions">
-        <div class="quick-label">Quick Analysis</div>
-        <div class="quick-chips">
-          <button class="chip" id="chip-geo">📊 Geopolitical Risks</button>
-          <button class="chip" id="chip-tariff">💰 Tariff Analysis</button>
-          <button class="chip" id="chip-reg">📋 Regulatory Updates</button>
-          <button class="chip" id="chip-hotspot">🗺️ Risk Hotspots</button>
-          <button class="chip" id="chip-disrupt">🔗 Disruptions</button>
-          <button class="chip" id="chip-trade">📈 Trade Trends</button>
+      <div class="typing-indicator" id="typingIndicator" style="display:none;">
+        <div class="msg-avatar bot">&#x1F916;</div>
+        <div class="typing-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
         </div>
       </div>
 
       <!-- Input area -->
       <div class="chat-input-area">
-        <div class="input-row">
-          <textarea id="messageInput" placeholder="Ask about risks, tariffs, supply chain disruptions…" rows="1"></textarea>
-          <button class="send-btn" id="sendBtn" title="Send (Enter)">➤</button>
-        </div>
+        <textarea
+          class="chat-textarea"
+          id="chatInput"
+          placeholder="Ask about supply chain risks, costs, sourcing alternatives&#x2026;"
+          rows="1"
+          onkeydown="handleInputKeydown(event)"
+          oninput="autoResizeTextarea(this)"
+        ></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send message">&#x279E;</button>
       </div>
     </div>
+  </div>
 
-  </div><!-- /.main-layout -->
+</div><!-- end .main-layout -->
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-  // ══════════════════════════════════════════════════════════════
-  //  RISK DATA — 50+ countries  (level, score, risk color, tariff, costImpact)
-  //  tariff  = representative US import tariff rate (2025 context)
-  //  costImpact = SEVERE | HIGH | MEDIUM | LOW | BASELINE | RESTRICTED
-  // ══════════════════════════════════════════════════════════════
-  var RISK = {
-    // ── CRITICAL ───────────────────────────────────────────────
-    'China':       { level:'CRITICAL', score:92, color:'#ff0040', factors:['US-China trade war','Taiwan strait tensions','Export control escalation'], trade:'$2.1T exports/yr', tariff:'145%+ (Section 301)', costImpact:'SEVERE' },
-    'Taiwan':      { level:'CRITICAL', score:88, color:'#ff0040', factors:['Cross-strait military tensions','Semiconductor chokepoint','Invasion risk scenario'], trade:'$480B exports/yr', tariff:'32% (proposed)', costImpact:'HIGH' },
-    'Russia':      { level:'CRITICAL', score:96, color:'#ff0040', factors:['Ukraine war ongoing','G7 sanctions regime','Energy supply disruption'], trade:'Severely restricted', tariff:'N/A (banned)', costImpact:'RESTRICTED' },
-    'North Korea': { level:'CRITICAL', score:99, color:'#ff0040', factors:['Total UN sanctions','Zero legitimate trade','Military threat vector'], trade:'Essentially zero', tariff:'N/A (banned)', costImpact:'RESTRICTED' },
-    'Iran':        { level:'CRITICAL', score:94, color:'#ff0040', factors:['US/EU sanctions','Nuclear program tensions','Strait of Hormuz risk'], trade:'Severely restricted', tariff:'N/A (banned)', costImpact:'RESTRICTED' },
-    'Myanmar':     { level:'CRITICAL', score:87, color:'#ff0040', factors:['Military coup 2021','Civil war ongoing','Western sanctions'], trade:'Severely limited', tariff:'40%+ (restricted)', costImpact:'HIGH' },
-    // ── HIGH ───────────────────────────────────────────────────
-    'Vietnam':     { level:'HIGH', score:65, color:'#ff8c00', factors:['Infrastructure bottlenecks','Labor rights scrutiny','Regulatory unpredictability'], trade:'$380B exports/yr', tariff:'46% (reciprocal)', costImpact:'HIGH' },
-    'India':       { level:'HIGH', score:60, color:'#ff8c00', factors:['Infrastructure gaps','Bureaucratic friction','Border tensions (China/Pakistan)'], trade:'$775B exports/yr', tariff:'26% (reciprocal)', costImpact:'HIGH' },
-    'Bangladesh':  { level:'HIGH', score:72, color:'#ff8c00', factors:['Labor standards issues','Climate/flood vulnerability','Political turbulence'], trade:'$55B exports/yr', tariff:'37% (reciprocal)', costImpact:'HIGH' },
-    'Pakistan':    { level:'HIGH', score:79, color:'#ff8c00', factors:['Economic crisis','Debt default risk','Security environment'], trade:'$31B exports/yr', tariff:'29% (reciprocal)', costImpact:'HIGH' },
-    'Turkey':      { level:'HIGH', score:64, color:'#ff8c00', factors:['Currency volatility','NATO-Russia balancing','High inflation'], trade:'$254B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
-    'Ukraine':     { level:'HIGH', score:93, color:'#ff8c00', factors:['Active war zone','Infrastructure destruction','Port access impaired'], trade:'Severely impacted', tariff:'0% (USTR exemption)', costImpact:'LOW' },
-    'Venezuela':   { level:'HIGH', score:84, color:'#ff8c00', factors:['Economic collapse','Maduro government','US oil sanctions'], trade:'Severely limited', tariff:'15% (MFN)', costImpact:'MEDIUM' },
-    'Ethiopia':    { level:'HIGH', score:70, color:'#ff8c00', factors:['Tigray conflict aftermath','Infrastructure gaps','Political instability'], trade:'$3.5B exports/yr', tariff:'0% (AGOA)', costImpact:'LOW' },
-    'Israel':      { level:'HIGH', score:68, color:'#ff8c00', factors:['Gaza conflict ongoing','Regional war escalation risk','Tech sector resilience'], trade:'$68B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
-    // ── MEDIUM ─────────────────────────────────────────────────
-    'Brazil':      { level:'MEDIUM', score:52, color:'#f5c518', factors:['Political polarisation','Currency risk (BRL)','Environmental regulation changes'], trade:'$340B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
-    'Philippines': { level:'MEDIUM', score:47, color:'#f5c518', factors:['Typhoon & disaster exposure','South China Sea tensions','Infrastructure gaps'], trade:'$75B exports/yr', tariff:'17% (reciprocal)', costImpact:'MEDIUM' },
-    'Indonesia':   { level:'MEDIUM', score:45, color:'#f5c518', factors:['Earthquake & volcanic risk','Regulatory complexity','Nickel export controls'], trade:'$260B exports/yr', tariff:'32% (reciprocal)', costImpact:'MEDIUM' },
-    'Mexico':      { level:'MEDIUM', score:51, color:'#f5c518', factors:['Cartel security risks','Nearshoring dependency','Currency volatility'], trade:'$580B exports/yr', tariff:'25% (IEEPA)', costImpact:'HIGH' },
-    'Thailand':    { level:'MEDIUM', score:44, color:'#f5c518', factors:['Political coups history','Flood risk','Rising labor costs'], trade:'$287B exports/yr', tariff:'36% (reciprocal)', costImpact:'HIGH' },
-    'Malaysia':    { level:'MEDIUM', score:38, color:'#f5c518', factors:['Supply chain concentration','Political transitions','Talent gaps'], trade:'$310B exports/yr', tariff:'24% (reciprocal)', costImpact:'MEDIUM' },
-    'Egypt':       { level:'MEDIUM', score:56, color:'#f5c518', factors:['Currency crisis','Suez Canal chokepoint','IMF dependency'], trade:'$49B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
-    'Nigeria':     { level:'MEDIUM', score:60, color:'#f5c518', factors:['Security (Boko Haram)','Currency FX controls','Infrastructure deficit'], trade:'$46B exports/yr', tariff:'14% (MFN)', costImpact:'MEDIUM' },
-    'South Africa':{ level:'MEDIUM', score:50, color:'#f5c518', factors:['Load-shedding blackouts','Port congestion (Durban)','High crime'], trade:'$125B exports/yr', tariff:'30% (proposed)', costImpact:'MEDIUM' },
-    'Colombia':    { level:'MEDIUM', score:47, color:'#f5c518', factors:['Guerrilla/criminal risk','Political uncertainty','Infrastructure'], trade:'$43B exports/yr', tariff:'3.5% (CTPA)', costImpact:'LOW' },
-    'Argentina':   { level:'MEDIUM', score:59, color:'#f5c518', factors:['Hyperinflation risk','Capital controls','Political volatility'], trade:'$88B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
-    'Greece':      { level:'MEDIUM', score:38, color:'#f5c518', factors:['Government debt legacy','Shipping sector exposure','Migration pressure'], trade:'$54B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Romania':     { level:'MEDIUM', score:35, color:'#f5c518', factors:['Corruption risk','Infrastructure gaps','Currency (RON) volatility'], trade:'$95B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Hungary':     { level:'MEDIUM', score:40, color:'#f5c518', factors:['Rule-of-law concerns','Russia energy dependence','Political autocracy risk'], trade:'$140B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Morocco':     { level:'MEDIUM', score:42, color:'#f5c518', factors:['Regional instability','Water scarcity','FTA advantage at risk'], trade:'$42B exports/yr', tariff:'5% (FTA)', costImpact:'LOW' },
-    'Saudi Arabia':{ level:'MEDIUM', score:48, color:'#f5c518', factors:['Oil price dependence','Regional tensions','Vision 2030 transition risk'], trade:'$255B exports/yr', tariff:'5.5% (MFN)', costImpact:'LOW' },
-    // ── LOW ────────────────────────────────────────────────────
-    'Japan':        { level:'LOW', score:22, color:'#00e676', factors:['Earthquake/tsunami risk','Aging workforce','Semiconductor concentration'], trade:'$705B exports/yr', tariff:'24% (reciprocal)', costImpact:'MEDIUM' },
-    'South Korea':  { level:'LOW', score:27, color:'#00e676', factors:['North Korea proximity','Strong institutions','Chip sector dependency'], trade:'$683B exports/yr', tariff:'25% (reciprocal)', costImpact:'MEDIUM' },
-    'Singapore':    { level:'LOW', score:14, color:'#00e676', factors:['Small domestic market','Very stable governance','World-class logistics'], trade:'$500B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
-    'Germany':      { level:'LOW', score:25, color:'#00e676', factors:['Energy transition cost','Russia gas legacy','Industrial slowdown'], trade:'$1.7T exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Canada':       { level:'LOW', score:20, color:'#00e676', factors:['US trade dependency','Resource-driven economy','Stable governance'], trade:'$573B exports/yr', tariff:'25% (IEEPA)', costImpact:'HIGH' },
-    'Australia':    { level:'LOW', score:18, color:'#00e676', factors:['Remote geography','China trade tensions','Stable institutions'], trade:'$342B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
-    'United Kingdom':{ level:'LOW', score:28, color:'#00e676', factors:['Post-Brexit trade friction','Services-heavy economy','Stable rule of law'], trade:'$471B exports/yr', tariff:'10% (MFN)', costImpact:'LOW' },
-    'Netherlands':  { level:'LOW', score:15, color:'#00e676', factors:['EU regulatory burden','Major Rotterdam hub','Stable governance'], trade:'$885B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'United States':{ level:'LOW', score:30, color:'#00e676', factors:['Political polarisation','Tariff policy swings','Strong institutions'], trade:'$3.0T exports/yr', tariff:'N/A (domestic)', costImpact:'BASELINE' },
-    // ── EU ADDITIONS ───────────────────────────────────────────
-    'France':        { level:'LOW', score:22, color:'#00e676', factors:['Social unrest & strikes','EU regulatory burden','Energy cost volatility'], trade:'$591B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Italy':         { level:'LOW', score:26, color:'#00e676', factors:['High public debt','Political fragility','Mafia/corruption pockets'], trade:'$552B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Spain':         { level:'LOW', score:23, color:'#00e676', factors:['High unemployment','Separatist tensions (Catalonia)','Energy dependence'], trade:'$345B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Poland':        { level:'LOW', score:28, color:'#00e676', factors:['Russia border proximity','Defense spending pressure','EU rule-of-law friction'], trade:'$297B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Sweden':        { level:'LOW', score:14, color:'#00e676', factors:['NATO transition costs','Gang crime rise','Strong institutions'], trade:'$188B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Austria':       { level:'LOW', score:16, color:'#00e676', factors:['Energy import dependence','Small domestic market','Political shifts'], trade:'$180B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Belgium':       { level:'LOW', score:18, color:'#00e676', factors:['Political deadlock','Major port hub Antwerp','Terrorism history'], trade:'$375B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Czech Republic':{ level:'LOW', score:24, color:'#00e676', factors:['Energy transition costs','Export-heavy economy','Skilled labor shortage'], trade:'$185B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Portugal':      { level:'LOW', score:20, color:'#00e676', factors:['High external debt','Tourism dependence','Skilled emigration'], trade:'$80B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Denmark':       { level:'LOW', score:12, color:'#00e676', factors:['Small domestic market','Shipping (Maersk) concentration','Strong governance'], trade:'$130B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Finland':       { level:'LOW', score:15, color:'#00e676', factors:['Russia border risk','NATO new member','Tech & forestry focus'], trade:'$75B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Ireland':       { level:'LOW', score:17, color:'#00e676', factors:['Tech hub concentration','Brexit proximity friction','Pharma export reliance'], trade:'$190B exports/yr', tariff:'20% (proposed EU)', costImpact:'MEDIUM' },
-    'Norway':        { level:'LOW', score:13, color:'#00e676', factors:['Non-EU trade friction','Energy wealth','Stable governance'], trade:'$185B exports/yr', tariff:'3.8% (MFN)', costImpact:'LOW' },
-    'Switzerland':   { level:'LOW', score:16, color:'#00e676', factors:['Non-EU friction','Strong CHF risk','Pharma concentration'], trade:'$340B exports/yr', tariff:'3.2% (MFN)', costImpact:'LOW' },
-    'UAE':           { level:'LOW', score:22, color:'#00e676', factors:['Regional instability exposure','Oil dependence','Regulatory innovation'], trade:'$400B exports/yr', tariff:'3.9% (MFN)', costImpact:'LOW' },
+<!-- ===== WELCOME MODAL ===== -->
+<div class="modal-backdrop hidden" id="welcomeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Welcome to RiskSim</div>
+      <div class="modal-subtitle">Set up your company profile for personalized supply chain intelligence</div>
+      <div class="modal-divider"></div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="wCompanyType">Company Type</label>
+        <select class="form-select" id="wCompanyType">
+          <option value="">Select company type&#x2026;</option>
+          <option value="Manufacturer">Manufacturer</option>
+          <option value="Retailer">Retailer</option>
+          <option value="Distributor">Distributor</option>
+          <option value="Logistics Provider">Logistics Provider</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="wHomeCountry">Home Country</label>
+        <select class="form-select" id="wHomeCountry">
+          <option value="">Select your country&#x2026;</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="wIndustry">Industry</label>
+        <select class="form-select" id="wIndustry">
+          <option value="">Select industry&#x2026;</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Textiles/Apparel">Textiles/Apparel</option>
+          <option value="Automotive">Automotive</option>
+          <option value="Food/Agriculture">Food/Agriculture</option>
+          <option value="Pharmaceuticals">Pharmaceuticals</option>
+          <option value="Raw Materials">Raw Materials</option>
+          <option value="Consumer Goods">Consumer Goods</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Primary Sourcing Countries</label>
+        <div class="sourcing-container" id="wSourcingBox"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="wRevenue">Annual Revenue</label>
+        <select class="form-select" id="wRevenue">
+          <option value="">Select revenue range&#x2026;</option>
+          <option value="&lt;$1M">&lt;$1M</option>
+          <option value="$1M–$10M">$1M–$10M</option>
+          <option value="$10M–$50M">$10M–$50M</option>
+          <option value="$50M–$100M">$50M–$100M</option>
+          <option value="$100M+">$100M+</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div id="wFormError" class="form-error"></div>
+      <button class="btn-primary" onclick="saveProfile()">Save Profile &amp; Start Analysis</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== EDIT PROFILE MODAL ===== -->
+<div class="modal-backdrop hidden" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Profile</div>
+      <div class="modal-subtitle">Update your company profile for more accurate analysis</div>
+      <div class="modal-divider"></div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="eCompanyType">Company Type</label>
+        <select class="form-select" id="eCompanyType">
+          <option value="">Select company type&#x2026;</option>
+          <option value="Manufacturer">Manufacturer</option>
+          <option value="Retailer">Retailer</option>
+          <option value="Distributor">Distributor</option>
+          <option value="Logistics Provider">Logistics Provider</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="eHomeCountry">Home Country</label>
+        <select class="form-select" id="eHomeCountry">
+          <option value="">Select your country&#x2026;</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="eIndustry">Industry</label>
+        <select class="form-select" id="eIndustry">
+          <option value="">Select industry&#x2026;</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Textiles/Apparel">Textiles/Apparel</option>
+          <option value="Automotive">Automotive</option>
+          <option value="Food/Agriculture">Food/Agriculture</option>
+          <option value="Pharmaceuticals">Pharmaceuticals</option>
+          <option value="Raw Materials">Raw Materials</option>
+          <option value="Consumer Goods">Consumer Goods</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Primary Sourcing Countries</label>
+        <div class="sourcing-container" id="eSourcingBox"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="eRevenue">Annual Revenue</label>
+        <select class="form-select" id="eRevenue">
+          <option value="">Select revenue range&#x2026;</option>
+          <option value="&lt;$1M">&lt;$1M</option>
+          <option value="$1M–$10M">$1M–$10M</option>
+          <option value="$10M–$50M">$10M–$50M</option>
+          <option value="$50M–$100M">$50M–$100M</option>
+          <option value="$100M+">$100M+</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div id="eFormError" class="form-error"></div>
+      <div class="modal-footer-row">
+        <button class="btn-ghost" onclick="closeEditModal()">Cancel</button>
+        <button class="btn-primary" onclick="updateProfile()">Update Profile</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+// ============================================================
+// TOP-LEVEL VARIABLES
+// ============================================================
+var appProfile     = null;
+var chatHistory    = [];
+var currentLayer   = 'risk';
+var map            = null;
+var countryMarkers = {};
+var tradeLines     = [];
+var chatExpanded   = false;
+var chatCollapsed  = false;
+
+// ============================================================
+// STATIC DATA
+// ============================================================
+var COUNTRY_DATA = [
+  { name: 'North Korea',    lat:  40.3, lng: 127.5, risk: 98, shipping: 9, labor: 4, tariff: 25, infra:  3, costIndex: 80 },
+  { name: 'Afghanistan',    lat:  33.9, lng:  67.7, risk: 97, shipping: 9, labor: 2, tariff: 20, infra:  1, costIndex: 85 },
+  { name: 'Syria',          lat:  34.8, lng:  38.9, risk: 96, shipping: 7, labor: 3, tariff: 20, infra:  2, costIndex: 78 },
+  { name: 'Russia',         lat:  61.5, lng:  90.0, risk: 95, shipping: 8, labor: 5, tariff: 35, infra:  6, costIndex: 75 },
+  { name: 'Iran',           lat:  32.4, lng:  53.7, risk: 93, shipping: 7, labor: 4, tariff: 30, infra:  5, costIndex: 72 },
+  { name: 'Sudan',          lat:  12.8, lng:  30.2, risk: 91, shipping: 8, labor: 2, tariff: 15, infra:  2, costIndex: 75 },
+  { name: 'Venezuela',      lat:   6.4, lng: -66.6, risk: 89, shipping: 6, labor: 3, tariff: 25, infra:  3, costIndex: 72 },
+  { name: 'Iraq',           lat:  33.2, lng:  43.7, risk: 88, shipping: 7, labor: 3, tariff: 15, infra:  3, costIndex: 70 },
+  { name: 'Ukraine',        lat:  48.4, lng:  31.2, risk: 88, shipping: 5, labor: 3, tariff: 10, infra:  6, costIndex: 60 },
+  { name: 'Myanmar',        lat:  17.1, lng:  95.9, risk: 85, shipping: 8, labor: 2, tariff: 15, infra:  3, costIndex: 58 },
+  { name: 'Taiwan',         lat:  23.7, lng: 120.9, risk: 82, shipping: 7, labor: 6, tariff:  4, infra:  8, costIndex: 48 },
+  { name: 'Lebanon',        lat:  33.9, lng:  35.5, risk: 79, shipping: 6, labor: 4, tariff: 15, infra:  4, costIndex: 65 },
+  { name: 'China',          lat:  35.8, lng: 104.2, risk: 78, shipping: 7, labor: 3, tariff: 25, infra:  7, costIndex: 55 },
+  { name: 'Pakistan',       lat:  30.4, lng:  69.3, risk: 76, shipping: 8, labor: 2, tariff: 17, infra:  4, costIndex: 55 },
+  { name: 'Nigeria',        lat:   9.1, lng:   8.7, risk: 72, shipping: 7, labor: 2, tariff: 20, infra:  4, costIndex: 58 },
+  { name: 'Ethiopia',       lat:   9.1, lng:  40.5, risk: 68, shipping: 9, labor: 1, tariff: 20, infra:  3, costIndex: 52 },
+  { name: 'Egypt',          lat:  26.8, lng:  30.8, risk: 67, shipping: 6, labor: 3, tariff: 20, infra:  5, costIndex: 48 },
+  { name: 'Turkey',         lat:  38.9, lng:  35.2, risk: 65, shipping: 5, labor: 4, tariff: 10, infra:  7, costIndex: 40 },
+  { name: 'Bangladesh',     lat:  23.7, lng:  90.4, risk: 62, shipping: 8, labor: 1, tariff: 12, infra:  5, costIndex: 42 },
+  { name: 'Honduras',       lat:  14.1, lng: -86.2, risk: 62, shipping: 5, labor: 2, tariff:  8, infra:  5, costIndex: 35 },
+  { name: 'Guatemala',      lat:  15.8, lng: -90.2, risk: 60, shipping: 5, labor: 2, tariff:  8, infra:  5, costIndex: 33 },
+  { name: 'Mexico',         lat:  23.6, lng:-102.6, risk: 60, shipping: 4, labor: 3, tariff:  0, infra:  7, costIndex: 30 },
+  { name: 'Philippines',    lat:  12.9, lng: 121.8, risk: 58, shipping: 7, labor: 2, tariff:  8, infra:  6, costIndex: 40 },
+  { name: 'Sri Lanka',      lat:   7.9, lng:  80.8, risk: 55, shipping: 8, labor: 2, tariff: 12, infra:  5, costIndex: 40 },
+  { name: 'Indonesia',      lat:  -0.8, lng: 113.9, risk: 55, shipping: 7, labor: 2, tariff: 10, infra:  6, costIndex: 38 },
+  { name: 'Argentina',      lat: -38.4, lng: -63.6, risk: 52, shipping: 6, labor: 4, tariff: 17, infra:  6, costIndex: 45 },
+  { name: 'Brazil',         lat: -14.2, lng: -51.9, risk: 50, shipping: 6, labor: 4, tariff: 18, infra:  6, costIndex: 42 },
+  { name: 'Colombia',       lat:   4.6, lng: -74.1, risk: 50, shipping: 5, labor: 3, tariff: 15, infra:  6, costIndex: 40 },
+  { name: 'Cambodia',       lat:  12.6, lng: 104.9, risk: 48, shipping: 8, labor: 2, tariff: 12, infra:  4, costIndex: 38 },
+  { name: 'Peru',           lat:  -9.2, lng: -75.0, risk: 46, shipping: 6, labor: 3, tariff: 10, infra:  6, costIndex: 38 },
+  { name: 'India',          lat:  20.6, lng:  78.9, risk: 45, shipping: 7, labor: 2, tariff: 15, infra:  6, costIndex: 35 },
+  { name: 'Thailand',       lat:  15.9, lng: 100.9, risk: 44, shipping: 7, labor: 3, tariff: 10, infra:  7, costIndex: 35 },
+  { name: 'Morocco',        lat:  31.8, lng:  -7.1, risk: 43, shipping: 6, labor: 3, tariff: 12, infra:  6, costIndex: 36 },
+  { name: 'Malaysia',       lat:   4.2, lng: 108.0, risk: 38, shipping: 7, labor: 3, tariff:  6, infra:  7, costIndex: 32 },
+  { name: 'Saudi Arabia',   lat:  23.9, lng:  45.1, risk: 35, shipping: 6, labor: 5, tariff:  6, infra:  8, costIndex: 36 },
+  { name: 'Vietnam',        lat:  14.1, lng: 108.3, risk: 35, shipping: 7, labor: 2, tariff:  7, infra:  6, costIndex: 30 },
+  { name: 'Romania',        lat:  45.9, lng:  24.9, risk: 30, shipping: 5, labor: 4, tariff:  4, infra:  7, costIndex: 28 },
+  { name: 'UAE',            lat:  23.4, lng:  53.8, risk: 30, shipping: 6, labor: 5, tariff:  5, infra:  9, costIndex: 32 },
+  { name: 'Hungary',        lat:  47.2, lng:  19.5, risk: 28, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 28 },
+  { name: 'South Korea',    lat:  35.9, lng: 127.8, risk: 28, shipping: 7, labor: 6, tariff:  3, infra:  9, costIndex: 35 },
+  { name: 'Chile',          lat: -35.7, lng: -71.5, risk: 27, shipping: 7, labor: 5, tariff:  8, infra:  7, costIndex: 38 },
+  { name: 'Poland',         lat:  51.9, lng:  19.1, risk: 25, shipping: 5, labor: 4, tariff:  3, infra:  7, costIndex: 28 },
+  { name: 'Japan',          lat:  36.2, lng: 138.3, risk: 22, shipping: 7, labor: 7, tariff:  2, infra:  9, costIndex: 38 },
+  { name: 'Czech Republic', lat:  49.8, lng:  15.5, risk: 22, shipping: 5, labor: 5, tariff:  3, infra:  8, costIndex: 28 },
+  { name: 'United States',  lat:  37.1, lng: -95.7, risk: 18, shipping: 4, labor: 9, tariff:  0, infra:  9, costIndex: 45 },
+  { name: 'Australia',      lat: -25.3, lng: 133.8, risk: 16, shipping: 8, labor: 8, tariff:  5, infra:  9, costIndex: 48 },
+  { name: 'France',         lat:  46.2, lng:   2.2, risk: 16, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40 },
+  { name: 'Germany',        lat:  51.2, lng:  10.5, risk: 15, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40 },
+  { name: 'Canada',         lat:  56.1, lng:-106.3, risk: 14, shipping: 5, labor: 8, tariff:  1, infra:  9, costIndex: 40 },
+  { name: 'United Kingdom', lat:  55.4, lng:  -3.4, risk: 14, shipping: 5, labor: 8, tariff:  5, infra:  9, costIndex: 42 },
+  { name: 'Netherlands',    lat:  52.1, lng:   5.3, risk: 13, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40 },
+  { name: 'Singapore',      lat:   1.4, lng: 103.8, risk: 12, shipping: 7, labor: 7, tariff:  0, infra: 10, costIndex: 35 },
+  { name: 'Switzerland',    lat:  46.8, lng:   8.2, risk: 11, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45 }
+];
+
+var ALL_COUNTRIES = [
+  'Afghanistan','Albania','Algeria','Angola','Argentina','Armenia','Australia','Austria','Azerbaijan',
+  'Bangladesh','Belarus','Belgium','Bolivia','Bosnia','Brazil','Bulgaria',
+  'Cambodia','Cameroon','Canada','Chile','China','Colombia','Congo','Costa Rica','Croatia','Cuba','Czech Republic',
+  'Denmark','Dominican Republic',
+  'Ecuador','Egypt','El Salvador','Ethiopia',
+  'Finland','France',
+  'Germany','Ghana','Greece','Guatemala',
+  'Honduras','Hungary',
+  'India','Indonesia','Iran','Iraq','Ireland','Israel','Italy',
+  'Japan','Jordan',
+  'Kazakhstan','Kenya',
+  'Laos','Latvia','Lebanon','Lithuania',
+  'Malaysia','Mexico','Moldova','Morocco','Mozambique','Myanmar',
+  'Nepal','Netherlands','New Zealand','Nicaragua','Nigeria','North Korea','North Macedonia','Norway',
+  'Oman',
+  'Pakistan','Panama','Paraguay','Peru','Philippines','Poland','Portugal',
+  'Qatar',
+  'Romania','Russia',
+  'Saudi Arabia','Senegal','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea',
+  'South Sudan','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria',
+  'Taiwan','Tanzania','Thailand','Tunisia','Turkey','Turkmenistan',
+  'Uganda','Ukraine','United Arab Emirates','United Kingdom','United States','Uruguay','Uzbekistan',
+  'Venezuela','Vietnam',
+  'Yemen','Zambia','Zimbabwe'
+];
+
+var SOURCING_COUNTRIES = [
+  'China','Vietnam','India','Bangladesh','Indonesia','Mexico','Thailand','Malaysia',
+  'Cambodia','Philippines','Pakistan','Turkey','Brazil','South Korea','Japan','Taiwan',
+  'Germany','Poland','Romania','Morocco','Ethiopia','Sri Lanka','Honduras','Guatemala','Myanmar'
+];
+
+var COUNTRY_COORDS = (function() {
+  var coords = {};
+  for (var i = 0; i < COUNTRY_DATA.length; i++) {
+    coords[COUNTRY_DATA[i].name] = [COUNTRY_DATA[i].lat, COUNTRY_DATA[i].lng];
+  }
+  // extras not in main COUNTRY_DATA but may appear in sourcing
+  var extra = {
+    'United Arab Emirates': [23.4, 53.8]
   };
+  for (var k in extra) { if (!coords[k]) coords[k] = extra[k]; }
+  return coords;
+})();
 
-  var NAME_ALIAS = {
-    'Russian Federation':'Russia',
-    'United States of America':'United States',
-    'Korea, Republic of':'South Korea',
-    'Republic of Korea':'South Korea',
-    "Democratic People's Republic of Korea":'North Korea',
-    'Dem. Rep. Korea':'North Korea',
-    'Korea, North':'North Korea',
-    'Iran, Islamic Republic of':'Iran',
-    'Viet Nam':'Vietnam',
-    'Taiwan, Province of China':'Taiwan',
-    'United Kingdom of Great Britain and Northern Ireland':'United Kingdom',
-    'Great Britain':'United Kingdom',
-    'Myanmar (Burma)':'Myanmar',
-    'Burma':'Myanmar',
-    'Czechia':'Czech Republic',
-    'Czech Rep.':'Czech Republic',
-    'United Arab Emirates':'UAE',
-    'Türkiye':'Turkey',
-    'Korea':'South Korea',
-    'Republic of Ireland':'Ireland',
-    'Slovak Republic':'Slovakia',
-    'Bosnia and Herz.':'Bosnia and Herzegovina',
-  };
+var LAYER_CONFIG = {
+  risk: {
+    name: '\uD83D\uDEE1\uFE0F Risk Levels',
+    sub: 'Geopolitical & operational risk by country',
+    legendTitle: 'Risk Score',
+    items: [
+      { color: '#ff0040', label: 'Critical (80–100)' },
+      { color: '#ff8c00', label: 'High (60–79)' },
+      { color: '#f5c518', label: 'Medium-High (45–59)' },
+      { color: '#8bc34a', label: 'Medium (30–44)' },
+      { color: '#00e676', label: 'Low-Medium (15–29)' },
+      { color: '#00bcd4', label: 'Low (0–14)' }
+    ]
+  },
+  shipping: {
+    name: '\uD83D\uDCB0 Shipping Cost',
+    sub: 'Relative shipping cost index by country',
+    legendTitle: 'Shipping Cost',
+    items: [
+      { color: '#ff0040', label: 'Very High (9–10)' },
+      { color: '#ff8c00', label: 'High (7–8)' },
+      { color: '#f5c518', label: 'Medium-High (5–6)' },
+      { color: '#8bc34a', label: 'Medium (3–4)' },
+      { color: '#00e676', label: 'Low-Medium (2)' },
+      { color: '#00bcd4', label: 'Low (0–1)' }
+    ]
+  },
+  labor: {
+    name: '\uD83D\uDC77 Labor Cost',
+    sub: 'Relative labor cost index by country',
+    legendTitle: 'Labor Cost',
+    items: [
+      { color: '#ff0040', label: 'Very High (9–10)' },
+      { color: '#ff8c00', label: 'High (7–8)' },
+      { color: '#f5c518', label: 'Medium-High (5–6)' },
+      { color: '#8bc34a', label: 'Medium (3–4)' },
+      { color: '#00e676', label: 'Low-Medium (2)' },
+      { color: '#00bcd4', label: 'Low (0–1)' }
+    ]
+  },
+  cost: {
+    name: '\uD83D\uDCCA Total Score',
+    sub: 'Combined cost & risk index by country',
+    legendTitle: 'Total Score',
+    items: [
+      { color: '#ff0040', label: 'Very High (80–100)' },
+      { color: '#ff8c00', label: 'High (60–79)' },
+      { color: '#f5c518', label: 'Medium-High (45–59)' },
+      { color: '#8bc34a', label: 'Medium (30–44)' },
+      { color: '#00e676', label: 'Low-Medium (15–29)' },
+      { color: '#00bcd4', label: 'Low (0–14)' }
+    ]
+  }
+};
 
-  function getRisk(name) {
-    return RISK[name] || RISK[NAME_ALIAS[name]] || null;
+// ============================================================
+// COLOR & SCORE HELPERS
+// ============================================================
+function getRiskColor(score) {
+  if (score >= 80) return '#ff0040';
+  if (score >= 60) return '#ff8c00';
+  if (score >= 45) return '#f5c518';
+  if (score >= 30) return '#8bc34a';
+  if (score >= 15) return '#00e676';
+  return '#00bcd4';
+}
+
+function getCostColor(score) {
+  return getRiskColor(score);
+}
+
+function getScoreForLayer(country, layer) {
+  if (layer === 'risk')     return country.risk;
+  if (layer === 'shipping') return country.shipping * 10;
+  if (layer === 'labor')    return country.labor * 10;
+  if (layer === 'cost')     return country.costIndex;
+  return country.risk;
+}
+
+function getRiskLabel(score) {
+  if (score >= 80) return 'Critical';
+  if (score >= 60) return 'High';
+  if (score >= 45) return 'Medium-High';
+  if (score >= 30) return 'Medium';
+  if (score >= 15) return 'Low-Medium';
+  return 'Low';
+}
+
+function getCountryAnalysis(country) {
+  if (country.risk >= 80) return '\u26A0\uFE0F Extreme risk zone. Sanctions, active conflicts, or severe political instability make sourcing highly inadvisable without specialist oversight.';
+  if (country.risk >= 60) return '\u26A1 Elevated risk. Monitor closely for political instability, labor disputes, currency volatility, and sudden regulatory changes.';
+  if (country.risk >= 45) return '\uD83D\uDCCA Moderate risk with cost advantages. Implement contingency planning, dual-sourcing strategies, and regular supplier audits.';
+  if (country.risk >= 30) return '\u2705 Acceptable risk profile. Good balance of cost competitiveness and operational stability for active sourcing.';
+  if (country.risk >= 15) return '\uD83C\uDF1F Low-risk, stable environment. Strong infrastructure and reliable trade relationships support consistent supply chains.';
+  return '\u2B50 Excellent stability and world-class infrastructure. Premium sourcing destination with minimal supply chain disruption risk.';
+}
+
+// ============================================================
+// MAP INITIALIZATION
+// ============================================================
+function initMap() {
+  if (typeof L === 'undefined') return;
+  if (map) { map.remove(); map = null; }
+  map = L.map('map', {
+    center: [20, 0],
+    zoom: 2,
+    zoomControl: true,
+    attributionControl: true
+  });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(map);
+  renderMarkers();
+  drawTradeLines();
+}
+
+// ============================================================
+// RENDER MARKERS
+// ============================================================
+function renderMarkers() {
+  if (!map || typeof L === 'undefined') return;
+  for (var key in countryMarkers) {
+    map.removeLayer(countryMarkers[key]);
+  }
+  countryMarkers = {};
+
+  for (var i = 0; i < COUNTRY_DATA.length; i++) {
+    (function(country) {
+      var score = getScoreForLayer(country, currentLayer);
+      var color = getRiskColor(score);
+      var isPulsing = (score >= 60);
+
+      var pulseHtml = isPulsing
+        ? '<div class="marker-pulse" style="background:' + color + ';"></div>'
+        : '';
+
+      var icon = L.divIcon({
+        html: '<div class="map-marker">' + pulseHtml +
+              '<div class="marker-dot" style="background:' + color +
+              '; box-shadow:0 0 6px ' + color + '88;"></div></div>',
+        className: '',
+        iconSize:   [14, 14],
+        iconAnchor: [7, 7]
+      });
+
+      var marker = L.marker([country.lat, country.lng], { icon: icon });
+
+      var riskColor = getRiskColor(country.risk);
+      var riskLabel = getRiskLabel(country.risk);
+      var analysis  = getCountryAnalysis(country);
+
+      var popup = '<div class="popup-inner">' +
+        '<div class="popup-header">' +
+          '<span class="popup-country">' + country.name + '</span>' +
+          '<span class="popup-risk-badge" style="background:' + riskColor + '22;color:' + riskColor + ';border:1px solid ' + riskColor + '55;">' + riskLabel + '</span>' +
+        '</div>' +
+        '<div class="popup-stats">' +
+          '<div class="popup-stat"><span class="popup-stat-label">Risk Score</span><span class="popup-stat-value">' + country.risk + ' / 100</span></div>' +
+          '<div class="popup-stat"><span class="popup-stat-label">Tariff Rate</span><span class="popup-stat-value">' + country.tariff + '%</span></div>' +
+          '<div class="popup-stat"><span class="popup-stat-label">Cost Index</span><span class="popup-stat-value">' + country.costIndex + ' / 100</span></div>' +
+          '<div class="popup-stat"><span class="popup-stat-label">Shipping</span><span class="popup-stat-value">' + country.shipping + ' / 10</span></div>' +
+          '<div class="popup-stat"><span class="popup-stat-label">Labor</span><span class="popup-stat-value">' + country.labor + ' / 10</span></div>' +
+        '</div>' +
+        '<div class="popup-analysis">' + analysis + '</div>' +
+        '</div>';
+
+      marker.bindPopup(popup, { maxWidth: 270 });
+      countryMarkers[country.name] = marker;
+      marker.addTo(map);
+    })(COUNTRY_DATA[i]);
+  }
+}
+
+// ============================================================
+// UPDATE MAP LAYER
+// ============================================================
+function updateMapLayer(layer) {
+  currentLayer = layer;
+
+  var layerIds = ['risk', 'shipping', 'labor', 'cost'];
+  var btnIds   = ['btnRisk', 'btnShipping', 'btnLabor', 'btnCost'];
+  for (var i = 0; i < layerIds.length; i++) {
+    var btn = document.getElementById(btnIds[i]);
+    if (btn) btn.className = 'layer-btn' + (layerIds[i] === layer ? ' active' : '');
   }
 
-  // ══════════════════════════════════════════════════════════════
-  //  CHAT — initialized at top level, independent of Leaflet
-  // ══════════════════════════════════════════════════════════════
-  var messagesEl = document.getElementById('messagesContainer');
-  var inputEl    = document.getElementById('messageInput');
-  var sendBtnEl  = document.getElementById('sendBtn');
-  var typingEl   = document.getElementById('typingWrap');
+  var cfg = LAYER_CONFIG[layer];
+  document.getElementById('overlayName').textContent = cfg.name;
+  document.getElementById('overlaySub').textContent  = cfg.sub;
+  document.getElementById('legendTitle').textContent  = cfg.legendTitle;
 
-  function getTime() {
-    return new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+  var items = cfg.items;
+  var html  = '';
+  for (var j = 0; j < items.length; j++) {
+    html += '<div class="legend-item"><div class="legend-swatch" style="background:' +
+            items[j].color + '"></div>' + items[j].label + '</div>';
   }
+  document.getElementById('legendItems').innerHTML = html;
 
-  function renderMd(raw) {
-    var lines = raw.split('\n');
-    var out = [];
-    var listType = null;
+  renderMarkers();
+}
 
-    function inline(t) {
-      return t
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g,'<em>$1</em>')
-        .replace(/`([^`]+)`/g,'<code>$1</code>');
-    }
+// ============================================================
+// TRADE LINES
+// ============================================================
+function drawTradeLines() {
+  if (!map || typeof L === 'undefined') return;
+  for (var i = 0; i < tradeLines.length; i++) { map.removeLayer(tradeLines[i]); }
+  tradeLines = [];
 
-    function closeList() {
-      if (listType) { out.push(listType === 'ul' ? '</ul>' : '</ol>'); listType = null; }
-    }
+  if (!appProfile || !appProfile.homeCountry) return;
+  if (!appProfile.sourcingCountries || appProfile.sourcingCountries.length === 0) return;
 
-    lines.forEach(function(line) {
-      if (/^### (.+)/.test(line))       { closeList(); out.push('<h3>' + inline(line.slice(4)) + '</h3>'); }
-      else if (/^## (.+)/.test(line))   { closeList(); out.push('<h2>' + inline(line.slice(3)) + '</h2>'); }
-      else if (/^# (.+)/.test(line))    { closeList(); out.push('<h1>' + inline(line.slice(2)) + '</h1>'); }
-      else if (/^[-*] (.+)/.test(line)) { if (listType !== 'ul') { closeList(); out.push('<ul>'); listType='ul'; } out.push('<li>' + inline(line.slice(2)) + '</li>'); }
-      else if (/^\d+\. (.+)/.test(line)){ if (listType !== 'ol') { closeList(); out.push('<ol>'); listType='ol'; } out.push('<li>' + inline(line.replace(/^\d+\. /,'')) + '</li>'); }
-      else if (line.trim() === '---')   { closeList(); out.push('<hr>'); }
-      else if (line.trim() === '')      { closeList(); out.push('<p style="margin:0;height:6px;"></p>'); }
-      else                               { closeList(); out.push('<p>' + inline(line) + '</p>'); }
+  var homeCoords = COUNTRY_COORDS[appProfile.homeCountry];
+  if (!homeCoords) return;
+
+  for (var j = 0; j < appProfile.sourcingCountries.length; j++) {
+    var dest = appProfile.sourcingCountries[j];
+    var destCoords = COUNTRY_COORDS[dest];
+    if (!destCoords) continue;
+    var line = L.polyline([homeCoords, destCoords], {
+      color:     '#00d4ff',
+      weight:    1.5,
+      opacity:   0.45,
+      dashArray: '5, 8'
     });
-    closeList();
-    return out.join('');
+    line.addTo(map);
+    tradeLines.push(line);
   }
+}
 
-  function addMsg(text, sender) {
-    var isUser = sender === 'user';
-    var div = document.createElement('div');
-    div.className = 'message ' + sender;
-
-    var bodyHtml = isUser
-      ? text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')
-      : renderMd(text);
-
-    div.innerHTML =
-      '<div class="msg-header">' +
-        '<div class="msg-avatar ' + sender + '">' + (isUser ? '👤' : '🤖') + '</div>' +
-        '<span class="msg-name">' + (isUser ? 'You' : 'Claude') + '</span>' +
-        '<span class="msg-time">' + getTime() + '</span>' +
-      '</div>' +
-      '<div class="msg-body"><div class="bubble">' + bodyHtml + '</div></div>';
-
-    messagesEl.appendChild(div);
-    scrollBottom();
+// ============================================================
+// PROFILE MANAGEMENT
+// ============================================================
+function loadProfile() {
+  var stored = localStorage.getItem('riskSimProfile');
+  if (stored) {
+    try { appProfile = JSON.parse(stored); } catch(e) { appProfile = null; }
   }
-
-  function scrollBottom() {
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+  if (appProfile) {
+    updateProfileUI();
+  } else {
+    showWelcomeModal();
   }
+}
 
-  function showTyping() { typingEl.classList.add('active'); scrollBottom(); }
-  function hideTyping() { typingEl.classList.remove('active'); }
+function showWelcomeModal() {
+  document.getElementById('welcomeModal').classList.remove('hidden');
+}
 
-  function sendMessage() {
-    var msg = inputEl.value.trim();
-    if (!msg) return;
+function closeModal() {
+  document.getElementById('welcomeModal').classList.add('hidden');
+}
 
-    inputEl.value = '';
-    inputEl.style.height = 'auto';
-    addMsg(msg, 'user');
+function showEditModal() {
+  if (!appProfile) { showWelcomeModal(); return; }
+  document.getElementById('eCompanyType').value  = appProfile.companyType  || '';
+  document.getElementById('eHomeCountry').value  = appProfile.homeCountry  || '';
+  document.getElementById('eIndustry').value     = appProfile.industry     || '';
+  document.getElementById('eRevenue').value      = appProfile.revenue      || '';
 
-    sendBtnEl.disabled = true;
-    showTyping();
+  var boxes = document.querySelectorAll('#eSourcingBox input[type="checkbox"]');
+  for (var i = 0; i < boxes.length; i++) {
+    boxes[i].checked = !!(appProfile.sourcingCountries &&
+                          appProfile.sourcingCountries.indexOf(boxes[i].value) > -1);
+  }
+  document.getElementById('editModal').classList.remove('hidden');
+}
 
-    fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg }),
-    })
-    .then(function(res) {
-      if (!res.ok) {
-        return res.json().catch(function() { return { error: 'HTTP ' + res.status }; })
-          .then(function(e) { throw new Error(e.error || 'HTTP ' + res.status); });
+function closeEditModal() {
+  document.getElementById('editModal').classList.add('hidden');
+}
+
+function collectSourcingCountries(containerId) {
+  var selected = [];
+  var boxes = document.querySelectorAll('#' + containerId + ' input[type="checkbox"]:checked');
+  for (var i = 0; i < boxes.length; i++) { selected.push(boxes[i].value); }
+  return selected;
+}
+
+function showFormError(id, msg) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function clearFormError(id) {
+  var el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
+
+function saveProfile() {
+  var companyType = document.getElementById('wCompanyType').value;
+  var homeCountry = document.getElementById('wHomeCountry').value;
+  var industry    = document.getElementById('wIndustry').value;
+  var revenue     = document.getElementById('wRevenue').value;
+  var sourcing    = collectSourcingCountries('wSourcingBox');
+
+  if (!companyType || !homeCountry || !industry || !revenue) {
+    showFormError('wFormError', 'Please fill in all required fields before continuing.');
+    return;
+  }
+  clearFormError('wFormError');
+
+  appProfile = { companyType: companyType, homeCountry: homeCountry, industry: industry, revenue: revenue, sourcingCountries: sourcing };
+  localStorage.setItem('riskSimProfile', JSON.stringify(appProfile));
+  closeModal();
+  updateProfileUI();
+  drawTradeLines();
+  addWelcomeMessage();
+}
+
+function updateProfile() {
+  var companyType = document.getElementById('eCompanyType').value;
+  var homeCountry = document.getElementById('eHomeCountry').value;
+  var industry    = document.getElementById('eIndustry').value;
+  var revenue     = document.getElementById('eRevenue').value;
+  var sourcing    = collectSourcingCountries('eSourcingBox');
+
+  if (!companyType || !homeCountry || !industry || !revenue) {
+    showFormError('eFormError', 'Please fill in all required fields before continuing.');
+    return;
+  }
+  clearFormError('eFormError');
+
+  appProfile = { companyType: companyType, homeCountry: homeCountry, industry: industry, revenue: revenue, sourcingCountries: sourcing };
+  localStorage.setItem('riskSimProfile', JSON.stringify(appProfile));
+  closeEditModal();
+  updateProfileUI();
+  drawTradeLines();
+}
+
+function updateProfileUI() {
+  if (!appProfile) return;
+  var summary = appProfile.industry + ' \u00B7 ' + appProfile.homeCountry;
+  document.getElementById('chatSubtitle').textContent = summary;
+
+  var badge = document.getElementById('profileBadge');
+  var shortIndustry = appProfile.industry.split('/')[0];
+  badge.textContent = shortIndustry + ' \u00B7 ' + appProfile.homeCountry;
+  badge.style.display = 'inline-block';
+}
+
+// ============================================================
+// POPULATE DROPDOWNS
+// ============================================================
+function populateCountryDropdowns() {
+  var base = '<option value="">Select your country\u2026</option>';
+  var opts = base;
+  for (var i = 0; i < ALL_COUNTRIES.length; i++) {
+    opts += '<option value="' + ALL_COUNTRIES[i] + '">' + ALL_COUNTRIES[i] + '</option>';
+  }
+  document.getElementById('wHomeCountry').innerHTML = opts;
+  document.getElementById('eHomeCountry').innerHTML = opts;
+}
+
+function populateSourcingCheckboxes() {
+  var html = '';
+  for (var i = 0; i < SOURCING_COUNTRIES.length; i++) {
+    var c = SOURCING_COUNTRIES[i];
+    html += '<label class="sourcing-label">' +
+            '<input type="checkbox" value="' + c + '">' + c + '</label>';
+  }
+  document.getElementById('wSourcingBox').innerHTML = html;
+  document.getElementById('eSourcingBox').innerHTML = html;
+}
+
+// ============================================================
+// MARKDOWN RENDERER
+// ============================================================
+function applyInlineMarkdown(text) {
+  // HTML-escape raw text first so AI responses cannot inject markup
+  text = escapeHtml(text);
+  // Then apply safe markdown transformations
+  text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  text = text.replace(/\*([^*]+?)\*/g,  '<em>$1</em>');
+  text = text.replace(/`([^`]+?)`/g,    '<code>$1</code>');
+  return text;
+}
+
+function renderMarkdown(text) {
+  var blocks = text.split(/\n{2,}/);
+  var html = '';
+  for (var b = 0; b < blocks.length; b++) {
+    var block = blocks[b].trim();
+    if (!block) continue;
+    var lines = block.split('\n');
+    var firstLine = lines[0];
+
+    // Heading block
+    if (/^#{1,3} /.test(firstLine)) {
+      for (var l = 0; l < lines.length; l++) {
+        var ln = lines[l].trim();
+        if      (/^### (.+)/.test(ln)) html += '<h3>' + applyInlineMarkdown(ln.replace(/^### /, '')) + '</h3>';
+        else if (/^## (.+)/.test(ln))  html += '<h3>' + applyInlineMarkdown(ln.replace(/^## /,  '')) + '</h3>';
+        else if (/^# (.+)/.test(ln))   html += '<h3>' + applyInlineMarkdown(ln.replace(/^# /,   '')) + '</h3>';
+        else if (ln)                   html += '<p>' + applyInlineMarkdown(ln) + '</p>';
       }
-      return res.json();
-    })
-    .then(function(data) {
-      hideTyping();
-      addMsg(data.reply || 'No response received.', 'bot');
-    })
-    .catch(function(err) {
-      hideTyping();
-      addMsg('**Error:** ' + err.message, 'bot');
-    })
-    .finally(function() {
-      sendBtnEl.disabled = false;
-      inputEl.focus();
-    });
-  }
+      continue;
+    }
 
-  function askQuestion(q) {
-    inputEl.value = q;
+    // List block (all lines start with bullet or number)
+    var isList = lines.every(function(ln) {
+      var t = ln.trim();
+      return !t || /^[-*\u2022] /.test(t) || /^\d+\. /.test(t);
+    });
+    if (isList) {
+      html += '<ul>';
+      for (var l = 0; l < lines.length; l++) {
+        var t = lines[l].trim();
+        if (!t) continue;
+        var item = t.replace(/^[-*\u2022] /, '').replace(/^\d+\. /, '');
+        html += '<li>' + applyInlineMarkdown(item) + '</li>';
+      }
+      html += '</ul>';
+      continue;
+    }
+
+    // Mixed block — scan line by line
+    var paraLines   = [];
+    var listItems   = [];
+    var flushPara   = function() {
+      if (paraLines.length) { html += '<p>' + applyInlineMarkdown(paraLines.join('<br>')) + '</p>'; paraLines = []; }
+    };
+    var flushList   = function() {
+      if (listItems.length) { html += '<ul>' + listItems.join('') + '</ul>'; listItems = []; }
+    };
+    for (var l = 0; l < lines.length; l++) {
+      var ln = lines[l];
+      if (/^#{1,3} /.test(ln)) {
+        flushPara(); flushList();
+        html += '<h3>' + applyInlineMarkdown(ln.replace(/^#{1,3} /, '')) + '</h3>';
+      } else if (/^[-*\u2022] /.test(ln) || /^\d+\. /.test(ln)) {
+        flushPara();
+        var item = ln.replace(/^[-*\u2022] /, '').replace(/^\d+\. /, '');
+        listItems.push('<li>' + applyInlineMarkdown(item) + '</li>');
+      } else {
+        flushList();
+        if (ln.trim()) paraLines.push(ln);
+      }
+    }
+    flushPara(); flushList();
+  }
+  return html || '<p>' + applyInlineMarkdown(text) + '</p>';
+}
+
+// ============================================================
+// CHAT FUNCTIONS
+// ============================================================
+function addWelcomeMessage() {
+  var container = document.getElementById('messagesContainer');
+  container.innerHTML = '';
+  chatHistory = [];
+
+  if (!appProfile) return;
+  var text = 'Hello! I\'m **RiskSim AI**, your supply chain intelligence analyst. Based on your **' +
+    appProfile.industry + '** profile in **' + appProfile.homeCountry + '**, I\'m ready to help you ' +
+    'reduce costs and manage risk. What would you like to analyze today?';
+  addMessage(text, 'bot');
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function addMessage(content, role) {
+  var container = document.getElementById('messagesContainer');
+
+  var div = document.createElement('div');
+  div.className = 'message ' + role;
+
+  var avatarContent = role === 'bot' ? '\uD83E\uDD16' : '\uD83D\uDC64';
+  var bubbleHtml    = role === 'bot'
+    ? renderMarkdown(content)
+    : '<p>' + escapeHtml(content) + '</p>';
+
+  div.innerHTML =
+    '<div class="msg-avatar ' + role + '">' + avatarContent + '</div>' +
+    '<div class="msg-bubble">' + bubbleHtml + '</div>';
+
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+
+  chatHistory.push({
+    role:    role === 'bot' ? 'assistant' : 'user',
+    content: content
+  });
+}
+
+function addErrorMessage(text) {
+  var container = document.getElementById('messagesContainer');
+  var div = document.createElement('div');
+  div.className = 'message error';
+  div.innerHTML =
+    '<div class="msg-avatar bot">\u26A0\uFE0F</div>' +
+    '<div class="msg-bubble"><p>' + escapeHtml(text) + '</p></div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  var el = document.getElementById('typingIndicator');
+  el.style.display = 'flex';
+  document.getElementById('messagesContainer').scrollTop = 9999;
+}
+
+function hideTyping() {
+  document.getElementById('typingIndicator').style.display = 'none';
+}
+
+function sendMessage() {
+  var input = document.getElementById('chatInput');
+  var text  = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  addMessage(text, 'user');
+
+  var sendBtn = document.getElementById('sendBtn');
+  sendBtn.disabled = true;
+  showTyping();
+
+  var payload = JSON.stringify({
+    message:  text,
+    messages: chatHistory.slice(-20),
+    profile:  appProfile
+  });
+
+  fetch('/api/chat', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    payload
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    hideTyping();
+    sendBtn.disabled = false;
+    if (data.error) {
+      addErrorMessage(data.error);
+    } else {
+      addMessage(data.reply || data.response || data.message || 'No response received.', 'bot');
+    }
+  })
+  .catch(function() {
+    hideTyping();
+    sendBtn.disabled = false;
+    addErrorMessage('Connection error. Please check your network and try again.');
+  });
+}
+
+function handleInputKeydown(event) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
     sendMessage();
   }
+}
 
-  // Event listeners
-  sendBtnEl.addEventListener('click', sendMessage);
+function autoResizeTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 96) + 'px';
+}
 
-  inputEl.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+// ============================================================
+// QUICK ACTIONS
+// ============================================================
+function getQuickPrompt(type) {
+  var ctx = '';
+  if (appProfile) {
+    ctx = ' My company is a ' + appProfile.companyType + ' headquartered in ' + appProfile.homeCountry +
+          ', operating in the ' + appProfile.industry + ' industry.';
+    if (appProfile.sourcingCountries && appProfile.sourcingCountries.length > 0) {
+      ctx += ' We currently source from: ' + appProfile.sourcingCountries.join(', ') + '.';
     }
-  });
-
-  inputEl.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-  });
-
-  // Quick chip handlers
-  var CHIP_QUESTIONS = {
-    'chip-geo':     'What are the top geopolitical risks affecting global supply chains right now?',
-    'chip-tariff':  'Analyze the current tariff landscape and its impact on global trade and supply chains.',
-    'chip-reg':     'What are the latest regulatory changes affecting international supply chains?',
-    'chip-hotspot': 'Which regions are currently the highest supply chain risk hotspots and why?',
-    'chip-disrupt': 'What are the major supply chain disruptions happening globally right now?',
-    'chip-trade':   'Analyze current global trade trends and their impact on supply chain resilience.',
+    ctx += ' Annual revenue: ' + appProfile.revenue + '.';
+  }
+  var prompts = {
+    audit:        'Perform a comprehensive supply chain audit for my company. Analyze all risk factors, cost inefficiencies, and strategic vulnerabilities based on my profile.' + ctx,
+    cost:         'Compare the total landed cost of sourcing from my current countries versus lower-cost alternatives. Include shipping, tariffs, labor, compliance, and hidden costs.' + ctx,
+    risk:         'What are the current top geopolitical and supply chain risk events that directly affect companies in my industry sourcing from my countries? Give specific, actionable intelligence.' + ctx,
+    optimize:     'Give me the top 5 specific, high-impact recommendations to reduce my supply chain costs while maintaining quality and managing risk. Be concrete and quantify savings where possible.' + ctx,
+    alternatives: 'What are the best alternative sourcing countries for my industry that could meaningfully reduce my cost and risk exposure? Compare them on key metrics.' + ctx
   };
+  return prompts[type] || ('Analyze my supply chain.' + ctx);
+}
 
-  Object.keys(CHIP_QUESTIONS).forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('click', function() { askQuestion(CHIP_QUESTIONS[id]); });
-    }
-  });
+function sendQuickMessage(type) {
+  var prompt = getQuickPrompt(type);
+  document.getElementById('chatInput').value = prompt;
+  sendMessage();
+}
 
-  // Welcome message
-  addMsg(
-    '👋 Welcome to **RiskSim** — your AI-powered supply chain intelligence platform.\n\n' +
-    'I can help you:\n' +
-    '- **Analyze geopolitical risks** by country or region\n' +
-    '- **Assess tariff and trade impacts** on your supply chain\n' +
-    '- **Monitor regulatory changes** affecting global trade\n' +
-    '- **Identify disruption hotspots** and mitigation strategies\n\n' +
-    'Click any country on the map for an instant AI deep-dive, or use the quick analysis buttons below.',
-    'bot'
-  );
+// ============================================================
+// CHAT PANEL TOGGLE  (cycles: normal → expanded → collapsed → normal)
+// ============================================================
+function toggleChatPanel(event) {
+  if (event) event.stopPropagation();
 
-  // ══════════════════════════════════════════════════════════════
-  //  MAP — gracefully skipped if Leaflet is unavailable
-  // ══════════════════════════════════════════════════════════════
+  var panel    = document.getElementById('chatPanel');
+  var mapPanel = document.getElementById('mapPanel');
+  var btn      = document.getElementById('toggleBtn');
 
-  // Expose askQuestion globally for map popup onclick handlers
-  window._askQ = function(q) {
-    if (window._leafletMap) window._leafletMap.closePopup();
-    askQuestion(q);
-  };
-
-  // Store popup action strings safely, keyed by sanitized country name
-  window._popupData = {};
-
-  function esc(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  if (!chatExpanded && !chatCollapsed) {
+    // Normal → Expanded
+    chatExpanded = true; chatCollapsed = false;
+    panel.classList.remove('collapsed');
+    panel.style.flex    = '7';
+    mapPanel.style.flex = '3';
+    btn.innerHTML = '\u25BC';
+  } else if (chatExpanded && !chatCollapsed) {
+    // Expanded → Collapsed
+    chatExpanded = false; chatCollapsed = true;
+    panel.classList.add('collapsed');
+    panel.style.flex    = '';
+    mapPanel.style.flex = '';
+    btn.innerHTML = '\u25B2';
+  } else {
+    // Collapsed → Normal
+    chatExpanded = false; chatCollapsed = false;
+    panel.classList.remove('collapsed');
+    panel.style.flex    = '';
+    mapPanel.style.flex = '';
+    btn.innerHTML = '\u25B2';
   }
 
-  function safeKey(name) {
-    return name.replace(/\W+/g, '_');
+  setTimeout(function() { if (map) map.invalidateSize(); }, 420);
+}
+
+// ============================================================
+// ANIMATED COUNTERS
+// ============================================================
+function animateCounter(id, start, end, duration, suffix) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var startTime = null;
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var progress = Math.min((ts - startTime) / duration, 1);
+    var eased    = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(start + (end - start) * eased) + suffix;
+    if (progress < 1) requestAnimationFrame(step);
   }
+  requestAnimationFrame(step);
+}
 
-  function popupHTML(name, risk) {
-    var displayName = esc(name);
-    var key = safeKey(name);
+function animateCounters() {
+  animateCounter('statCountries', 0, 54, 1500, '');
 
-    if (!risk) {
-      window._popupData[key] = 'What are the supply chain considerations and risks for ' + name + '?';
-      return '<div style="min-width:200px;font-family:Inter,sans-serif;">' +
-        '<div class="popup-country">' + displayName + '</div>' +
-        '<div style="font-size:12px;color:#64748b;">No risk data available</div>' +
-        '<button class="popup-btn" onclick="window._askQ(window._popupData[\'' + key + '\'])">Ask Claude about ' + displayName + ' \u2192</button>' +
-        '</div>';
-    }
-    var levelColors = { CRITICAL:'#ff0040', HIGH:'#ff8c00', MEDIUM:'#f5c518', LOW:'#00e676' };
-    var costColors  = { SEVERE:'#ff0040', HIGH:'#ff8c00', MEDIUM:'#f5c518', LOW:'#00e676', BASELINE:'#00d4ff', RESTRICTED:'#64748b' };
-    var costIcons   = { SEVERE:'\uD83D\uDCB8\uD83D\uDCB8\uD83D\uDCB8', HIGH:'\uD83D\uDCB8\uD83D\uDCB8', MEDIUM:'\uD83D\uDCB8', LOW:'\u2714 Low', BASELINE:'\u2605 Domestic', RESTRICTED:'\u26D4 Banned' };
-    var badgeBg = levelColors[risk.level] + '22';
-    var factors = risk.factors.map(function(f) { return '<div class="popup-factor">\u25b8 ' + esc(f) + '</div>'; }).join('');
-    var costColor = costColors[risk.costImpact] || '#94a3b8';
-    var costIcon  = costIcons[risk.costImpact]  || '';
-    var costBlock = risk.tariff
-      ? '<div class="popup-cost">' +
-          '<div class="popup-cost-label">US Import Cost Impact</div>' +
-          '<div class="popup-cost-row"><span>Tariff Rate</span><span class="popup-cost-val" style="color:' + esc(costColor) + ';">' + esc(risk.tariff) + '</span></div>' +
-          '<div class="popup-cost-row"><span>Cost Level</span><span class="popup-cost-val" style="color:' + esc(costColor) + ';">' + esc(costIcon + ' ' + (risk.costImpact || '')) + '</span></div>' +
-        '</div>'
-      : '';
-    window._popupData[key] = 'Provide a detailed supply chain risk analysis for ' + name +
-      '. Risk level: ' + risk.level + ' (score ' + risk.score + '/100).' +
-      ' Key factors: ' + risk.factors.join(', ') + '.' +
-      ' Trade volume: ' + risk.trade + '.' +
-      (risk.tariff ? ' US tariff: ' + risk.tariff + ' (cost impact: ' + risk.costImpact + ').' : '') +
-      ' Include actionable recommendations for supply chain managers.';
-    return '<div style="min-width:240px;font-family:Inter,sans-serif;">' +
-      '<div class="popup-country">' + displayName + '</div>' +
-      '<div class="popup-badge" style="background:' + esc(badgeBg) + ';color:' + esc(risk.color) + ';border:1px solid ' + esc(risk.color) + '44;">' + esc(risk.level) + '</div>' +
-      '<div class="popup-row"><span>Risk Score</span><span class="popup-row-val" style="color:' + esc(risk.color) + ';">' + esc(String(risk.score)) + '/100</span></div>' +
-      '<div class="popup-row"><span>Trade Volume</span><span class="popup-row-val">' + esc(risk.trade) + '</span></div>' +
-      costBlock +
-      '<div class="popup-factors"><div class="popup-factors-title">Key Risk Factors</div>' + factors + '</div>' +
-      '<button class="popup-btn" onclick="window._askQ(window._popupData[\'' + key + '\'])">Deep Dive Analysis \u2192</button>' +
-      '</div>';
-  }
+  setTimeout(function() {
+    var el = document.getElementById('statAnalysis');
+    if (el) { el.textContent = 'Live'; el.style.fontSize = '15px'; el.style.fontWeight = '700'; }
+  }, 600);
 
-  try {
-    var leafletMap = window._leafletMap = L.map('map', {
-      center: [20, 12],
-      zoom: 2,
-      minZoom: 2,
-      maxZoom: 10,
-      zoomControl: true,
-    });
+  var aiEl = document.getElementById('statAI');
+  if (aiEl) { aiEl.textContent = 'AI'; aiEl.style.fontSize = '15px'; aiEl.style.fontWeight = '700'; }
+}
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> &copy; <a href="https://carto.com">CARTO</a>',
-      subdomains: 'abcd',
-      maxZoom: 19,
-    }).addTo(leafletMap);
+// ============================================================
+// INIT APP
+// ============================================================
+function initApp() {
+  populateCountryDropdowns();
+  populateSourcingCheckboxes();
+  loadProfile();
+  initMap();
+  animateCounters();
+  if (appProfile) { addWelcomeMessage(); }
+}
 
-    // ── View mode: 'risk' or 'cost' ─────────────────────────────
-    var viewMode = 'risk';
-    var COST_COLORS = { SEVERE:'#ff0040', HIGH:'#ff8c00', MEDIUM:'#f5c518', LOW:'#00e676', BASELINE:'#00d4ff', RESTRICTED:'#334155' };
-
-    function countryStyle(risk) {
-      if (!risk) return { fillColor:'#1a2540', fillOpacity:0.3, color:'#2d3f5e', weight:0.5, opacity:0.6 };
-      if (viewMode === 'cost') {
-        var cc = COST_COLORS[risk.costImpact] || '#334155';
-        return { fillColor: cc, fillOpacity: 0.38, color: cc, weight: 1.5, opacity: 0.85 };
-      }
-      return { fillColor: risk.color, fillOpacity: 0.3, color: risk.color, weight: 1.5, opacity: 0.85 };
-    }
-
-    var geoLayer = null;
-
-    // Country centroid lookup for cost labels
-    var CENTROIDS = {
-      'China':[35.86,104.2],'Taiwan':[23.63,120.96],'Russia':[61.52,105.32],
-      'North Korea':[40.34,127.51],'Iran':[32.43,53.69],'Myanmar':[19.15,95.96],
-      'Vietnam':[14.06,108.28],'India':[20.59,78.96],'Bangladesh':[23.68,90.36],
-      'Pakistan':[30.38,69.35],'Turkey':[38.96,35.24],'Ukraine':[48.38,31.16],
-      'Venezuela':[6.42,-66.58],'Ethiopia':[9.15,40.49],
-      'Brazil':[-14.24,-51.93],'Philippines':[12.88,121.77],'Indonesia':[-0.79,113.92],
-      'Mexico':[23.63,-102.55],'Thailand':[15.87,100.99],'Malaysia':[4.21,108.96],
-      'Egypt':[26.82,30.80],'Nigeria':[9.08,8.68],'South Africa':[-30.56,22.94],
-      'Colombia':[4.57,-74.30],'Argentina':[-38.42,-63.62],
-      'Japan':[36.2,138.25],'South Korea':[35.91,127.77],'Singapore':[1.35,103.82],
-      'Germany':[51.17,10.45],'Canada':[56.13,-106.35],'Australia':[-25.27,133.78],
-      'United Kingdom':[55.38,-3.44],'Netherlands':[52.13,5.29],'United States':[37.09,-95.71],
-      'France':[46.23,2.21],'Italy':[41.87,12.57],'Spain':[40.46,-3.75],
-      'Poland':[51.92,19.15],'Sweden':[60.13,18.64],'Austria':[47.52,14.55],
-      'Belgium':[50.50,4.47],'Czech Republic':[49.82,15.47],'Portugal':[39.40,-8.22],
-      'Denmark':[56.26,9.50],'Finland':[61.92,25.75],'Ireland':[53.41,-8.24],
-      'Norway':[60.47,8.47],'Switzerland':[46.82,8.23],'Greece':[39.07,21.82],
-      'Romania':[45.94,24.97],'Hungary':[47.16,19.50],'Israel':[31.05,34.86],
-      'Saudi Arabia':[23.89,45.08],'UAE':[23.42,53.85],'Morocco':[31.79,-7.09],
-    };
-
-    // Cost label layer (shown only in cost view)
-    var costLabelGroup = L.layerGroup();
-
-    function buildCostLabels() {
-      costLabelGroup.clearLayers();
-      Object.keys(RISK).forEach(function(name) {
-        var coords = CENTROIDS[name];
-        if (!coords) return;
-        var r = RISK[name];
-        if (!r.tariff || r.costImpact === 'BASELINE') return;
-        var cc = COST_COLORS[r.costImpact] || '#fff';
-        var shortTariff = r.tariff.replace(/ \(.+\)/, ''); // e.g. "145%+"
-        var icon = L.divIcon({
-          html: '<div class="cost-label-marker" style="color:' + cc + ';border-color:' + cc + '44;">' + shortTariff + '</div>',
-          className: '',
-          iconSize: null,
-          iconAnchor: [20, 8],
-        });
-        L.marker(coords, { icon: icon, interactive: false }).addTo(costLabelGroup);
-      });
-    }
-
-    function setViewMode(mode) {
-      viewMode = mode;
-      document.getElementById('btnRiskView').classList.toggle('active', mode === 'risk');
-      document.getElementById('btnCostView').classList.toggle('active', mode === 'cost');
-      document.getElementById('legendRisk').style.display = mode === 'risk' ? '' : 'none';
-      document.getElementById('legendCost').style.display = mode === 'cost' ? '' : 'none';
-      document.getElementById('legendModeLabel').textContent = mode === 'risk' ? 'Risk Level' : 'US Cost Impact';
-      if (geoLayer) {
-        geoLayer.eachLayer(function(layer) {
-          var name = layer.feature && layer.feature.properties && layer.feature.properties.name;
-          geoLayer.resetStyle(layer);
-        });
-      }
-      if (mode === 'cost') {
-        costLabelGroup.addTo(leafletMap);
-      } else {
-        if (leafletMap.hasLayer(costLabelGroup)) leafletMap.removeLayer(costLabelGroup);
-      }
-    }
-
-    document.getElementById('btnRiskView').addEventListener('click', function() { setViewMode('risk'); });
-    document.getElementById('btnCostView').addEventListener('click', function() {
-      buildCostLabels();
-      setViewMode('cost');
-    });
-
-    fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson')
-      .then(function(r) { return r.json(); })
-      .then(function(geojson) {
-        geoLayer = L.geoJSON(geojson, {
-          style: function(feature) {
-            return countryStyle(getRisk(feature.properties.name));
-          },
-          onEachFeature: function(feature, layer) {
-            var name = feature.properties.name;
-            var risk = getRisk(name);
-            layer.on({
-              mouseover: function(e) {
-                e.target.setStyle({ weight: 2.5, fillOpacity: risk ? 0.6 : 0.4, opacity: 1 });
-                e.target.bringToFront();
-              },
-              mouseout: function(e) {
-                geoLayer.resetStyle(e.target);
-              },
-              click: function(e) {
-                layer.bindPopup(popupHTML(name, risk), { maxWidth: 300 }).openPopup(e.latlng);
-                if (risk) {
-                  leafletMap.flyTo(e.latlng, Math.max(leafletMap.getZoom(), 4), { duration: 1.2 });
-                }
-              },
-            });
-          },
-        }).addTo(leafletMap);
-      })
-      .catch(function(err) {
-        console.warn('GeoJSON unavailable, using circle markers:', err);
-        Object.keys(RISK).forEach(function(name) {
-          var coords = CENTROIDS[name];
-          if (!coords) return;
-          var risk = RISK[name];
-          L.circleMarker(coords, {
-            radius: 8, fillColor: risk.color, color: risk.color,
-            weight: 2, fillOpacity: 0.5, opacity: 0.9,
-          }).addTo(leafletMap)
-            .bindPopup(popupHTML(name, risk), { maxWidth: 300 });
-        });
-      });
-
-    // Animated pulse markers on CRITICAL countries
-    var CRITICAL_LOCS = [
-      [35.86,104.2],[23.63,120.96],[61.52,105.32],
-      [40.34,127.51],[32.43,53.69],[19.15,95.96],
-    ];
-    CRITICAL_LOCS.forEach(function(coords) {
-      var icon = L.divIcon({
-        html: '<div class="pulse-wrap"><div class="pulse-ring"></div><div class="pulse-core"></div></div>',
-        className: '',
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
-      });
-      L.marker(coords, { icon: icon, interactive: false }).addTo(leafletMap);
-    });
-
-  } catch (mapErr) {
-    console.warn('Map unavailable (Leaflet may not have loaded):', mapErr);
-  }
-
-  </script>
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
 </body>
 </html>
