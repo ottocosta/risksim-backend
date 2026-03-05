@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { Anthropic } = require('@anthropic-ai/sdk');
+const Anthropic = require('@anthropic-ai/sdk').default || require('@anthropic-ai/sdk');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -16,7 +16,7 @@ app.post('/api/chat', async (req, res) => {
         if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
         const client = new Anthropic({ apiKey });
-        const response = await client.messages.create({ model: 'claude-3-5-sonnet-20241022', max_tokens: 1500, system: 'You are a world-class supply chain risk analyst. Provide deep, actionable insights on geopolitical risks, tariffs, regulations, and supply chain resilience.', messages: [{ role: 'user', content: message }] });
+        const response = await client.messages.create({ model: 'claude-sonnet-4-20250514', max_tokens: 1500, system: 'You are a world-class supply chain risk analyst. Provide deep, actionable insights on geopolitical risks, tariffs, regulations, and supply chain resilience.', messages: [{ role: 'user', content: message }] });
 
         const reply = response.content[0]?.text || 'No response';
         res.json({ reply });
