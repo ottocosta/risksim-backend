@@ -811,6 +811,7 @@ var map            = null;
 var countryMarkers = {};
 var tradeLines     = [];
 var chatState      = 'floating'; // 'floating' | 'expanded'
+var hasShownWelcome = false;
 
 // Bot avatar SVG (inline, used in messages)
 var BOT_AVATAR_SVG =
@@ -1163,6 +1164,10 @@ function drawTradeLines() {
 function expandChatPanel() {
   if (chatState === 'expanded') return;
   chatState = 'expanded';
+  if (!hasShownWelcome && appProfile) {
+    hasShownWelcome = true;
+    addWelcomeMessage();
+  }
   document.getElementById('chatOverlay').classList.add('hidden');
   document.getElementById('chatExpandedPanel').classList.add('visible');
   document.getElementById('mapContainer').classList.add('thumbnail');
@@ -1600,7 +1605,6 @@ function initApp() {
   loadProfile();
   initMap();
   animateCounters();
-  if (appProfile) { addWelcomeMessage(); }
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
