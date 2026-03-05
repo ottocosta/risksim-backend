@@ -857,9 +857,632 @@
       padding-top: 10px;
       border-top: 1px solid var(--border);
     }
+
+    /* ─── ONBOARDING OVERLAY ─────────────────────────────────── */
+    @keyframes ob-orb-1 {
+      0%, 100% { transform: translate(0, 0); }
+      33%  { transform: translate(60px, 80px); }
+      66%  { transform: translate(-40px, 40px); }
+    }
+    @keyframes ob-orb-2 {
+      0%, 100% { transform: translate(0, 0); }
+      33%  { transform: translate(-80px, -60px); }
+      66%  { transform: translate(40px, -30px); }
+    }
+    @keyframes ob-orb-3 {
+      0%, 100% { transform: translate(0, -50%); }
+      50%  { transform: translate(-60px, -60%); }
+    }
+    @keyframes ob-glow-pulse {
+      0%, 100% { box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 40px rgba(0,212,255,0.15), 0 0 80px rgba(124,58,237,0.08); }
+      50%       { box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 60px rgba(0,212,255,0.28), 0 0 120px rgba(124,58,237,0.15); }
+    }
+    @keyframes ob-card-in {
+      from { opacity: 0; transform: translateY(32px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes ob-panel-in-right {
+      from { opacity: 0; transform: translateX(36px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes ob-panel-out-left {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(-36px); }
+    }
+    @keyframes ob-panel-in-left {
+      from { opacity: 0; transform: translateX(-36px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes ob-panel-out-right {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(36px); }
+    }
+    @keyframes ob-fade-out {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+    @keyframes ob-float-up {
+      0%   { transform: translateY(0) scale(0); opacity: 0; }
+      10%  { opacity: 0.7; }
+      90%  { opacity: 0.5; }
+      100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
+    }
+    @keyframes ob-gradient-border {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes ob-logo-pulse {
+      0%, 100% { box-shadow: 0 0 18px rgba(0,212,255,0.4), 0 0 36px rgba(124,58,237,0.2); }
+      50%       { box-shadow: 0 0 30px rgba(0,212,255,0.65), 0 0 55px rgba(124,58,237,0.35); }
+    }
+
+    .onboarding-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: linear-gradient(135deg, #020810 0%, #060c22 40%, #080a1e 70%, #040b1a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .onboarding-overlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 1px 1px, rgba(0,212,255,0.07) 1px, transparent 0);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+    .onboarding-overlay.ob-exit {
+      animation: ob-fade-out 0.55s ease forwards;
+      pointer-events: none;
+    }
+
+    .ob-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .ob-orb-1 {
+      width: 480px; height: 480px;
+      background: radial-gradient(circle, rgba(0,212,255,0.13) 0%, transparent 70%);
+      top: -140px; left: -100px;
+      animation: ob-orb-1 14s ease-in-out infinite;
+    }
+    .ob-orb-2 {
+      width: 560px; height: 560px;
+      background: radial-gradient(circle, rgba(124,58,237,0.11) 0%, transparent 70%);
+      bottom: -160px; right: -120px;
+      animation: ob-orb-2 17s ease-in-out infinite;
+    }
+    .ob-orb-3 {
+      width: 340px; height: 340px;
+      background: radial-gradient(circle, rgba(0,153,255,0.09) 0%, transparent 70%);
+      top: 50%; right: 18%;
+      animation: ob-orb-3 11s ease-in-out infinite;
+    }
+
+    .ob-particles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .ob-particle {
+      position: absolute;
+      bottom: -8px;
+      border-radius: 50%;
+      animation: ob-float-up linear infinite;
+    }
+
+    /* Card */
+    .onboarding-card {
+      position: relative;
+      z-index: 1;
+      width: 500px;
+      max-width: calc(100vw - 32px);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      background: rgba(11, 17, 36, 0.92);
+      backdrop-filter: blur(28px);
+      border-radius: 24px;
+      padding: 38px 40px 32px;
+      animation: ob-card-in 0.55s cubic-bezier(0.22,0.97,0.4,1) both;
+      animation-delay: 0.08s;
+      /* animated gradient border */
+      box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 40px rgba(0,212,255,0.15), 0 0 80px rgba(124,58,237,0.08);
+    }
+    .onboarding-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(0,212,255,0.35), rgba(124,58,237,0.3), rgba(0,153,255,0.2), rgba(0,212,255,0.3));
+      background-size: 300% 300%;
+      animation: ob-gradient-border 5s ease infinite;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 1px;
+      pointer-events: none;
+    }
+    .onboarding-card::-webkit-scrollbar { width: 3px; }
+    .onboarding-card::-webkit-scrollbar-track { background: transparent; }
+    .onboarding-card::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.18); border-radius: 2px; }
+
+    /* Progress indicator */
+    .ob-progress-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 26px;
+    }
+    .ob-progress-row {
+      display: flex;
+      align-items: center;
+    }
+    .ob-step-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,212,255,0.25);
+      background: rgba(0,212,255,0.04);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+    .ob-step-dot.active {
+      border-color: var(--cyan);
+      background: rgba(0,212,255,0.14);
+      color: var(--cyan);
+      box-shadow: 0 0 14px rgba(0,212,255,0.32);
+    }
+    .ob-step-dot.done {
+      border-color: #00e676;
+      background: rgba(0,230,118,0.14);
+      color: #00e676;
+      font-size: 14px;
+    }
+    .ob-step-line {
+      height: 2px;
+      width: 90px;
+      background: rgba(0,212,255,0.12);
+      transition: background 0.4s ease;
+    }
+    .ob-step-line.done { background: rgba(0,212,255,0.45); }
+    .ob-step-labels {
+      display: flex;
+      gap: 122px;
+      margin-top: 5px;
+    }
+    .ob-step-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      text-align: center;
+      width: 32px;
+    }
+
+    /* Header */
+    .ob-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .ob-logo-mark {
+      width: 58px;
+      height: 58px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 14px;
+      animation: ob-logo-pulse 3s ease-in-out infinite;
+    }
+    .ob-title {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(120deg, var(--cyan) 0%, var(--cyan-dark) 50%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.3px;
+      margin-bottom: 8px;
+    }
+    .ob-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* Form fields */
+    .ob-field {
+      margin-bottom: 16px;
+    }
+    .ob-field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+    }
+    .ob-optional {
+      font-weight: 400;
+      color: var(--text-muted);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .ob-select-wrap { position: relative; }
+    .ob-select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      font-size: 11px;
+    }
+    .ob-field select,
+    .ob-field input[type="text"] {
+      width: 100%;
+      background: rgba(6, 10, 26, 0.75);
+      border: 1px solid rgba(0,212,255,0.14);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: inherit;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .ob-field select:focus,
+    .ob-field input[type="text"]:focus {
+      outline: none;
+      border-color: rgba(0,212,255,0.42);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+    }
+    .ob-field select option {
+      background: #0d1428;
+      color: var(--text-primary);
+    }
+    .ob-field input[type="text"]::placeholder { color: var(--text-muted); }
+    .ob-field-required { color: #ff6b7a; }
+
+    /* Validation error */
+    .ob-error {
+      font-size: 11px;
+      color: #ff6b7a;
+      margin-top: 5px;
+      display: none;
+    }
+    .ob-error.visible { display: block; }
+
+    /* Goal cards */
+    .ob-goals-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .ob-goal-card {
+      padding: 10px 11px;
+      background: rgba(6, 10, 26, 0.65);
+      border: 1px solid rgba(0,212,255,0.12);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      user-select: none;
+      line-height: 1.3;
+    }
+    .ob-goal-icon { font-size: 16px; flex-shrink: 0; }
+    .ob-goal-text { flex: 1; }
+    .ob-goal-check {
+      margin-left: auto;
+      opacity: 0;
+      font-size: 13px;
+      color: var(--cyan);
+      transition: opacity 0.15s;
+      flex-shrink: 0;
+    }
+    .ob-goal-card:hover {
+      border-color: rgba(0,212,255,0.28);
+      background: rgba(0,212,255,0.06);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+    .ob-goal-card.selected {
+      border-color: var(--cyan);
+      background: rgba(0,212,255,0.1);
+      color: var(--text-primary);
+      box-shadow: 0 0 14px rgba(0,212,255,0.14);
+    }
+    .ob-goal-card.selected .ob-goal-check { opacity: 1; }
+
+    /* Buttons */
+    .ob-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--cyan), var(--cyan-dark));
+      border: none;
+      border-radius: 10px;
+      color: #060a1a;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.3px;
+      box-shadow: 0 4px 20px rgba(0,212,255,0.28);
+      margin-top: 8px;
+    }
+    .ob-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,212,255,0.44);
+    }
+    .ob-btn:active { transform: translateY(0); }
+    .ob-btn-row { display: flex; gap: 10px; margin-top: 8px; }
+    .ob-btn-secondary {
+      flex-shrink: 0;
+      padding: 12px 18px;
+      background: rgba(0,212,255,0.06);
+      border: 1px solid rgba(0,212,255,0.18);
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .ob-btn-secondary:hover {
+      background: rgba(0,212,255,0.12);
+      color: var(--text-primary);
+    }
+    .ob-btn-primary-flex {
+      flex: 1;
+      display: block;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--cyan), var(--cyan-dark));
+      border: none;
+      border-radius: 10px;
+      color: #060a1a;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 20px rgba(0,212,255,0.28);
+    }
+    .ob-btn-primary-flex:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,212,255,0.44);
+    }
+    .ob-btn-primary-flex:active { transform: translateY(0); }
+    .ob-skip-link {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      font-family: inherit;
+      width: 100%;
+    }
+    .ob-skip-link:hover { color: var(--text-secondary); }
+
+    /* Panel transitions */
+    .ob-panel { display: block; }
+    .ob-panel.hidden { display: none; }
   </style>
 </head>
 <body>
+
+  <!-- ─── ONBOARDING OVERLAY ────────────────────────────────── -->
+  <div id="onboardingOverlay" class="onboarding-overlay">
+    <div class="ob-orb ob-orb-1"></div>
+    <div class="ob-orb ob-orb-2"></div>
+    <div class="ob-orb ob-orb-3"></div>
+    <div class="ob-particles" id="obParticles"></div>
+
+    <div class="onboarding-card">
+      <!-- Progress indicator -->
+      <div class="ob-progress-wrapper" id="obProgressWrapper">
+        <div class="ob-progress-row">
+          <div class="ob-step-dot active" id="obDot1">1</div>
+          <div class="ob-step-line" id="obLine1"></div>
+          <div class="ob-step-dot" id="obDot2">2</div>
+        </div>
+        <div class="ob-step-labels">
+          <div class="ob-step-label">Profile</div>
+          <div class="ob-step-label">Goals</div>
+        </div>
+      </div>
+
+      <!-- ── STEP 1: Company Profile ── -->
+      <div class="ob-panel" id="obStep1">
+        <div class="ob-header">
+          <div class="ob-logo-mark">🌐</div>
+          <div class="ob-title">Welcome to RiskSim</div>
+          <div class="ob-subtitle">Tell us about your business so we can tailor<br>your supply chain intelligence briefing.</div>
+        </div>
+
+        <div class="ob-field">
+          <label>Your Country / HQ Location <span class="ob-field-required">*</span></label>
+          <div class="ob-select-wrap">
+            <select id="obCountry">
+              <option value="">Select your country…</option>
+              <option>United States</option>
+              <option>United Kingdom</option>
+              <option>Canada</option>
+              <option>Australia</option>
+              <option>Germany</option>
+              <option>France</option>
+              <option>Netherlands</option>
+              <option>Japan</option>
+              <option>South Korea</option>
+              <option>Singapore</option>
+              <option>China</option>
+              <option>India</option>
+              <option>Brazil</option>
+              <option>Mexico</option>
+              <option>Italy</option>
+              <option>Spain</option>
+              <option>Sweden</option>
+              <option>Norway</option>
+              <option>Denmark</option>
+              <option>Switzerland</option>
+              <option>Austria</option>
+              <option>Belgium</option>
+              <option>Poland</option>
+              <option>Czech Republic</option>
+              <option>Portugal</option>
+              <option>Finland</option>
+              <option>Ireland</option>
+              <option>Greece</option>
+              <option>Romania</option>
+              <option>Hungary</option>
+              <option>UAE</option>
+              <option>Saudi Arabia</option>
+              <option>Israel</option>
+              <option>South Africa</option>
+              <option>Nigeria</option>
+              <option>Egypt</option>
+              <option>Morocco</option>
+              <option>Turkey</option>
+              <option>Vietnam</option>
+              <option>Thailand</option>
+              <option>Malaysia</option>
+              <option>Indonesia</option>
+              <option>Philippines</option>
+              <option>Taiwan</option>
+              <option>Colombia</option>
+              <option>Argentina</option>
+              <option>Chile</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="ob-error" id="obCountryError">Please select your country.</div>
+        </div>
+
+        <div class="ob-field">
+          <label>Industry / Business Type <span class="ob-field-required">*</span></label>
+          <div class="ob-select-wrap">
+            <select id="obIndustry">
+              <option value="">Select your industry…</option>
+              <option>Manufacturing</option>
+              <option>Retail &amp; E-Commerce</option>
+              <option>Technology &amp; Electronics</option>
+              <option>Automotive</option>
+              <option>Pharmaceuticals &amp; Healthcare</option>
+              <option>Food &amp; Agriculture</option>
+              <option>Textiles &amp; Apparel</option>
+              <option>Chemicals &amp; Materials</option>
+              <option>Energy &amp; Utilities</option>
+              <option>Aerospace &amp; Defense</option>
+              <option>Logistics &amp; Transportation</option>
+              <option>Consumer Goods</option>
+              <option>Financial Services</option>
+              <option>Consulting &amp; Advisory</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="ob-error" id="obIndustryError">Please select your industry.</div>
+        </div>
+
+        <div class="ob-field">
+          <label>Company Name <span class="ob-optional">(optional)</span></label>
+          <input type="text" id="obCompany" placeholder="e.g. Acme Corporation" maxlength="80" />
+        </div>
+
+        <button class="ob-btn" id="obNext1">Continue →</button>
+        <button class="ob-skip-link" id="obSkip">Skip setup and explore freely →</button>
+      </div>
+
+      <!-- ── STEP 2: Objectives ── -->
+      <div class="ob-panel hidden" id="obStep2">
+        <div class="ob-header">
+          <div class="ob-title" style="font-size:20px; margin-bottom:6px;">What are your objectives?</div>
+          <div class="ob-subtitle">Select all that apply — we'll personalize your insights.</div>
+        </div>
+
+        <div class="ob-goals-grid" id="obGoals">
+          <div class="ob-goal-card" data-goal="expand">
+            <span class="ob-goal-icon">🌍</span>
+            <span class="ob-goal-text">Expand to new markets</span>
+            <span class="ob-goal-check">✓</span>
+          </div>
+          <div class="ob-goal-card" data-goal="manufacturers">
+            <span class="ob-goal-icon">🏭</span>
+            <span class="ob-goal-text">Change manufacturers</span>
+            <span class="ob-goal-check">✓</span>
+          </div>
+          <div class="ob-goal-card" data-goal="costs">
+            <span class="ob-goal-icon">💰</span>
+            <span class="ob-goal-text">Reduce supply chain costs</span>
+            <span class="ob-goal-check">✓</span>
+          </div>
+          <div class="ob-goal-card" data-goal="geopolitical">
+            <span class="ob-goal-icon">🛡️</span>
+            <span class="ob-goal-text">Monitor geopolitical risks</span>
+            <span class="ob-goal-check">✓</span>
+          </div>
+          <div class="ob-goal-card" data-goal="tariffs">
+            <span class="ob-goal-icon">📊</span>
+            <span class="ob-goal-text">Track tariff impacts</span>
+            <span class="ob-goal-check">✓</span>
+          </div>
+          <div class="ob-goal-card" data-goal="suppliers">
+            <span class="ob-goal-icon">🔍</span>
+            <span class="ob-goal-text">Find alternative suppliers</span>
+            <span class="ob-goal-check">✓</span>
+          </div>
+        </div>
+        <div class="ob-error" id="obGoalsError" style="margin-bottom:10px;">Please select at least one objective.</div>
+
+        <div class="ob-field">
+          <label>Annual Trade / Import Volume <span class="ob-optional">(optional)</span></label>
+          <div class="ob-select-wrap">
+            <select id="obVolume">
+              <option value="">Select range…</option>
+              <option value="under1M">Under $1M</option>
+              <option value="1M-10M">$1M – $10M</option>
+              <option value="10M-100M">$10M – $100M</option>
+              <option value="over100M">Over $100M</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ob-btn-row">
+          <button class="ob-btn-secondary" id="obBack2">← Back</button>
+          <button class="ob-btn-primary-flex" id="obSubmit">Launch Platform →</button>
+        </div>
+      </div>
+
+    </div><!-- /.onboarding-card -->
+  </div><!-- /#onboardingOverlay -->
 
   <!-- ─── NAVBAR ─────────────────────────────────────────────── -->
   <nav class="navbar">
@@ -1117,6 +1740,9 @@
   // ══════════════════════════════════════════════════════════════
   //  CHAT — initialized at top level, independent of Leaflet
   // ══════════════════════════════════════════════════════════════
+  // User profile captured during onboarding (null if skipped)
+  window._userProfile = null;
+
   var messagesEl = document.getElementById('messagesContainer');
   var inputEl    = document.getElementById('messageInput');
   var sendBtnEl  = document.getElementById('sendBtn');
@@ -1199,7 +1825,7 @@
     fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg }),
+      body: JSON.stringify({ message: msg, userProfile: window._userProfile }),
     })
     .then(function(res) {
       if (!res.ok) {
@@ -1259,17 +1885,160 @@
     }
   });
 
-  // Welcome message
-  addMsg(
-    '👋 Welcome to **RiskSim** — your AI-powered supply chain intelligence platform.\n\n' +
-    'I can help you:\n' +
-    '- **Analyze geopolitical risks** by country or region\n' +
-    '- **Assess tariff and trade impacts** on your supply chain\n' +
-    '- **Monitor regulatory changes** affecting global trade\n' +
-    '- **Identify disruption hotspots** and mitigation strategies\n\n' +
-    'Click any country on the map for an instant AI deep-dive, or use the quick analysis buttons below.',
-    'bot'
-  );
+  // ══════════════════════════════════════════════════════════════
+  //  ONBOARDING — capture user profile before showing main UI
+  // ══════════════════════════════════════════════════════════════
+
+  // Generate floating particles in the onboarding overlay
+  (function() {
+    var container = document.getElementById('obParticles');
+    if (!container) return;
+    var colors = ['#00d4ff', '#7c3aed', '#0099ff', '#00e676', '#0066ff'];
+    for (var pi = 0; pi < 28; pi++) {
+      var p = document.createElement('div');
+      p.className = 'ob-particle';
+      p.style.left = (Math.random() * 100) + '%';
+      var sz = (Math.random() * 3 + 2) + 'px';
+      p.style.width = sz;
+      p.style.height = sz;
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDelay = (Math.random() * 10) + 's';
+      p.style.animationDuration = (Math.random() * 7 + 7) + 's';
+      container.appendChild(p);
+    }
+  })();
+
+  // Goal card toggle
+  document.querySelectorAll('.ob-goal-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      this.classList.toggle('selected');
+      document.getElementById('obGoalsError').classList.remove('visible');
+    });
+  });
+
+  // Step 1 → Step 2
+  document.getElementById('obNext1').addEventListener('click', function() {
+    var country  = document.getElementById('obCountry').value;
+    var industry = document.getElementById('obIndustry').value;
+    var valid = true;
+    document.getElementById('obCountryError').classList.remove('visible');
+    document.getElementById('obIndustryError').classList.remove('visible');
+    if (!country)  { document.getElementById('obCountryError').classList.add('visible');  valid = false; }
+    if (!industry) { document.getElementById('obIndustryError').classList.add('visible'); valid = false; }
+    if (!valid) return;
+
+    var s1 = document.getElementById('obStep1');
+    var s2 = document.getElementById('obStep2');
+    s1.style.animation = 'ob-panel-out-left 0.24s ease forwards';
+    setTimeout(function() {
+      s1.classList.add('hidden');
+      s1.style.animation = '';
+      s2.classList.remove('hidden');
+      s2.style.animation = 'ob-panel-in-right 0.28s ease both';
+    }, 230);
+
+    document.getElementById('obDot1').classList.remove('active');
+    document.getElementById('obDot1').classList.add('done');
+    document.getElementById('obDot1').textContent = '✓';
+    document.getElementById('obLine1').classList.add('done');
+    document.getElementById('obDot2').classList.add('active');
+  });
+
+  // Step 2 → Step 1
+  document.getElementById('obBack2').addEventListener('click', function() {
+    var s1 = document.getElementById('obStep1');
+    var s2 = document.getElementById('obStep2');
+    s2.style.animation = 'ob-panel-out-right 0.24s ease forwards';
+    setTimeout(function() {
+      s2.classList.add('hidden');
+      s2.style.animation = '';
+      s1.classList.remove('hidden');
+      s1.style.animation = 'ob-panel-in-left 0.28s ease both';
+    }, 230);
+
+    document.getElementById('obDot1').classList.remove('done');
+    document.getElementById('obDot1').classList.add('active');
+    document.getElementById('obDot1').textContent = '1';
+    document.getElementById('obLine1').classList.remove('done');
+    document.getElementById('obDot2').classList.remove('active');
+  });
+
+  function launchApp(profile) {
+    window._userProfile = profile;
+    var overlay = document.getElementById('onboardingOverlay');
+    overlay.classList.add('ob-exit');
+    setTimeout(function() {
+      overlay.style.display = 'none';
+      showPersonalizedWelcome(profile);
+    }, 560);
+  }
+
+  document.getElementById('obSubmit').addEventListener('click', function() {
+    var selectedGoals = [];
+    document.querySelectorAll('.ob-goal-card.selected').forEach(function(card) {
+      selectedGoals.push(card.getAttribute('data-goal'));
+    });
+    if (selectedGoals.length === 0) {
+      document.getElementById('obGoalsError').classList.add('visible');
+      return;
+    }
+    launchApp({
+      country:  document.getElementById('obCountry').value,
+      industry: document.getElementById('obIndustry').value,
+      company:  document.getElementById('obCompany').value.trim(),
+      goals:    selectedGoals,
+      volume:   document.getElementById('obVolume').value,
+    });
+  });
+
+  document.getElementById('obSkip').addEventListener('click', function() {
+    launchApp(null);
+  });
+
+  function showPersonalizedWelcome(profile) {
+    var GOAL_LABELS = {
+      expand:       'market expansion',
+      manufacturers:'manufacturer diversification',
+      costs:        'supply chain cost reduction',
+      geopolitical: 'geopolitical risk monitoring',
+      tariffs:      'tariff impact tracking',
+      suppliers:    'alternative supplier discovery',
+    };
+    var VOLUME_LABELS = {
+      'under1M':   'Under $1M', '1M-10M': '$1M–$10M',
+      '10M-100M':  '$10M–$100M', 'over100M': 'Over $100M',
+    };
+
+    if (!profile) {
+      addMsg(
+        '👋 Welcome to **RiskSim** — your AI-powered supply chain intelligence platform.\n\n' +
+        'I can help you:\n' +
+        '- **Analyze geopolitical risks** by country or region\n' +
+        '- **Assess tariff and trade impacts** on your supply chain\n' +
+        '- **Monitor regulatory changes** affecting global trade\n' +
+        '- **Identify disruption hotspots** and mitigation strategies\n\n' +
+        'Click any country on the map for an instant AI deep-dive, or use the quick analysis buttons below.',
+        'bot'
+      );
+      return;
+    }
+
+    var goalNames = profile.goals.map(function(g) { return GOAL_LABELS[g] || g; });
+    var companyPart = profile.company ? '**' + profile.company + '**' : 'your business';
+    var volLine = profile.volume ? '\n- **Trade Volume:** ' + (VOLUME_LABELS[profile.volume] || profile.volume) : '';
+
+    addMsg(
+      '👋 Welcome to **RiskSim**, ' + companyPart + '!\n\n' +
+      '**Your Profile**\n' +
+      '- **HQ Country:** ' + profile.country + '\n' +
+      '- **Industry:** ' + profile.industry + volLine + '\n\n' +
+      '**Objectives:** ' + goalNames.join(' · ') + '\n\n' +
+      'Your intelligence briefing has been personalized. Click any country on the map for an AI deep-dive tailored to your industry, or ask me anything about your specific supply chain challenges.',
+      'bot'
+    );
+  }
+
+
 
   // ══════════════════════════════════════════════════════════════
   //  MAP — gracefully skipped if Leaflet is unavailable
