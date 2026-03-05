@@ -31,8 +31,9 @@ function buildSystemPrompt(profile) {
             prompt += `- **Primary Sourcing Countries**: ${profile.sourcingCountries.join(', ')}\n`;
         }
         if (profile.revenue) prompt += `- **Annual Revenue Range**: ${profile.revenue}\n`;
+        if (profile.businessDescription) prompt += `- **Business Description**: ${profile.businessDescription}\n`;
         prompt += '\nAlways tailor your analysis to this company\'s profile. Reference their specific industry, ' +
-            'home country, and sourcing relationships. Focus on cost savings and risk reduction recommendations ' +
+            'home country, sourcing relationships, and any business description provided. Focus on cost savings and risk reduction recommendations ' +
             'that are directly relevant to their situation.';
     }
 
