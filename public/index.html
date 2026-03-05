@@ -554,6 +554,7 @@
     .modal-divider { height: 1px; background: rgba(0,212,255,0.1); margin: 20px 0; }
     .modal-body    { padding: 0 28px; }
     .modal-footer  { padding: 20px 28px 28px; }
+    .form-error    { display: none; color: #ff6b6b; font-size: 12px; margin-bottom: 10px; padding: 8px 12px; background: rgba(255,0,64,0.08); border: 1px solid rgba(255,0,64,0.2); border-radius: 6px; }
 
     .form-group { margin-bottom: 18px; }
     .form-label {
@@ -638,7 +639,7 @@
 <nav class="navbar">
   <div class="navbar-left">
     <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="RiskSim logo" role="img">
-      <title>RiskSim</title>
+      <title>RiskSim Supply Chain Intelligence Platform Logo</title>
       <rect width="36" height="36" rx="8" fill="#111"/>
       <g transform="translate(18,18)">
         <path d="M0,0 C2,-6 8,-11 12,-7 C15,-4 11,3 0,0Z" fill="white"/>
@@ -822,15 +823,15 @@
         <select class="form-select" id="wRevenue">
           <option value="">Select revenue range&#x2026;</option>
           <option value="&lt;$1M">&lt;$1M</option>
-          <option value="$1M&#x2013;$10M">$1M&#x2013;$10M</option>
-          <option value="$10M&#x2013;$50M">$10M&#x2013;$50M</option>
-          <option value="$50M&#x2013;$100M">$50M&#x2013;$100M</option>
+          <option value="$1M–$10M">$1M–$10M</option>
+          <option value="$10M–$50M">$10M–$50M</option>
+          <option value="$50M–$100M">$50M–$100M</option>
           <option value="$100M+">$100M+</option>
         </select>
       </div>
     </div>
     <div class="modal-footer">
-      <div id="wFormError" style="display:none;color:#ff6b6b;font-size:12px;margin-bottom:10px;padding:8px 12px;background:rgba(255,0,64,0.08);border:1px solid rgba(255,0,64,0.2);border-radius:6px;"></div>
+      <div id="wFormError" class="form-error"></div>
       <button class="btn-primary" onclick="saveProfile()">Save Profile &amp; Start Analysis</button>
     </div>
   </div>
@@ -885,15 +886,15 @@
         <select class="form-select" id="eRevenue">
           <option value="">Select revenue range&#x2026;</option>
           <option value="&lt;$1M">&lt;$1M</option>
-          <option value="$1M&#x2013;$10M">$1M&#x2013;$10M</option>
-          <option value="$10M&#x2013;$50M">$10M&#x2013;$50M</option>
-          <option value="$50M&#x2013;$100M">$50M&#x2013;$100M</option>
+          <option value="$1M–$10M">$1M–$10M</option>
+          <option value="$10M–$50M">$10M–$50M</option>
+          <option value="$50M–$100M">$50M–$100M</option>
           <option value="$100M+">$100M+</option>
         </select>
       </div>
     </div>
     <div class="modal-footer">
-      <div id="eFormError" style="display:none;color:#ff6b6b;font-size:12px;margin-bottom:10px;padding:8px 12px;background:rgba(255,0,64,0.08);border:1px solid rgba(255,0,64,0.2);border-radius:6px;"></div>
+      <div id="eFormError" class="form-error"></div>
       <div class="modal-footer-row">
         <button class="btn-ghost" onclick="closeEditModal()">Cancel</button>
         <button class="btn-primary" onclick="updateProfile()">Update Profile</button>
@@ -1124,6 +1125,7 @@ function getCountryAnalysis(country) {
 // MAP INITIALIZATION
 // ============================================================
 function initMap() {
+  if (typeof L === 'undefined') return;
   if (map) { map.remove(); map = null; }
   map = L.map('map', {
     center: [20, 0],
@@ -1144,6 +1146,7 @@ function initMap() {
 // RENDER MARKERS
 // ============================================================
 function renderMarkers() {
+  if (!map || typeof L === 'undefined') return;
   for (var key in countryMarkers) {
     map.removeLayer(countryMarkers[key]);
   }
@@ -1229,6 +1232,7 @@ function updateMapLayer(layer) {
 // TRADE LINES
 // ============================================================
 function drawTradeLines() {
+  if (!map || typeof L === 'undefined') return;
   for (var i = 0; i < tradeLines.length; i++) { map.removeLayer(tradeLines[i]); }
   tradeLines = [];
 
@@ -1393,17 +1397,9 @@ function populateSourcingCheckboxes() {
 // ============================================================
 // MARKDOWN RENDERER
 // ============================================================
-function escapeMd(text) {
-  return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
 function applyInlineMarkdown(text) {
   // HTML-escape raw text first so AI responses cannot inject markup
-  text = escapeMd(text);
+  text = escapeHtml(text);
   // Then apply safe markdown transformations
   text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   text = text.replace(/\*([^*]+?)\*/g,  '<em>$1</em>');
