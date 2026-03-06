@@ -272,13 +272,31 @@
     .chat-exp-sub   { font-size: 11px; color: #555; }
     .chat-exp-actions { display: flex; align-items: center; gap: 10px; }
 
-    .chat-collapse-btn {
+    .chat-map-btn {
       background: transparent; border: 1px solid rgba(255,255,255,0.15);
-      color: #aaa; padding: 5px 12px; border-radius: 6px;
+      color: #aaa; padding: 6px 10px; border-radius: 8px;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-family: 'Inter', sans-serif;
+    }
+    .chat-map-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+    .chat-map-btn-label { font-size: 9px; font-weight: 500; color: inherit; line-height: 1; }
+
+    .resume-chat-bar {
+      width: 100%; max-width: 680px;
+      display: flex; justify-content: center;
+      margin-bottom: 6px;
+      pointer-events: all;
+    }
+    .resume-chat-btn {
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.15); color: #999;
+      padding: 5px 14px; border-radius: 20px;
       font-size: 12px; font-weight: 500; cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
       transition: all 0.2s; font-family: 'Inter', sans-serif;
     }
-    .chat-collapse-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+    .resume-chat-btn:hover { border-color: rgba(255,255,255,0.35); color: #ddd; }
 
     .claude-badge {
       font-size: 9px; font-weight: 600; color: #666;
@@ -576,6 +594,14 @@
     <button class="quick-chip" onclick="sendQuickMessage('optimize')">Optimization Tips</button>
     <button class="quick-chip" onclick="sendQuickMessage('alternatives')">Alternative Suppliers</button>
   </div>
+  <div class="resume-chat-bar" id="resumeChatBar" style="display:none" aria-live="polite">
+    <button class="resume-chat-btn" onclick="expandChatPanel()" aria-label="Resume conversation">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      Resume conversation
+    </button>
+  </div>
   <div class="chat-float-bar">
     <div class="chat-input-wrapper">
       <textarea
@@ -612,7 +638,14 @@
     <div class="chat-exp-actions">
       <span class="claude-badge">Powered by Claude</span>
       <span class="profile-badge-text" id="profileBadge" style="display:none;"></span>
-      <button class="chat-collapse-btn" onclick="collapseChatPanel()">Collapse</button>
+      <button class="chat-map-btn" onclick="collapseChatPanel()" title="Back to Map" aria-label="Back to Map">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/>
+          <path d="M8 2v16"/>
+          <path d="M16 6v16"/>
+        </svg>
+        <span class="chat-map-btn-label">Map</span>
+      </button>
     </div>
   </div>
 
@@ -1161,6 +1194,12 @@ function drawTradeLines() {
 // ============================================================
 // CHAT STATE MANAGEMENT
 // ============================================================
+function updateResumeIndicator() {
+  var bar = document.getElementById('resumeChatBar');
+  if (!bar) return;
+  bar.style.display = (chatState === 'floating' && chatHistory.length > 0) ? 'flex' : 'none';
+}
+
 function expandChatPanel() {
   if (chatState === 'expanded') return;
   chatState = 'expanded';
@@ -1175,6 +1214,7 @@ function expandChatPanel() {
   document.getElementById('mapOverlayHeader').classList.add('hidden');
   document.getElementById('layerControls').classList.add('hidden');
   document.getElementById('mapLegend').classList.add('hidden');
+  updateResumeIndicator();
   setTimeout(function() {
     if (map) map.invalidateSize();
     var mc = document.getElementById('messagesContainer');
@@ -1193,6 +1233,7 @@ function collapseChatPanel() {
   document.getElementById('mapOverlayHeader').classList.remove('hidden');
   document.getElementById('layerControls').classList.remove('hidden');
   document.getElementById('mapLegend').classList.remove('hidden');
+  updateResumeIndicator();
   setTimeout(function() { if (map) map.invalidateSize(); }, 420);
 }
 
