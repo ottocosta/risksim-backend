@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@300;400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
   <style>
     /* ===== CSS VARIABLES (B&W Theme) ===== */
     :root {
@@ -14,15 +15,25 @@
       --bg-secondary: #111;
       --bg-panel: #0d0d0d;
       --bg-card: #1a1a1a;
-      --border: rgba(255,255,255,0.1);
+      --border: rgba(255,255,255,0.08);
       --text-primary: #fff;
       --text-secondary: #aaa;
       --text-muted: #555;
+      --font-heading: 'Syne', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'DM Sans', sans-serif;
+      --accent: #7DF9C2;
+      --accent2: #FFD166;
+      --danger: #FF6B6B;
+      --bg: #080808;
+      --surface: rgba(12,12,15,0.88);
+      --white: #EEEAF2;
+      --muted: rgba(238,234,242,0.4);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; }
-    body { background: #000; color: #fff; }
+    html, body { height: 100%; overflow: hidden; font-family: var(--font-body), 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--white); }
 
     /* ===== NAVBAR ===== */
     .navbar {
@@ -40,12 +51,12 @@
     .navbar-right  { display: flex; align-items: center; gap: 12px; }
 
     .brand-text    { display: flex; flex-direction: column; }
-    .brand-name    { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+    .brand-name    { font-size: 18px; font-weight: 700; color: var(--white); letter-spacing: -0.3px; font-family: var(--font-heading); }
     .brand-tagline { font-size: 9px; font-weight: 500; color: #555; letter-spacing: 1.5px; text-transform: uppercase; }
 
     .nav-stat       { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-    .nav-stat-value { font-size: 15px; font-weight: 700; color: #fff; }
-    .nav-stat-label { font-size: 9px; font-weight: 500; color: #555; letter-spacing: 0.8px; text-transform: uppercase; }
+    .nav-stat-value { font-size: 15px; font-weight: 700; color: var(--white); font-family: var(--font-heading); }
+    .nav-stat-label { font-size: 9px; font-weight: 500; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; font-family: var(--font-mono); }
     .nav-divider    { width: 1px; height: 28px; background: rgba(255,255,255,0.1); }
 
     .btn-ghost {
@@ -137,15 +148,20 @@
     .layer-btn {
       background: transparent;
       border: none;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      padding: 9px 16px; color: #777;
-      font-size: 11px; font-weight: 500; cursor: pointer;
-      transition: all 0.15s; font-family: 'Inter', sans-serif; white-space: nowrap;
+      border-left: 2px solid transparent;
+      padding: 11px 20px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      cursor: pointer;
       text-align: left;
+      width: 100%;
+      transition: all 0.15s ease;
     }
     .layer-btn:last-child { border-bottom: none; }
-    .layer-btn:hover { color: #ccc; background: rgba(255,255,255,0.06); }
-    .layer-btn.active { color: #fff; background: rgba(255,255,255,0.12); border-left: 2px solid #fff; padding-left: 14px; }
+    .layer-btn:hover { color: var(--white); background: rgba(255,255,255,0.03); }
+    .layer-btn.active { border-left-color: var(--accent); color: var(--accent); background: rgba(125,249,194,0.06); }
 
     /* Category dropdown below layer controls */
     .category-dropdown-wrap {
@@ -170,19 +186,30 @@
     /* Legend */
     .map-legend {
       position: fixed; bottom: 175px; left: 12px; z-index: 100;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-left: 2px solid rgba(255,255,255,0.5);
-      border-radius: 14px; padding: 10px 14px;
+      background: rgba(8,8,8,0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px; padding: 18px 20px;
       transition: opacity 0.3s;
     }
     .map-legend.hidden { opacity: 0; pointer-events: none; }
-    .legend-title { font-size: 9px; font-weight: 600; color: #555; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .legend-title { font-size: 9px; font-weight: 600; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; font-family: var(--font-mono); }
     .legend-items { display: flex; flex-direction: column; gap: 5px; }
-    .legend-item  { display: flex; align-items: center; gap: 8px; font-size: 10px; color: #888; }
+    .legend-item  { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--muted); font-family: var(--font-mono); }
     .legend-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Pulse ring animation */
+    .pulse-ring {
+      animation: pulseRing 2.5s ease-out infinite;
+      transform-origin: center;
+      pointer-events: none;
+    }
+    @keyframes pulseRing {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(2); opacity: 0; }
+    }
 
     /* Map markers */
     .map-marker { position: relative; }
@@ -1028,6 +1055,7 @@ var currentLayer     = 'risk';
 var currentCategory  = 'technology'; // sourcing industry category
 var map              = null;
 var countryMarkers   = {};
+var pulseRingMarkers = [];
 var tradeLines       = [];
 var chatState        = 'floating'; // 'floating' | 'expanded'
 var hasShownWelcome  = false;
@@ -1439,6 +1467,19 @@ function getDotRadius(country) {
   return 5 + (cap / 100) * 7;
 }
 
+function getCountryDotSize(name) {
+  var tier1 = ['China','United States','Germany','Japan','South Korea','Netherlands','France','Italy','United Kingdom','Canada','Mexico','India','Vietnam','Taiwan','Singapore'];
+  var tier2 = ['Brazil','Russia','Australia','Spain','Belgium','Switzerland','Poland','Thailand','Malaysia','Indonesia','Turkey','Saudi Arabia','UAE','Sweden','Austria'];
+  var tier3 = ['Bangladesh','Pakistan','Egypt','South Africa','Nigeria','Argentina','Chile','Colombia','Czech Republic','Romania','Philippines','Israel'];
+  var tier4 = ['Morocco','Kenya','Ethiopia','Ghana','Peru','Ukraine','Sri Lanka','Cambodia','Myanmar','Ecuador','Costa Rica'];
+
+  if (tier1.indexOf(name) !== -1) return 14;
+  if (tier2.indexOf(name) !== -1) return 10;
+  if (tier3.indexOf(name) !== -1) return 7;
+  if (tier4.indexOf(name) !== -1) return 5;
+  return 4;
+}
+
 function getRiskLabel(score) {
   if (score >= 80) return 'Critical';
   if (score >= 60) return 'High';
@@ -1518,9 +1559,8 @@ function initMap() {
     zoomControl: false,
     attributionControl: true
   });
-  var tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
+  var tileLayer = L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+    attribution: '© CartoDB © OpenStreetMap',
     maxZoom: 19
   }).addTo(map);
 
@@ -1542,19 +1582,21 @@ function renderMarkers() {
   if (!map || typeof L === 'undefined') return;
   for (var key in countryMarkers) { map.removeLayer(countryMarkers[key]); }
   countryMarkers = {};
+  for (var r = 0; r < pulseRingMarkers.length; r++) { map.removeLayer(pulseRingMarkers[r]); }
+  pulseRingMarkers = [];
 
   var bounds = map.getBounds();
   var paddedBounds = bounds.pad(0.3); // compute once, reuse for all markers
 
   for (var i = 0; i < COUNTRY_DATA.length; i++) {
-    (function(country) {
+    (function(country, idx) {
       // Viewport culling — skip if outside current view (with padding)
       var latLng = L.latLng(country.lat, country.lng);
       if (!paddedBounds.contains(latLng)) return;
 
       var score  = getScoreForLayer(country, currentLayer);
       var color  = getColorForLayer(score, currentLayer);
-      var radius = getDotRadius(country);
+      var radius = getCountryDotSize(country.name);
       var size   = Math.round(radius * 2);
       var isPulsing = currentLayer !== 'sourcing' ? (score >= 60) : (score <= 20);
       var pulseHtml = isPulsing ? '<div class="marker-pulse" style="width:' + size + 'px;height:' + size + 'px;background:' + color + ';"></div>' : '';
@@ -1634,7 +1676,21 @@ function renderMarkers() {
       marker.bindPopup(popup, { maxWidth: 290 });
       countryMarkers[country.name] = marker;
       marker.addTo(map);
-    })(COUNTRY_DATA[i]);
+
+      // Pulse ring
+      var dotR = getCountryDotSize(country.name);
+      var ring = L.circleMarker([country.lat, country.lng], {
+        radius: dotR + 4,
+        fillOpacity: 0,
+        weight: 1.5,
+        color: color,
+        opacity: 0.6,
+        className: 'pulse-ring pulse-ring-' + idx
+      }).addTo(map);
+      var ringEl = ring.getElement();
+      if (ringEl) ringEl.style.animationDelay = (idx * 0.08) + 's';
+      pulseRingMarkers.push(ring);
+    })(COUNTRY_DATA[i], i);
   }
 }
 
