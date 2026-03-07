@@ -199,17 +199,6 @@
     .legend-item  { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--muted); font-family: var(--font-mono); }
     .legend-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
-    /* Pulse ring animation */
-    .pulse-ring {
-      animation: pulseRing 3.5s ease-out infinite;
-      pointer-events: none;
-    }
-    @keyframes pulseRing {
-      0% { transform: scale(1); opacity: 0.3; }
-      70% { transform: scale(1.5); opacity: 0; }
-      100% { transform: scale(1.5); opacity: 0; }
-    }
-
     /* Map markers */
     .map-marker { position: relative; }
     .marker-dot { border-radius: 50%; position: absolute; top: 0; left: 0; }
@@ -324,11 +313,12 @@
       pointer-events: all;
     }
     .chat-input-wrapper {
-      background: rgba(0,0,0,0.92); backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.18); border-radius: 16px;
+      background: rgba(12, 12, 15, 0.65); backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
       padding: 10px 12px;
       display: flex; gap: 10px; align-items: flex-end;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
     .chat-textarea {
       flex: 1; background: transparent; border: none; color: #fff;
@@ -353,14 +343,16 @@
     /* ===== EXPANDED CHAT PANEL (full screen) ===== */
     .chat-expanded-panel {
       position: fixed; inset: 56px 0 0 0; z-index: 200;
-      background: rgba(0,0,0,0.97); backdrop-filter: blur(20px);
+      background: rgba(8, 8, 8, 0.92); backdrop-filter: blur(32px) saturate(180%);
+      -webkit-backdrop-filter: blur(32px) saturate(180%);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       display: flex; flex-direction: column;
       opacity: 0; pointer-events: none;
-      transform: translateY(16px);
-      transition: opacity 0.35s cubic-bezier(.4,0,.2,1),
-                  transform 0.35s cubic-bezier(.4,0,.2,1);
+      transform: translateY(20px) scale(0.98);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .chat-expanded-panel.visible { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .chat-expanded-panel.visible { opacity: 1; pointer-events: all; transform: translateY(0) scale(1); }
 
     .chat-exp-header {
       height: 52px; flex-shrink: 0;
@@ -514,9 +506,12 @@
       max-width: 840px; width: 100%; margin: 0 auto;
     }
     .chat-exp-input-wrapper {
-      background: #111; border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(12, 12, 15, 0.65); backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 14px; padding: 10px 12px;
       display: flex; gap: 10px; align-items: flex-end;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
 
     /* ===== MODALS ===== */
@@ -1467,16 +1462,16 @@ function getDotRadius(country) {
 }
 
 function getCountryDotSize(name) {
-  var tier1 = ['China','United States','Germany','Japan','South Korea','Netherlands','France','Italy','United Kingdom','Canada','Mexico','India','Vietnam','Taiwan','Singapore'];
-  var tier2 = ['Brazil','Russia','Australia','Spain','Belgium','Switzerland','Poland','Thailand','Malaysia','Indonesia','Turkey','Saudi Arabia','UAE','Sweden','Austria'];
-  var tier3 = ['Bangladesh','Pakistan','Egypt','South Africa','Nigeria','Argentina','Chile','Colombia','Czech Republic','Romania','Philippines','Israel'];
-  var tier4 = ['Morocco','Kenya','Ethiopia','Ghana','Peru','Ukraine','Sri Lanka','Cambodia','Myanmar','Ecuador','Costa Rica'];
+  var tier1 = ['China', 'United States', 'Germany', 'Japan', 'South Korea'];
+  var tier2 = ['France', 'Italy', 'United Kingdom', 'Netherlands', 'Canada', 'Mexico', 'India', 'Vietnam', 'Taiwan', 'Singapore', 'Brazil', 'Russia'];
 
-  if (tier1.indexOf(name) !== -1) return 14;
-  if (tier2.indexOf(name) !== -1) return 10;
-  if (tier3.indexOf(name) !== -1) return 7;
-  if (tier4.indexOf(name) !== -1) return 5;
-  return 4;
+  if (tier1.indexOf(name) !== -1) return 8;
+  if (tier2.indexOf(name) !== -1) return 6;
+  // Medium countries
+  var tier3 = ['Australia', 'Spain', 'Belgium', 'Switzerland', 'Poland', 'Thailand', 'Malaysia', 'Indonesia', 'Turkey', 'Saudi Arabia', 'UAE', 'Sweden', 'Austria', 'Bangladesh', 'Pakistan', 'Egypt', 'South Africa', 'Nigeria', 'Argentina', 'Chile', 'Colombia', 'Czech Republic', 'Romania', 'Philippines', 'Israel'];
+  if (tier3.indexOf(name) !== -1) return 4.5;
+  // All remaining small countries
+  return 3;
 }
 
 function getRiskLabel(score) {
@@ -1614,7 +1609,7 @@ function renderMarkers() {
       var icon = L.divIcon({
         html: '<div class="map-marker" style="width:' + size + 'px;height:' + size + 'px;">' +
               compareRing + searchRing + pulseHtml +
-              '<div class="marker-dot" style="width:' + size + 'px;height:' + size + 'px;background:' + color + '; box-shadow:0 0 6px ' + color + '88;border-radius:50%;position:absolute;"></div></div>',
+              '<div class="marker-dot" style="width:' + size + 'px;height:' + size + 'px;background:' + color + '; box-shadow:0 0 8px 0 ' + color + '66;border-radius:50%;position:absolute;"></div></div>',
         className: '', iconSize: [size, size], iconAnchor: [Math.round(size/2), Math.round(size/2)]
       });
       var marker = L.marker([country.lat, country.lng], { icon: icon });
@@ -1676,19 +1671,6 @@ function renderMarkers() {
       countryMarkers[country.name] = marker;
       marker.addTo(map);
 
-      // Pulse ring
-      var dotR = getCountryDotSize(country.name);
-      var ring = L.circleMarker([country.lat, country.lng], {
-        radius: Math.round(dotR * 1.4),
-        fillOpacity: 0,
-        weight: 1.5,
-        color: color,
-        opacity: 0.6,
-        className: 'pulse-ring pulse-ring-' + idx
-      }).addTo(map);
-      var ringEl = ring.getElement();
-      if (ringEl) ringEl.style.animationDelay = (idx * 0.15) + 's';
-      pulseRingMarkers.push(ring);
     })(COUNTRY_DATA[i], i);
   }
 }
