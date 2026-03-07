@@ -124,29 +124,58 @@
     .map-layer-name { font-size: 13px; font-weight: 600; color: #fff; }
     .map-layer-sub  { font-size: 10px; color: #888; margin-top: 2px; }
 
-    /* Layer controls */
+    /* Layer controls — pill group */
     .layer-controls {
       position: fixed; top: 68px; right: 12px; z-index: 100;
-      display: flex; flex-direction: column; gap: 6px;
+      display: flex; flex-direction: column; gap: 0;
       transition: opacity 0.3s;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+      overflow: hidden;
     }
     .layer-controls.hidden { opacity: 0; pointer-events: none; }
     .layer-btn {
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
-      padding: 7px 12px; color: #aaa;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 9px 16px; color: #777;
       font-size: 11px; font-weight: 500; cursor: pointer;
-      transition: all 0.2s; font-family: 'Inter', sans-serif; white-space: nowrap;
+      transition: all 0.15s; font-family: 'Inter', sans-serif; white-space: nowrap;
+      text-align: left;
     }
-    .layer-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; background: rgba(255,255,255,0.08); }
-    .layer-btn.active { border-color: rgba(255,255,255,0.5); color: #fff; background: rgba(255,255,255,0.12); }
+    .layer-btn:last-child { border-bottom: none; }
+    .layer-btn:hover { color: #ccc; background: rgba(255,255,255,0.06); }
+    .layer-btn.active { color: #fff; background: rgba(255,255,255,0.12); border-left: 2px solid #fff; padding-left: 14px; }
+
+    /* Category dropdown below layer controls */
+    .category-dropdown-wrap {
+      position: fixed; top: auto; right: 12px; z-index: 100;
+      margin-top: 6px;
+      display: none;
+    }
+    .category-select {
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+      padding: 8px 30px 8px 12px; color: #fff;
+      font-size: 11px; font-weight: 500; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+      width: 100%;
+    }
+    .category-select option { background: #111; color: #fff; }
+    .category-select:focus { outline: none; border-color: rgba(255,255,255,0.4); }
 
     /* Legend */
     .map-legend {
       position: fixed; bottom: 175px; left: 12px; z-index: 100;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px; padding: 10px 14px;
+      border-left: 2px solid rgba(255,255,255,0.5);
+      border-radius: 14px; padding: 10px 14px;
       transition: opacity 0.3s;
     }
     .map-legend.hidden { opacity: 0; pointer-events: none; }
@@ -156,15 +185,32 @@
     .legend-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
     /* Map markers */
-    .map-marker { position: relative; width: 14px; height: 14px; }
-    .marker-dot { width: 14px; height: 14px; border-radius: 50%; position: absolute; }
+    .map-marker { position: relative; }
+    .marker-dot { border-radius: 50%; position: absolute; top: 0; left: 0; }
     .marker-pulse {
-      position: absolute; width: 14px; height: 14px; border-radius: 50%;
-      animation: marker-pulse 2s ease-out infinite; opacity: 0;
+      position: absolute; border-radius: 50%;
+      animation: marker-pulse 2s ease-out infinite; opacity: 0; top: 0; left: 0;
     }
     @keyframes marker-pulse {
       0%   { transform: scale(1); opacity: 0.8; }
       100% { transform: scale(2.5); opacity: 0; }
+    }
+    .marker-compare-ring {
+      position: absolute; border-radius: 50%;
+      border: 2px solid #fff;
+      animation: compare-ring-pulse 1.5s ease infinite;
+    }
+    @keyframes compare-ring-pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+    .marker-search-ring {
+      position: absolute; border-radius: 50%;
+      border: 2px solid #fff;
+      animation: search-ring-expand 0.8s ease-out forwards;
+    }
+    @keyframes search-ring-expand {
+      0%   { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
     }
 
     /* Leaflet overrides */
@@ -182,15 +228,43 @@
     }
     .leaflet-control-attribution a { color: #444 !important; }
 
-    .popup-inner   { padding: 12px 14px; min-width: 210px; }
+    .popup-inner   { padding: 12px 14px; min-width: 230px; }
     .popup-header  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
     .popup-country { font-size: 14px; font-weight: 700; color: #fff; }
     .popup-risk-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; }
-    .popup-stats   { display: flex; flex-direction: column; gap: 5px; }
+    .popup-scores-row { display: flex; gap: 4px; margin-bottom: 10px; }
+    .popup-score-block { flex: 1; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 6px 8px; text-align: center; }
+    .popup-score-label { font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 3px; }
+    .popup-score-value { font-size: 16px; font-weight: 700; }
+    .popup-stats   { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
     .popup-stat    { display: flex; justify-content: space-between; font-size: 11px; }
     .popup-stat-label { color: #555; }
     .popup-stat-value { color: #aaa; font-weight: 500; }
-    .popup-analysis { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 10px; color: #888; line-height: 1.6; }
+    .popup-industries { margin-bottom: 8px; }
+    .popup-ind-label { font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+    .popup-ind-tags { display: flex; flex-wrap: wrap; gap: 3px; }
+    .popup-industry-tag {
+      font-size: 9px; color: #aaa; background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+      padding: 2px 7px; white-space: nowrap;
+    }
+    .popup-insight { font-size: 10px; color: #888; line-height: 1.5; margin-bottom: 8px; font-style: italic; }
+    .popup-analysis { padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 10px; color: #666; line-height: 1.5; margin-bottom: 8px; }
+    .popup-actions { display: flex; gap: 6px; padding-top: 4px; }
+    .popup-deepdive-btn {
+      flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25);
+      color: #fff; padding: 6px 10px; border-radius: 7px;
+      font-size: 10px; font-weight: 600; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all 0.15s;
+    }
+    .popup-deepdive-btn:hover { background: rgba(255,255,255,0.18); }
+    .popup-compare-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.2);
+      color: #aaa; padding: 6px 10px; border-radius: 7px;
+      font-size: 10px; font-weight: 500; cursor: pointer;
+      font-family: 'Inter', sans-serif; transition: all 0.15s;
+    }
+    .popup-compare-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
 
     /* ===== FLOATING CHAT OVERLAY (default state) ===== */
     .chat-overlay {
@@ -208,14 +282,15 @@
     }
     .quick-chip {
       background: rgba(0,0,0,0.88); backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.18); color: #bbb;
-      padding: 6px 14px; border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.22); color: #ccc;
+      padding: 8px 16px; border-radius: 20px;
       font-size: 12px; font-weight: 500; cursor: pointer;
       white-space: nowrap; transition: all 0.2s;
       font-family: 'Inter', sans-serif;
       pointer-events: all;
+      letter-spacing: 0.1px;
     }
-    .quick-chip:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.4); color: #fff; }
+    .quick-chip:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.5); color: #fff; transform: translateY(-1px); }
 
     /* Floating input bar */
     .chat-float-bar {
@@ -321,13 +396,13 @@
     .quick-actions-exp::-webkit-scrollbar { display: none; }
     .quick-btn-exp {
       background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.12); color: #777;
-      padding: 5px 12px; border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.18); color: #999;
+      padding: 7px 14px; border-radius: 16px;
       font-size: 11px; font-weight: 500; cursor: pointer;
       white-space: nowrap; transition: all 0.2s;
       font-family: 'Inter', sans-serif; flex-shrink: 0;
     }
-    .quick-btn-exp:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); color: #fff; }
+    .quick-btn-exp:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.35); color: #fff; transform: translateY(-1px); }
 
     /* Messages */
     .chat-exp-messages {
@@ -386,22 +461,24 @@
       font-size: 11px; font-family: 'Courier New', monospace;
     }
 
-    /* Typing indicator */
-    .typing-indicator { display: flex; gap: 8px; }
+    /* Typing indicator — improved wave animation */
+    .typing-indicator { display: flex; gap: 8px; align-items: center; }
     .typing-dots {
-      display: flex; gap: 4px; padding: 8px 12px;
+      display: flex; gap: 5px; padding: 10px 14px;
       background: #111; border: 1px solid rgba(255,255,255,0.1);
       border-radius: 14px; border-bottom-left-radius: 4px;
+      align-items: center;
     }
     .typing-dot {
-      width: 6px; height: 6px; background: #555; border-radius: 50%;
-      animation: typing-bounce 1.4s infinite;
+      width: 7px; height: 7px; background: #555; border-radius: 50%;
+      animation: typing-wave 1.2s ease-in-out infinite;
     }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typing-bounce {
-      0%, 60%, 100% { transform: translateY(0); }
-      30%           { transform: translateY(-5px); }
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes typing-wave {
+      0%, 60%, 100% { transform: translateY(0); background: #444; }
+      30%           { transform: translateY(-7px); background: #888; }
     }
 
     /* Expanded input area */
@@ -499,6 +576,94 @@
     .modal-footer-row { display: flex; gap: 10px; }
     .modal-footer-row .btn-ghost  { flex: 1; padding: 13px; font-size: 13px; border-radius: 10px; }
     .modal-footer-row .btn-primary { flex: 2; }
+
+    /* ===== COUNTRY SEARCH BAR ===== */
+    .search-bar-wrap {
+      position: fixed; top: 68px; left: 50%; transform: translateX(-50%);
+      z-index: 101; width: 280px;
+      transition: opacity 0.3s;
+    }
+    .search-bar-wrap.hidden { opacity: 0; pointer-events: none; }
+    .search-input {
+      width: 100%; background: rgba(0,0,0,0.88); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.18); border-radius: 10px;
+      padding: 9px 14px; color: #fff; font-size: 12px;
+      font-family: 'Inter', sans-serif; outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input::placeholder { color: #444; }
+    .search-input:focus { border-color: rgba(255,255,255,0.4); }
+    .search-suggestions {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: rgba(10,10,10,0.98); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px; overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      display: none; z-index: 200;
+    }
+    .search-suggestion {
+      padding: 9px 14px; font-size: 12px; color: #ccc; cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: background 0.1s; font-family: 'Inter', sans-serif;
+    }
+    .search-suggestion:last-child { border-bottom: none; }
+    .search-suggestion:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+    /* ===== COMPARE PANEL ===== */
+    .compare-panel {
+      position: fixed; top: 56px; right: 0; bottom: 0; z-index: 300;
+      width: 380px; max-width: 90vw;
+      background: rgba(5,5,5,0.97); backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(255,255,255,0.12);
+      overflow-y: auto; overflow-x: auto;
+      transform: translateX(0); transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;
+    }
+    .compare-panel.hidden { transform: translateX(100%); pointer-events: none; }
+    .compare-panel::-webkit-scrollbar { width: 4px; }
+    .compare-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+    .compare-header { display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .compare-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .compare-close { background: transparent; border: 1px solid rgba(255,255,255,0.2);
+      color: #aaa; padding: 4px 10px; border-radius: 6px; font-size: 11px;
+      cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+    .compare-close:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+    .compare-table { padding: 0 16px 16px; min-width: 300px; }
+    .compare-row { display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .compare-row-header { background: rgba(255,255,255,0.04); }
+    .compare-row-subheader { background: rgba(255,255,255,0.02); padding-top: 4px; }
+    .compare-cell { padding: 7px 6px; font-size: 11px; }
+    .compare-label-col { flex: 0 0 130px; color: #666; }
+    .compare-country-col { flex: 1; color: #ccc; font-weight: 500; text-align: center; }
+    .compare-row-header .compare-cell { font-size: 10px; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ===== MAP SKELETON ===== */
+    #mapSkeleton {
+      position: fixed; inset: 0; z-index: 1;
+      background: #0a0a0a;
+      display: none;
+    }
+    .skeleton-shimmer {
+      position: absolute; width: 100%; height: 100%;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.03) 50%,
+        rgba(255,255,255,0) 100%);
+      animation: shimmer 2s infinite;
+      background-size: 200% 100%;
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* Compare button active state */
+    .btn-ghost-active { border-color: rgba(255,255,255,0.5) !important; color: #fff !important; }
+
+    /* Category dropdown position — positioned below layer controls dynamically */
+    #categoryDropdownWrap {
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
@@ -540,6 +705,7 @@
   </div>
 
   <div class="navbar-right">
+    <button class="btn-ghost" id="compareBtn" onclick="toggleCompareMode()">Compare</button>
     <button class="btn-ghost" onclick="showEditModal()">Edit Profile</button>
     <div class="live-badge">
       <div class="live-dot"></div>
@@ -549,6 +715,7 @@
 </nav>
 
 <!-- ===== MAP CONTAINER (fullscreen by default) ===== -->
+<div id="mapSkeleton"><div class="skeleton-shimmer"></div></div>
 <div id="mapContainer">
   <div id="map"></div>
 </div>
@@ -570,6 +737,17 @@
   <button class="layer-btn"        id="btnShipping" onclick="updateMapLayer('shipping')">Shipping Cost</button>
   <button class="layer-btn"        id="btnLabor"    onclick="updateMapLayer('labor')">Labor Cost</button>
   <button class="layer-btn"        id="btnCost"     onclick="updateMapLayer('cost')">Total Score</button>
+  <button class="layer-btn"        id="btnSourcing" onclick="updateMapLayer('sourcing')">Sourcing Attractiveness</button>
+  <div id="categoryDropdownWrap" style="display:none; padding: 6px 6px 4px;">
+    <select class="category-select" id="categorySelect" onchange="updateCategory(this.value)">
+      <option value="technology">Technology</option>
+      <option value="textiles">Textiles/Apparel</option>
+      <option value="generalMfg">General Manufacturing</option>
+      <option value="consumerGoods">Consumer Goods</option>
+      <option value="automotive">Automotive</option>
+      <option value="pharma">Pharmaceuticals</option>
+    </select>
+  </div>
 </div>
 
 <!-- Map legend (visible when map is fullscreen) -->
@@ -585,7 +763,14 @@
   </div>
 </div>
 
-<!-- ===== FLOATING CHAT OVERLAY (default state) ===== -->
+<!-- Country Search Bar -->
+<div class="search-bar-wrap" id="searchBarWrap">
+  <input type="text" class="search-input" id="countrySearch" placeholder="Search countries..." autocomplete="off">
+  <div class="search-suggestions" id="searchSuggestions"></div>
+</div>
+
+<!-- Compare Panel -->
+<div class="compare-panel hidden" id="comparePanel"></div>
 <div class="chat-overlay" id="chatOverlay">
   <div class="quick-chips">
     <button class="quick-chip" onclick="sendQuickMessage('audit')">Full Audit</button>
@@ -837,14 +1022,18 @@
 // ============================================================
 // TOP-LEVEL VARIABLES
 // ============================================================
-var appProfile     = null;
-var chatHistory    = [];
-var currentLayer   = 'risk';
-var map            = null;
-var countryMarkers = {};
-var tradeLines     = [];
-var chatState      = 'floating'; // 'floating' | 'expanded'
-var hasShownWelcome = false;
+var appProfile       = null;
+var chatHistory      = [];
+var currentLayer     = 'risk';
+var currentCategory  = 'technology'; // sourcing industry category
+var map              = null;
+var countryMarkers   = {};
+var tradeLines       = [];
+var chatState        = 'floating'; // 'floating' | 'expanded'
+var hasShownWelcome  = false;
+var compareMode      = false;
+var compareCountries = [];
+var searchHighlight  = null; // marker name currently highlighted
 
 // Bot avatar SVG (inline, used in messages)
 var BOT_AVATAR_SVG =
@@ -861,82 +1050,227 @@ var BOT_AVATAR_SVG =
 // STATIC DATA
 // ============================================================
 var COUNTRY_DATA = [
-  { name: 'North Korea',    lat:  40.3, lng: 127.5, risk: 98, shipping: 9, labor: 4, tariff: 25, infra:  3, costIndex: 80 },
-  { name: 'Afghanistan',    lat:  33.9, lng:  67.7, risk: 97, shipping: 9, labor: 2, tariff: 20, infra:  1, costIndex: 85 },
-  { name: 'Syria',          lat:  34.8, lng:  38.9, risk: 96, shipping: 7, labor: 3, tariff: 20, infra:  2, costIndex: 78 },
-  { name: 'Russia',         lat:  61.5, lng:  90.0, risk: 95, shipping: 8, labor: 5, tariff: 35, infra:  6, costIndex: 75 },
-  { name: 'Iran',           lat:  32.4, lng:  53.7, risk: 93, shipping: 7, labor: 4, tariff: 30, infra:  5, costIndex: 72 },
-  { name: 'Sudan',          lat:  12.8, lng:  30.2, risk: 91, shipping: 8, labor: 2, tariff: 15, infra:  2, costIndex: 75 },
-  { name: 'Venezuela',      lat:   6.4, lng: -66.6, risk: 89, shipping: 6, labor: 3, tariff: 25, infra:  3, costIndex: 72 },
-  { name: 'Iraq',           lat:  33.2, lng:  43.7, risk: 88, shipping: 7, labor: 3, tariff: 15, infra:  3, costIndex: 70 },
-  { name: 'Ukraine',        lat:  48.4, lng:  31.2, risk: 88, shipping: 5, labor: 3, tariff: 10, infra:  6, costIndex: 60 },
-  { name: 'Myanmar',        lat:  17.1, lng:  95.9, risk: 85, shipping: 8, labor: 2, tariff: 15, infra:  3, costIndex: 58 },
-  { name: 'Taiwan',         lat:  23.7, lng: 120.9, risk: 82, shipping: 7, labor: 6, tariff:  4, infra:  8, costIndex: 48 },
-  { name: 'Lebanon',        lat:  33.9, lng:  35.5, risk: 79, shipping: 6, labor: 4, tariff: 15, infra:  4, costIndex: 65 },
-  // China: low risk score reflects ease of sourcing (world's manufacturing hub, vast infrastructure,
-  // cheap labor), even though geopolitical tensions add some risk. Separate from tariff costs.
-  { name: 'China',          lat:  35.8, lng: 104.2, risk: 28, shipping: 7, labor: 3, tariff: 25, infra:  7, costIndex: 30 },
-  { name: 'Pakistan',       lat:  30.4, lng:  69.3, risk: 76, shipping: 8, labor: 2, tariff: 17, infra:  4, costIndex: 55 },
-  { name: 'Nigeria',        lat:   9.1, lng:   8.7, risk: 72, shipping: 7, labor: 2, tariff: 20, infra:  4, costIndex: 58 },
-  { name: 'Ethiopia',       lat:   9.1, lng:  40.5, risk: 68, shipping: 9, labor: 1, tariff: 20, infra:  3, costIndex: 52 },
-  { name: 'Egypt',          lat:  26.8, lng:  30.8, risk: 67, shipping: 6, labor: 3, tariff: 20, infra:  5, costIndex: 48 },
-  { name: 'Turkey',         lat:  38.9, lng:  35.2, risk: 65, shipping: 5, labor: 4, tariff: 10, infra:  7, costIndex: 40 },
-  { name: 'Bangladesh',     lat:  23.7, lng:  90.4, risk: 62, shipping: 8, labor: 1, tariff: 12, infra:  5, costIndex: 42 },
-  { name: 'Honduras',       lat:  14.1, lng: -86.2, risk: 62, shipping: 5, labor: 2, tariff:  8, infra:  5, costIndex: 35 },
-  { name: 'Guatemala',      lat:  15.8, lng: -90.2, risk: 60, shipping: 5, labor: 2, tariff:  8, infra:  5, costIndex: 33 },
-  { name: 'Mexico',         lat:  23.6, lng:-102.6, risk: 60, shipping: 4, labor: 3, tariff:  0, infra:  7, costIndex: 30 },
-  { name: 'Philippines',    lat:  12.9, lng: 121.8, risk: 58, shipping: 7, labor: 2, tariff:  8, infra:  6, costIndex: 40 },
-  { name: 'Sri Lanka',      lat:   7.9, lng:  80.8, risk: 55, shipping: 8, labor: 2, tariff: 12, infra:  5, costIndex: 40 },
-  { name: 'Indonesia',      lat:  -0.8, lng: 113.9, risk: 55, shipping: 7, labor: 2, tariff: 10, infra:  6, costIndex: 38 },
-  { name: 'Argentina',      lat: -38.4, lng: -63.6, risk: 52, shipping: 6, labor: 4, tariff: 17, infra:  6, costIndex: 45 },
-  { name: 'Brazil',         lat: -14.2, lng: -51.9, risk: 50, shipping: 6, labor: 4, tariff: 18, infra:  6, costIndex: 42 },
-  { name: 'Colombia',       lat:   4.6, lng: -74.1, risk: 50, shipping: 5, labor: 3, tariff: 15, infra:  6, costIndex: 40 },
-  { name: 'Cambodia',       lat:  12.6, lng: 104.9, risk: 48, shipping: 8, labor: 2, tariff: 12, infra:  4, costIndex: 38 },
-  { name: 'Peru',           lat:  -9.2, lng: -75.0, risk: 46, shipping: 6, labor: 3, tariff: 10, infra:  6, costIndex: 38 },
-  { name: 'India',          lat:  20.6, lng:  78.9, risk: 45, shipping: 7, labor: 2, tariff: 15, infra:  6, costIndex: 35 },
-  { name: 'Thailand',       lat:  15.9, lng: 100.9, risk: 44, shipping: 7, labor: 3, tariff: 10, infra:  7, costIndex: 35 },
-  { name: 'Morocco',        lat:  31.8, lng:  -7.1, risk: 43, shipping: 6, labor: 3, tariff: 12, infra:  6, costIndex: 36 },
-  { name: 'Malaysia',       lat:   4.2, lng: 108.0, risk: 38, shipping: 7, labor: 3, tariff:  6, infra:  7, costIndex: 32 },
-  { name: 'Saudi Arabia',   lat:  23.9, lng:  45.1, risk: 35, shipping: 6, labor: 5, tariff:  6, infra:  8, costIndex: 36 },
-  { name: 'Vietnam',        lat:  14.1, lng: 108.3, risk: 35, shipping: 7, labor: 2, tariff:  7, infra:  6, costIndex: 30 },
-  { name: 'Romania',        lat:  45.9, lng:  24.9, risk: 22, shipping: 5, labor: 4, tariff:  3, infra:  7, costIndex: 26 },
-  { name: 'UAE',            lat:  23.4, lng:  53.8, risk: 30, shipping: 6, labor: 5, tariff:  5, infra:  9, costIndex: 32 },
-  { name: 'Hungary',        lat:  47.2, lng:  19.5, risk: 20, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 26 },
-  { name: 'South Korea',    lat:  35.9, lng: 127.8, risk: 28, shipping: 7, labor: 6, tariff:  3, infra:  9, costIndex: 35 },
-  { name: 'Chile',          lat: -35.7, lng: -71.5, risk: 27, shipping: 7, labor: 5, tariff:  8, infra:  7, costIndex: 38 },
-  { name: 'Poland',         lat:  51.9, lng:  19.1, risk: 18, shipping: 5, labor: 4, tariff:  3, infra:  7, costIndex: 26 },
-  { name: 'Japan',          lat:  36.2, lng: 138.3, risk: 22, shipping: 7, labor: 7, tariff:  2, infra:  9, costIndex: 38 },
-  { name: 'Czech Republic', lat:  49.8, lng:  15.5, risk: 16, shipping: 5, labor: 5, tariff:  3, infra:  8, costIndex: 26 },
-  { name: 'United States',  lat:  37.1, lng: -95.7, risk: 18, shipping: 4, labor: 9, tariff:  0, infra:  9, costIndex: 45 },
-  { name: 'Australia',      lat: -25.3, lng: 133.8, risk: 16, shipping: 8, labor: 8, tariff:  5, infra:  9, costIndex: 48 },
-  { name: 'France',         lat:  46.2, lng:   2.2, risk: 16, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40 },
-  { name: 'Germany',        lat:  51.2, lng:  10.5, risk: 15, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40 },
-  { name: 'Canada',         lat:  56.1, lng:-106.3, risk: 14, shipping: 5, labor: 8, tariff:  1, infra:  9, costIndex: 40 },
-  { name: 'United Kingdom', lat:  55.4, lng:  -3.4, risk: 14, shipping: 5, labor: 8, tariff:  5, infra:  9, costIndex: 42 },
-  { name: 'Netherlands',    lat:  52.1, lng:   5.3, risk: 13, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40 },
-  { name: 'Singapore',      lat:   1.4, lng: 103.8, risk: 12, shipping: 7, labor: 7, tariff:  0, infra: 10, costIndex: 35 },
-  { name: 'Switzerland',    lat:  46.8, lng:   8.2, risk: 11, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45 },
+  { name: 'North Korea',    lat:  40.3, lng: 127.5, risk: 98, shipping: 9, labor: 4, tariff: 25, infra:  3, costIndex: 80,
+    mfgCapacity: 5,  exportInfra: 2,  supplierDensity: 2,  leadTimeReliability: 10,
+    sourcing: { technology: 2,  textiles: 3,  generalMfg: 3,  consumerGoods: 2,  automotive: 1,  pharma: 1  } },
+  { name: 'Afghanistan',    lat:  33.9, lng:  67.7, risk: 97, shipping: 9, labor: 2, tariff: 20, infra:  1, costIndex: 85,
+    mfgCapacity: 2,  exportInfra: 1,  supplierDensity: 1,  leadTimeReliability: 5,
+    sourcing: { technology: 1,  textiles: 3,  generalMfg: 1,  consumerGoods: 2,  automotive: 1,  pharma: 1  } },
+  { name: 'Syria',          lat:  34.8, lng:  38.9, risk: 96, shipping: 7, labor: 3, tariff: 20, infra:  2, costIndex: 78,
+    mfgCapacity: 3,  exportInfra: 2,  supplierDensity: 2,  leadTimeReliability: 5,
+    sourcing: { technology: 1,  textiles: 2,  generalMfg: 2,  consumerGoods: 2,  automotive: 1,  pharma: 2  } },
+  { name: 'Russia',         lat:  61.5, lng:  90.0, risk: 95, shipping: 8, labor: 5, tariff: 35, infra:  6, costIndex: 75,
+    mfgCapacity: 55, exportInfra: 50, supplierDensity: 45, leadTimeReliability: 40,
+    sourcing: { technology: 10, textiles: 5,  generalMfg: 25, consumerGoods: 10, automotive: 15, pharma: 20 } },
+  { name: 'Iran',           lat:  32.4, lng:  53.7, risk: 93, shipping: 7, labor: 4, tariff: 30, infra:  5, costIndex: 72,
+    mfgCapacity: 40, exportInfra: 35, supplierDensity: 30, leadTimeReliability: 30,
+    sourcing: { technology: 5,  textiles: 10, generalMfg: 15, consumerGoods: 10, automotive: 10, pharma: 15 } },
+  { name: 'Sudan',          lat:  12.8, lng:  30.2, risk: 91, shipping: 8, labor: 2, tariff: 15, infra:  2, costIndex: 75,
+    mfgCapacity: 5,  exportInfra: 5,  supplierDensity: 3,  leadTimeReliability: 10,
+    sourcing: { technology: 2,  textiles: 5,  generalMfg: 3,  consumerGoods: 3,  automotive: 1,  pharma: 2  } },
+  { name: 'Venezuela',      lat:   6.4, lng: -66.6, risk: 89, shipping: 6, labor: 3, tariff: 25, infra:  3, costIndex: 72,
+    mfgCapacity: 15, exportInfra: 20, supplierDensity: 10, leadTimeReliability: 20,
+    sourcing: { technology: 3,  textiles: 5,  generalMfg: 8,  consumerGoods: 5,  automotive: 5,  pharma: 5  } },
+  { name: 'Iraq',           lat:  33.2, lng:  43.7, risk: 88, shipping: 7, labor: 3, tariff: 15, infra:  3, costIndex: 70,
+    mfgCapacity: 10, exportInfra: 15, supplierDensity: 8,  leadTimeReliability: 15,
+    sourcing: { technology: 2,  textiles: 3,  generalMfg: 5,  consumerGoods: 3,  automotive: 2,  pharma: 5  } },
+  { name: 'Ukraine',        lat:  48.4, lng:  31.2, risk: 88, shipping: 5, labor: 3, tariff: 10, infra:  6, costIndex: 60,
+    mfgCapacity: 35, exportInfra: 40, supplierDensity: 30, leadTimeReliability: 25,
+    sourcing: { technology: 15, textiles: 10, generalMfg: 20, consumerGoods: 10, automotive: 15, pharma: 10 } },
+  { name: 'Myanmar',        lat:  17.1, lng:  95.9, risk: 85, shipping: 8, labor: 2, tariff: 15, infra:  3, costIndex: 58,
+    mfgCapacity: 20, exportInfra: 20, supplierDensity: 15, leadTimeReliability: 30,
+    sourcing: { technology: 3,  textiles: 35, generalMfg: 15, consumerGoods: 10, automotive: 2,  pharma: 3  } },
+  { name: 'Taiwan',         lat:  23.7, lng: 120.9, risk: 82, shipping: 7, labor: 6, tariff:  4, infra:  8, costIndex: 48,
+    mfgCapacity: 88, exportInfra: 85, supplierDensity: 90, leadTimeReliability: 78,
+    sourcing: { technology: 95, textiles: 15, generalMfg: 65, consumerGoods: 40, automotive: 30, pharma: 25 } },
+  { name: 'Lebanon',        lat:  33.9, lng:  35.5, risk: 79, shipping: 6, labor: 4, tariff: 15, infra:  4, costIndex: 65,
+    mfgCapacity: 8,  exportInfra: 15, supplierDensity: 5,  leadTimeReliability: 10,
+    sourcing: { technology: 5,  textiles: 5,  generalMfg: 5,  consumerGoods: 5,  automotive: 2,  pharma: 8  } },
+  // China: geopolitical tensions and tariffs add risk, but unmatched manufacturing capacity.
+  { name: 'China',          lat:  35.8, lng: 104.2, risk: 28, shipping: 7, labor: 3, tariff: 25, infra:  7, costIndex: 30,
+    mfgCapacity: 98, exportInfra: 95, supplierDensity: 99, leadTimeReliability: 80,
+    sourcing: { technology: 95, textiles: 75, generalMfg: 95, consumerGoods: 92, automotive: 70, pharma: 65 } },
+  { name: 'Pakistan',       lat:  30.4, lng:  69.3, risk: 76, shipping: 8, labor: 2, tariff: 17, infra:  4, costIndex: 55,
+    mfgCapacity: 40, exportInfra: 35, supplierDensity: 35, leadTimeReliability: 45,
+    sourcing: { technology: 10, textiles: 60, generalMfg: 30, consumerGoods: 25, automotive: 8,  pharma: 15 } },
+  { name: 'Nigeria',        lat:   9.1, lng:   8.7, risk: 72, shipping: 7, labor: 2, tariff: 20, infra:  4, costIndex: 58,
+    mfgCapacity: 20, exportInfra: 20, supplierDensity: 15, leadTimeReliability: 25,
+    sourcing: { technology: 5,  textiles: 15, generalMfg: 12, consumerGoods: 10, automotive: 5,  pharma: 5  } },
+  { name: 'Ethiopia',       lat:   9.1, lng:  40.5, risk: 68, shipping: 9, labor: 1, tariff: 20, infra:  3, costIndex: 52,
+    mfgCapacity: 15, exportInfra: 10, supplierDensity: 10, leadTimeReliability: 20,
+    sourcing: { technology: 2,  textiles: 25, generalMfg: 10, consumerGoods: 8,  automotive: 2,  pharma: 3  } },
+  { name: 'Egypt',          lat:  26.8, lng:  30.8, risk: 67, shipping: 6, labor: 3, tariff: 20, infra:  5, costIndex: 48,
+    mfgCapacity: 30, exportInfra: 40, supplierDensity: 25, leadTimeReliability: 40,
+    sourcing: { technology: 8,  textiles: 25, generalMfg: 20, consumerGoods: 15, automotive: 10, pharma: 12 } },
+  { name: 'Turkey',         lat:  38.9, lng:  35.2, risk: 65, shipping: 5, labor: 4, tariff: 10, infra:  7, costIndex: 40,
+    mfgCapacity: 65, exportInfra: 70, supplierDensity: 60, leadTimeReliability: 65,
+    sourcing: { technology: 20, textiles: 70, generalMfg: 55, consumerGoods: 40, automotive: 55, pharma: 20 } },
+  { name: 'Bangladesh',     lat:  23.7, lng:  90.4, risk: 62, shipping: 8, labor: 1, tariff: 12, infra:  5, costIndex: 42,
+    mfgCapacity: 60, exportInfra: 50, supplierDensity: 55, leadTimeReliability: 55,
+    sourcing: { technology: 5,  textiles: 88, generalMfg: 30, consumerGoods: 35, automotive: 3,  pharma: 5  } },
+  { name: 'Honduras',       lat:  14.1, lng: -86.2, risk: 62, shipping: 5, labor: 2, tariff:  8, infra:  5, costIndex: 35,
+    mfgCapacity: 25, exportInfra: 25, supplierDensity: 20, leadTimeReliability: 45,
+    sourcing: { technology: 5,  textiles: 35, generalMfg: 20, consumerGoods: 15, automotive: 5,  pharma: 3  } },
+  { name: 'Guatemala',      lat:  15.8, lng: -90.2, risk: 60, shipping: 5, labor: 2, tariff:  8, infra:  5, costIndex: 33,
+    mfgCapacity: 20, exportInfra: 22, supplierDensity: 15, leadTimeReliability: 40,
+    sourcing: { technology: 3,  textiles: 30, generalMfg: 15, consumerGoods: 12, automotive: 3,  pharma: 3  } },
+  { name: 'Mexico',         lat:  23.6, lng:-102.6, risk: 60, shipping: 4, labor: 3, tariff:  0, infra:  7, costIndex: 30,
+    mfgCapacity: 75, exportInfra: 80, supplierDensity: 72, leadTimeReliability: 72,
+    sourcing: { technology: 55, textiles: 45, generalMfg: 78, consumerGoods: 60, automotive: 88, pharma: 30 } },
+  { name: 'Philippines',    lat:  12.9, lng: 121.8, risk: 58, shipping: 7, labor: 2, tariff:  8, infra:  6, costIndex: 40,
+    mfgCapacity: 40, exportInfra: 45, supplierDensity: 35, leadTimeReliability: 50,
+    sourcing: { technology: 30, textiles: 20, generalMfg: 30, consumerGoods: 25, automotive: 10, pharma: 15 } },
+  { name: 'Sri Lanka',      lat:   7.9, lng:  80.8, risk: 55, shipping: 8, labor: 2, tariff: 12, infra:  5, costIndex: 40,
+    mfgCapacity: 25, exportInfra: 30, supplierDensity: 20, leadTimeReliability: 45,
+    sourcing: { technology: 5,  textiles: 45, generalMfg: 20, consumerGoods: 15, automotive: 3,  pharma: 8  } },
+  { name: 'Indonesia',      lat:  -0.8, lng: 113.9, risk: 55, shipping: 7, labor: 2, tariff: 10, infra:  6, costIndex: 38,
+    mfgCapacity: 60, exportInfra: 55, supplierDensity: 55, leadTimeReliability: 55,
+    sourcing: { technology: 20, textiles: 50, generalMfg: 50, consumerGoods: 45, automotive: 25, pharma: 15 } },
+  { name: 'Argentina',      lat: -38.4, lng: -63.6, risk: 52, shipping: 6, labor: 4, tariff: 17, infra:  6, costIndex: 45,
+    mfgCapacity: 40, exportInfra: 45, supplierDensity: 35, leadTimeReliability: 40,
+    sourcing: { technology: 15, textiles: 20, generalMfg: 30, consumerGoods: 20, automotive: 20, pharma: 20 } },
+  { name: 'Brazil',         lat: -14.2, lng: -51.9, risk: 50, shipping: 6, labor: 4, tariff: 18, infra:  6, costIndex: 42,
+    mfgCapacity: 60, exportInfra: 60, supplierDensity: 55, leadTimeReliability: 55,
+    sourcing: { technology: 20, textiles: 25, generalMfg: 50, consumerGoods: 35, automotive: 45, pharma: 30 } },
+  { name: 'Colombia',       lat:   4.6, lng: -74.1, risk: 50, shipping: 5, labor: 3, tariff: 15, infra:  6, costIndex: 40,
+    mfgCapacity: 30, exportInfra: 40, supplierDensity: 25, leadTimeReliability: 50,
+    sourcing: { technology: 10, textiles: 20, generalMfg: 22, consumerGoods: 18, automotive: 8,  pharma: 12 } },
+  { name: 'Cambodia',       lat:  12.6, lng: 104.9, risk: 48, shipping: 8, labor: 2, tariff: 12, infra:  4, costIndex: 38,
+    mfgCapacity: 30, exportInfra: 30, supplierDensity: 25, leadTimeReliability: 50,
+    sourcing: { technology: 5,  textiles: 65, generalMfg: 22, consumerGoods: 18, automotive: 2,  pharma: 3  } },
+  { name: 'Peru',           lat:  -9.2, lng: -75.0, risk: 46, shipping: 6, labor: 3, tariff: 10, infra:  6, costIndex: 38,
+    mfgCapacity: 25, exportInfra: 30, supplierDensity: 20, leadTimeReliability: 45,
+    sourcing: { technology: 5,  textiles: 15, generalMfg: 18, consumerGoods: 12, automotive: 5,  pharma: 8  } },
+  { name: 'India',          lat:  20.6, lng:  78.9, risk: 45, shipping: 7, labor: 2, tariff: 15, infra:  6, costIndex: 35,
+    mfgCapacity: 78, exportInfra: 72, supplierDensity: 75, leadTimeReliability: 65,
+    sourcing: { technology: 50, textiles: 70, generalMfg: 72, consumerGoods: 65, automotive: 40, pharma: 92 } },
+  { name: 'Thailand',       lat:  15.9, lng: 100.9, risk: 44, shipping: 7, labor: 3, tariff: 10, infra:  7, costIndex: 35,
+    mfgCapacity: 65, exportInfra: 68, supplierDensity: 62, leadTimeReliability: 70,
+    sourcing: { technology: 35, textiles: 45, generalMfg: 60, consumerGoods: 55, automotive: 60, pharma: 20 } },
+  { name: 'Morocco',        lat:  31.8, lng:  -7.1, risk: 43, shipping: 6, labor: 3, tariff: 12, infra:  6, costIndex: 36,
+    mfgCapacity: 35, exportInfra: 40, supplierDensity: 30, leadTimeReliability: 55,
+    sourcing: { technology: 10, textiles: 40, generalMfg: 28, consumerGoods: 22, automotive: 25, pharma: 12 } },
+  { name: 'Malaysia',       lat:   4.2, lng: 108.0, risk: 38, shipping: 7, labor: 3, tariff:  6, infra:  7, costIndex: 32,
+    mfgCapacity: 65, exportInfra: 72, supplierDensity: 62, leadTimeReliability: 75,
+    sourcing: { technology: 60, textiles: 25, generalMfg: 58, consumerGoods: 45, automotive: 25, pharma: 25 } },
+  { name: 'Saudi Arabia',   lat:  23.9, lng:  45.1, risk: 35, shipping: 6, labor: 5, tariff:  6, infra:  8, costIndex: 36,
+    mfgCapacity: 30, exportInfra: 55, supplierDensity: 25, leadTimeReliability: 60,
+    sourcing: { technology: 10, textiles: 5,  generalMfg: 20, consumerGoods: 15, automotive: 8,  pharma: 10 } },
+  { name: 'Vietnam',        lat:  14.1, lng: 108.3, risk: 35, shipping: 7, labor: 2, tariff:  7, infra:  6, costIndex: 30,
+    mfgCapacity: 65, exportInfra: 65, supplierDensity: 60, leadTimeReliability: 68,
+    sourcing: { technology: 55, textiles: 85, generalMfg: 65, consumerGoods: 62, automotive: 20, pharma: 15 } },
+  { name: 'Romania',        lat:  45.9, lng:  24.9, risk: 22, shipping: 5, labor: 4, tariff:  3, infra:  7, costIndex: 26,
+    mfgCapacity: 40, exportInfra: 50, supplierDensity: 35, leadTimeReliability: 65,
+    sourcing: { technology: 20, textiles: 30, generalMfg: 35, consumerGoods: 25, automotive: 50, pharma: 20 } },
+  { name: 'UAE',            lat:  23.4, lng:  53.8, risk: 30, shipping: 6, labor: 5, tariff:  5, infra:  9, costIndex: 32,
+    mfgCapacity: 25, exportInfra: 75, supplierDensity: 20, leadTimeReliability: 75,
+    sourcing: { technology: 10, textiles: 5,  generalMfg: 18, consumerGoods: 15, automotive: 5,  pharma: 12 } },
+  { name: 'Hungary',        lat:  47.2, lng:  19.5, risk: 20, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 26,
+    mfgCapacity: 45, exportInfra: 55, supplierDensity: 40, leadTimeReliability: 70,
+    sourcing: { technology: 20, textiles: 15, generalMfg: 38, consumerGoods: 25, automotive: 65, pharma: 30 } },
+  { name: 'South Korea',    lat:  35.9, lng: 127.8, risk: 28, shipping: 7, labor: 6, tariff:  3, infra:  9, costIndex: 35,
+    mfgCapacity: 82, exportInfra: 88, supplierDensity: 80, leadTimeReliability: 82,
+    sourcing: { technology: 88, textiles: 15, generalMfg: 70, consumerGoods: 60, automotive: 80, pharma: 30 } },
+  { name: 'Chile',          lat: -35.7, lng: -71.5, risk: 27, shipping: 7, labor: 5, tariff:  8, infra:  7, costIndex: 38,
+    mfgCapacity: 20, exportInfra: 35, supplierDensity: 15, leadTimeReliability: 55,
+    sourcing: { technology: 8,  textiles: 8,  generalMfg: 15, consumerGoods: 10, automotive: 5,  pharma: 8  } },
+  { name: 'Poland',         lat:  51.9, lng:  19.1, risk: 18, shipping: 5, labor: 4, tariff:  3, infra:  7, costIndex: 26,
+    mfgCapacity: 55, exportInfra: 65, supplierDensity: 50, leadTimeReliability: 72,
+    sourcing: { technology: 30, textiles: 20, generalMfg: 55, consumerGoods: 35, automotive: 70, pharma: 35 } },
+  { name: 'Japan',          lat:  36.2, lng: 138.3, risk: 22, shipping: 7, labor: 7, tariff:  2, infra:  9, costIndex: 38,
+    mfgCapacity: 85, exportInfra: 88, supplierDensity: 82, leadTimeReliability: 88,
+    sourcing: { technology: 88, textiles: 10, generalMfg: 75, consumerGoods: 60, automotive: 92, pharma: 35 } },
+  { name: 'Czech Republic', lat:  49.8, lng:  15.5, risk: 16, shipping: 5, labor: 5, tariff:  3, infra:  8, costIndex: 26,
+    mfgCapacity: 55, exportInfra: 65, supplierDensity: 48, leadTimeReliability: 75,
+    sourcing: { technology: 28, textiles: 12, generalMfg: 50, consumerGoods: 30, automotive: 72, pharma: 30 } },
+  { name: 'United States',  lat:  37.1, lng: -95.7, risk: 18, shipping: 4, labor: 9, tariff:  0, infra:  9, costIndex: 45,
+    mfgCapacity: 88, exportInfra: 90, supplierDensity: 85, leadTimeReliability: 85,
+    sourcing: { technology: 75, textiles: 10, generalMfg: 65, consumerGoods: 55, automotive: 70, pharma: 70 } },
+  { name: 'Australia',      lat: -25.3, lng: 133.8, risk: 16, shipping: 8, labor: 8, tariff:  5, infra:  9, costIndex: 48,
+    mfgCapacity: 30, exportInfra: 65, supplierDensity: 25, leadTimeReliability: 78,
+    sourcing: { technology: 15, textiles: 5,  generalMfg: 20, consumerGoods: 15, automotive: 5,  pharma: 15 } },
+  { name: 'France',         lat:  46.2, lng:   2.2, risk: 16, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40,
+    mfgCapacity: 62, exportInfra: 75, supplierDensity: 58, leadTimeReliability: 78,
+    sourcing: { technology: 40, textiles: 15, generalMfg: 50, consumerGoods: 45, automotive: 60, pharma: 55 } },
+  { name: 'Germany',        lat:  51.2, lng:  10.5, risk: 15, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40,
+    mfgCapacity: 88, exportInfra: 90, supplierDensity: 85, leadTimeReliability: 88,
+    sourcing: { technology: 72, textiles: 10, generalMfg: 78, consumerGoods: 55, automotive: 95, pharma: 65 } },
+  { name: 'Canada',         lat:  56.1, lng:-106.3, risk: 14, shipping: 5, labor: 8, tariff:  1, infra:  9, costIndex: 40,
+    mfgCapacity: 50, exportInfra: 70, supplierDensity: 45, leadTimeReliability: 80,
+    sourcing: { technology: 30, textiles: 5,  generalMfg: 40, consumerGoods: 30, automotive: 45, pharma: 40 } },
+  { name: 'United Kingdom', lat:  55.4, lng:  -3.4, risk: 14, shipping: 5, labor: 8, tariff:  5, infra:  9, costIndex: 42,
+    mfgCapacity: 55, exportInfra: 75, supplierDensity: 50, leadTimeReliability: 82,
+    sourcing: { technology: 38, textiles: 10, generalMfg: 42, consumerGoods: 35, automotive: 50, pharma: 55 } },
+  { name: 'Netherlands',    lat:  52.1, lng:   5.3, risk: 13, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40,
+    mfgCapacity: 50, exportInfra: 88, supplierDensity: 45, leadTimeReliability: 85,
+    sourcing: { technology: 30, textiles: 8,  generalMfg: 40, consumerGoods: 30, automotive: 30, pharma: 45 } },
+  { name: 'Singapore',      lat:   1.4, lng: 103.8, risk: 12, shipping: 7, labor: 7, tariff:  0, infra: 10, costIndex: 35,
+    mfgCapacity: 50, exportInfra: 95, supplierDensity: 45, leadTimeReliability: 90,
+    sourcing: { technology: 45, textiles: 5,  generalMfg: 38, consumerGoods: 28, automotive: 10, pharma: 30 } },
+  { name: 'Switzerland',    lat:  46.8, lng:   8.2, risk: 11, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45,
+    mfgCapacity: 45, exportInfra: 80, supplierDensity: 42, leadTimeReliability: 90,
+    sourcing: { technology: 30, textiles: 8,  generalMfg: 35, consumerGoods: 30, automotive: 20, pharma: 85 } },
   // EU Countries
-  { name: 'Austria',        lat:  47.5, lng:  14.6, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 42 },
-  { name: 'Belgium',        lat:  50.5, lng:   4.5, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 42 },
-  { name: 'Bulgaria',       lat:  42.7, lng:  25.5, risk: 22, shipping: 5, labor: 4, tariff:  3, infra:  7, costIndex: 24 },
-  { name: 'Croatia',        lat:  45.1, lng:  16.4, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 28 },
-  { name: 'Cyprus',         lat:  35.1, lng:  33.4, risk: 20, shipping: 6, labor: 6, tariff:  3, infra:  7, costIndex: 32 },
-  { name: 'Denmark',        lat:  56.3, lng:   9.5, risk: 10, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45 },
-  { name: 'Estonia',        lat:  58.6, lng:  25.0, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  8, costIndex: 28 },
-  { name: 'Finland',        lat:  61.9, lng:  25.7, risk: 10, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 42 },
-  { name: 'Greece',         lat:  39.1, lng:  21.8, risk: 25, shipping: 6, labor: 6, tariff:  3, infra:  7, costIndex: 32 },
-  { name: 'Ireland',        lat:  53.1, lng:  -8.2, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40 },
-  { name: 'Italy',          lat:  41.9, lng:  12.6, risk: 18, shipping: 5, labor: 7, tariff:  3, infra:  8, costIndex: 38 },
-  { name: 'Latvia',         lat:  56.9, lng:  24.6, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 26 },
-  { name: 'Lithuania',      lat:  55.2, lng:  23.9, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 26 },
-  { name: 'Luxembourg',     lat:  49.8, lng:   6.1, risk: 10, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45 },
-  { name: 'Malta',          lat:  35.9, lng:  14.4, risk: 12, shipping: 6, labor: 6, tariff:  3, infra:  7, costIndex: 32 },
-  { name: 'Portugal',       lat:  39.4, lng:  -8.2, risk: 15, shipping: 5, labor: 6, tariff:  3, infra:  8, costIndex: 30 },
-  { name: 'Slovakia',       lat:  48.7, lng:  19.7, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 24 },
-  { name: 'Slovenia',       lat:  46.1, lng:  14.9, risk: 14, shipping: 5, labor: 6, tariff:  3, infra:  8, costIndex: 28 },
-  { name: 'Spain',          lat:  40.5, lng:  -3.7, risk: 16, shipping: 5, labor: 7, tariff:  3, infra:  8, costIndex: 36 },
-  { name: 'Sweden',         lat:  60.1, lng:  18.6, risk: 12, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45 }
+  { name: 'Austria',        lat:  47.5, lng:  14.6, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 42,
+    mfgCapacity: 48, exportInfra: 70, supplierDensity: 42, leadTimeReliability: 82,
+    sourcing: { technology: 25, textiles: 8,  generalMfg: 40, consumerGoods: 30, automotive: 45, pharma: 35 } },
+  { name: 'Belgium',        lat:  50.5, lng:   4.5, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 42,
+    mfgCapacity: 48, exportInfra: 78, supplierDensity: 42, leadTimeReliability: 82,
+    sourcing: { technology: 22, textiles: 10, generalMfg: 38, consumerGoods: 28, automotive: 35, pharma: 45 } },
+  { name: 'Bulgaria',       lat:  42.7, lng:  25.5, risk: 22, shipping: 5, labor: 4, tariff:  3, infra:  7, costIndex: 24,
+    mfgCapacity: 35, exportInfra: 45, supplierDensity: 28, leadTimeReliability: 62,
+    sourcing: { technology: 12, textiles: 25, generalMfg: 28, consumerGoods: 18, automotive: 30, pharma: 15 } },
+  { name: 'Croatia',        lat:  45.1, lng:  16.4, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 28,
+    mfgCapacity: 28, exportInfra: 45, supplierDensity: 22, leadTimeReliability: 65,
+    sourcing: { technology: 10, textiles: 12, generalMfg: 22, consumerGoods: 15, automotive: 18, pharma: 12 } },
+  { name: 'Cyprus',         lat:  35.1, lng:  33.4, risk: 20, shipping: 6, labor: 6, tariff:  3, infra:  7, costIndex: 32,
+    mfgCapacity: 15, exportInfra: 40, supplierDensity: 10, leadTimeReliability: 60,
+    sourcing: { technology: 5,  textiles: 5,  generalMfg: 10, consumerGoods: 8,  automotive: 3,  pharma: 8  } },
+  { name: 'Denmark',        lat:  56.3, lng:   9.5, risk: 10, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45,
+    mfgCapacity: 38, exportInfra: 72, supplierDensity: 32, leadTimeReliability: 85,
+    sourcing: { technology: 22, textiles: 5,  generalMfg: 28, consumerGoods: 22, automotive: 15, pharma: 35 } },
+  { name: 'Estonia',        lat:  58.6, lng:  25.0, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  8, costIndex: 28,
+    mfgCapacity: 15, exportInfra: 45, supplierDensity: 12, leadTimeReliability: 72,
+    sourcing: { technology: 10, textiles: 5,  generalMfg: 12, consumerGoods: 8,  automotive: 5,  pharma: 5  } },
+  { name: 'Finland',        lat:  61.9, lng:  25.7, risk: 10, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 42,
+    mfgCapacity: 40, exportInfra: 70, supplierDensity: 35, leadTimeReliability: 85,
+    sourcing: { technology: 28, textiles: 5,  generalMfg: 30, consumerGoods: 22, automotive: 15, pharma: 20 } },
+  { name: 'Greece',         lat:  39.1, lng:  21.8, risk: 25, shipping: 6, labor: 6, tariff:  3, infra:  7, costIndex: 32,
+    mfgCapacity: 25, exportInfra: 55, supplierDensity: 20, leadTimeReliability: 62,
+    sourcing: { technology: 8,  textiles: 12, generalMfg: 18, consumerGoods: 12, automotive: 5,  pharma: 12 } },
+  { name: 'Ireland',        lat:  53.1, lng:  -8.2, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40,
+    mfgCapacity: 35, exportInfra: 68, supplierDensity: 30, leadTimeReliability: 82,
+    sourcing: { technology: 25, textiles: 5,  generalMfg: 22, consumerGoods: 18, automotive: 10, pharma: 88 } },
+  { name: 'Italy',          lat:  41.9, lng:  12.6, risk: 18, shipping: 5, labor: 7, tariff:  3, infra:  8, costIndex: 38,
+    mfgCapacity: 70, exportInfra: 72, supplierDensity: 65, leadTimeReliability: 72,
+    sourcing: { technology: 30, textiles: 50, generalMfg: 62, consumerGoods: 55, automotive: 65, pharma: 40 } },
+  { name: 'Latvia',         lat:  56.9, lng:  24.6, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 26,
+    mfgCapacity: 15, exportInfra: 45, supplierDensity: 12, leadTimeReliability: 68,
+    sourcing: { technology: 8,  textiles: 8,  generalMfg: 12, consumerGoods: 8,  automotive: 5,  pharma: 5  } },
+  { name: 'Lithuania',      lat:  55.2, lng:  23.9, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 26,
+    mfgCapacity: 18, exportInfra: 45, supplierDensity: 14, leadTimeReliability: 68,
+    sourcing: { technology: 8,  textiles: 8,  generalMfg: 14, consumerGoods: 10, automotive: 5,  pharma: 8  } },
+  { name: 'Luxembourg',     lat:  49.8, lng:   6.1, risk: 10, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45,
+    mfgCapacity: 10, exportInfra: 60, supplierDensity: 8,  leadTimeReliability: 85,
+    sourcing: { technology: 5,  textiles: 2,  generalMfg: 8,  consumerGoods: 5,  automotive: 2,  pharma: 15 } },
+  { name: 'Malta',          lat:  35.9, lng:  14.4, risk: 12, shipping: 6, labor: 6, tariff:  3, infra:  7, costIndex: 32,
+    mfgCapacity: 12, exportInfra: 45, supplierDensity: 10, leadTimeReliability: 68,
+    sourcing: { technology: 5,  textiles: 3,  generalMfg: 8,  consumerGoods: 5,  automotive: 2,  pharma: 10 } },
+  { name: 'Portugal',       lat:  39.4, lng:  -8.2, risk: 15, shipping: 5, labor: 6, tariff:  3, infra:  8, costIndex: 30,
+    mfgCapacity: 35, exportInfra: 60, supplierDensity: 28, leadTimeReliability: 72,
+    sourcing: { technology: 12, textiles: 25, generalMfg: 28, consumerGoods: 20, automotive: 22, pharma: 18 } },
+  { name: 'Slovakia',       lat:  48.7, lng:  19.7, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 24,
+    mfgCapacity: 42, exportInfra: 55, supplierDensity: 35, leadTimeReliability: 72,
+    sourcing: { technology: 15, textiles: 10, generalMfg: 38, consumerGoods: 22, automotive: 68, pharma: 20 } },
+  { name: 'Slovenia',       lat:  46.1, lng:  14.9, risk: 14, shipping: 5, labor: 6, tariff:  3, infra:  8, costIndex: 28,
+    mfgCapacity: 32, exportInfra: 55, supplierDensity: 28, leadTimeReliability: 75,
+    sourcing: { technology: 12, textiles: 8,  generalMfg: 28, consumerGoods: 18, automotive: 35, pharma: 20 } },
+  { name: 'Spain',          lat:  40.5, lng:  -3.7, risk: 16, shipping: 5, labor: 7, tariff:  3, infra:  8, costIndex: 36,
+    mfgCapacity: 58, exportInfra: 72, supplierDensity: 52, leadTimeReliability: 75,
+    sourcing: { technology: 22, textiles: 20, generalMfg: 48, consumerGoods: 38, automotive: 58, pharma: 28 } },
+  { name: 'Sweden',         lat:  60.1, lng:  18.6, risk: 12, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45,
+    mfgCapacity: 48, exportInfra: 72, supplierDensity: 42, leadTimeReliability: 85,
+    sourcing: { technology: 30, textiles: 5,  generalMfg: 38, consumerGoods: 28, automotive: 42, pharma: 30 } }
 ];
 
 var ALL_COUNTRIES = [
@@ -981,6 +1315,13 @@ var COUNTRY_COORDS = (function() {
   var extra = { 'United Arab Emirates': [23.4, 53.8] };
   for (var k in extra) { if (!coords[k]) coords[k] = extra[k]; }
   return coords;
+})();
+
+// O(1) country lookup map
+var COUNTRY_MAP = (function() {
+  var m = {};
+  for (var i = 0; i < COUNTRY_DATA.length; i++) { m[COUNTRY_DATA[i].name] = COUNTRY_DATA[i]; }
+  return m;
 })();
 
 var LAYER_CONFIG = {
@@ -1035,6 +1376,19 @@ var LAYER_CONFIG = {
       { color: '#00e676', label: 'Low-Medium (15\u201329)' },
       { color: '#00bcd4', label: 'Low (0\u201314)' }
     ]
+  },
+  sourcing: {
+    name: 'Sourcing Attractiveness',
+    sub: 'How attractive each country is as a sourcing destination',
+    legendTitle: 'Sourcing Attractiveness',
+    items: [
+      { color: '#00bcd4', label: 'Top Tier (80\u2013100)' },
+      { color: '#00e676', label: 'Strong (60\u201379)' },
+      { color: '#8bc34a', label: 'Good (40\u201359)' },
+      { color: '#f5c518', label: 'Moderate (20\u201339)' },
+      { color: '#ff8c00', label: 'Limited (10\u201319)' },
+      { color: '#ff0040', label: 'Minimal (0\u20139)' }
+    ]
   }
 };
 
@@ -1052,12 +1406,37 @@ function getRiskColor(score) {
 
 function getCostColor(score) { return getRiskColor(score); }
 
+// For sourcing: high score = better (green), low = worse (red) — inverted from risk
+function getSourcingColor(score) {
+  if (score >= 80) return '#00bcd4';
+  if (score >= 60) return '#00e676';
+  if (score >= 40) return '#8bc34a';
+  if (score >= 20) return '#f5c518';
+  if (score >= 10) return '#ff8c00';
+  return '#ff0040';
+}
+
 function getScoreForLayer(country, layer) {
   if (layer === 'risk')     return country.risk;
   if (layer === 'shipping') return country.shipping * 10;
   if (layer === 'labor')    return country.labor * 10;
   if (layer === 'cost')     return country.costIndex;
+  if (layer === 'sourcing') {
+    var s = country.sourcing;
+    if (!s) return 0;
+    return s[currentCategory] || 0;
+  }
   return country.risk;
+}
+
+function getColorForLayer(score, layer) {
+  if (layer === 'sourcing') return getSourcingColor(score);
+  return getRiskColor(score);
+}
+
+function getDotRadius(country) {
+  var cap = country.mfgCapacity || 10;
+  return 5 + (cap / 100) * 7;
 }
 
 function getRiskLabel(score) {
@@ -1067,6 +1446,50 @@ function getRiskLabel(score) {
   if (score >= 30) return 'Medium';
   if (score >= 15) return 'Low-Medium';
   return 'Low';
+}
+
+function getSourcingLabel(score) {
+  if (score >= 80) return 'Top Tier';
+  if (score >= 60) return 'Strong';
+  if (score >= 40) return 'Good';
+  if (score >= 20) return 'Moderate';
+  if (score >= 10) return 'Limited';
+  return 'Minimal';
+}
+
+var CATEGORY_LABELS = {
+  technology:   'Technology',
+  textiles:     'Textiles/Apparel',
+  generalMfg:   'General Manufacturing',
+  consumerGoods:'Consumer Goods',
+  automotive:   'Automotive',
+  pharma:       'Pharmaceuticals'
+};
+
+function getTopIndustries(country) {
+  if (!country.sourcing) return [];
+  var keys = Object.keys(country.sourcing);
+  var pairs = keys.map(function(k) { return { key: k, val: country.sourcing[k] }; });
+  pairs.sort(function(a, b) { return b.val - a.val; });
+  return pairs.slice(0, 3).map(function(p) { return CATEGORY_LABELS[p.key] || p.key; });
+}
+
+function getCountryInsight(country) {
+  var name = country.name;
+  var s = country.sourcing || {};
+  // Pick insight based on top category
+  if (s.technology >= 85)   return name + ': World-class tech ecosystem, unmatched component supply chain depth.';
+  if (s.pharma >= 85)       return name + ': Global pharmaceuticals leader, dominant in generic drug manufacturing.';
+  if (s.automotive >= 85)   return name + ': Premier automotive manufacturing hub, deep OEM supplier network.';
+  if (s.textiles >= 75)     return name + ': Cost-competitive textile & apparel leader, large export capacity.';
+  if (s.technology >= 60)   return name + ': Maturing tech sector, growing electronics and semiconductor presence.';
+  if (s.generalMfg >= 70)   return name + ': Versatile general manufacturing base, strong export infrastructure.';
+  if (s.automotive >= 60)   return name + ': Strong automotive cluster, proximity advantage for major markets.';
+  if (s.consumerGoods >= 55) return name + ': Reliable consumer goods production, established trade corridors.';
+  if (s.textiles >= 50)     return name + ': Competitive apparel sector, lower-cost alternative for soft goods.';
+  if (country.risk >= 80)   return name + ': Extreme risk environment limits commercial sourcing viability.';
+  if (country.mfgCapacity <= 15) return name + ': Limited manufacturing capacity; niche sourcing only.';
+  return name + ': Moderate sourcing potential with specific category opportunities.';
 }
 
 function getCountryAnalysis(country) {
@@ -1084,17 +1507,30 @@ function getCountryAnalysis(country) {
 function initMap() {
   if (typeof L === 'undefined') return;
   if (map) { map.remove(); map = null; }
+
+  // Show skeleton until tiles load
+  var skeleton = document.getElementById('mapSkeleton');
+  if (skeleton) skeleton.style.display = 'block';
+
   map = L.map('map', {
     center: [20, 0],
     zoom: 2,
     zoomControl: false,
     attributionControl: true
   });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  var tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
     maxZoom: 19
   }).addTo(map);
+
+  tileLayer.on('load', function() {
+    if (skeleton) skeleton.style.display = 'none';
+  });
+
+  // Re-render visible markers after pan/zoom
+  map.on('moveend', onMapMoveEnd);
+
   renderMarkers();
   drawTradeLines();
 }
@@ -1107,36 +1543,95 @@ function renderMarkers() {
   for (var key in countryMarkers) { map.removeLayer(countryMarkers[key]); }
   countryMarkers = {};
 
+  var bounds = map.getBounds();
+  var paddedBounds = bounds.pad(0.3); // compute once, reuse for all markers
+
   for (var i = 0; i < COUNTRY_DATA.length; i++) {
     (function(country) {
-      var score = getScoreForLayer(country, currentLayer);
-      var color = getRiskColor(score);
-      var isPulsing = (score >= 60);
-      var pulseHtml = isPulsing ? '<div class="marker-pulse" style="background:' + color + ';"></div>' : '';
+      // Viewport culling — skip if outside current view (with padding)
+      var latLng = L.latLng(country.lat, country.lng);
+      if (!paddedBounds.contains(latLng)) return;
+
+      var score  = getScoreForLayer(country, currentLayer);
+      var color  = getColorForLayer(score, currentLayer);
+      var radius = getDotRadius(country);
+      var size   = Math.round(radius * 2);
+      var isPulsing = currentLayer !== 'sourcing' ? (score >= 60) : (score <= 20);
+      var pulseHtml = isPulsing ? '<div class="marker-pulse" style="width:' + size + 'px;height:' + size + 'px;background:' + color + ';"></div>' : '';
+
+      // Compare mode ring
+      var compareRing = '';
+      if (compareMode && compareCountries.indexOf(country.name) > -1) {
+        compareRing = '<div class="marker-compare-ring" style="width:' + (size + 8) + 'px;height:' + (size + 8) + 'px;top:' + (-4) + 'px;left:' + (-4) + 'px;"></div>';
+      }
+      // Search highlight ring
+      var searchRing = '';
+      if (searchHighlight === country.name) {
+        searchRing = '<div class="marker-search-ring" style="width:' + (size + 10) + 'px;height:' + (size + 10) + 'px;top:' + (-5) + 'px;left:' + (-5) + 'px;"></div>';
+      }
+
       var icon = L.divIcon({
-        html: '<div class="map-marker">' + pulseHtml +
-              '<div class="marker-dot" style="background:' + color + '; box-shadow:0 0 6px ' + color + '88;"></div></div>',
-        className: '', iconSize: [14, 14], iconAnchor: [7, 7]
+        html: '<div class="map-marker" style="width:' + size + 'px;height:' + size + 'px;">' +
+              compareRing + searchRing + pulseHtml +
+              '<div class="marker-dot" style="width:' + size + 'px;height:' + size + 'px;background:' + color + '; box-shadow:0 0 6px ' + color + '88;border-radius:50%;position:absolute;"></div></div>',
+        className: '', iconSize: [size, size], iconAnchor: [Math.round(size/2), Math.round(size/2)]
       });
       var marker = L.marker([country.lat, country.lng], { icon: icon });
-      var riskColor = getRiskColor(country.risk);
-      var riskLabel = getRiskLabel(country.risk);
-      var analysis  = getCountryAnalysis(country);
+
+      // Build popup
+      var riskColor  = getRiskColor(country.risk);
+      var riskLabel  = getRiskLabel(country.risk);
+      var analysis   = getCountryAnalysis(country);
+      var topInds    = getTopIndustries(country);
+      var insight    = getCountryInsight(country);
+      var srcScore   = (country.sourcing && country.sourcing[currentCategory]) || 0;
+      var srcColor   = getSourcingColor(srcScore);
+      var srcLabel   = getSourcingLabel(srcScore);
+
+      var topIndsHtml = '';
+      for (var t = 0; t < topInds.length; t++) {
+        topIndsHtml += '<span class="popup-industry-tag">' + topInds[t] + '</span>';
+      }
+
       var popup = '<div class="popup-inner">' +
         '<div class="popup-header">' +
           '<span class="popup-country">' + country.name + '</span>' +
           '<span class="popup-risk-badge" style="background:' + riskColor + '22;color:' + riskColor + ';border:1px solid ' + riskColor + '55;">' + riskLabel + '</span>' +
         '</div>' +
-        '<div class="popup-stats">' +
-          '<div class="popup-stat"><span class="popup-stat-label">Risk Score</span><span class="popup-stat-value">' + country.risk + ' / 100</span></div>' +
-          '<div class="popup-stat"><span class="popup-stat-label">Tariff Rate</span><span class="popup-stat-value">' + country.tariff + '%</span></div>' +
-          '<div class="popup-stat"><span class="popup-stat-label">Cost Index</span><span class="popup-stat-value">' + country.costIndex + ' / 100</span></div>' +
-          '<div class="popup-stat"><span class="popup-stat-label">Shipping</span><span class="popup-stat-value">' + country.shipping + ' / 10</span></div>' +
-          '<div class="popup-stat"><span class="popup-stat-label">Labor</span><span class="popup-stat-value">' + country.labor + ' / 10</span></div>' +
+        '<div class="popup-scores-row">' +
+          '<div class="popup-score-block">' +
+            '<div class="popup-score-label">Risk Score</div>' +
+            '<div class="popup-score-value" style="color:' + riskColor + ';">' + country.risk + '</div>' +
+          '</div>' +
+          '<div class="popup-score-block">' +
+            '<div class="popup-score-label">Sourcing</div>' +
+            '<div class="popup-score-value" style="color:' + srcColor + ';">' + srcScore + '</div>' +
+          '</div>' +
+          '<div class="popup-score-block">' +
+            '<div class="popup-score-label">Mfg Scale</div>' +
+            '<div class="popup-score-value" style="color:#aaa;">' + (country.mfgCapacity || 0) + '</div>' +
+          '</div>' +
         '</div>' +
+        '<div class="popup-stats">' +
+          '<div class="popup-stat"><span class="popup-stat-label">Tariff Rate</span><span class="popup-stat-value">' + country.tariff + '%</span></div>' +
+          '<div class="popup-stat"><span class="popup-stat-label">Shipping</span><span class="popup-stat-value">' + country.shipping + ' / 10</span></div>' +
+          '<div class="popup-stat"><span class="popup-stat-label">Labor Cost</span><span class="popup-stat-value">' + country.labor + ' / 10</span></div>' +
+        '</div>' +
+        (topInds.length ? '<div class="popup-industries"><div class="popup-ind-label">Top Industries</div><div class="popup-ind-tags">' + topIndsHtml + '</div></div>' : '') +
+        '<div class="popup-insight">' + insight + '</div>' +
         '<div class="popup-analysis">' + analysis + '</div>' +
+        '<div class="popup-actions">' +
+          '<button class="popup-deepdive-btn" onclick="deepDiveCountry(' + JSON.stringify(country.name) + ')">' +
+            'Deep Dive Analysis' +
+          '</button>' +
+          (compareMode
+            ? '<button class="popup-compare-btn" onclick="toggleCompareCountry(' + JSON.stringify(country.name) + ')">' +
+              (compareCountries.indexOf(country.name) > -1 ? 'Remove' : 'Add to Compare') +
+              '</button>'
+            : '') +
+        '</div>' +
         '</div>';
-      marker.bindPopup(popup, { maxWidth: 270 });
+      marker.bindPopup(popup, { maxWidth: 290 });
       countryMarkers[country.name] = marker;
       marker.addTo(map);
     })(COUNTRY_DATA[i]);
@@ -1148,12 +1643,16 @@ function renderMarkers() {
 // ============================================================
 function updateMapLayer(layer) {
   currentLayer = layer;
-  var layerIds = ['risk', 'shipping', 'labor', 'cost'];
-  var btnIds   = ['btnRisk', 'btnShipping', 'btnLabor', 'btnCost'];
+  var layerIds = ['risk', 'shipping', 'labor', 'cost', 'sourcing'];
+  var btnIds   = ['btnRisk', 'btnShipping', 'btnLabor', 'btnCost', 'btnSourcing'];
   for (var i = 0; i < layerIds.length; i++) {
     var btn = document.getElementById(btnIds[i]);
     if (btn) btn.className = 'layer-btn' + (layerIds[i] === layer ? ' active' : '');
   }
+  // Show/hide category dropdown only for sourcing layer
+  var catWrap = document.getElementById('categoryDropdownWrap');
+  if (catWrap) catWrap.style.display = layer === 'sourcing' ? 'block' : 'none';
+
   var cfg = LAYER_CONFIG[layer];
   document.getElementById('overlayName').textContent = cfg.name;
   document.getElementById('overlaySub').textContent  = cfg.sub;
@@ -1164,6 +1663,16 @@ function updateMapLayer(layer) {
     html += '<div class="legend-item"><div class="legend-swatch" style="background:' + items[j].color + '"></div>' + items[j].label + '</div>';
   }
   document.getElementById('legendItems').innerHTML = html;
+  renderMarkers();
+}
+
+function updateCategory(cat) {
+  currentCategory = cat;
+  if (currentLayer === 'sourcing') renderMarkers();
+}
+
+// Viewport-based re-render on map move
+function onMapMoveEnd() {
   renderMarkers();
 }
 
@@ -1192,6 +1701,176 @@ function drawTradeLines() {
 }
 
 // ============================================================
+// DEEP DIVE COUNTRY
+// ============================================================
+function deepDiveCountry(countryName) {
+  var prompt = 'Give me a detailed sourcing analysis for ' + countryName + '. ' +
+    'Cover: manufacturing capacity, key export industries, labor costs, political risk, ' +
+    'tariff environment, lead times, and whether it is recommended for sourcing in the ' +
+    CATEGORY_LABELS[currentCategory] + ' sector.';
+  if (chatState === 'expanded') {
+    document.getElementById('chatInputExp').value = prompt;
+    sendMessageFromExpanded();
+  } else {
+    document.getElementById('chatInput').value = prompt;
+    sendMessage();
+  }
+  // Close any open popups
+  if (map) map.closePopup();
+}
+
+// ============================================================
+// COUNTRY SEARCH
+// ============================================================
+function initSearch() {
+  var input = document.getElementById('countrySearch');
+  var suggestions = document.getElementById('searchSuggestions');
+  if (!input || !suggestions) return;
+
+  input.addEventListener('input', function() {
+    var val = input.value.trim().toLowerCase();
+    if (!val) { suggestions.style.display = 'none'; return; }
+    var matches = COUNTRY_DATA.filter(function(c) {
+      return c.name.toLowerCase().indexOf(val) === 0;
+    }).slice(0, 6);
+    if (!matches.length) { suggestions.style.display = 'none'; return; }
+    var html = '';
+    for (var i = 0; i < matches.length; i++) {
+      html += '<div class="search-suggestion" onclick="selectCountry(' + JSON.stringify(matches[i].name) + ')">' + matches[i].name + '</div>';
+    }
+    suggestions.innerHTML = html;
+    suggestions.style.display = 'block';
+  });
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { suggestions.style.display = 'none'; input.value = ''; }
+    if (e.key === 'Enter') {
+      var val = input.value.trim();
+      var match = COUNTRY_DATA.filter(function(c) { return c.name.toLowerCase() === val.toLowerCase(); })[0];
+      if (match) selectCountry(match.name);
+    }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+      suggestions.style.display = 'none';
+    }
+  });
+}
+
+function selectCountry(name) {
+  var country = COUNTRY_MAP[name];
+  if (!country || !map) return;
+  var input = document.getElementById('countrySearch');
+  var suggestions = document.getElementById('searchSuggestions');
+  if (input) input.value = name;
+  if (suggestions) suggestions.style.display = 'none';
+  map.flyTo([country.lat, country.lng], 5, { duration: 1.2 });
+  searchHighlight = name;
+  renderMarkers();
+  // Open popup after fly
+  setTimeout(function() {
+    if (countryMarkers[name]) countryMarkers[name].openPopup();
+    // Remove highlight after 5 seconds
+    setTimeout(function() {
+      searchHighlight = null;
+      renderMarkers();
+    }, 5000);
+  }, 1400);
+}
+
+// ============================================================
+// COMPARE COUNTRIES
+// ============================================================
+function toggleCompareMode() {
+  compareMode = !compareMode;
+  compareCountries = [];
+  var btn = document.getElementById('compareBtn');
+  if (btn) {
+    btn.textContent = compareMode ? 'Cancel Compare' : 'Compare';
+    btn.className = compareMode ? 'btn-ghost btn-ghost-active' : 'btn-ghost';
+  }
+  var panel = document.getElementById('comparePanel');
+  if (panel) panel.classList.add('hidden');
+  renderMarkers();
+}
+
+function toggleCompareCountry(name) {
+  if (!compareMode) return;
+  var idx = compareCountries.indexOf(name);
+  if (idx > -1) {
+    compareCountries.splice(idx, 1);
+  } else {
+    if (compareCountries.length >= 3) compareCountries.shift();
+    compareCountries.push(name);
+  }
+  renderMarkers();
+  if (compareCountries.length >= 2) showComparePanel();
+}
+
+function showComparePanel() {
+  var panel = document.getElementById('comparePanel');
+  if (!panel) return;
+  var cats = Object.keys(CATEGORY_LABELS);
+  var html = '<div class="compare-header"><span class="compare-title">Country Comparison</span>' +
+    '<button class="compare-close" onclick="closeComparePanel()">Close</button></div>';
+
+  // Header row
+  html += '<div class="compare-table"><div class="compare-row compare-row-header">';
+  html += '<div class="compare-cell compare-label-col">Metric</div>';
+  for (var i = 0; i < compareCountries.length; i++) {
+    html += '<div class="compare-cell compare-country-col">' + compareCountries[i] + '</div>';
+  }
+  html += '</div>';
+
+  // Pre-resolve country objects once using O(1) lookup
+  var cds = compareCountries.map(function(name) { return COUNTRY_MAP[name] || null; });
+
+  // Metrics rows
+  var metrics = [
+    { label: 'Risk Score',   fn: function(c) { return c.risk; } },
+    { label: 'Labor Cost',   fn: function(c) { return c.labor + ' / 10'; } },
+    { label: 'Shipping',     fn: function(c) { return c.shipping + ' / 10'; } },
+    { label: 'Tariff',       fn: function(c) { return c.tariff + '%'; } },
+    { label: 'Mfg Scale',    fn: function(c) { return c.mfgCapacity || 0; } },
+    { label: 'Export Infra', fn: function(c) { return c.exportInfra || 0; } },
+    { label: 'Lead Time',    fn: function(c) { return c.leadTimeReliability || 0; } }
+  ];
+  for (var m = 0; m < metrics.length; m++) {
+    html += '<div class="compare-row"><div class="compare-cell compare-label-col">' + metrics[m].label + '</div>';
+    for (var ci = 0; ci < cds.length; ci++) {
+      html += '<div class="compare-cell compare-country-col">' + (cds[ci] ? metrics[m].fn(cds[ci]) : '—') + '</div>';
+    }
+    html += '</div>';
+  }
+
+  // Sourcing scores header
+  html += '<div class="compare-row compare-row-subheader"><div class="compare-cell compare-label-col">Sourcing Scores</div>';
+  for (var i = 0; i < cds.length; i++) html += '<div class="compare-cell compare-country-col"></div>';
+  html += '</div>';
+
+  for (var k = 0; k < cats.length; k++) {
+    var cat = cats[k];
+    html += '<div class="compare-row"><div class="compare-cell compare-label-col">' + CATEGORY_LABELS[cat] + '</div>';
+    for (var ci = 0; ci < cds.length; ci++) {
+      var val = cds[ci] && cds[ci].sourcing ? (cds[ci].sourcing[cat] || 0) : 0;
+      var col = getSourcingColor(val);
+      html += '<div class="compare-cell compare-country-col" style="color:' + col + ';">' + val + '</div>';
+    }
+    html += '</div>';
+  }
+
+  html += '</div>'; // compare-table
+  panel.innerHTML = html;
+  panel.classList.remove('hidden');
+}
+
+function closeComparePanel() {
+  var panel = document.getElementById('comparePanel');
+  if (panel) panel.classList.add('hidden');
+}
+
+// ============================================================
 // CHAT STATE MANAGEMENT
 // ============================================================
 function updateResumeIndicator() {
@@ -1214,6 +1893,8 @@ function expandChatPanel() {
   document.getElementById('mapOverlayHeader').classList.add('hidden');
   document.getElementById('layerControls').classList.add('hidden');
   document.getElementById('mapLegend').classList.add('hidden');
+  var sb = document.getElementById('searchBarWrap');
+  if (sb) sb.classList.add('hidden');
   updateResumeIndicator();
   setTimeout(function() {
     if (map) map.invalidateSize();
@@ -1233,6 +1914,8 @@ function collapseChatPanel() {
   document.getElementById('mapOverlayHeader').classList.remove('hidden');
   document.getElementById('layerControls').classList.remove('hidden');
   document.getElementById('mapLegend').classList.remove('hidden');
+  var sb = document.getElementById('searchBarWrap');
+  if (sb) sb.classList.remove('hidden');
   updateResumeIndicator();
   setTimeout(function() { if (map) map.invalidateSize(); }, 420);
 }
@@ -1653,6 +2336,7 @@ function initApp() {
   loadProfile();
   initMap();
   animateCounters();
+  initSearch();
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
