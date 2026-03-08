@@ -882,8 +882,22 @@
     #introOverlay {
       position: fixed;
       inset: 0;
-      z-index: 10000;
-      transition: opacity 0.5s ease;
+      z-index: 10001;
+      background: #0f1117;
+      transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    #introOverlay.dismissing {
+      transform: translateY(-100%);
+    }
+    body.intro-active .navbar,
+    body.intro-active .chat-overlay,
+    body.intro-active .hero-panel,
+    body.intro-active .layer-controls,
+    body.intro-active .map-legend,
+    body.intro-active .map-overlay-header,
+    body.intro-active .search-bar-wrap {
+      opacity: 0;
+      pointer-events: none;
     }
     #introOverlay #intro {
       min-height: 100vh;
@@ -1073,7 +1087,7 @@
 
   </style>
 </head>
-<body>
+<body class="intro-active">
 
 <div id="introOverlay">
 <section id="intro">
@@ -3057,12 +3071,13 @@ document.addEventListener('DOMContentLoaded', initApp);
     function dismissIntro() {
       var overlay = document.getElementById('introOverlay');
       if (!overlay) return;
-      overlay.style.opacity = '0';
-      setTimeout(function() {
+      overlay.addEventListener('transitionend', function() {
         if (overlay && overlay.parentNode) {
           overlay.parentNode.removeChild(overlay);
         }
-      }, 500);
+      }, { once: true });
+      overlay.classList.add('dismissing');
+      document.body.classList.remove('intro-active');
     }
     setTimeout(function() {
       var hint = document.getElementById('keyHint');
