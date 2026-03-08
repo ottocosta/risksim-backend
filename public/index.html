@@ -1964,7 +1964,7 @@ function loadCountryBoundaries() {
             var marker = countryMarkers[match.name];
             if (marker) {
               map.setView([match.lat, match.lng], map.getZoom(), { animate: true });
-              marker.fire('click', evt);
+              marker.openPopup(evt.latlng);
             }
           });
 
