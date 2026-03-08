@@ -32,7 +32,24 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; font-family: var(--font-body), 'Inter', sans-serif; }
-    body { background: var(--bg); color: var(--white); }
+    body {
+      background: var(--bg); color: var(--white);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    /* Grain texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 200px 200px;
+    }
 
     /* ===== NAVBAR ===== */
     .navbar {
@@ -65,7 +82,11 @@
       font-size: 12px; font-weight: 500; cursor: pointer;
       transition: all 0.2s; font-family: 'Inter', sans-serif;
     }
-    .btn-ghost:hover { border-color: rgba(255,255,255,0.5); color: #fff; background: rgba(255,255,255,0.05); }
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,0.5); color: #fff; background: rgba(255,255,255,0.05);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(255,255,255,0.08);
+    }
 
     .live-badge {
       display: flex; align-items: center; gap: 6px;
@@ -312,13 +333,18 @@
       width: 100%; max-width: 680px;
       pointer-events: all;
     }
+    @keyframes borderGlow {
+      0%   { border-color: var(--accent); box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(125,249,194,0.08); }
+      100% { border-color: #1a7a6a;      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(26,122,106,0.08); }
+    }
     .chat-input-wrapper {
       background: rgba(12, 12, 15, 0.65); backdrop-filter: blur(24px) saturate(180%);
       -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
+      border: 1px solid var(--accent); border-radius: 16px;
       padding: 10px 12px;
       display: flex; gap: 10px; align-items: flex-end;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      animation: borderGlow 4s ease-in-out infinite alternate;
     }
     .chat-textarea {
       flex: 1; background: transparent; border: none; color: #fff;
@@ -592,7 +618,11 @@
       cursor: pointer; font-family: 'Inter', sans-serif;
       transition: all 0.2s; letter-spacing: 0.3px;
     }
-    .btn-primary:hover { background: #e8e8e8; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,255,255,0.12); }
+    .btn-primary:hover {
+      background: #e8e8e8;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(255,255,255,0.3);
+    }
 
     .modal-footer-row { display: flex; gap: 10px; }
     .modal-footer-row .btn-ghost  { flex: 1; padding: 13px; font-size: 13px; border-radius: 10px; }
@@ -684,6 +714,34 @@
     /* Category dropdown position — positioned below layer controls dynamically */
     #categoryDropdownWrap {
       margin-top: 6px;
+    }
+
+    /* ===== SCROLL REVEAL ===== */
+    .sr-hidden {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .sr-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Quick-chip / quick-btn-exp enhanced hover */
+    .quick-chip:hover,
+    .quick-btn-exp:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(255,255,255,0.1);
+    }
+
+    .popup-deepdive-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,255,255,0.15);
+    }
+
+    .send-btn:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 4px 16px rgba(255,255,255,0.3);
     }
 
     /* ===== HOVER TOOLTIP ===== */
@@ -2607,6 +2665,94 @@ function initApp() {
   initMap();
   animateCounters();
   initSearch();
+  initScrollReveal();
+}
+
+// ============================================================
+// SCROLL REVEAL (IntersectionObserver)
+// ============================================================
+function initScrollReveal() {
+  // Tag every major element that should animate in
+  var selectors = [
+    '.navbar .nav-stat',
+    '.navbar .brand-text',
+    '.navbar .btn-ghost',
+    '.navbar .live-badge',
+    '.map-overlay-header',
+    '.layer-controls .layer-btn',
+    '.map-legend',
+    '.legend-item',
+    '.quick-chip',
+    '.chat-float-bar',
+    '.chat-input-wrapper',
+    '.quick-btn-exp',
+    '.modal-header',
+    '.modal-body .form-group',
+    '.modal-footer',
+    '.search-bar-wrap',
+    '.compare-header',
+    '.chat-exp-title',
+    '.chat-exp-actions'
+  ];
+
+  var elements = [];
+  for (var s = 0; s < selectors.length; s++) {
+    var nodes = document.querySelectorAll(selectors[s]);
+    for (var n = 0; n < nodes.length; n++) {
+      elements.push(nodes[n]);
+    }
+  }
+
+  // Group elements by their parent to stagger siblings
+  var parentGroups = {};
+  for (var i = 0; i < elements.length; i++) {
+    var el = elements[i];
+    el.classList.add('sr-hidden');
+    var parentId = getParentGroupId(el);
+    if (!parentGroups[parentId]) parentGroups[parentId] = [];
+    parentGroups[parentId].push(el);
+  }
+
+  // Add stagger delay within each group
+  for (var key in parentGroups) {
+    var group = parentGroups[key];
+    for (var g = 0; g < group.length; g++) {
+      group[g].style.transitionDelay = (g * 0.1) + 's';
+    }
+  }
+
+  // Create the observer
+  if (!('IntersectionObserver' in window)) {
+    // Fallback: just show everything
+    for (var f = 0; f < elements.length; f++) {
+      elements[f].classList.remove('sr-hidden');
+      elements[f].classList.add('sr-visible');
+    }
+    return;
+  }
+
+  var observer = new IntersectionObserver(function(entries) {
+    for (var e = 0; e < entries.length; e++) {
+      if (entries[e].isIntersecting) {
+        entries[e].target.classList.add('sr-visible');
+        observer.unobserve(entries[e].target);
+      }
+    }
+  }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+
+  for (var o = 0; o < elements.length; o++) {
+    observer.observe(elements[o]);
+  }
+}
+
+var _parentGroupCounter = 0;
+function getParentGroupId(el) {
+  var p = el.parentElement;
+  if (!p) return '_root';
+  if (!p._srGroupId) {
+    p._srGroupId = '_g' + (++_parentGroupCounter);
+  }
+  return p._srGroupId;
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
