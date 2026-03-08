@@ -1836,66 +1836,68 @@ function renderMarkers() {
       });
       var marker = L.marker([country.lat, country.lng], { icon: icon });
 
-      // Build popup
-      var riskColor  = getRiskColor(country.risk);
-      var riskLabel  = getRiskLabel(country.risk);
-      var analysis   = getCountryAnalysis(country);
-      var topInds    = getTopIndustries(country);
-      var insight    = getCountryInsight(country);
-      var srcScore   = (country.sourcing && country.sourcing[currentCategory]) || 0;
-      var srcColor   = getSourcingColor(srcScore);
-      var srcLabel   = getSourcingLabel(srcScore);
-
-      var topIndsHtml = '';
-      for (var t = 0; t < topInds.length; t++) {
-        topIndsHtml += '<span class="popup-industry-tag">' + topInds[t] + '</span>';
-      }
-
-      var popup = '<div class="popup-inner">' +
-        '<div class="popup-header">' +
-          '<span class="popup-country">' + country.name + '</span>' +
-          '<span class="popup-risk-badge" style="background:' + riskColor + '22;color:' + riskColor + ';border:1px solid ' + riskColor + '55;">' + riskLabel + '</span>' +
-        '</div>' +
-        '<div class="popup-scores-row">' +
-          '<div class="popup-score-block">' +
-            '<div class="popup-score-label">Risk Score</div>' +
-            '<div class="popup-score-value" style="color:' + riskColor + ';">' + country.risk + '</div>' +
-          '</div>' +
-          '<div class="popup-score-block">' +
-            '<div class="popup-score-label">Sourcing</div>' +
-            '<div class="popup-score-value" style="color:' + srcColor + ';">' + srcScore + '</div>' +
-          '</div>' +
-          '<div class="popup-score-block">' +
-            '<div class="popup-score-label">Mfg Scale</div>' +
-            '<div class="popup-score-value" style="color:#aaa;">' + (country.mfgCapacity || 0) + '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="popup-stats">' +
-          '<div class="popup-stat"><span class="popup-stat-label">Tariff Rate</span><span class="popup-stat-value">' + country.tariff + '%</span></div>' +
-          '<div class="popup-stat"><span class="popup-stat-label">Shipping</span><span class="popup-stat-value">' + country.shipping + ' / 10</span></div>' +
-          '<div class="popup-stat"><span class="popup-stat-label">Labor Cost</span><span class="popup-stat-value">' + country.labor + ' / 10</span></div>' +
-        '</div>' +
-        (topInds.length ? '<div class="popup-industries"><div class="popup-ind-label">Top Industries</div><div class="popup-ind-tags">' + topIndsHtml + '</div></div>' : '') +
-        '<div class="popup-insight">' + insight + '</div>' +
-        '<div class="popup-analysis">' + analysis + '</div>' +
-        '<div class="popup-actions">' +
-          '<button class="popup-deepdive-btn" onclick="deepDiveCountry(' + JSON.stringify(country.name) + ')">' +
-            'Deep Dive Analysis' +
-          '</button>' +
-          (compareMode
-            ? '<button class="popup-compare-btn" onclick="toggleCompareCountry(' + JSON.stringify(country.name) + ')">' +
-              (compareCountries.indexOf(country.name) > -1 ? 'Remove' : 'Add to Compare') +
-              '</button>'
-            : '') +
-        '</div>' +
-        '</div>';
-      marker.bindPopup(popup, { maxWidth: 290 });
+      var popupHtml = buildCountryPopupHTML(country);
+      marker.bindPopup(popupHtml, { maxWidth: 290 });
       countryMarkers[country.name] = marker;
       marker.addTo(map);
 
 
     })(COUNTRY_DATA[i], i);
   }
+}
+
+function buildCountryPopupHTML(country) {
+  var riskColor  = getRiskColor(country.risk);
+  var riskLabel  = getRiskLabel(country.risk);
+  var analysis   = getCountryAnalysis(country);
+  var topInds    = getTopIndustries(country);
+  var insight    = getCountryInsight(country);
+  var srcScore   = (country.sourcing && country.sourcing[currentCategory]) || 0;
+  var srcColor   = getSourcingColor(srcScore);
+
+  var topIndsHtml = '';
+  for (var t = 0; t < topInds.length; t++) {
+    topIndsHtml += '<span class="popup-industry-tag">' + topInds[t] + '</span>';
+  }
+
+  return '<div class="popup-inner">' +
+    '<div class="popup-header">' +
+      '<span class="popup-country">' + country.name + '</span>' +
+      '<span class="popup-risk-badge" style="background:' + riskColor + '22;color:' + riskColor + ';border:1px solid ' + riskColor + '55;">' + riskLabel + '</span>' +
+    '</div>' +
+    '<div class="popup-scores-row">' +
+      '<div class="popup-score-block">' +
+        '<div class="popup-score-label">Risk Score</div>' +
+        '<div class="popup-score-value" style="color:' + riskColor + ';">' + country.risk + '</div>' +
+      '</div>' +
+      '<div class="popup-score-block">' +
+        '<div class="popup-score-label">Sourcing</div>' +
+        '<div class="popup-score-value" style="color:' + srcColor + ';">' + srcScore + '</div>' +
+      '</div>' +
+      '<div class="popup-score-block">' +
+        '<div class="popup-score-label">Mfg Scale</div>' +
+        '<div class="popup-score-value" style="color:#aaa;">' + (country.mfgCapacity || 0) + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="popup-stats">' +
+      '<div class="popup-stat"><span class="popup-stat-label">Tariff Rate</span><span class="popup-stat-value">' + country.tariff + '%</span></div>' +
+      '<div class="popup-stat"><span class="popup-stat-label">Shipping</span><span class="popup-stat-value">' + country.shipping + ' / 10</span></div>' +
+      '<div class="popup-stat"><span class="popup-stat-label">Labor Cost</span><span class="popup-stat-value">' + country.labor + ' / 10</span></div>' +
+    '</div>' +
+    (topInds.length ? '<div class="popup-industries"><div class="popup-ind-label">Top Industries</div><div class="popup-ind-tags">' + topIndsHtml + '</div></div>' : '') +
+    '<div class="popup-insight">' + insight + '</div>' +
+    '<div class="popup-analysis">' + analysis + '</div>' +
+    '<div class="popup-actions">' +
+      '<button class="popup-deepdive-btn" onclick="deepDiveCountry(' + JSON.stringify(country.name) + ')">' +
+        'Deep Dive Analysis' +
+      '</button>' +
+      (compareMode
+        ? '<button class="popup-compare-btn" onclick="toggleCompareCountry(' + JSON.stringify(country.name) + ')">' +
+          (compareCountries.indexOf(country.name) > -1 ? 'Remove' : 'Add to Compare') +
+          '</button>'
+        : '') +
+    '</div>' +
+    '</div>';
 }
 
 // ============================================================
@@ -1961,11 +1963,13 @@ function loadCountryBoundaries() {
 
           layer.on('click', function(evt) {
             console.log('GeoJSON clicked:', feature.properties);
-            var marker = countryMarkers[match.name];
-            if (marker) {
-              map.setView([match.lat, match.lng], map.getZoom(), { animate: true });
-              marker.fire('click', evt);
-            }
+            // Bypass the marker entirely to avoid layerPointToContainerPoint null crashes.
+            // Build the popup inline and anchor it precisely to the GeoJSON click coordinate.
+            map.setView([match.lat, match.lng], map.getZoom(), { animate: true });
+            L.popup({ maxWidth: 290 })
+              .setLatLng(evt.latlng)
+              .setContent(buildCountryPopupHTML(match))
+              .openOn(map);
           });
 
           layer.on('mouseover', function() {
