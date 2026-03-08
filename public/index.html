@@ -2284,7 +2284,13 @@ function loadProfile() {
     try { appProfile = JSON.parse(stored); } catch(e) { appProfile = null; }
   }
   if (appProfile) { updateProfileUI(); }
-  else { showWelcomeModal(); }
+  else {
+    var scrollHandler = function() {
+      window.removeEventListener('scroll', scrollHandler);
+      showWelcomeModal();
+    };
+    window.addEventListener('scroll', scrollHandler, { passive: true });
+  }
 }
 
 function showWelcomeModal() {
