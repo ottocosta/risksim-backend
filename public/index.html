@@ -2284,14 +2284,7 @@ function loadProfile() {
     try { appProfile = JSON.parse(stored); } catch(e) { appProfile = null; }
   }
   if (appProfile) { updateProfileUI(); }
-  else {
-    // Defer welcome modal until user scrolls for the first time
-    var scrollHandler = function() {
-      window.removeEventListener('scroll', scrollHandler);
-      showWelcomeModal();
-    };
-    window.addEventListener('scroll', scrollHandler, { passive: true });
-  }
+  else { showWelcomeModal(); }
 }
 
 function showWelcomeModal() {
