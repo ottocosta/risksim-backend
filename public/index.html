@@ -1898,6 +1898,95 @@ function renderMarkers() {
   }
 }
 
+// ============================================================
+// GEOJSON COUNTRY BOUNDARY CLICK LAYER
+// ============================================================
+var geoJsonLayer = null;
+
+// Map GeoJSON country names → COUNTRY_DATA names
+var GEO_NAME_MAP = {
+  'United States of America':'USA','United Kingdom':'UK',
+  'United Arab Emirates':'UAE','Korea, Republic of':'South Korea',
+  'Republic of Korea':'South Korea',
+  "Korea, Democratic People's Republic of":'North Korea',
+  "Dem. People's Rep. Korea":'North Korea',
+  'Czech Republic':'Czech Republic','Czechia':'Czech Republic',
+  'Russian Federation':'Russia','Iran (Islamic Republic of)':'Iran',
+  'Iran, Islamic Republic of':'Iran',
+  'Syrian Arab Republic':'Syria','Viet Nam':'Vietnam',
+  'Republic of the Congo':'Congo','Democratic Republic of the Congo':'Congo',
+  'Tanzania, United Republic of':'Tanzania',
+  'Venezuela, Bolivarian Republic of':'Venezuela',
+  'Venezuela (Bolivarian Republic of)':'Venezuela',
+  'Bolivia, Plurinational State of':'Bolivia',
+  'Bolivia (Plurinational State of)':'Bolivia',
+  'Myanmar':'Myanmar','Burma':'Myanmar',
+  "Lao People's Democratic Republic":'Laos',
+  'Dominican Republic':'Dominican Republic',
+  'Republic of China':'Taiwan','Taiwan, Province of China':'Taiwan',
+  'Palestine, State of':'Palestine',
+  'Macedonia':'North Macedonia','Republic of North Macedonia':'North Macedonia',
+  'Ivory Coast':"Cote d'Ivoire",'Eswatini':'Swaziland',
+  'Türkiye':'Turkey','Turkiye':'Turkey'
+};
+
+function loadCountryBoundaries() {
+  if (!map || typeof L === 'undefined') return;
+
+  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      geoJsonLayer = L.geoJSON(data, {
+        style: function() {
+          return {
+            fillOpacity: 0,
+            weight: 0,
+            color: 'transparent',
+            fillColor: 'transparent'
+          };
+        },
+        onEachFeature: function(feature, layer) {
+          var geoName = feature.properties.ADMIN || feature.properties.name || '';
+          var mapped = GEO_NAME_MAP[geoName] || geoName;
+
+          // Find matching country in COUNTRY_DATA
+          var match = null;
+          for (var i = 0; i < COUNTRY_DATA.length; i++) {
+            if (COUNTRY_DATA[i].name === mapped) {
+              match = COUNTRY_DATA[i];
+              break;
+            }
+          }
+          if (!match) return;
+
+          layer.on('click', function() {
+            var marker = countryMarkers[match.name];
+            if (marker) {
+              map.setView([match.lat, match.lng], map.getZoom(), { animate: true });
+              marker.openPopup();
+            }
+          });
+
+          layer.on('mouseover', function() {
+            layer.setStyle({ fillOpacity: 0.08, fillColor: '#7DF9C2', weight: 1, color: 'rgba(125,249,194,0.2)' });
+          });
+
+          layer.on('mouseout', function() {
+            layer.setStyle({ fillOpacity: 0, weight: 0, color: 'transparent', fillColor: 'transparent' });
+          });
+        }
+      });
+      geoJsonLayer.addTo(map);
+      // Bring dot markers to front so they stay clickable on top
+      for (var key in countryMarkers) {
+        if (countryMarkers[key].bringToFront) countryMarkers[key].bringToFront();
+      }
+    })
+    .catch(function(err) {
+      console.warn('GeoJSON country boundaries failed to load:', err);
+    });
+}
+
 
 // ============================================================
 // UPDATE MAP LAYER
@@ -2596,6 +2685,7 @@ function initApp() {
   populateSourcingCheckboxes();
   loadProfile();
   initMap();
+  loadCountryBoundaries();
   animateCounters();
   initSearch();
   initScrollReveal();
