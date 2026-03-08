@@ -31,7 +31,8 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; overflow: hidden; font-family: var(--font-body), 'Inter', sans-serif; }
+    html { height: 100%; overflow-x: hidden; }
+    body { min-height: 100%; overflow: hidden; font-family: var(--font-body), 'Inter', sans-serif; }
     body {
       background: var(--bg); color: var(--white);
       -webkit-font-smoothing: antialiased;
@@ -2285,11 +2286,22 @@ function loadProfile() {
   }
   if (appProfile) { updateProfileUI(); }
   else {
-    var scrollHandler = function() {
-      window.removeEventListener('scroll', scrollHandler);
-      showWelcomeModal();
-    };
-    window.addEventListener('scroll', scrollHandler, { passive: true });
+    var appSection = document.getElementById('map');
+    if ('IntersectionObserver' in window && appSection) {
+      var welcomeObserver = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+          welcomeObserver.disconnect();
+          showWelcomeModal();
+        }
+      }, { threshold: 0.1 });
+      welcomeObserver.observe(appSection);
+    } else {
+      var scrollHandler = function() {
+        window.removeEventListener('scroll', scrollHandler);
+        showWelcomeModal();
+      };
+      window.addEventListener('scroll', scrollHandler, { passive: true });
+    }
   }
 }
 
@@ -2692,6 +2704,7 @@ function animateCounters() {
 // INIT APP
 // ============================================================
 function initApp() {
+  window.scrollTo(0, 0);
   populateCountryDropdowns();
   populateSourcingCheckboxes();
   loadProfile();
@@ -2699,7 +2712,18 @@ function initApp() {
   loadCountryBoundaries();
   animateCounters();
   initSearch();
-  setTimeout(initScrollReveal, 800);
+  var mapEl = document.getElementById('map');
+  if ('IntersectionObserver' in window && mapEl) {
+    var appObserver = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        appObserver.disconnect();
+        setTimeout(initScrollReveal, 300);
+      }
+    }, { threshold: 0.1 });
+    appObserver.observe(mapEl);
+  } else {
+    setTimeout(initScrollReveal, 800);
+  }
 }
 
 // ============================================================
