@@ -155,6 +155,130 @@
     .map-layer-name { font-size: 13px; font-weight: 600; color: #fff; }
     .map-layer-sub  { font-size: 10px; color: #888; margin-top: 2px; }
 
+    /* ===== HERO PANEL ===== */
+    .hero-panel {
+      position: absolute;
+      top: 50%;
+      left: 40px;
+      transform: translateY(-50%);
+      z-index: 1000;
+      width: 380px;
+      padding: 32px;
+      border-radius: 12px;
+      background: rgba(10, 10, 12, 0.75);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 24px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+      pointer-events: auto;
+      font-family: 'Inter', 'DM Sans', sans-serif;
+    }
+    /* Keep centering during scroll reveal */
+    .hero-panel.sr-hidden {
+      opacity: 0;
+      transform: translateY(calc(-50% + 30px));
+    }
+    .hero-panel.sr-visible {
+      opacity: 1;
+      transform: translateY(-50%);
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: rgba(125, 249, 194, 0.08);
+      border: 1px solid rgba(125, 249, 194, 0.15);
+    }
+    .hero-badge span {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      position: relative;
+    }
+    .pulse-dot::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulse-ring 2s ease-out infinite;
+    }
+    @keyframes pulse-ring {
+      0%   { box-shadow: 0 0 0 0 rgba(125, 249, 194, 0.5); }
+      70%  { box-shadow: 0 0 0 8px rgba(125, 249, 194, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(125, 249, 194, 0); }
+    }
+    .hero-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin: 0 0 14px 0;
+    }
+    .hero-title .accent-text {
+      color: var(--accent);
+    }
+    .hero-desc {
+      font-size: 14px;
+      color: #a0aab0;
+      line-height: 1.6;
+      margin: 0 0 24px 0;
+    }
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .hero-stat {
+      text-align: center;
+      padding: 12px 4px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+    }
+    .hero-stat .stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      font-family: 'Syne', 'Inter', sans-serif;
+      letter-spacing: -0.5px;
+    }
+    .hero-stat .stat-label {
+      font-size: 9px;
+      font-weight: 500;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+    }
+    .hero-actions .btn-primary,
+    .hero-actions .btn-ghost {
+      flex: 1;
+      padding: 11px 0;
+      font-size: 13px;
+      text-align: center;
+    }
+
     /* Layer controls — pill group */
     .layer-controls {
       position: fixed; top: 68px; right: 12px; z-index: 100;
@@ -816,6 +940,34 @@
 <div class="map-overlay-header" id="mapOverlayHeader">
   <div class="map-layer-name" id="overlayName">Risk Levels</div>
   <div class="map-layer-sub" id="overlaySub">Geopolitical &amp; operational risk by country</div>
+</div>
+
+<!-- Hero Panel -->
+<div class="hero-panel" id="heroPanel">
+  <div class="hero-badge">
+    <div class="pulse-dot"></div>
+    <span>LIVE INTELLIGENCE</span>
+  </div>
+  <h1 class="hero-title">Predict. Prevent.<br><span class="accent-text">Protect.</span></h1>
+  <p class="hero-desc">RiskSim AI continuously monitors global supply chains, analyzing geopolitical, economic, and operational data to predict disruptions before they impact your operations.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="stat-value">73</div>
+      <div class="stat-label">Countries Monitored</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-value">2.4M</div>
+      <div class="stat-label">Data Points/Day</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-value">&lt;2s</div>
+      <div class="stat-label">Analysis Speed</div>
+    </div>
+  </div>
+  <div class="hero-actions">
+    <button class="btn-primary hero-btn" onclick="document.getElementById('heroPanel').style.display='none'; document.getElementById('chatInput') && document.getElementById('chatInput').focus();">Start Free Trial</button>
+    <button class="btn-ghost hero-btn" onclick="document.getElementById('heroPanel').style.display='none';">Explore Map</button>
+  </div>
 </div>
 
 <!-- Layer controls (visible when map is fullscreen) -->
@@ -2454,6 +2606,7 @@ function initApp() {
 function initScrollReveal() {
   // Tag every major element that should animate in
   var selectors = [
+    '.hero-panel',
     '.map-overlay-header',
     '.layer-controls .layer-btn',
     '.map-legend',
