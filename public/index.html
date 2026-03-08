@@ -1959,11 +1959,12 @@ function loadCountryBoundaries() {
           }
           if (!match) return;
 
-          layer.on('click', function() {
+          layer.on('click', function(evt) {
+            console.log('GeoJSON clicked:', feature.properties);
             var marker = countryMarkers[match.name];
             if (marker) {
               map.setView([match.lat, match.lng], map.getZoom(), { animate: true });
-              marker.openPopup();
+              marker.fire('click', evt);
             }
           });
 
