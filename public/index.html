@@ -820,6 +820,34 @@
       border-radius: 2px;
       transition: width 0.4s cubic-bezier(.4,0,.2,1);
     }
+    .ht-stats-grid {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .ht-stat {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+    }
+    .ht-stat-label {
+      display: block;
+      font-size: 9px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .ht-stat-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ccc;
+      font-family: 'Inter', sans-serif;
+    }
     .ht-deepdive {
       display: block;
       width: 100%;
@@ -1229,27 +1257,27 @@ var BOT_AVATAR_SVG =
   '<path d="M-2,0 C-7,-3 -12,-9 -8,-13 C-4,-17 3,-13 2,0Z" fill="white"/>' +
   '</g></svg>';
 
-// Country name → flag emoji mapping
-var COUNTRY_FLAGS = {
-  'North Korea':'🇰🇵','Afghanistan':'🇦🇫','Syria':'🇸🇾','Russia':'🇷🇺','Iran':'🇮🇷',
-  'Sudan':'🇸🇩','Venezuela':'🇻🇪','Iraq':'🇮🇶','Ukraine':'🇺🇦','Myanmar':'🇲🇲',
-  'Libya':'🇱🇾','Yemen':'🇾🇪','Pakistan':'🇵🇰','Nigeria':'🇳🇬','Egypt':'🇪🇬',
-  'Ethiopia':'🇪🇹','Algeria':'🇩🇿','Bangladesh':'🇧🇩','Argentina':'🇦🇷','Turkey':'🇹🇷',
-  'Kenya':'🇰🇪','Colombia':'🇨🇴','Philippines':'🇵🇭','Indonesia':'🇮🇩','India':'🇮🇳',
-  'South Africa':'🇿🇦','Brazil':'🇧🇷','Mexico':'🇲🇽','Thailand':'🇹🇭','Morocco':'🇲🇦',
-  'Peru':'🇵🇪','Vietnam':'🇻🇳','China':'🇨🇳','Saudi Arabia':'🇸🇦','Chile':'🇨🇱',
-  'Romania':'🇷🇴','Poland':'🇵🇱','Hungary':'🇭🇺','Greece':'🇬🇷','Czech Republic':'🇨🇿',
-  'Israel':'🇮🇱','UAE':'🇦🇪','Malaysia':'🇲🇾','Portugal':'🇵🇹','Italy':'🇮🇹',
-  'Spain':'🇪🇸','South Korea':'🇰🇷','France':'🇫🇷','UK':'🇬🇧','Japan':'🇯🇵',
-  'USA':'🇺🇸','Germany':'🇩🇪','Canada':'🇨🇦','Australia':'🇦🇺','Singapore':'🇸🇬',
-  'Taiwan':'🇹🇼','Netherlands':'🇳🇱','Sweden':'🇸🇪','Switzerland':'🇨🇭','Norway':'🇳🇴',
-  'Denmark':'🇩🇰','Finland':'🇫🇮','New Zealand':'🇳🇿','Ireland':'🇮🇪','Luxembourg':'🇱🇺',
-  'Austria':'🇦🇹','Belgium':'🇧🇪','Costa Rica':'🇨🇷','Uruguay':'🇺🇾','Iceland':'🇮🇸',
-  'Sri Lanka':'🇱🇰','Cambodia':'🇰🇭','Tanzania':'🇹🇿','Ghana':'🇬🇭','Senegal':'🇸🇳',
-  'Tunisia':'🇹🇳','Jordan':'🇯🇴','Oman':'🇴🇲','Qatar':'🇶🇦','Kuwait':'🇰🇼',
-  'Bahrain':'🇧🇭','Panama':'🇵🇦','Dominican Republic':'🇩🇴','Guatemala':'🇬🇹',
-  'Honduras':'🇭🇳','El Salvador':'🇸🇻','Nicaragua':'🇳🇮','Bolivia':'🇧🇴',
-  'Paraguay':'🇵🇾','Ecuador':'🇪🇨'
+// Country name → ISO code mapping for flags
+var COUNTRY_ISO_CODES = {
+  'North Korea':'kp','Afghanistan':'af','Syria':'sy','Russia':'ru','Iran':'ir',
+  'Sudan':'sd','Venezuela':'ve','Iraq':'iq','Ukraine':'ua','Myanmar':'mm',
+  'Libya':'ly','Yemen':'ye','Pakistan':'pk','Nigeria':'ng','Egypt':'eg',
+  'Ethiopia':'et','Algeria':'dz','Bangladesh':'bd','Argentina':'ar','Turkey':'tr',
+  'Kenya':'ke','Colombia':'co','Philippines':'ph','Indonesia':'id','India':'in',
+  'South Africa':'za','Brazil':'br','Mexico':'mx','Thailand':'th','Morocco':'ma',
+  'Peru':'pe','Vietnam':'vn','China':'cn','Saudi Arabia':'sa','Chile':'cl',
+  'Romania':'ro','Poland':'pl','Hungary':'hu','Greece':'gr','Czech Republic':'cz',
+  'Israel':'il','UAE':'ae','Malaysia':'my','Portugal':'pt','Italy':'it',
+  'Spain':'es','South Korea':'kr','France':'fr','UK':'gb','Japan':'jp',
+  'USA':'us','Germany':'de','Canada':'ca','Australia':'au','Singapore':'sg',
+  'Taiwan':'tw','Netherlands':'nl','Sweden':'se','Switzerland':'ch','Norway':'no',
+  'Denmark':'dk','Finland':'fi','New Zealand':'nz','Ireland':'ie','Luxembourg':'lu',
+  'Austria':'at','Belgium':'be','Costa Rica':'cr','Uruguay':'uy','Iceland':'is',
+  'Sri Lanka':'lk','Cambodia':'kh','Tanzania':'tz','Ghana':'gh','Senegal':'sn',
+  'Tunisia':'tn','Jordan':'jo','Oman':'om','Qatar':'qa','Kuwait':'kw',
+  'Bahrain':'bh','Panama':'pa','Dominican Republic':'do','Guatemala':'gt',
+  'Honduras':'hn','El Salvador':'sv','Nicaragua':'ni','Bolivia':'bo',
+  'Paraguay':'py','Ecuador':'ec'
 };
 function getCountryFlag(name) {
   return COUNTRY_FLAGS[name] || '🌐';
@@ -1899,8 +1927,8 @@ function showHoverTooltip(country, evt) {
   var flag = getCountryFlag(country.name);
 
   tt.innerHTML =
-    '<div class="ht-header">' +
-      '<span class="ht-flag">' + flag + '</span>' +
+    '<div class="ht-header" style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">' +
+      '<span>' + flag + '</span>' +
       '<span class="ht-name">' + country.name + '</span>' +
     '</div>' +
     '<div class="ht-divider"></div>' +
@@ -1911,6 +1939,16 @@ function showHoverTooltip(country, evt) {
       '</div>' +
       '<div class="ht-score-bar-track">' +
         '<div class="ht-score-bar-fill" style="width:' + country.risk + '%;background:' + riskColor + ';"></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="ht-stats-grid">' +
+      '<div class="ht-stat">' +
+        '<span class="ht-stat-label">Shipping</span>' +
+        '<span class="ht-stat-value">' + (country.shipping || '-') + ' / 10</span>' +
+      '</div>' +
+      '<div class="ht-stat">' +
+        '<span class="ht-stat-label">Labor Cost</span>' +
+        '<span class="ht-stat-value">' + (country.labor || '-') + ' / 10</span>' +
       '</div>' +
     '</div>' +
     '<button class="ht-deepdive" onclick="deepDiveCountry(' + JSON.stringify(country.name) + '); hideHoverTooltip();">Deep Dive — ' + country.name + '</button>';
