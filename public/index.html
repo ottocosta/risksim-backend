@@ -751,131 +751,6 @@
       box-shadow: 0 4px 16px rgba(255,255,255,0.3);
     }
 
-    /* ===== HOVER TOOLTIP ===== */
-    .hover-tooltip {
-      position: fixed;
-      z-index: 1500;
-      background: rgba(8,8,8,0.96);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 4px;
-      padding: 20px 24px;
-      min-width: 270px;
-      box-shadow: 0 24px 48px rgba(0,0,0,0.7);
-      pointer-events: none;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      font-family: 'Inter', 'DM Sans', sans-serif;
-    }
-    .hover-tooltip.visible {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-    .ht-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .ht-flag {
-      font-size: 28px;
-      line-height: 1;
-    }
-    .ht-name {
-      font-size: 18px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.3px;
-    }
-    .ht-divider {
-      height: 1px;
-      background: rgba(255,255,255,0.08);
-      margin-bottom: 16px;
-    }
-    .ht-score-section {
-      margin-bottom: 18px;
-    }
-    .ht-score-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    .ht-score-label {
-      font-size: 10px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.35);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .ht-score-value {
-      font-size: 24px;
-      font-weight: 800;
-      font-family: 'Syne', sans-serif;
-    }
-    .ht-score-bar-track {
-      width: 100%;
-      height: 4px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .ht-score-bar-fill {
-      height: 100%;
-      border-radius: 2px;
-      transition: width 0.4s cubic-bezier(.4,0,.2,1);
-    }
-    .ht-stats-grid {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-    .ht-stat {
-      flex: 1;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 6px;
-      padding: 10px;
-      text-align: center;
-    }
-    .ht-stat-label {
-      display: block;
-      font-size: 9px;
-      color: #888;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .ht-stat-value {
-      font-size: 14px;
-      font-weight: 700;
-      color: #ccc;
-      font-family: 'Inter', sans-serif;
-    }
-    .ht-deepdive {
-      display: block;
-      width: 100%;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.14);
-      color: #fff;
-      padding: 9px 0;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      text-align: center;
-      letter-spacing: 0.2px;
-      transition: all 0.15s ease;
-    }
-    .ht-deepdive:hover {
-      background: rgba(255,255,255,0.14);
-      border-color: rgba(255,255,255,0.28);
-      transform: translateY(-1px);
-    }
   </style>
 </head>
 <body>
@@ -984,8 +859,6 @@
 <!-- Compare Panel -->
 <div class="compare-panel hidden" id="comparePanel"></div>
 
-<!-- Hover Tooltip -->
-<div class="hover-tooltip" id="hoverTooltip"></div>
 <div class="chat-overlay" id="chatOverlay">
   <div class="quick-chips">
     <button class="quick-chip" onclick="sendQuickMessage('audit')">Full Audit</button>
@@ -1250,8 +1123,6 @@ var hasShownWelcome  = false;
 var compareMode      = false;
 var compareCountries = [];
 var searchHighlight  = null; // marker name currently highlighted
-var hoverTooltipEl   = null; // hover tooltip DOM element
-var hoverTooltipTimer = null; // delay timer for tooltip hide
 
 // Bot avatar SVG (inline, used in messages)
 var BOT_AVATAR_SVG =
@@ -1264,32 +1135,7 @@ var BOT_AVATAR_SVG =
   '<path d="M-2,0 C-7,-3 -12,-9 -8,-13 C-4,-17 3,-13 2,0Z" fill="white"/>' +
   '</g></svg>';
 
-// Country name → flag emoji (HTML numeric char refs, encoding-safe)
-var COUNTRY_FLAG_HTML = {
-  'North Korea':'&#x1F1F0;&#x1F1F5;','Afghanistan':'&#x1F1E6;&#x1F1EB;','Syria':'&#x1F1F8;&#x1F1FE;','Russia':'&#x1F1F7;&#x1F1FA;','Iran':'&#x1F1EE;&#x1F1F7;',
-  'Sudan':'&#x1F1F8;&#x1F1E9;','Venezuela':'&#x1F1FB;&#x1F1EA;','Iraq':'&#x1F1EE;&#x1F1F6;','Ukraine':'&#x1F1FA;&#x1F1E6;','Myanmar':'&#x1F1F2;&#x1F1F2;',
-  'Libya':'&#x1F1F1;&#x1F1FE;','Yemen':'&#x1F1FE;&#x1F1EA;','Pakistan':'&#x1F1F5;&#x1F1F0;','Nigeria':'&#x1F1F3;&#x1F1EC;','Egypt':'&#x1F1EA;&#x1F1EC;',
-  'Ethiopia':'&#x1F1EA;&#x1F1F9;','Algeria':'&#x1F1E9;&#x1F1FF;','Bangladesh':'&#x1F1E7;&#x1F1E9;','Argentina':'&#x1F1E6;&#x1F1F7;','Turkey':'&#x1F1F9;&#x1F1F7;',
-  'Kenya':'&#x1F1F0;&#x1F1EA;','Colombia':'&#x1F1E8;&#x1F1F4;','Philippines':'&#x1F1F5;&#x1F1ED;','Indonesia':'&#x1F1EE;&#x1F1E9;','India':'&#x1F1EE;&#x1F1F3;',
-  'South Africa':'&#x1F1FF;&#x1F1E6;','Brazil':'&#x1F1E7;&#x1F1F7;','Mexico':'&#x1F1F2;&#x1F1FD;','Thailand':'&#x1F1F9;&#x1F1ED;','Morocco':'&#x1F1F2;&#x1F1E6;',
-  'Peru':'&#x1F1F5;&#x1F1EA;','Vietnam':'&#x1F1FB;&#x1F1F3;','China':'&#x1F1E8;&#x1F1F3;','Saudi Arabia':'&#x1F1F8;&#x1F1E6;','Chile':'&#x1F1E8;&#x1F1F1;',
-  'Romania':'&#x1F1F7;&#x1F1F4;','Poland':'&#x1F1F5;&#x1F1F1;','Hungary':'&#x1F1ED;&#x1F1FA;','Greece':'&#x1F1EC;&#x1F1F7;','Czech Republic':'&#x1F1E8;&#x1F1FF;',
-  'Israel':'&#x1F1EE;&#x1F1F1;','UAE':'&#x1F1E6;&#x1F1EA;','Malaysia':'&#x1F1F2;&#x1F1FE;','Portugal':'&#x1F1F5;&#x1F1F9;','Italy':'&#x1F1EE;&#x1F1F9;',
-  'Spain':'&#x1F1EA;&#x1F1F8;','South Korea':'&#x1F1F0;&#x1F1F7;','France':'&#x1F1EB;&#x1F1F7;','UK':'&#x1F1EC;&#x1F1E7;','Japan':'&#x1F1EF;&#x1F1F5;',
-  'USA':'&#x1F1FA;&#x1F1F8;','Germany':'&#x1F1E9;&#x1F1EA;','Canada':'&#x1F1E8;&#x1F1E6;','Australia':'&#x1F1E6;&#x1F1FA;','Singapore':'&#x1F1F8;&#x1F1EC;',
-  'Taiwan':'&#x1F1F9;&#x1F1FC;','Netherlands':'&#x1F1F3;&#x1F1F1;','Sweden':'&#x1F1F8;&#x1F1EA;','Switzerland':'&#x1F1E8;&#x1F1ED;','Norway':'&#x1F1F3;&#x1F1F4;',
-  'Denmark':'&#x1F1E9;&#x1F1F0;','Finland':'&#x1F1EB;&#x1F1EE;','New Zealand':'&#x1F1F3;&#x1F1FF;','Ireland':'&#x1F1EE;&#x1F1EA;','Luxembourg':'&#x1F1F1;&#x1F1FA;',
-  'Austria':'&#x1F1E6;&#x1F1F9;','Belgium':'&#x1F1E7;&#x1F1EA;','Costa Rica':'&#x1F1E8;&#x1F1F7;','Uruguay':'&#x1F1FA;&#x1F1FE;','Iceland':'&#x1F1EE;&#x1F1F8;',
-  'Sri Lanka':'&#x1F1F1;&#x1F1F0;','Cambodia':'&#x1F1F0;&#x1F1ED;','Tanzania':'&#x1F1F9;&#x1F1FF;','Ghana':'&#x1F1EC;&#x1F1ED;','Senegal':'&#x1F1F8;&#x1F1F3;',
-  'Tunisia':'&#x1F1F9;&#x1F1F3;','Jordan':'&#x1F1EF;&#x1F1F4;','Oman':'&#x1F1F4;&#x1F1F2;','Qatar':'&#x1F1F6;&#x1F1E6;','Kuwait':'&#x1F1F0;&#x1F1FC;',
-  'Bahrain':'&#x1F1E7;&#x1F1ED;','Panama':'&#x1F1F5;&#x1F1E6;','Dominican Republic':'&#x1F1E9;&#x1F1F4;','Guatemala':'&#x1F1EC;&#x1F1F9;',
-  'Honduras':'&#x1F1ED;&#x1F1F3;','El Salvador':'&#x1F1F8;&#x1F1FB;','Nicaragua':'&#x1F1F3;&#x1F1EE;','Bolivia':'&#x1F1E7;&#x1F1F4;',
-  'Paraguay':'&#x1F1F5;&#x1F1FE;','Ecuador':'&#x1F1EA;&#x1F1E8;'
-};
 
-function getCountryFlag(name) {
-  return COUNTRY_FLAG_HTML[name] || '&#x1F310;';
-}
 
 // ============================================================
 // STATIC DATA
@@ -1894,123 +1740,11 @@ function renderMarkers() {
       countryMarkers[country.name] = marker;
       marker.addTo(map);
 
-      // --- Hover tooltip events ---
-      (function(m, c) {
-        var el = m.getElement && m.getElement();
-        if (!el) {
-          // Leaflet may not have rendered the element yet; defer
-          m.on('add', function() {
-            var e2 = m.getElement && m.getElement();
-            if (e2) attachHoverEvents(e2, c);
-          });
-        } else {
-          attachHoverEvents(el, c);
-        }
-      })(marker, country);
 
     })(COUNTRY_DATA[i], i);
   }
 }
 
-// ============================================================
-// HOVER TOOLTIP
-// ============================================================
-function attachHoverEvents(el, country) {
-  el.addEventListener('mouseenter', function(e) {
-    if (hoverTooltipTimer) { clearTimeout(hoverTooltipTimer); hoverTooltipTimer = null; }
-    showHoverTooltip(country, e);
-  });
-  el.addEventListener('mouseleave', function() {
-    hoverTooltipTimer = setTimeout(hideHoverTooltip, 120);
-  });
-}
-
-function showHoverTooltip(country, evt) {
-  var tt = document.getElementById('hoverTooltip');
-  if (!tt) return;
-  hoverTooltipEl = tt;
-
-  var riskColor = getRiskColor(country.risk);
-  var riskLabel = getRiskLabel(country.risk);
-  var flag = getCountryFlag(country.name);
-
-  tt.innerHTML =
-    '<div class="ht-header" style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">' +
-      '<span>' + flag + '</span>' +
-      '<span class="ht-name">' + country.name + '</span>' +
-    '</div>' +
-    '<div class="ht-divider"></div>' +
-    '<div class="ht-score-section">' +
-      '<div class="ht-score-header">' +
-        '<span class="ht-score-label">Risk Score</span>' +
-        '<span class="ht-score-value" style="color:' + riskColor + ';">' + country.risk + '<span style="font-size:12px;font-weight:400;color:rgba(255,255,255,0.3);margin-left:2px;">/100</span></span>' +
-      '</div>' +
-      '<div class="ht-score-bar-track">' +
-        '<div class="ht-score-bar-fill" style="width:' + country.risk + '%;background:' + riskColor + ';"></div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="ht-stats-grid">' +
-      '<div class="ht-stat">' +
-        '<span class="ht-stat-label">Shipping</span>' +
-        '<span class="ht-stat-value">' + (country.shipping || '-') + ' / 10</span>' +
-      '</div>' +
-      '<div class="ht-stat">' +
-        '<span class="ht-stat-label">Labor Cost</span>' +
-        '<span class="ht-stat-value">' + (country.labor || '-') + ' / 10</span>' +
-      '</div>' +
-    '</div>' +
-    '<button class="ht-deepdive" onclick="deepDiveCountry(' + JSON.stringify(country.name) + '); hideHoverTooltip();">Deep Dive — ' + country.name + '</button>';
-
-  // Position near the cursor / marker
-  var x = evt.clientX || evt.pageX || 0;
-  var y = evt.clientY || evt.pageY || 0;
-  var pad = 16;
-  var vw = window.innerWidth;
-  var vh = window.innerHeight;
-
-  // Show off-screen first to measure
-  tt.style.left = '-9999px';
-  tt.style.top = '-9999px';
-  tt.classList.add('visible');
-
-  var rect = tt.getBoundingClientRect();
-  var tw = rect.width;
-  var th = rect.height;
-
-  // Default: right and below cursor
-  var left = x + pad;
-  var top = y + pad;
-
-  // Flip horizontal if overflow
-  if (left + tw > vw - 12) left = x - tw - pad;
-  // Flip vertical if overflow
-  if (top + th > vh - 12) top = y - th - pad;
-
-  // Clamp
-  if (left < 12) left = 12;
-  if (top < 12) top = 12;
-
-  tt.style.left = left + 'px';
-  tt.style.top = top + 'px';
-
-  // Allow hovering the tooltip itself
-  tt.onmouseenter = function() {
-    if (hoverTooltipTimer) { clearTimeout(hoverTooltipTimer); hoverTooltipTimer = null; }
-  };
-  tt.onmouseleave = function() {
-    hoverTooltipTimer = setTimeout(hideHoverTooltip, 120);
-  };
-}
-
-function hideHoverTooltip() {
-  var tt = document.getElementById('hoverTooltip');
-  if (tt) {
-    tt.classList.remove('visible');
-    tt.onmouseenter = null;
-    tt.onmouseleave = null;
-  }
-  hoverTooltipTimer = null;
-}
 
 // ============================================================
 // UPDATE MAP LAYER
@@ -2720,10 +2454,6 @@ function initApp() {
 function initScrollReveal() {
   // Tag every major element that should animate in
   var selectors = [
-    '.navbar .nav-stat',
-    '.navbar .brand-text',
-    '.navbar .btn-ghost',
-    '.navbar .live-badge',
     '.map-overlay-header',
     '.layer-controls .layer-btn',
     '.map-legend',
@@ -2732,13 +2462,8 @@ function initScrollReveal() {
     '.chat-float-bar',
     '.chat-input-wrapper',
     '.quick-btn-exp',
-    '.modal-header',
-    '.modal-body .form-group',
-    '.modal-footer',
     '.search-bar-wrap',
-    '.compare-header',
-    '.chat-exp-title',
-    '.chat-exp-actions'
+    '.compare-header'
   ];
 
   var elements = [];
