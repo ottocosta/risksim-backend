@@ -689,7 +689,7 @@
     #welcomeModal {
       position: fixed;
       top: 0; left: 0; bottom: 0; right: 0;
-      width: 100%; height: 100%;
+      width: 100vw; height: 100vh;
       min-height: 100vh;
       background-color: #000000;
       backdrop-filter: none;
@@ -713,29 +713,18 @@
       box-shadow: none;
       display: block;
       background-color: #000000;
-      padding-top: 60px; /* Clear Shopify navbar */
-      padding-bottom: 60px;
+      padding: 5vh 5vw; /* Fulfills requirement: padding 5vh 5vw */
       flex-shrink: 0; /* Important so inner content doesn't shrink and cut off */
       
       /* Mobile default (< 768px) */
       max-width: 100%;
-      padding-left: 20px;
-      padding-right: 20px;
       margin: 0;
     }
-    /* Tablet (768px - 1023px) */
-    @media (min-width: 768px) {
-      #welcomeModal .modal {
-        padding-left: 40px;
-        padding-right: 40px;
-      }
-    }
+    /* Tablet (768px - 1023px) paddings handled universally by 5vw */
     /* Desktop (1024px+) */
     @media (min-width: 1024px) {
       #welcomeModal .modal {
-        max-width: 780px;
-        padding-left: 0;
-        padding-right: 0;
+        max-width: 65vw; /* Fulfills requirement: no fixed pixel width on modal container */
         margin: auto; /* Centers perfectly when max-width applies */
       }
     }
@@ -749,6 +738,14 @@
       padding-right: 0;
     }
 
+    #welcomeModal .modal-header  { padding-top: 3vh; }
+    #welcomeModal .modal-title   { font-size: clamp(20px, 2.5vw, 36px); font-weight: 800; color: #fff; margin-bottom: 2vh; }
+    #welcomeModal .modal-subtitle { font-size: clamp(14px, 1.5vw, 18px); color: #777; line-height: 1.5; }
+    #welcomeModal .modal-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 3vh 0; }
+    #welcomeModal .modal-body    { padding-top: 2vh; padding-bottom: 2vh; }
+    #welcomeModal .modal-footer  { padding-top: 3vh; padding-bottom: 4vh; }
+
+    /* Generic Modal Elements (used by editModal etc) */
     .modal-header  { padding: 24px 28px 0; }
     .modal-title   { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 6px; }
     .modal-subtitle { font-size: 13px; color: #777; line-height: 1.5; }
