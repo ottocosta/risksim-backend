@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Analysis Banner</title>
+  <style>
+    /* ──────────────────────────────────────────────
+       CUSTOMISATION KNOBS
+       ──────────────────────────────────────────────
+       --pulse-color   → the green glow color
+       --pulse-speed   → full cycle duration (lower = faster)
+       --banner-bg     → resting background of the banner
+       --banner-radius → border-radius
+    ────────────────────────────────────────────── */
+    :root {
+      --pulse-color: #90ee90;
+      --pulse-speed: 2s;
+      --banner-bg: #1a1a2e;
+      --banner-radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f1a;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .live-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 28px;
+      border-radius: var(--banner-radius);
+      background: var(--banner-bg);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      user-select: none;
+      animation: banner-glow var(--pulse-speed) ease-in-out infinite;
+    }
+
+    .live-banner__dot {
+      position: relative;
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+
+    .live-banner__dot::before,
+    .live-banner__dot::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: var(--pulse-color);
+    }
+
+    .live-banner__dot::before {
+      animation: dot-pulse var(--pulse-speed) ease-in-out infinite;
+    }
+
+    .live-banner__dot::after {
+      animation: dot-ring var(--pulse-speed) ease-out infinite;
+    }
+
+    @keyframes banner-glow {
+      0%, 100% {
+        box-shadow:
+          0 0 8px  rgba(144, 238, 144, 0.15),
+          0 0 20px rgba(144, 238, 144, 0.05);
+      }
+      50% {
+        box-shadow:
+          0 0 14px rgba(144, 238, 144, 0.45),
+          0 0 40px rgba(144, 238, 144, 0.15);
+      }
+    }
+
+    @keyframes dot-pulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.4; }
+    }
+
+    @keyframes dot-ring {
+      0% {
+        transform: scale(1);
+        opacity: 0.7;
+      }
+      100% {
+        transform: scale(2.8);
+        opacity: 0;
+      }
+    }
+
+    .live-banner__label {
+      color: var(--pulse-color);
+      background: linear-gradient(135deg, var(--pulse-color), #e0e0e0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    @media (forced-colors: active) {
+      .live-banner__label {
+        background: none;
+        -webkit-text-fill-color: unset;
+        color: inherit;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .live-banner,
+      .live-banner__dot::before,
+      .live-banner__dot::after {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="live-banner" role="status" aria-live="polite">
+    <span class="live-banner__dot" aria-hidden="true"></span>
+    <span class="live-banner__label">Live Analysis</span>
+  </div>
+</body>
+</html>
