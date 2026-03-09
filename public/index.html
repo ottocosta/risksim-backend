@@ -688,30 +688,35 @@
     /* Welcome Modal Fullscreen Overrides */
     #welcomeModal {
       position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
+      top: 0; left: 0; bottom: 0; right: 0;
+      width: 100%; height: 100%;
       background: #0a0a0a;
       backdrop-filter: none;
       z-index: 9999;
       padding: 0;
       overflow-y: auto;
-      display: block; /* Override default flex to prevent top-cutoff */
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start; /* CRITICAL: prevents top cutoff on short screens */
+      -webkit-overflow-scrolling: touch;
     }
     #welcomeModal .modal {
+      opacity: 1; /* override any JS fade if stuck */
       max-width: 780px;
-      max-height: none;
       width: 100%;
       height: auto;
-      min-height: 100vh;
+      min-height: min-content;
       border-radius: 0;
       border: none;
       box-shadow: none;
       display: block;
-      margin: 0 auto;
+      margin: auto; /* Centers when tall enough, degrades gracefully */
       background: transparent;
       padding-top: 60px; /* Clear Shopify navbar */
       padding-bottom: 60px;
-      overflow: visible; /* Scroll happens on the backdrop now */
+      flex-shrink: 0; /* Important so inner content doesn't shrink and cut off */
     }
     #welcomeModal .modal-header,
     #welcomeModal .modal-body,
