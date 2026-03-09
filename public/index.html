@@ -3137,15 +3137,6 @@ document.addEventListener('DOMContentLoaded', initApp);
       overlay.classList.add('dismissing');
       document.body.classList.remove('intro-active');
     }
-    setTimeout(function() {
-      var hint = document.getElementById('keyHint');
-      if (hint) hint.classList.add('show');
-    }, 1800);
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') dismissIntro();
-    });
-    var enterBtn = document.querySelector('#introOverlay .enter-btn');
-    if (enterBtn) enterBtn.addEventListener('click', dismissIntro);
     window.enterSite = dismissIntro;
   })();
 

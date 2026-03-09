@@ -286,30 +286,6 @@
   ></iframe>
 </section>
 
-<script>
-  setTimeout(function() {
-    document.getElementById('keyHint').classList.add('show');
-  }, 1800);
-
-  let introDismissed = false;
-  function enterSite() {
-    if (introDismissed) return;
-    introDismissed = true;
-    const intro = document.getElementById('intro');
-    intro.classList.add('intro-dismissed');
-    intro.addEventListener('transitionend', function handler() {
-      intro.style.display = 'none';
-      intro.removeEventListener('transitionend', handler);
-    });
-  }
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      enterSite();
-    }
-  });
-</script>
-
 {% schema %}
 {
   "name": "RiskSim Embed",
