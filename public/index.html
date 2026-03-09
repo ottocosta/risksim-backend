@@ -687,29 +687,37 @@
 
     /* Welcome Modal Fullscreen Overrides */
     #welcomeModal {
-      padding: 0;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
       background: #0a0a0a;
       backdrop-filter: none;
+      z-index: 9999;
+      padding: 0;
+      overflow-y: auto;
+      display: block; /* Override default flex to prevent top-cutoff */
     }
     #welcomeModal .modal {
-      max-width: none;
+      max-width: 780px;
       max-height: none;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: auto;
+      min-height: 100vh;
       border-radius: 0;
       border: none;
       box-shadow: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: block;
+      margin: 0 auto;
       background: transparent;
+      padding-top: 60px; /* Clear Shopify navbar */
+      padding-bottom: 60px;
+      overflow: visible; /* Scroll happens on the backdrop now */
     }
     #welcomeModal .modal-header,
     #welcomeModal .modal-body,
     #welcomeModal .modal-footer {
       width: 100%;
-      max-width: 600px; /* Constrain inner content for readability */
+      max-width: 100%;
     }
 
     .modal-header  { padding: 24px 28px 0; }
