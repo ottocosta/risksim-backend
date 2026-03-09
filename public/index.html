@@ -2664,6 +2664,7 @@ function saveProfile() {
   appProfile = { businessDescription: businessDescription, companyType: companyType, homeCountry: homeCountry, industry: industry, revenue: revenue, sourcingCountries: sourcing };
   localStorage.setItem('riskSimProfile', JSON.stringify(appProfile));
   closeModal();
+  window.parent.postMessage('risksim-modal-closed', '*');
   updateProfileUI();
   drawTradeLines();
   addWelcomeMessage();
