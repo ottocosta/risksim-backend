@@ -690,7 +690,8 @@
       position: fixed;
       top: 0; left: 0; bottom: 0; right: 0;
       width: 100%; height: 100%;
-      background: #0a0a0a;
+      min-height: 100vh;
+      background-color: #0a0f1a;
       backdrop-filter: none;
       z-index: 9999;
       padding: 0;
@@ -707,13 +708,13 @@
       max-width: 780px;
       width: 100%;
       height: auto;
-      min-height: min-content;
+      min-height: 100vh;
       border-radius: 0;
       border: none;
       box-shadow: none;
       display: block;
       margin: auto; /* Centers when tall enough, degrades gracefully */
-      background: transparent;
+      background-color: #0a0f1a;
       padding-top: 60px; /* Clear Shopify navbar */
       padding-bottom: 60px;
       flex-shrink: 0; /* Important so inner content doesn't shrink and cut off */
