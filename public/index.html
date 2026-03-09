@@ -705,7 +705,6 @@
     }
     #welcomeModal .modal {
       opacity: 1; /* override any JS fade if stuck */
-      max-width: 780px;
       width: 100%;
       height: auto;
       min-height: 100vh;
@@ -713,17 +712,41 @@
       border: none;
       box-shadow: none;
       display: block;
-      margin: auto; /* Centers when tall enough, degrades gracefully */
       background-color: #0a0f1a;
       padding-top: 60px; /* Clear Shopify navbar */
       padding-bottom: 60px;
       flex-shrink: 0; /* Important so inner content doesn't shrink and cut off */
+      
+      /* Mobile default (< 768px) */
+      max-width: 100%;
+      padding-left: 20px;
+      padding-right: 20px;
+      margin: 0;
     }
+    /* Tablet (768px - 1023px) */
+    @media (min-width: 768px) {
+      #welcomeModal .modal {
+        padding-left: 40px;
+        padding-right: 40px;
+      }
+    }
+    /* Desktop (1024px+) */
+    @media (min-width: 1024px) {
+      #welcomeModal .modal {
+        max-width: 780px;
+        padding-left: 0;
+        padding-right: 0;
+        margin: auto; /* Centers perfectly when max-width applies */
+      }
+    }
+
     #welcomeModal .modal-header,
     #welcomeModal .modal-body,
     #welcomeModal .modal-footer {
       width: 100%;
       max-width: 100%;
+      padding-left: 0; /* Clear default modal padding to let wrapper handle it */
+      padding-right: 0;
     }
 
     .modal-header  { padding: 24px 28px 0; }
