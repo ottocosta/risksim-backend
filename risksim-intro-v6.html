@@ -290,9 +290,18 @@
   }, 1800);
 
   let introDismissed = false;
+
+  function handleEnterKey(e) {
+    if (e.key === 'Enter' && !introDismissed) {
+      e.preventDefault();
+      enterSite();
+    }
+  }
+
   function enterSite() {
     if (introDismissed) return;
     introDismissed = true;
+    document.removeEventListener('keydown', handleEnterKey);
     const intro = document.getElementById('intro');
     intro.classList.add('intro-dismissed');
     intro.addEventListener('transitionend', function handler() {
@@ -300,12 +309,8 @@
       intro.removeEventListener('transitionend', handler);
     });
   }
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      enterSite();
-    }
-  });
+
+  document.addEventListener('keydown', handleEnterKey);
 </script>
 </body>
 </html>
