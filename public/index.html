@@ -701,12 +701,12 @@
       z-index: 9999;
       padding: 0;
       overflow-x: hidden;
-      display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start; /* CRITICAL: prevents top cutoff on short screens */
       -webkit-overflow-scrolling: touch;
     }
+    #welcomeModal.hidden { display: none !important; }
     #welcomeModal .modal {
       opacity: 1; /* override any JS fade if stuck */
       width: 100%;
@@ -2681,6 +2681,7 @@ function saveProfile() {
   appProfile = { businessDescription: businessDescription, companyType: companyType, homeCountry: homeCountry, industry: industry, revenue: revenue, sourcingCountries: sourcing };
   localStorage.setItem('riskSimProfile', JSON.stringify(appProfile));
   closeModal();
+  if (window.enterSite) window.enterSite();
   window.parent.postMessage('risksim-modal-closed', '*');
   updateProfileUI();
   drawTradeLines();
@@ -3144,6 +3145,8 @@ document.addEventListener('DOMContentLoaded', initApp);
       if (introDismissed) return;
       introDismissed = true;
       document.removeEventListener('keydown', handleEnterKey);
+      var hint = document.getElementById('keyHint');
+      if (hint) hint.style.display = 'none';
       var overlay = document.getElementById('introOverlay');
       if (!overlay) return;
       overlay.classList.add('dismissing');
