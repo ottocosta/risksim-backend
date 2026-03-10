@@ -3131,7 +3131,19 @@ document.addEventListener('DOMContentLoaded', initApp);
 
   // ===== INTRO OVERLAY BEHAVIOR =====
   (function() {
+    var introDismissed = false;
+
+    function handleEnterKey(e) {
+      if (e.key === 'Enter' && !introDismissed) {
+        e.preventDefault();
+        dismissIntro();
+      }
+    }
+
     function dismissIntro() {
+      if (introDismissed) return;
+      introDismissed = true;
+      document.removeEventListener('keydown', handleEnterKey);
       var overlay = document.getElementById('introOverlay');
       if (!overlay) return;
       overlay.classList.add('dismissing');
@@ -3146,9 +3158,7 @@ document.addEventListener('DOMContentLoaded', initApp);
       var hint = document.getElementById('keyHint');
       if (hint) hint.classList.add('show');
     }, 1800);
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') dismissIntro();
-    });
+    document.addEventListener('keydown', handleEnterKey);
     var enterBtn = document.querySelector('#introOverlay .enter-btn');
     if (enterBtn) enterBtn.addEventListener('click', dismissIntro);
     window.enterSite = dismissIntro;
