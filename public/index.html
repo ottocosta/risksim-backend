@@ -3139,13 +3139,13 @@ document.addEventListener('DOMContentLoaded', initApp);
     function dismissIntro() {
       var overlay = document.getElementById('introOverlay');
       if (!overlay) return;
-      overlay.addEventListener('transitionend', function() {
+      overlay.classList.add('dismissing');
+      document.body.classList.remove('intro-active');
+      setTimeout(function() {
         if (overlay && overlay.parentNode) {
           overlay.parentNode.removeChild(overlay);
         }
-      }, { once: true });
-      overlay.classList.add('dismissing');
-      document.body.classList.remove('intro-active');
+      }, 850);
     }
     setTimeout(function() {
       var hint = document.getElementById('keyHint');
