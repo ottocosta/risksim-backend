@@ -3096,6 +3096,7 @@ document.addEventListener('DOMContentLoaded', initApp);
     function handleEnterKey(e) {
       if (e.key === 'Enter' && !introDismissed) {
         e.preventDefault();
+        window.parent.postMessage('risksim-enter', '*');
         dismissIntro();
       }
     }
