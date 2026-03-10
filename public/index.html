@@ -1095,61 +1095,6 @@
       line-height: 1.5;
     }
 
-    /* BUTTON */
-    #introOverlay .enter-wrap { animation-delay: 0.63s; }
-    #introOverlay .enter-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      padding: 15px 40px;
-      background: #ffffff;
-      border: 1px solid #ffffff;
-      color: #0f1117;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border-radius: 6px;
-      transition: background 0.3s, color 0.3s, box-shadow 0.3s;
-      animation: breathe 2.5s ease-in-out infinite;
-    }
-    #introOverlay .enter-btn:hover {
-      background: transparent;
-      color: #ffffff;
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.5);
-    }
-
-    /* KEY HINT */
-    #introOverlay .key-hint {
-      position: absolute;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      white-space: nowrap;
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      color: rgba(255,255,255,0.25);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      opacity: 0;
-      z-index: 1;
-    }
-    #introOverlay .key-hint.show { animation: breathe 2.5s ease-in-out infinite; }
-    @keyframes breathe {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 0.6; }
-    }
-    #introOverlay kbd {
-      padding: 3px 8px;
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 4px;
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      color: rgba(255,255,255,0.35);
-      background: rgba(255,255,255,0.04);
-    }
 
   </style>
 <body class="intro-active">
@@ -2678,7 +2623,6 @@ function saveProfile() {
   appProfile = { businessDescription: businessDescription, companyType: companyType, homeCountry: homeCountry, industry: industry, revenue: revenue, sourcingCountries: sourcing };
   localStorage.setItem('riskSimProfile', JSON.stringify(appProfile));
   closeModal();
-  if (window.enterSite) window.enterSite();
   window.parent.postMessage('risksim-modal-closed', '*');
   updateProfileUI();
   drawTradeLines();
@@ -3142,8 +3086,6 @@ document.addEventListener('DOMContentLoaded', initApp);
       if (introDismissed) return;
       introDismissed = true;
       document.removeEventListener('keydown', handleEnterKey);
-      var hint = document.getElementById('keyHint');
-      if (hint) hint.style.display = 'none';
       var overlay = document.getElementById('introOverlay');
       if (!overlay) return;
       overlay.classList.add('dismissing');
@@ -3154,14 +3096,6 @@ document.addEventListener('DOMContentLoaded', initApp);
         }
       }, 850);
     }
-    setTimeout(function() {
-      var hint = document.getElementById('keyHint');
-      if (hint) hint.classList.add('show');
-    }, 1800);
-    document.addEventListener('keydown', handleEnterKey);
-    var enterBtn = document.querySelector('#introOverlay .enter-btn');
-    if (enterBtn) enterBtn.addEventListener('click', dismissIntro);
-    window.enterSite = dismissIntro;
   })();
 </script>
 </body>
