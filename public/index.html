@@ -2457,11 +2457,14 @@ function updateProfile() {
 function updateProfileUI() {
   if (!appProfile) return;
   var summary = appProfile.industry + ' \u00B7 ' + appProfile.homeCountry;
-  document.getElementById('chatSubtitle').textContent = summary;
+  var subtitleEl = document.getElementById('chatSubtitle');
+  if (subtitleEl) subtitleEl.textContent = summary;
   var badge = document.getElementById('profileBadge');
-  var shortIndustry = appProfile.industry.split('/')[0];
-  badge.textContent = shortIndustry + ' \u00B7 ' + appProfile.homeCountry;
-  badge.style.display = 'inline-block';
+  if (badge) {
+    var shortIndustry = appProfile.industry.split('/')[0];
+    badge.textContent = shortIndustry + ' \u00B7 ' + appProfile.homeCountry;
+    badge.style.display = 'inline-block';
+  }
 }
 
 // ============================================================
