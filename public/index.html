@@ -4,1380 +4,307 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>RiskSim — Supply Chain Intelligence</title>
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@700;800&family=JetBrains+Mono:wght@300;400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS (v1.9.4) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <style>
-    /* ===== CSS VARIABLES (B&W Theme) ===== */
+    /* ===== CSS VARIABLES ===== */
     :root {
-      --bg-primary: #000;
-      --bg-secondary: #111;
-      --bg-panel: #0d0d0d;
-      --bg-card: #1a1a1a;
-      --border: rgba(255,255,255,0.08);
-      --text-primary: #fff;
-      --text-secondary: #aaa;
-      --text-muted: #555;
-      --font-heading: 'Syne', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
-      --font-body: 'DM Sans', sans-serif;
-      --accent: #7DF9C2;
-      --accent2: #FFD166;
-      --danger: #FF6B6B;
-      --bg: #080808;
-      --surface: rgba(12,12,15,0.88);
-      --white: #EEEAF2;
-      --muted: rgba(238,234,242,0.4);
+      --bg:       #0a0a0a;
+      --surface:  rgba(10,10,10,0.95);
+      --border:   rgba(255,255,255,0.08);
+      --text:     #e0e0e0;
+      --muted:    #888;
+      --accent:   #7DF9C2;
+      --font:     'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono:'JetBrains Mono', monospace;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { height: 100%; overflow-x: hidden; background: #000000; }
-    body { min-height: 100%; overflow: hidden; font-family: var(--font-body), 'Inter', sans-serif; background: #000000; }
-    body {
-      background: #000000; color: var(--white);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
-    }
-    /* Grain texture overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      pointer-events: none;
-      opacity: 0.04;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E");
-      background-repeat: repeat;
-      background-size: 200px 200px;
-    }
-
-    /* ===== NAVBAR ===== */
-    .navbar {
-      position: fixed; top: 0; left: 0; right: 0;
-      height: 56px;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px;
-      background: rgba(0,0,0,0.95);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      z-index: 1000;
-    }
-    .navbar-left  { display: flex; align-items: center; gap: 12px; }
-    .navbar-center { display: flex; align-items: center; gap: 24px; }
-    .navbar-right  { display: flex; align-items: center; gap: 12px; }
-
-    .brand-text    { display: flex; flex-direction: column; }
-    .brand-name    { font-size: 18px; font-weight: 700; color: var(--white); letter-spacing: -0.3px; font-family: var(--font-heading); }
-    .brand-tagline { font-size: 9px; font-weight: 500; color: #555; letter-spacing: 1.5px; text-transform: uppercase; }
-
-    .nav-stat       { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-    .nav-stat-value { font-size: 15px; font-weight: 700; color: var(--white); font-family: var(--font-heading); }
-    .nav-stat-label { font-size: 9px; font-weight: 500; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; font-family: var(--font-mono); }
-    .nav-divider    { width: 1px; height: 28px; background: rgba(255,255,255,0.1); }
-
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #aaa; padding: 6px 14px; border-radius: 6px;
-      font-size: 12px; font-weight: 500; cursor: pointer;
-      transition: all 0.2s; font-family: 'Inter', sans-serif;
-    }
-    .btn-ghost:hover {
-      border-color: rgba(255,255,255,0.5); color: #fff; background: rgba(255,255,255,0.05);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(255,255,255,0.08);
-    }
-
-    .live-badge {
-      display: flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 20px; padding: 4px 10px;
-      font-size: 11px; font-weight: 600; color: #fff;
-    }
-    .live-dot {
-      width: 6px; height: 6px; background: #fff;
-      border-radius: 50%; animation: live-pulse 1.5s ease infinite;
-    }
-    @keyframes live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-    /* ===== MAP (fullscreen, behind everything) ===== */
-    #mapContainer {
-      position: fixed; inset: 0; z-index: 0;
-      transition: top 0.4s cubic-bezier(.4,0,.2,1),
-                  right 0.4s cubic-bezier(.4,0,.2,1),
-                  width 0.4s cubic-bezier(.4,0,.2,1),
-                  height 0.4s cubic-bezier(.4,0,.2,1),
-                  border-radius 0.4s cubic-bezier(.4,0,.2,1);
-    }
-    #map { position: absolute; inset: 0; }
-
-    #mapContainer.thumbnail {
-      top: 116px; right: 12px;
-      left: auto; bottom: auto;
-      width: 220px; height: 130px;
-      border-radius: 10px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.2);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-      pointer-events: none;
-      z-index: 50;
-    }
-
-    /* Overlay on top of thumbnail for click handling */
-    #mapThumbnailOverlay {
-      display: none;
-      position: fixed;
-      top: 116px; right: 12px;
-      width: 220px; height: 130px;
-      z-index: 201; cursor: pointer;
-      border-radius: 10px;
-    }
-    #mapThumbnailOverlay:hover { background: rgba(0,0,0,0.35); }
-    #mapThumbnailOverlay .thumbnail-label {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 11px; font-weight: 500;
-      font-family: 'Inter', sans-serif;
-      opacity: 0; transition: opacity 0.2s;
-    }
-    #mapThumbnailOverlay:hover .thumbnail-label { opacity: 1; }
-
-    /* Map overlay header */
-    .map-overlay-header {
-      position: fixed; top: 68px; left: 12px; z-index: 100;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px; padding: 10px 14px;
-      pointer-events: none;
-      transition: opacity 0.3s, transform 0.3s;
-    }
-    .map-overlay-header.hidden { opacity: 0; pointer-events: none; }
-    .map-layer-name { font-size: 13px; font-weight: 600; color: #fff; }
-    .map-layer-sub  { font-size: 10px; color: #888; margin-top: 2px; }
-
-    /* ===== HERO PANEL ===== */
-    .hero-panel {
-      position: absolute;
-      top: 50%;
-      left: 40px;
-      transform: translateY(-50%);
-      z-index: 1000;
-      width: 380px;
-      padding: 32px;
-      border-radius: 12px;
-      background: rgba(10, 10, 12, 0.75);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 24px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
-      pointer-events: auto;
-      font-family: 'Inter', 'DM Sans', sans-serif;
-    }
-    /* Keep centering during scroll reveal */
-    .hero-panel.sr-hidden {
-      opacity: 0;
-      transform: translateY(calc(-50% + 30px));
-    }
-    .hero-panel.sr-visible {
-      opacity: 1;
-      transform: translateY(-50%);
-    }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      background: rgba(125, 249, 194, 0.08);
-      border: 1px solid rgba(125, 249, 194, 0.15);
-    }
-    .hero-badge span {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--accent);
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .pulse-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      position: relative;
-    }
-    .pulse-dot::after {
-      content: '';
-      position: absolute;
-      top: 50%; left: 50%;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      animation: pulse-ring 2s ease-out infinite;
-    }
-    @keyframes pulse-ring {
-      0%   { box-shadow: 0 0 0 0 rgba(125, 249, 194, 0.5); }
-      70%  { box-shadow: 0 0 0 8px rgba(125, 249, 194, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(125, 249, 194, 0); }
-    }
-    .hero-title {
-      font-size: 32px;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: -1px;
-      line-height: 1.15;
-      margin: 0 0 14px 0;
-    }
-    .hero-title .accent-text {
-      color: var(--accent);
-    }
-    .hero-desc {
-      font-size: 14px;
-      color: #a0aab0;
-      line-height: 1.6;
-      margin: 0 0 24px 0;
-    }
-    .hero-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .hero-stat {
-      text-align: center;
-      padding: 12px 4px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 8px;
-    }
-    .hero-stat .stat-value {
-      font-size: 22px;
-      font-weight: 800;
-      color: #fff;
-      font-family: 'Syne', 'Inter', sans-serif;
-      letter-spacing: -0.5px;
-    }
-    .hero-stat .stat-label {
-      font-size: 9px;
-      font-weight: 500;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-top: 4px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .hero-actions {
-      display: flex;
-      gap: 12px;
-    }
-    .hero-actions .btn-primary,
-    .hero-actions .btn-ghost {
-      flex: 1;
-      padding: 11px 0;
-      font-size: 13px;
-      text-align: center;
-    }
-
-    /* Layer controls — pill group */
-    .layer-controls {
-      position: fixed; top: 68px; right: 12px; z-index: 100;
-      display: flex; flex-direction: column; gap: 0;
-      transition: opacity 0.3s;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+    /* ===== RESET ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
       overflow: hidden;
     }
-    .layer-controls.hidden { opacity: 0; pointer-events: none; }
+
+    /* ===== MAP CONTAINER (fullscreen, behind all UI) ===== */
+    #mapContainer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    #map {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* ===== LOADING SKELETON ===== */
+    #mapSkeleton {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #mapSkeleton::after {
+      content: 'Loading map…';
+      color: var(--muted);
+      font-size: 13px;
+      font-family: var(--font-mono);
+      letter-spacing: 0.5px;
+    }
+    .skeleton-shimmer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.03) 50%,
+        rgba(255,255,255,0) 100%);
+      animation: shimmer 1.8s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* ===== LEAFLET OVERRIDES (dark theme) ===== */
+    .leaflet-popup-content-wrapper {
+      background: rgba(10,10,10,0.98) !important;
+      color: #fff !important;
+      border-radius: 10px !important;
+      border: 1px solid rgba(255,255,255,0.12) !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.8) !important;
+    }
+    .leaflet-popup-tip  { background: rgba(10,10,10,0.98) !important; }
+    .leaflet-popup-content { margin: 0 !important; }
+    .leaflet-control-attribution {
+      background: rgba(0,0,0,0.7) !important;
+      color: #444 !important;
+      font-size: 9px !important;
+    }
+    .leaflet-control-attribution a { color: #444 !important; }
+
+    /* ===== MAP OVERLAY HEADER ===== */
+    .map-overlay-header {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 100;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      pointer-events: none;
+    }
+    .map-layer-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .map-layer-sub {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ===== LAYER TOGGLE CONTROLS ===== */
+    .layer-controls {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      gap: 4px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px;
+    }
     .layer-btn {
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
       background: transparent;
       border: none;
-      border-left: 2px solid transparent;
-      padding: 11px 20px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 0.15em;
-      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 6px;
       cursor: pointer;
-      text-align: left;
-      width: 100%;
-      transition: all 0.15s ease;
+      transition: background 0.2s, color 0.2s;
     }
-    .layer-btn:last-child { border-bottom: none; }
-    .layer-btn:hover { color: var(--white); background: rgba(255,255,255,0.03); }
-    .layer-btn.active { border-left-color: var(--accent); color: var(--accent); background: rgba(125,249,194,0.06); }
+    .layer-btn:hover { color: #ccc; background: rgba(255,255,255,0.06); }
+    .layer-btn.active {
+      color: #fff;
+      background: rgba(255,255,255,0.12);
+    }
 
-    /* Category dropdown below layer controls */
-    .category-dropdown-wrap {
-      position: fixed; top: auto; right: 12px; z-index: 100;
-      margin-top: 6px;
-      display: none;
-    }
-    .category-select {
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
-      padding: 8px 30px 8px 12px; color: #fff;
-      font-size: 11px; font-weight: 500; cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 10px center;
-      width: 100%;
-    }
-    .category-select option { background: #111; color: #fff; }
-    .category-select:focus { outline: none; border-color: rgba(255,255,255,0.4); }
-
-    /* Legend */
+    /* ===== MAP LEGEND ===== */
     .map-legend {
-      position: fixed; bottom: 175px; left: 12px; z-index: 100;
+      position: fixed;
+      bottom: 32px;
+      left: 16px;
+      z-index: 100;
       background: rgba(8,8,8,0.88);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--border);
       border-left: 3px solid var(--accent);
-      border-radius: 4px; padding: 18px 20px;
-      transition: opacity 0.3s;
+      border-radius: 4px;
+      padding: 14px 16px;
     }
-    .map-legend.hidden { opacity: 0; pointer-events: none; }
-    .legend-title { font-size: 9px; font-weight: 600; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; font-family: var(--font-mono); }
-    .legend-items { display: flex; flex-direction: column; gap: 5px; }
-    .legend-item  { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--muted); font-family: var(--font-mono); }
-    .legend-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .legend-title {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-family: var(--font-mono);
+    }
+    .legend-items {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
 
-    /* Map markers */
+    /* ===== MAP MARKERS ===== */
     .map-marker { position: relative; }
-    .marker-dot { border-radius: 50%; position: absolute; top: 0; left: 0; }
+    .marker-dot {
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
     .marker-pulse {
-      position: absolute; border-radius: 50%;
-      animation: marker-pulse 2s ease-out infinite; opacity: 0; top: 0; left: 0;
+      position: absolute;
+      border-radius: 50%;
+      animation: marker-pulse 2s ease-out infinite;
+      opacity: 0;
+      top: 0;
+      left: 0;
     }
     @keyframes marker-pulse {
       0%   { transform: scale(1); opacity: 0.8; }
       100% { transform: scale(2.5); opacity: 0; }
     }
-    .marker-compare-ring {
-      position: absolute; border-radius: 50%;
-      border: 2px solid #fff;
-      animation: compare-ring-pulse 1.5s ease infinite;
-    }
-    @keyframes compare-ring-pulse {
-      0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
-    }
-    .marker-search-ring {
-      position: absolute; border-radius: 50%;
-      border: 2px solid #fff;
-      animation: search-ring-expand 0.8s ease-out forwards;
-    }
-    @keyframes search-ring-expand {
-      0%   { transform: scale(1); opacity: 1; }
-      100% { transform: scale(2.2); opacity: 0; }
-    }
 
-    /* Leaflet overrides */
-    .leaflet-popup-content-wrapper {
-      background: rgba(10,10,10,0.98) !important;
-      border: 1px solid rgba(255,255,255,0.15) !important;
-      border-radius: 10px !important; color: #fff !important;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.8) !important;
+    /* ===== POPUP STYLES ===== */
+    .popup-inner    { padding: 12px 14px; min-width: 230px; }
+    .popup-header   { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .popup-country  { font-size: 14px; font-weight: 700; color: #fff; }
+    .popup-risk-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
     }
-    .leaflet-popup-tip { background: rgba(10,10,10,0.98) !important; }
-    .leaflet-popup-content { margin: 0 !important; }
-    .leaflet-control-attribution {
-      background: rgba(0,0,0,0.7) !important;
-      color: #444 !important; font-size: 9px !important;
-    }
-    .leaflet-control-attribution a { color: #444 !important; }
-
-    .popup-inner   { padding: 12px 14px; min-width: 230px; }
-    .popup-header  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .popup-country { font-size: 14px; font-weight: 700; color: #fff; }
-    .popup-risk-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 12px; }
-    .popup-scores-row { display: flex; gap: 4px; margin-bottom: 10px; }
-    .popup-score-block { flex: 1; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 6px 8px; text-align: center; }
-    .popup-score-label { font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 3px; }
-    .popup-score-value { font-size: 16px; font-weight: 700; }
-    .popup-stats   { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
-    .popup-stat    { display: flex; justify-content: space-between; font-size: 11px; }
-    .popup-stat-label { color: #555; }
-    .popup-stat-value { color: #aaa; font-weight: 500; }
-    .popup-industries { margin-bottom: 8px; }
-    .popup-ind-label { font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
-    .popup-ind-tags { display: flex; flex-wrap: wrap; gap: 3px; }
-    .popup-industry-tag {
-      font-size: 9px; color: #aaa; background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
-      padding: 2px 7px; white-space: nowrap;
-    }
-    .popup-insight { font-size: 10px; color: #888; line-height: 1.5; margin-bottom: 8px; font-style: italic; }
-    .popup-analysis { padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 10px; color: #666; line-height: 1.5; margin-bottom: 8px; }
-    .popup-actions { display: flex; gap: 6px; padding-top: 4px; }
-    .popup-deepdive-btn {
-      flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25);
-      color: #fff; padding: 6px 10px; border-radius: 7px;
-      font-size: 10px; font-weight: 600; cursor: pointer;
-      font-family: 'Inter', sans-serif; transition: all 0.15s;
-    }
-    .popup-deepdive-btn:hover { background: rgba(255,255,255,0.18); }
-    .popup-compare-btn {
-      background: transparent; border: 1px solid rgba(255,255,255,0.2);
-      color: #aaa; padding: 6px 10px; border-radius: 7px;
-      font-size: 10px; font-weight: 500; cursor: pointer;
-      font-family: 'Inter', sans-serif; transition: all 0.15s;
-    }
-    .popup-compare-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
-
-    /* ===== FLOATING CHAT OVERLAY (default state) ===== */
-    .chat-overlay {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-      display: flex; flex-direction: column; align-items: center;
-      padding: 0 20px 24px; pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    .chat-overlay.hidden { opacity: 0; pointer-events: none !important; }
-
-    /* Quick action chips */
-    .quick-chips {
-      display: flex; gap: 8px; flex-wrap: wrap;
-      justify-content: center; margin-bottom: 10px;
-    }
-    .quick-chip {
-      background: rgba(0,0,0,0.88); backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.22); color: #ccc;
-      padding: 8px 16px; border-radius: 20px;
-      font-size: 12px; font-weight: 500; cursor: pointer;
-      white-space: nowrap; transition: all 0.2s;
-      font-family: 'Inter', sans-serif;
-      pointer-events: all;
-      letter-spacing: 0.1px;
-    }
-    .quick-chip:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.5); color: #fff; transform: translateY(-1px); }
-
-    /* Floating input bar */
-    .chat-float-bar {
-      width: 100%; max-width: 680px;
-      pointer-events: all;
-    }
-    @keyframes borderGlow {
-      0%   { border-color: var(--accent); box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(125,249,194,0.08); }
-      100% { border-color: #1a7a6a;      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(26,122,106,0.08); }
-    }
-    .chat-input-wrapper {
-      background: rgba(12, 12, 15, 0.65); backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid var(--accent); border-radius: 16px;
-      padding: 10px 12px;
-      display: flex; gap: 10px; align-items: flex-end;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      animation: borderGlow 4s ease-in-out infinite alternate;
-    }
-    .chat-textarea {
-      flex: 1; background: transparent; border: none; color: #fff;
-      font-size: 14px; font-family: 'Inter', sans-serif;
-      resize: none; min-height: 24px; max-height: 120px;
-      overflow-y: auto; line-height: 1.5; outline: none;
-      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
-    }
-    .chat-textarea::placeholder { color: #444; }
-    .chat-textarea::-webkit-scrollbar { width: 4px; }
-    .chat-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
-
-    .send-btn {
-      width: 34px; height: 34px; background: #fff; border: none;
-      border-radius: 10px; color: #000; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; flex-shrink: 0; transition: all 0.2s;
-    }
-    .send-btn:hover { background: #e0e0e0; transform: scale(1.05); }
-    .send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
-
-    /* ===== EXPANDED CHAT PANEL (full screen) ===== */
-    .chat-expanded-panel {
-      position: fixed; inset: 56px 0 0 0; z-index: 200;
-      background: rgba(8, 8, 8, 0.92); backdrop-filter: blur(32px) saturate(180%);
-      -webkit-backdrop-filter: blur(32px) saturate(180%);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex; flex-direction: column;
-      opacity: 0; pointer-events: none;
-      transform: translateY(20px) scale(0.98);
-      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .chat-expanded-panel.visible { opacity: 1; pointer-events: all; transform: translateY(0) scale(1); }
-
-    .chat-exp-header {
-      height: 52px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .chat-exp-title { display: flex; align-items: center; gap: 10px; }
-    .chat-exp-name  { font-size: 14px; font-weight: 600; color: #fff; }
-    .chat-exp-sub   { font-size: 11px; color: #555; }
-    .chat-exp-actions { display: flex; align-items: center; gap: 10px; }
-
-    .chat-map-btn {
-      background: transparent; border: 1px solid rgba(255,255,255,0.15);
-      color: #aaa; padding: 6px 10px; border-radius: 8px;
-      cursor: pointer; transition: all 0.2s;
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      font-family: 'Inter', sans-serif;
-    }
-    .chat-map-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
-    .chat-map-btn-label { font-size: 9px; font-weight: 500; color: inherit; line-height: 1; }
-
-    .resume-chat-bar {
-      width: 100%; max-width: 680px;
-      display: flex; justify-content: center;
-      margin-bottom: 6px;
-      pointer-events: all;
-    }
-    .resume-chat-btn {
-      background: rgba(0,0,0,0.75); backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.15); color: #999;
-      padding: 5px 14px; border-radius: 20px;
-      font-size: 12px; font-weight: 500; cursor: pointer;
-      display: flex; align-items: center; gap: 6px;
-      transition: all 0.2s; font-family: 'Inter', sans-serif;
-    }
-    .resume-chat-btn:hover { border-color: rgba(255,255,255,0.35); color: #ddd; }
-
-    .claude-badge {
-      font-size: 9px; font-weight: 600; color: #666;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px; padding: 3px 8px;
-    }
-    .profile-badge-text {
-      font-size: 10px; color: #666;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px; padding: 3px 8px;
-    }
-
-    /* Quick actions in expanded view */
-    .quick-actions-exp {
-      display: flex; gap: 6px; padding: 10px 20px 0;
-      overflow-x: auto; flex-shrink: 0;
-      max-width: 840px; width: 100%; margin: 0 auto;
-      scrollbar-width: none;
-    }
-    .quick-actions-exp::-webkit-scrollbar { display: none; }
-    .quick-btn-exp {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.18); color: #999;
-      padding: 7px 14px; border-radius: 16px;
-      font-size: 11px; font-weight: 500; cursor: pointer;
-      white-space: nowrap; transition: all 0.2s;
-      font-family: 'Inter', sans-serif; flex-shrink: 0;
-    }
-    .quick-btn-exp:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.35); color: #fff; transform: translateY(-1px); }
-
-    /* Messages */
-    .chat-exp-messages {
-      flex: 1; overflow-y: auto;
-      padding: 20px; display: flex; flex-direction: column; gap: 16px;
-      max-width: 840px; width: 100%; margin: 0 auto;
-      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;
-    }
-    .chat-exp-messages::-webkit-scrollbar { width: 4px; }
-    .chat-exp-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
-
-    .message { display: flex; gap: 10px; animation: msg-appear 0.25s ease; }
-    .message.user { flex-direction: row-reverse; }
-    @keyframes msg-appear {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .msg-avatar {
-      width: 28px; height: 28px; border-radius: 7px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; margin-top: 2px; overflow: hidden;
-    }
-    .msg-avatar.bot  { background: #111; border: 1px solid rgba(255,255,255,0.15); }
-    .msg-avatar.user { display: none; }
-
-    .msg-bubble {
-      max-width: 75%; padding: 10px 14px; border-radius: 14px;
-      font-size: 13px; line-height: 1.65;
-    }
-    .message.bot .msg-bubble {
-      background: #111; border: 1px solid rgba(255,255,255,0.1);
-      color: #e0e0e0; border-bottom-left-radius: 4px;
-    }
-    .message.user .msg-bubble {
-      background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.14);
-      color: #fff; border-bottom-right-radius: 4px;
-    }
-    .message.error .msg-bubble {
-      background: rgba(255,0,64,0.08); border: 1px solid rgba(255,0,64,0.2);
-      color: #ff6b6b;
-    }
-
-    /* Markdown styles */
-    .msg-bubble h3     { font-size: 13px; font-weight: 600; color: #fff; margin: 8px 0 4px; }
-    .msg-bubble strong { color: #fff; font-weight: 600; }
-    .msg-bubble em     { color: #aaa; font-style: italic; }
-    .msg-bubble ul, .msg-bubble ol { padding-left: 16px; margin: 4px 0; }
-    .msg-bubble li     { margin: 2px 0; }
-    .msg-bubble p      { margin: 4px 0; }
-    .msg-bubble p:first-child { margin-top: 0; }
-    .msg-bubble p:last-child  { margin-bottom: 0; }
-    .msg-bubble code {
-      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
-      padding: 1px 5px; border-radius: 3px;
-      font-size: 11px; font-family: 'Courier New', monospace;
-    }
-
-    /* Typing indicator — improved wave animation */
-    .typing-indicator { display: flex; gap: 8px; align-items: center; }
-    .typing-dots {
-      display: flex; gap: 5px; padding: 10px 14px;
-      background: #111; border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px; border-bottom-left-radius: 4px;
-      align-items: center;
-    }
-    .typing-dot {
-      width: 7px; height: 7px; background: #555; border-radius: 50%;
-      animation: typing-wave 1.2s ease-in-out infinite;
-    }
-    .typing-dot:nth-child(1) { animation-delay: 0s; }
-    .typing-dot:nth-child(2) { animation-delay: 0.15s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.3s; }
-    @keyframes typing-wave {
-      0%, 60%, 100% { transform: translateY(0); background: #444; }
-      30%           { transform: translateY(-7px); background: #888; }
-    }
-
-    /* Expanded input area */
-    .chat-exp-input-area {
-      padding: 12px 20px 20px; flex-shrink: 0;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      max-width: 840px; width: 100%; margin: 0 auto;
-    }
-    .chat-exp-input-wrapper {
-      background: rgba(12, 12, 15, 0.65); backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px; padding: 10px 12px;
-      display: flex; gap: 10px; align-items: flex-end;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    }
-
-    /* ===== MODALS ===== */
-    .modal-backdrop {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-      z-index: 2000; display: flex; align-items: center;
-      justify-content: center; padding: 20px;
-    }
-    .modal-backdrop.hidden { display: none; }
-
-    .modal {
-      background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 16px; width: 100%;
-      max-width: 520px; max-height: 90vh; overflow-y: auto;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.8);
-      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;
-    }
-    .modal::-webkit-scrollbar { width: 4px; }
-    .modal::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
-
-    /* Welcome Modal Fullscreen Overrides */
-    #welcomeModal, #welcomeModal * {
-      box-sizing: border-box;
-    }
-    #welcomeModal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      min-height: 100%;
-      box-sizing: border-box;
-      overflow-y: auto;
-      background-color: #000000;
-      backdrop-filter: none;
-      z-index: 9999;
-      padding: 0;
-      overflow-x: hidden;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start; /* CRITICAL: prevents top cutoff on short screens */
-      -webkit-overflow-scrolling: touch;
-    }
-    #welcomeModal.hidden { display: none !important; }
-    #welcomeModal .modal {
-      opacity: 1; /* override any JS fade if stuck */
-      width: 100%;
-      height: auto;
-      min-height: 100%;
-      border-radius: 0;
-      border: none;
-      box-shadow: none;
-      display: block;
-      background-color: #000000;
-      padding: 5% 10%; /* Fulfills requirement: padding 5% 10% */
-      flex-shrink: 0; /* Important so inner content doesn't shrink and cut off */
-      
-      /* Mobile default (< 768px) */
-      max-width: 100%;
-      margin: 0;
-    }
-    /* Tablet (768px - 1023px) paddings handled universally by 5vw */
-    /* Desktop (1024px+) */
-    @media (min-width: 1024px) {
-      #welcomeModal .modal {
-        max-width: 65vw; /* Fulfills requirement: no fixed pixel width on modal container */
-        margin: auto; /* Centers perfectly when max-width applies */
-      }
-    }
-
-    #welcomeModal .modal-header,
-    #welcomeModal .modal-body,
-    #welcomeModal .modal-footer {
-      width: 100%;
-      max-width: 100%;
-      padding-left: 0; /* Clear default modal padding to let wrapper handle it */
-      padding-right: 0;
-    }
-
-    #welcomeModal .modal-header  { padding-top: 3vh; }
-    #welcomeModal .modal-title   { font-size: clamp(20px, 2.5vw, 36px); font-weight: 800; color: #fff; margin-bottom: 2vh; }
-    #welcomeModal .modal-subtitle { font-size: clamp(14px, 1.5vw, 18px); color: #777; line-height: 1.5; }
-    #welcomeModal .modal-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 3vh 0; }
-    #welcomeModal .modal-body    { padding-top: 2vh; padding-bottom: 2vh; }
-    #welcomeModal .modal-footer  { padding-top: 3vh; padding-bottom: 4vh; }
-
-    /* Generic Modal Elements (used by editModal etc) */
-    .modal-header  { padding: 24px 28px 0; }
-    .modal-title   { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 6px; }
-    .modal-subtitle { font-size: 13px; color: #777; line-height: 1.5; }
-    .modal-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 20px 0; }
-    .modal-body    { padding: 0 28px; }
-    .modal-footer  { padding: 20px 28px 28px; }
-    .form-error    { display: none; color: #ff6b6b; font-size: 12px; margin-bottom: 10px; padding: 8px 12px; background: rgba(255,0,64,0.08); border: 1px solid rgba(255,0,64,0.2); border-radius: 6px; }
-
-    .form-group { margin-bottom: 18px; }
-    .form-label {
-      display: block; font-size: 11px; font-weight: 600; color: #555;
-      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
-    }
-    .form-select {
-      width: 100%; background: #111;
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
-      padding: 10px 12px; color: #fff;
-      font-size: 13px; font-family: 'Inter', sans-serif;
-      cursor: pointer; transition: border-color 0.2s; appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 12px center;
-    }
-    .form-select:focus { outline: none; border-color: rgba(255,255,255,0.3); }
-    .form-select option { background: #111; color: #fff; }
-
-    .form-textarea {
-      width: 100%; background: #111;
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
-      padding: 10px 12px; color: #fff;
-      font-size: 13px; font-family: 'Inter', sans-serif;
-      resize: vertical; min-height: 80px; max-height: 160px;
-      line-height: 1.5; transition: border-color 0.2s;
-    }
-    .form-textarea:focus { outline: none; border-color: rgba(255,255,255,0.3); }
-    .form-textarea::placeholder { color: #444; }
-
-    .sourcing-container {
-      background: #111; border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 8px; padding: 10px;
-      max-height: 160px; overflow-y: auto;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px;
-      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;
-    }
-    .sourcing-container::-webkit-scrollbar { width: 4px; }
-    .sourcing-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
-    .sourcing-label {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 12px; color: #888; cursor: pointer;
-      padding: 4px 5px; border-radius: 4px; transition: background 0.15s;
-    }
-    .sourcing-label:hover { background: rgba(255,255,255,0.05); color: #fff; }
-    .sourcing-label input[type="checkbox"] { accent-color: #fff; width: 13px; height: 13px; cursor: pointer; }
-
-    .btn-primary {
-      width: 100%; background: #fff; border: none; border-radius: 10px;
-      padding: 13px; color: #000; font-size: 14px; font-weight: 700;
-      cursor: pointer; font-family: 'Inter', sans-serif;
-      transition: all 0.2s; letter-spacing: 0.3px;
-    }
-    .btn-primary:hover {
-      background: #e8e8e8;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(255,255,255,0.3);
-    }
-
-    .modal-footer-row { display: flex; gap: 10px; }
-    .modal-footer-row .btn-ghost  { flex: 1; padding: 13px; font-size: 13px; border-radius: 10px; }
-    .modal-footer-row .btn-primary { flex: 2; }
-
-    /* ===== COUNTRY SEARCH BAR ===== */
-    .search-bar-wrap {
-      position: fixed; top: 68px; left: 50%; transform: translateX(-50%);
-      z-index: 101; width: 280px;
-      transition: opacity 0.3s;
-    }
-    .search-bar-wrap.hidden { opacity: 0; pointer-events: none; }
-    .search-input {
-      width: 100%; background: rgba(0,0,0,0.88); backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.18); border-radius: 10px;
-      padding: 9px 14px; color: #fff; font-size: 12px;
-      font-family: 'Inter', sans-serif; outline: none;
-      transition: border-color 0.2s;
-    }
-    .search-input::placeholder { color: #444; }
-    .search-input:focus { border-color: rgba(255,255,255,0.4); }
-    .search-suggestions {
-      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-      background: rgba(10,10,10,0.98); border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 10px; overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-      display: none; z-index: 200;
-    }
-    .search-suggestion {
-      padding: 9px 14px; font-size: 12px; color: #ccc; cursor: pointer;
+    .popup-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 11px;
       border-bottom: 1px solid rgba(255,255,255,0.06);
-      transition: background 0.1s; font-family: 'Inter', sans-serif;
     }
-    .search-suggestion:last-child { border-bottom: none; }
-    .search-suggestion:hover { background: rgba(255,255,255,0.08); color: #fff; }
-
-    /* ===== COMPARE PANEL ===== */
-    .compare-panel {
-      position: fixed; top: 56px; right: 0; bottom: 0; z-index: 300;
-      width: 380px; max-width: 90vw;
-      background: rgba(5,5,5,0.97); backdrop-filter: blur(20px);
-      border-left: 1px solid rgba(255,255,255,0.12);
-      overflow-y: auto; overflow-x: auto;
-      transform: translateX(0); transition: transform 0.35s cubic-bezier(.4,0,.2,1);
-      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent;
+    .popup-label { color: var(--muted); }
+    .popup-value { color: #fff; font-weight: 500; }
+    .popup-insight {
+      margin-top: 10px;
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-style: italic;
     }
-    .compare-panel.hidden { transform: translateX(100%); pointer-events: none; }
-    .compare-panel::-webkit-scrollbar { width: 4px; }
-    .compare-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
-    .compare-header { display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .compare-title { font-size: 14px; font-weight: 700; color: #fff; }
-    .compare-close { background: transparent; border: 1px solid rgba(255,255,255,0.2);
-      color: #aaa; padding: 4px 10px; border-radius: 6px; font-size: 11px;
-      cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
-    .compare-close:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
-    .compare-table { padding: 0 16px 16px; min-width: 300px; }
-    .compare-row { display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .compare-row-header { background: rgba(255,255,255,0.04); }
-    .compare-row-subheader { background: rgba(255,255,255,0.02); padding-top: 4px; }
-    .compare-cell { padding: 7px 6px; font-size: 11px; }
-    .compare-label-col { flex: 0 0 130px; color: #666; }
-    .compare-country-col { flex: 1; color: #ccc; font-weight: 500; text-align: center; }
-    .compare-row-header .compare-cell { font-size: 10px; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-
-    /* ===== MAP SKELETON ===== */
-    #mapSkeleton {
-      position: fixed; inset: 0; z-index: 1;
-      background: #0a0a0a;
-      display: none;
-    }
-    .skeleton-shimmer {
-      position: absolute; width: 100%; height: 100%;
-      background: linear-gradient(90deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.03) 50%,
-        rgba(255,255,255,0) 100%);
-      animation: shimmer 2s infinite;
-      background-size: 200% 100%;
-    }
-    @keyframes shimmer {
-      0%   { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    /* Compare button active state */
-    .btn-ghost-active { border-color: rgba(255,255,255,0.5) !important; color: #fff !important; }
-
-    /* Category dropdown position — positioned below layer controls dynamically */
-    #categoryDropdownWrap {
-      margin-top: 6px;
-    }
-
-    /* ===== SCROLL REVEAL ===== */
-    .sr-hidden {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-    }
-    .sr-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    /* Preserve translateX(-50%) centering on search bar during scroll reveal */
-    .search-bar-wrap.sr-hidden {
-      transform: translateX(-50%) translateY(30px);
-    }
-    .search-bar-wrap.sr-visible {
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* Quick-chip / quick-btn-exp enhanced hover */
-    .quick-chip:hover,
-    .quick-btn-exp:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(255,255,255,0.1);
-    }
-
-    .popup-deepdive-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255,255,255,0.15);
-    }
-
-    .send-btn:hover {
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 4px 16px rgba(255,255,255,0.3);
-    }
-
-
   </style>
+</head>
 <body>
-<!-- ===== NAVBAR ===== -->
-<nav class="navbar">
-  <div class="navbar-left">
-    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="RiskSim logo" role="img">
-      <title>RiskSim Supply Chain Intelligence Platform Logo</title>
-      <rect width="36" height="36" rx="8" fill="#111"/>
-      <g transform="translate(18,18)">
-        <path d="M0,-2 C3,-7 9,-12 13,-8 C17,-4 13,3 0,2Z" fill="white"/>
-        <path d="M2,0 C7,3 12,9 8,13 C4,17 -3,13 -2,0Z" fill="white"/>
-        <path d="M0,2 C-3,7 -9,12 -13,8 C-17,4 -13,-3 0,-2Z" fill="white"/>
-        <path d="M-2,0 C-7,-3 -12,-9 -8,-13 C-4,-17 3,-13 2,0Z" fill="white"/>
-      </g>
-    </svg>
-    <div class="brand-text">
-      <span class="brand-name">RiskSim</span>
-      <span class="brand-tagline">Supply Chain Intelligence</span>
-    </div>
-  </div>
 
-  <div class="navbar-center">
-    <div class="nav-stat">
-      <span class="nav-stat-value" id="statCountries">0</span>
-      <span class="nav-stat-label">Countries</span>
-    </div>
-    <div class="nav-divider"></div>
-    <div class="nav-stat">
-      <span class="nav-stat-value" id="statAnalysis" style="font-size:12px;">—</span>
-      <span class="nav-stat-label">Analysis</span>
-    </div>
-    <div class="nav-divider"></div>
-    <div class="nav-stat">
-      <span class="nav-stat-value" id="statAI">AI</span>
-      <span class="nav-stat-label">Powered</span>
-    </div>
-  </div>
+<!-- Loading skeleton — hidden once tiles finish loading -->
+<div id="mapSkeleton">
+  <div class="skeleton-shimmer"></div>
+</div>
 
-  <div class="navbar-right">
-    <button class="btn-ghost" id="compareBtn" onclick="toggleCompareMode()">Compare</button>
-    <button class="btn-ghost" onclick="showEditModal()">Edit Profile</button>
-    <div class="live-badge">
-      <div class="live-dot"></div>
-      Live Analysis
-    </div>
-  </div>
-</nav>
-
-<!-- ===== MAP CONTAINER (fullscreen by default) ===== -->
-<div id="mapSkeleton"><div class="skeleton-shimmer"></div></div>
+<!-- Map container (fullscreen) -->
 <div id="mapContainer">
   <div id="map"></div>
 </div>
 
-<!-- Map thumbnail click overlay (shown when chat is expanded) -->
-<div id="mapThumbnailOverlay" onclick="collapseChatPanel()">
-  <div class="thumbnail-label">Expand Map</div>
-</div>
-
-<!-- Map overlay header (visible when map is fullscreen) -->
-<div class="map-overlay-header" id="mapOverlayHeader">
+<!-- Overlay: current layer name -->
+<div class="map-overlay-header">
   <div class="map-layer-name" id="overlayName">Risk Levels</div>
   <div class="map-layer-sub" id="overlaySub">Geopolitical &amp; operational risk by country</div>
 </div>
 
-<!-- Hero Panel -->
-<div class="hero-panel" id="heroPanel">
-  <div class="hero-badge">
-    <div class="pulse-dot"></div>
-    <span>LIVE INTELLIGENCE</span>
-  </div>
-  <h1 class="hero-title">Supply Chain Risk<br><span class="accent-text">Intelligence.</span></h1>
-  <p class="hero-desc">RiskSim AI continuously monitors global supply chains, analyzing geopolitical, economic, and operational data to predict disruptions before they impact your operations.</p>
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="stat-value">73</div>
-      <div class="stat-label">Countries Monitored</div>
-    </div>
-    <div class="hero-stat">
-      <div class="stat-value">2.4M</div>
-      <div class="stat-label">Data Points/Day</div>
-    </div>
-    <div class="hero-stat">
-      <div class="stat-value">&lt;2s</div>
-      <div class="stat-label">Analysis Speed</div>
-    </div>
-  </div>
-  <div class="hero-actions">
-    <button class="btn-primary hero-btn" onclick="window.open('https://tally.so/r/QKrAZp', '_blank');">Claim Founder Access</button>
-    <button class="btn-ghost hero-btn" onclick="document.getElementById('heroPanel').style.display='none';">Explore Map</button>
-  </div>
-  <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.15em;color:rgba(125,249,194,0.6);text-align:center;margin-top:12px;width:100%;">First 10 founders get 50% off forever.</div>
-</div>
-
-<!-- Layer controls (visible when map is fullscreen) -->
+<!-- Layer toggle buttons -->
 <div class="layer-controls" id="layerControls">
   <button class="layer-btn active" id="btnRisk"     onclick="updateMapLayer('risk')">Risk Levels</button>
-  <button class="layer-btn"        id="btnShipping" onclick="updateMapLayer('shipping')">Shipping Cost</button>
-  <button class="layer-btn"        id="btnLabor"    onclick="updateMapLayer('labor')">Labor Cost</button>
-  <button class="layer-btn"        id="btnCost"     onclick="updateMapLayer('cost')">Total Score</button>
-  <button class="layer-btn"        id="btnSourcing" onclick="updateMapLayer('sourcing')">Sourcing Attractiveness</button>
-  <div id="categoryDropdownWrap" style="display:none; padding: 6px 6px 4px;">
-    <select class="category-select" id="categorySelect" onchange="updateCategory(this.value)">
-      <option value="technology">Technology</option>
-      <option value="textiles">Textiles/Apparel</option>
-      <option value="generalMfg">General Manufacturing</option>
-      <option value="consumerGoods">Consumer Goods</option>
-      <option value="automotive">Automotive</option>
-      <option value="pharma">Pharmaceuticals</option>
-    </select>
-  </div>
+  <button class="layer-btn"        id="btnShipping" onclick="updateMapLayer('shipping')">Shipping</button>
+  <button class="layer-btn"        id="btnLabor"    onclick="updateMapLayer('labor')">Labor</button>
+  <button class="layer-btn"        id="btnCost"     onclick="updateMapLayer('cost')">Total Cost</button>
+  <button class="layer-btn"        id="btnSourcing" onclick="updateMapLayer('sourcing')">Sourcing</button>
 </div>
 
-<!-- Map legend (visible when map is fullscreen) -->
-<div class="map-legend" id="mapLegend">
+<!-- Legend -->
+<div class="map-legend">
   <div class="legend-title" id="legendTitle">Risk Score</div>
-  <div class="legend-items" id="legendItems">
-    <div class="legend-item"><div class="legend-swatch" style="background:#ff0040"></div>Critical (80&ndash;100)</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:#ff8c00"></div>High (60&ndash;79)</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:#f5c518"></div>Medium-High (45&ndash;59)</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:#8bc34a"></div>Medium (30&ndash;44)</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:#00e676"></div>Low-Medium (15&ndash;29)</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:#00bcd4"></div>Low (0&ndash;14)</div>
-  </div>
+  <div class="legend-items" id="legendItems"></div>
 </div>
 
-<!-- Country Search Bar -->
-<div class="search-bar-wrap" id="searchBarWrap">
-  <input type="text" class="search-input" id="countrySearch" placeholder="Search countries..." autocomplete="off">
-  <div class="search-suggestions" id="searchSuggestions"></div>
-</div>
-
-<!-- Compare Panel -->
-<div class="compare-panel hidden" id="comparePanel"></div>
-
-<div class="chat-overlay" id="chatOverlay">
-  <div class="quick-chips">
-    <button class="quick-chip" onclick="sendQuickMessage('audit')">Full Audit</button>
-    <button class="quick-chip" onclick="sendQuickMessage('cost')">Cost Comparison</button>
-    <button class="quick-chip" onclick="sendQuickMessage('risk')">Live Risk Alerts</button>
-    <button class="quick-chip" onclick="sendQuickMessage('optimize')">Optimization Tips</button>
-    <button class="quick-chip" onclick="sendQuickMessage('alternatives')">Alternative Suppliers</button>
-  </div>
-  <div class="resume-chat-bar" id="resumeChatBar" style="display:none" aria-live="polite">
-    <button class="resume-chat-btn" onclick="expandChatPanel()" aria-label="Resume conversation">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-      Resume conversation
-    </button>
-  </div>
-  <div class="chat-float-bar">
-    <div class="chat-input-wrapper">
-      <textarea
-        class="chat-textarea"
-        id="chatInput"
-        placeholder="Ask about supply chain risks, costs, sourcing alternatives&#x2026;"
-        rows="1"
-        onkeydown="handleInputKeydown(event)"
-        oninput="autoResizeTextarea(this)"
-      ></textarea>
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send message">&#x279E;</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== EXPANDED CHAT PANEL ===== -->
-<div class="chat-expanded-panel" id="chatExpandedPanel">
-  <div class="chat-exp-header">
-    <div class="chat-exp-title">
-      <svg width="26" height="26" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="8" fill="#111"/>
-        <g transform="translate(18,18)">
-          <path d="M0,-2 C3,-7 9,-12 13,-8 C17,-4 13,3 0,2Z" fill="white"/>
-          <path d="M2,0 C7,3 12,9 8,13 C4,17 -3,13 -2,0Z" fill="white"/>
-          <path d="M0,2 C-3,7 -9,12 -13,8 C-17,4 -13,-3 0,-2Z" fill="white"/>
-          <path d="M-2,0 C-7,-3 -12,-9 -8,-13 C-4,-17 3,-13 2,0Z" fill="white"/>
-        </g>
-      </svg>
-      <div>
-        <div class="chat-exp-name">RiskSim AI</div>
-        <div class="chat-exp-sub" id="chatSubtitle">Set up your profile to begin</div>
-      </div>
-    </div>
-    <div class="chat-exp-actions">
-      <span class="claude-badge">Powered by Claude</span>
-      <span class="profile-badge-text" id="profileBadge" style="display:none;"></span>
-      <button class="chat-map-btn" onclick="collapseChatPanel()" title="Back to Map" aria-label="Back to Map">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/>
-          <path d="M8 2v16"/>
-          <path d="M16 6v16"/>
-        </svg>
-        <span class="chat-map-btn-label">Map</span>
-      </button>
-    </div>
-  </div>
-
-  <div class="quick-actions-exp">
-    <button class="quick-btn-exp" onclick="sendQuickMessage('audit')">Full Audit</button>
-    <button class="quick-btn-exp" onclick="sendQuickMessage('cost')">Cost Comparison</button>
-    <button class="quick-btn-exp" onclick="sendQuickMessage('risk')">Live Risk Alerts</button>
-    <button class="quick-btn-exp" onclick="sendQuickMessage('optimize')">Optimization Tips</button>
-    <button class="quick-btn-exp" onclick="sendQuickMessage('alternatives')">Alternative Suppliers</button>
-  </div>
-
-  <div class="chat-exp-messages" id="messagesContainer"></div>
-
-  <div class="typing-indicator" id="typingIndicator" style="display:none; padding: 0 20px 8px; max-width:840px; width:100%; margin:0 auto; flex-shrink:0;">
-    <div class="msg-avatar bot">
-      <svg width="18" height="18" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="36" height="36" rx="8" fill="#111"/>
-        <g transform="translate(18,18)">
-          <path d="M0,-2 C3,-7 9,-12 13,-8 C17,-4 13,3 0,2Z" fill="white"/>
-          <path d="M2,0 C7,3 12,9 8,13 C4,17 -3,13 -2,0Z" fill="white"/>
-          <path d="M0,2 C-3,7 -9,12 -13,8 C-17,4 -13,-3 0,-2Z" fill="white"/>
-          <path d="M-2,0 C-7,-3 -12,-9 -8,-13 C-4,-17 3,-13 2,0Z" fill="white"/>
-        </g>
-      </svg>
-    </div>
-    <div class="typing-dots">
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-    </div>
-  </div>
-
-  <div class="chat-exp-input-area">
-    <div class="chat-exp-input-wrapper">
-      <textarea
-        class="chat-textarea"
-        id="chatInputExp"
-        placeholder="Ask about supply chain risks, costs, sourcing alternatives&#x2026;"
-        rows="1"
-        onkeydown="handleInputKeydownExp(event)"
-        oninput="autoResizeTextarea(this)"
-      ></textarea>
-      <button class="send-btn" id="sendBtnExp" onclick="sendMessageFromExpanded()" title="Send message">&#x279E;</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== WELCOME MODAL ===== -->
-<div class="modal-backdrop hidden" id="welcomeModal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Welcome to RiskSim</div>
-      <div class="modal-subtitle">Set up your company profile for personalized supply chain intelligence</div>
-      <div class="modal-divider"></div>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label" for="wBusinessDescription">Tell us about your business</label>
-        <textarea class="form-textarea" id="wBusinessDescription" placeholder="Describe your business, supply chain needs, key concerns, or what you're looking for&#x2026;"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="wCompanyType">Company Type</label>
-        <select class="form-select" id="wCompanyType">
-          <option value="">Select company type&#x2026;</option>
-          <option value="Manufacturer">Manufacturer</option>
-          <option value="Retailer">Retailer</option>
-          <option value="Distributor">Distributor</option>
-          <option value="Logistics Provider">Logistics Provider</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="wHomeCountry">Home Country</label>
-        <select class="form-select" id="wHomeCountry">
-          <option value="">Select your country&#x2026;</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="wIndustry">Industry</label>
-        <select class="form-select" id="wIndustry">
-          <option value="">Select industry&#x2026;</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Textiles/Apparel">Textiles/Apparel</option>
-          <option value="Automotive">Automotive</option>
-          <option value="Food/Agriculture">Food/Agriculture</option>
-          <option value="Pharmaceuticals">Pharmaceuticals</option>
-          <option value="Raw Materials">Raw Materials</option>
-          <option value="Consumer Goods">Consumer Goods</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Primary Sourcing Countries</label>
-        <div class="sourcing-container" id="wSourcingBox"></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="wRevenue">Annual Revenue</label>
-        <select class="form-select" id="wRevenue">
-          <option value="">Select revenue range&#x2026;</option>
-          <option value="&lt;$1M">&lt;$1M</option>
-          <option value="$1M&ndash;$10M">$1M&ndash;$10M</option>
-          <option value="$10M&ndash;$50M">$10M&ndash;$50M</option>
-          <option value="$50M&ndash;$100M">$50M&ndash;$100M</option>
-          <option value="$100M+">$100M+</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <div id="wFormError" class="form-error"></div>
-      <button class="btn-primary" onclick="saveProfile()">Save Profile &amp; Start Analysis</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== EDIT PROFILE MODAL ===== -->
-<div class="modal-backdrop hidden" id="editModal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Edit Profile</div>
-      <div class="modal-subtitle">Update your company profile for more accurate analysis</div>
-      <div class="modal-divider"></div>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label" for="eBusinessDescription">About your business</label>
-        <textarea class="form-textarea" id="eBusinessDescription" placeholder="Describe your business, supply chain needs, key concerns, or what you're looking for&#x2026;"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="eCompanyType">Company Type</label>
-        <select class="form-select" id="eCompanyType">
-          <option value="">Select company type&#x2026;</option>
-          <option value="Manufacturer">Manufacturer</option>
-          <option value="Retailer">Retailer</option>
-          <option value="Distributor">Distributor</option>
-          <option value="Logistics Provider">Logistics Provider</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="eHomeCountry">Home Country</label>
-        <select class="form-select" id="eHomeCountry">
-          <option value="">Select your country&#x2026;</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="eIndustry">Industry</label>
-        <select class="form-select" id="eIndustry">
-          <option value="">Select industry&#x2026;</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Textiles/Apparel">Textiles/Apparel</option>
-          <option value="Automotive">Automotive</option>
-          <option value="Food/Agriculture">Food/Agriculture</option>
-          <option value="Pharmaceuticals">Pharmaceuticals</option>
-          <option value="Raw Materials">Raw Materials</option>
-          <option value="Consumer Goods">Consumer Goods</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Primary Sourcing Countries</label>
-        <div class="sourcing-container" id="eSourcingBox"></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="eRevenue">Annual Revenue</label>
-        <select class="form-select" id="eRevenue">
-          <option value="">Select revenue range&#x2026;</option>
-          <option value="&lt;$1M">&lt;$1M</option>
-          <option value="$1M&ndash;$10M">$1M&ndash;$10M</option>
-          <option value="$10M&ndash;$50M">$10M&ndash;$50M</option>
-          <option value="$50M&ndash;$100M">$50M&ndash;$100M</option>
-          <option value="$100M+">$100M+</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <div id="eFormError" class="form-error"></div>
-      <div class="modal-footer-row">
-        <button class="btn-ghost" onclick="closeEditModal()">Cancel</button>
-        <button class="btn-primary" onclick="updateProfile()">Update Profile</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Leaflet JS -->
+<!-- Leaflet JS (v1.9.4) -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 // ============================================================
-// TOP-LEVEL VARIABLES
+// TOP-LEVEL STATE
 // ============================================================
-var appProfile       = null;
-var chatHistory      = [];
-var currentLayer     = 'risk';
-var currentCategory  = 'technology'; // sourcing industry category
-var map              = null;
-var countryMarkers   = {};
-var pulseRingMarkers = [];
-var tradeLines       = [];
-var chatState        = 'floating'; // 'floating' | 'expanded'
-var hasShownWelcome  = false;
-var compareMode      = false;
-var compareCountries = [];
-var searchHighlight  = null; // marker name currently highlighted
-
-// Bot avatar SVG (inline, used in messages)
-var BOT_AVATAR_SVG =
-  '<svg width="18" height="18" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-  '<rect width="36" height="36" rx="8" fill="#111"/>' +
-  '<g transform="translate(18,18)">' +
-  '<path d="M0,-2 C3,-7 9,-12 13,-8 C17,-4 13,3 0,2Z" fill="white"/>' +
-  '<path d="M2,0 C7,3 12,9 8,13 C4,17 -3,13 -2,0Z" fill="white"/>' +
-  '<path d="M0,2 C-3,7 -9,12 -13,8 C-17,4 -13,-3 0,-2Z" fill="white"/>' +
-  '<path d="M-2,0 C-7,-3 -12,-9 -8,-13 C-4,-17 3,-13 2,0Z" fill="white"/>' +
-  '</g></svg>';
-
-
+var map            = null;
+var countryMarkers = {};
+var currentLayer   = 'risk';
+var currentCategory= 'technology';
+var geoJsonLayer   = null;
 
 // ============================================================
-// STATIC DATA
+// COUNTRY DATA — 58 countries with full risk/cost/sourcing metrics
 // ============================================================
 var COUNTRY_DATA = [
   { name: 'North Korea',    lat:  40.3, lng: 127.5, risk: 98, shipping: 9, labor: 4, tariff: 25, infra:  3, costIndex: 80,
     mfgCapacity: 5,  exportInfra: 2,  supplierDensity: 2,  leadTimeReliability: 10,
     sourcing: { technology: 2,  textiles: 3,  generalMfg: 3,  consumerGoods: 2,  automotive: 1,  pharma: 1  } },
-  { name: 'Afghanistan',    lat:  33.9, lng:  67.7, risk: 97, shipping: 9, labor: 2, tariff: 20, infra:  1, costIndex: 85,
-    mfgCapacity: 2,  exportInfra: 1,  supplierDensity: 1,  leadTimeReliability: 5,
-    sourcing: { technology: 1,  textiles: 3,  generalMfg: 1,  consumerGoods: 2,  automotive: 1,  pharma: 1  } },
-  { name: 'Syria',          lat:  34.8, lng:  38.9, risk: 96, shipping: 7, labor: 3, tariff: 20, infra:  2, costIndex: 78,
-    mfgCapacity: 3,  exportInfra: 2,  supplierDensity: 2,  leadTimeReliability: 5,
-    sourcing: { technology: 1,  textiles: 2,  generalMfg: 2,  consumerGoods: 2,  automotive: 1,  pharma: 2  } },
   { name: 'Russia',         lat:  61.5, lng:  90.0, risk: 95, shipping: 8, labor: 5, tariff: 35, infra:  6, costIndex: 75,
     mfgCapacity: 55, exportInfra: 50, supplierDensity: 45, leadTimeReliability: 40,
     sourcing: { technology: 10, textiles: 5,  generalMfg: 25, consumerGoods: 10, automotive: 15, pharma: 20 } },
   { name: 'Iran',           lat:  32.4, lng:  53.7, risk: 93, shipping: 7, labor: 4, tariff: 30, infra:  5, costIndex: 72,
-    mfgCapacity: 40, exportInfra: 35, supplierDensity: 30, leadTimeReliability: 30,
-    sourcing: { technology: 5,  textiles: 10, generalMfg: 15, consumerGoods: 10, automotive: 10, pharma: 15 } },
-  { name: 'Sudan',          lat:  12.8, lng:  30.2, risk: 91, shipping: 8, labor: 2, tariff: 15, infra:  2, costIndex: 75,
-    mfgCapacity: 5,  exportInfra: 5,  supplierDensity: 3,  leadTimeReliability: 10,
-    sourcing: { technology: 2,  textiles: 5,  generalMfg: 3,  consumerGoods: 3,  automotive: 1,  pharma: 2  } },
+    mfgCapacity: 25, exportInfra: 20, supplierDensity: 18, leadTimeReliability: 25,
+    sourcing: { technology: 5,  textiles: 15, generalMfg: 15, consumerGoods: 8,  automotive: 10, pharma: 12 } },
   { name: 'Venezuela',      lat:   6.4, lng: -66.6, risk: 89, shipping: 6, labor: 3, tariff: 25, infra:  3, costIndex: 72,
     mfgCapacity: 15, exportInfra: 20, supplierDensity: 10, leadTimeReliability: 20,
     sourcing: { technology: 3,  textiles: 5,  generalMfg: 8,  consumerGoods: 5,  automotive: 5,  pharma: 5  } },
@@ -1388,15 +315,11 @@ var COUNTRY_DATA = [
     mfgCapacity: 35, exportInfra: 40, supplierDensity: 30, leadTimeReliability: 25,
     sourcing: { technology: 15, textiles: 10, generalMfg: 20, consumerGoods: 10, automotive: 15, pharma: 10 } },
   { name: 'Myanmar',        lat:  17.1, lng:  95.9, risk: 85, shipping: 8, labor: 2, tariff: 15, infra:  3, costIndex: 58,
-    mfgCapacity: 20, exportInfra: 20, supplierDensity: 15, leadTimeReliability: 30,
-    sourcing: { technology: 3,  textiles: 35, generalMfg: 15, consumerGoods: 10, automotive: 2,  pharma: 3  } },
-  { name: 'Taiwan',         lat:  23.7, lng: 120.9, risk: 82, shipping: 7, labor: 6, tariff:  4, infra:  8, costIndex: 48,
-    mfgCapacity: 88, exportInfra: 85, supplierDensity: 90, leadTimeReliability: 78,
-    sourcing: { technology: 95, textiles: 15, generalMfg: 65, consumerGoods: 40, automotive: 30, pharma: 25 } },
+    mfgCapacity: 18, exportInfra: 15, supplierDensity: 12, leadTimeReliability: 20,
+    sourcing: { technology: 2,  textiles: 25, generalMfg: 10, consumerGoods: 8,  automotive: 1,  pharma: 2  } },
   { name: 'Lebanon',        lat:  33.9, lng:  35.5, risk: 79, shipping: 6, labor: 4, tariff: 15, infra:  4, costIndex: 65,
     mfgCapacity: 8,  exportInfra: 15, supplierDensity: 5,  leadTimeReliability: 10,
     sourcing: { technology: 5,  textiles: 5,  generalMfg: 5,  consumerGoods: 5,  automotive: 2,  pharma: 8  } },
-  // China: geopolitical tensions and tariffs add risk, but unmatched manufacturing capacity.
   { name: 'China',          lat:  35.8, lng: 104.2, risk: 28, shipping: 7, labor: 3, tariff: 25, infra:  7, costIndex: 30,
     mfgCapacity: 98, exportInfra: 95, supplierDensity: 99, leadTimeReliability: 80,
     sourcing: { technology: 95, textiles: 75, generalMfg: 95, consumerGoods: 92, automotive: 70, pharma: 65 } },
@@ -1404,16 +327,13 @@ var COUNTRY_DATA = [
     mfgCapacity: 40, exportInfra: 35, supplierDensity: 35, leadTimeReliability: 45,
     sourcing: { technology: 10, textiles: 60, generalMfg: 30, consumerGoods: 25, automotive: 8,  pharma: 15 } },
   { name: 'Nigeria',        lat:   9.1, lng:   8.7, risk: 72, shipping: 7, labor: 2, tariff: 20, infra:  4, costIndex: 58,
-    mfgCapacity: 20, exportInfra: 20, supplierDensity: 15, leadTimeReliability: 25,
-    sourcing: { technology: 5,  textiles: 15, generalMfg: 12, consumerGoods: 10, automotive: 5,  pharma: 5  } },
-  { name: 'Ethiopia',       lat:   9.1, lng:  40.5, risk: 68, shipping: 9, labor: 1, tariff: 20, infra:  3, costIndex: 52,
-    mfgCapacity: 15, exportInfra: 10, supplierDensity: 10, leadTimeReliability: 20,
-    sourcing: { technology: 2,  textiles: 25, generalMfg: 10, consumerGoods: 8,  automotive: 2,  pharma: 3  } },
-  { name: 'Egypt',          lat:  26.8, lng:  30.8, risk: 67, shipping: 6, labor: 3, tariff: 20, infra:  5, costIndex: 48,
-    mfgCapacity: 30, exportInfra: 40, supplierDensity: 25, leadTimeReliability: 40,
-    sourcing: { technology: 8,  textiles: 25, generalMfg: 20, consumerGoods: 15, automotive: 10, pharma: 12 } },
-  { name: 'Turkey',         lat:  38.9, lng:  35.2, risk: 65, shipping: 5, labor: 4, tariff: 10, infra:  7, costIndex: 40,
-    mfgCapacity: 65, exportInfra: 70, supplierDensity: 60, leadTimeReliability: 65,
+    mfgCapacity: 15, exportInfra: 20, supplierDensity: 12, leadTimeReliability: 30,
+    sourcing: { technology: 3,  textiles: 10, generalMfg: 10, consumerGoods: 8,  automotive: 3,  pharma: 5  } },
+  { name: 'India',          lat:  20.6, lng:  79.0, risk: 35, shipping: 7, labor: 2, tariff: 10, infra:  6, costIndex: 25,
+    mfgCapacity: 80, exportInfra: 68, supplierDensity: 75, leadTimeReliability: 60,
+    sourcing: { technology: 45, textiles: 70, generalMfg: 72, consumerGoods: 65, automotive: 50, pharma: 92 } },
+  { name: 'Turkey',         lat:  38.9, lng:  35.2, risk: 42, shipping: 5, labor: 4, tariff:  5, infra:  7, costIndex: 32,
+    mfgCapacity: 60, exportInfra: 65, supplierDensity: 55, leadTimeReliability: 65,
     sourcing: { technology: 20, textiles: 70, generalMfg: 55, consumerGoods: 40, automotive: 55, pharma: 20 } },
   { name: 'Bangladesh',     lat:  23.7, lng:  90.4, risk: 62, shipping: 8, labor: 1, tariff: 12, infra:  5, costIndex: 42,
     mfgCapacity: 60, exportInfra: 50, supplierDensity: 55, leadTimeReliability: 55,
@@ -1424,51 +344,30 @@ var COUNTRY_DATA = [
   { name: 'Guatemala',      lat:  15.8, lng: -90.2, risk: 60, shipping: 5, labor: 2, tariff:  8, infra:  5, costIndex: 33,
     mfgCapacity: 20, exportInfra: 22, supplierDensity: 15, leadTimeReliability: 40,
     sourcing: { technology: 3,  textiles: 30, generalMfg: 15, consumerGoods: 12, automotive: 3,  pharma: 3  } },
-  { name: 'Mexico',         lat:  23.6, lng:-102.6, risk: 60, shipping: 4, labor: 3, tariff:  0, infra:  7, costIndex: 30,
-    mfgCapacity: 75, exportInfra: 80, supplierDensity: 72, leadTimeReliability: 72,
-    sourcing: { technology: 55, textiles: 45, generalMfg: 78, consumerGoods: 60, automotive: 88, pharma: 30 } },
-  { name: 'Philippines',    lat:  12.9, lng: 121.8, risk: 58, shipping: 7, labor: 2, tariff:  8, infra:  6, costIndex: 40,
-    mfgCapacity: 40, exportInfra: 45, supplierDensity: 35, leadTimeReliability: 50,
-    sourcing: { technology: 30, textiles: 20, generalMfg: 30, consumerGoods: 25, automotive: 10, pharma: 15 } },
-  { name: 'Sri Lanka',      lat:   7.9, lng:  80.8, risk: 55, shipping: 8, labor: 2, tariff: 12, infra:  5, costIndex: 40,
-    mfgCapacity: 25, exportInfra: 30, supplierDensity: 20, leadTimeReliability: 45,
-    sourcing: { technology: 5,  textiles: 45, generalMfg: 20, consumerGoods: 15, automotive: 3,  pharma: 8  } },
-  { name: 'Indonesia',      lat:  -0.8, lng: 113.9, risk: 55, shipping: 7, labor: 2, tariff: 10, infra:  6, costIndex: 38,
-    mfgCapacity: 60, exportInfra: 55, supplierDensity: 55, leadTimeReliability: 55,
-    sourcing: { technology: 20, textiles: 50, generalMfg: 50, consumerGoods: 45, automotive: 25, pharma: 15 } },
-  { name: 'Argentina',      lat: -38.4, lng: -63.6, risk: 52, shipping: 6, labor: 4, tariff: 17, infra:  6, costIndex: 45,
-    mfgCapacity: 40, exportInfra: 45, supplierDensity: 35, leadTimeReliability: 40,
-    sourcing: { technology: 15, textiles: 20, generalMfg: 30, consumerGoods: 20, automotive: 20, pharma: 20 } },
+  { name: 'Vietnam',        lat:  14.1, lng: 108.3, risk: 32, shipping: 7, labor: 2, tariff:  6, infra:  6, costIndex: 22,
+    mfgCapacity: 72, exportInfra: 70, supplierDensity: 65, leadTimeReliability: 65,
+    sourcing: { technology: 55, textiles: 85, generalMfg: 65, consumerGoods: 62, automotive: 20, pharma: 10 } },
+  { name: 'Thailand',       lat:  15.9, lng: 100.9, risk: 30, shipping: 7, labor: 3, tariff:  5, infra:  7, costIndex: 24,
+    mfgCapacity: 65, exportInfra: 70, supplierDensity: 58, leadTimeReliability: 70,
+    sourcing: { technology: 40, textiles: 30, generalMfg: 55, consumerGoods: 55, automotive: 60, pharma: 15 } },
+  { name: 'Indonesia',      lat:  -0.8, lng: 113.9, risk: 38, shipping: 7, labor: 2, tariff: 10, infra:  5, costIndex: 28,
+    mfgCapacity: 55, exportInfra: 50, supplierDensity: 45, leadTimeReliability: 55,
+    sourcing: { technology: 15, textiles: 40, generalMfg: 40, consumerGoods: 45, automotive: 25, pharma: 10 } },
+  { name: 'Cambodia',       lat:  12.6, lng: 104.9, risk: 48, shipping: 8, labor: 2, tariff: 12, infra:  4, costIndex: 38,
+    mfgCapacity: 30, exportInfra: 30, supplierDensity: 25, leadTimeReliability: 50,
+    sourcing: { technology: 5,  textiles: 65, generalMfg: 22, consumerGoods: 18, automotive: 2,  pharma: 3  } },
+  { name: 'Peru',           lat:  -9.2, lng: -75.0, risk: 46, shipping: 6, labor: 3, tariff: 10, infra:  6, costIndex: 38,
+    mfgCapacity: 25, exportInfra: 35, supplierDensity: 18, leadTimeReliability: 50,
+    sourcing: { technology: 5,  textiles: 25, generalMfg: 18, consumerGoods: 12, automotive: 5,  pharma: 5  } },
   { name: 'Brazil',         lat: -14.2, lng: -51.9, risk: 50, shipping: 6, labor: 4, tariff: 18, infra:  6, costIndex: 42,
     mfgCapacity: 60, exportInfra: 60, supplierDensity: 55, leadTimeReliability: 55,
     sourcing: { technology: 20, textiles: 25, generalMfg: 50, consumerGoods: 35, automotive: 45, pharma: 30 } },
   { name: 'Colombia',       lat:   4.6, lng: -74.1, risk: 50, shipping: 5, labor: 3, tariff: 15, infra:  6, costIndex: 40,
     mfgCapacity: 30, exportInfra: 40, supplierDensity: 25, leadTimeReliability: 50,
     sourcing: { technology: 10, textiles: 20, generalMfg: 22, consumerGoods: 18, automotive: 8,  pharma: 12 } },
-  { name: 'Cambodia',       lat:  12.6, lng: 104.9, risk: 48, shipping: 8, labor: 2, tariff: 12, infra:  4, costIndex: 38,
-    mfgCapacity: 30, exportInfra: 30, supplierDensity: 25, leadTimeReliability: 50,
-    sourcing: { technology: 5,  textiles: 65, generalMfg: 22, consumerGoods: 18, automotive: 2,  pharma: 3  } },
-  { name: 'Peru',           lat:  -9.2, lng: -75.0, risk: 46, shipping: 6, labor: 3, tariff: 10, infra:  6, costIndex: 38,
-    mfgCapacity: 25, exportInfra: 30, supplierDensity: 20, leadTimeReliability: 45,
-    sourcing: { technology: 5,  textiles: 15, generalMfg: 18, consumerGoods: 12, automotive: 5,  pharma: 8  } },
-  { name: 'India',          lat:  20.6, lng:  78.9, risk: 45, shipping: 7, labor: 2, tariff: 15, infra:  6, costIndex: 35,
-    mfgCapacity: 78, exportInfra: 72, supplierDensity: 75, leadTimeReliability: 65,
-    sourcing: { technology: 50, textiles: 70, generalMfg: 72, consumerGoods: 65, automotive: 40, pharma: 92 } },
-  { name: 'Thailand',       lat:  15.9, lng: 100.9, risk: 44, shipping: 7, labor: 3, tariff: 10, infra:  7, costIndex: 35,
-    mfgCapacity: 65, exportInfra: 68, supplierDensity: 62, leadTimeReliability: 70,
-    sourcing: { technology: 35, textiles: 45, generalMfg: 60, consumerGoods: 55, automotive: 60, pharma: 20 } },
-  { name: 'Morocco',        lat:  31.8, lng:  -7.1, risk: 43, shipping: 6, labor: 3, tariff: 12, infra:  6, costIndex: 36,
-    mfgCapacity: 35, exportInfra: 40, supplierDensity: 30, leadTimeReliability: 55,
-    sourcing: { technology: 10, textiles: 40, generalMfg: 28, consumerGoods: 22, automotive: 25, pharma: 12 } },
-  { name: 'Malaysia',       lat:   4.2, lng: 108.0, risk: 38, shipping: 7, labor: 3, tariff:  6, infra:  7, costIndex: 32,
-    mfgCapacity: 65, exportInfra: 72, supplierDensity: 62, leadTimeReliability: 75,
-    sourcing: { technology: 60, textiles: 25, generalMfg: 58, consumerGoods: 45, automotive: 25, pharma: 25 } },
-  { name: 'Saudi Arabia',   lat:  23.9, lng:  45.1, risk: 35, shipping: 6, labor: 5, tariff:  6, infra:  8, costIndex: 36,
-    mfgCapacity: 30, exportInfra: 55, supplierDensity: 25, leadTimeReliability: 60,
-    sourcing: { technology: 10, textiles: 5,  generalMfg: 20, consumerGoods: 15, automotive: 8,  pharma: 10 } },
-  { name: 'Vietnam',        lat:  14.1, lng: 108.3, risk: 35, shipping: 7, labor: 2, tariff:  7, infra:  6, costIndex: 30,
-    mfgCapacity: 65, exportInfra: 65, supplierDensity: 60, leadTimeReliability: 68,
-    sourcing: { technology: 55, textiles: 85, generalMfg: 65, consumerGoods: 62, automotive: 20, pharma: 15 } },
+  { name: 'Mexico',         lat:  23.6, lng:-102.6, risk: 42, shipping: 4, labor: 3, tariff:  2, infra:  7, costIndex: 25,
+    mfgCapacity: 78, exportInfra: 80, supplierDensity: 72, leadTimeReliability: 70,
+    sourcing: { technology: 35, textiles: 30, generalMfg: 78, consumerGoods: 45, automotive: 88, pharma: 15 } },
   { name: 'Romania',        lat:  45.9, lng:  24.9, risk: 22, shipping: 5, labor: 4, tariff:  3, infra:  7, costIndex: 26,
     mfgCapacity: 40, exportInfra: 50, supplierDensity: 35, leadTimeReliability: 65,
     sourcing: { technology: 20, textiles: 30, generalMfg: 35, consumerGoods: 25, automotive: 50, pharma: 20 } },
@@ -1479,212 +378,163 @@ var COUNTRY_DATA = [
     mfgCapacity: 45, exportInfra: 55, supplierDensity: 40, leadTimeReliability: 70,
     sourcing: { technology: 20, textiles: 15, generalMfg: 38, consumerGoods: 25, automotive: 65, pharma: 30 } },
   { name: 'South Korea',    lat:  35.9, lng: 127.8, risk: 28, shipping: 7, labor: 6, tariff:  3, infra:  9, costIndex: 35,
-    mfgCapacity: 82, exportInfra: 88, supplierDensity: 80, leadTimeReliability: 82,
-    sourcing: { technology: 88, textiles: 15, generalMfg: 70, consumerGoods: 60, automotive: 80, pharma: 30 } },
-  { name: 'Chile',          lat: -35.7, lng: -71.5, risk: 27, shipping: 7, labor: 5, tariff:  8, infra:  7, costIndex: 38,
-    mfgCapacity: 20, exportInfra: 35, supplierDensity: 15, leadTimeReliability: 55,
-    sourcing: { technology: 8,  textiles: 8,  generalMfg: 15, consumerGoods: 10, automotive: 5,  pharma: 8  } },
-  { name: 'Poland',         lat:  51.9, lng:  19.1, risk: 18, shipping: 5, labor: 4, tariff:  3, infra:  7, costIndex: 26,
-    mfgCapacity: 55, exportInfra: 65, supplierDensity: 50, leadTimeReliability: 72,
-    sourcing: { technology: 30, textiles: 20, generalMfg: 55, consumerGoods: 35, automotive: 70, pharma: 35 } },
-  { name: 'Japan',          lat:  36.2, lng: 138.3, risk: 22, shipping: 7, labor: 7, tariff:  2, infra:  9, costIndex: 38,
-    mfgCapacity: 85, exportInfra: 88, supplierDensity: 82, leadTimeReliability: 88,
-    sourcing: { technology: 88, textiles: 10, generalMfg: 75, consumerGoods: 60, automotive: 92, pharma: 35 } },
+    mfgCapacity: 85, exportInfra: 90, supplierDensity: 82, leadTimeReliability: 88,
+    sourcing: { technology: 88, textiles: 10, generalMfg: 70, consumerGoods: 55, automotive: 80, pharma: 30 } },
+  { name: 'Taiwan',         lat:  23.7, lng: 120.9, risk: 45, shipping: 7, labor: 6, tariff:  5, infra:  9, costIndex: 30,
+    mfgCapacity: 82, exportInfra: 88, supplierDensity: 80, leadTimeReliability: 85,
+    sourcing: { technology: 95, textiles: 10, generalMfg: 55, consumerGoods: 40, automotive: 25, pharma: 20 } },
   { name: 'Czech Republic', lat:  49.8, lng:  15.5, risk: 16, shipping: 5, labor: 5, tariff:  3, infra:  8, costIndex: 26,
     mfgCapacity: 55, exportInfra: 65, supplierDensity: 48, leadTimeReliability: 75,
     sourcing: { technology: 28, textiles: 12, generalMfg: 50, consumerGoods: 30, automotive: 72, pharma: 30 } },
   { name: 'United States',  lat:  37.1, lng: -95.7, risk: 18, shipping: 4, labor: 9, tariff:  0, infra:  9, costIndex: 45,
-    mfgCapacity: 88, exportInfra: 90, supplierDensity: 85, leadTimeReliability: 85,
-    sourcing: { technology: 75, textiles: 10, generalMfg: 65, consumerGoods: 55, automotive: 70, pharma: 70 } },
-  { name: 'Australia',      lat: -25.3, lng: 133.8, risk: 16, shipping: 8, labor: 8, tariff:  5, infra:  9, costIndex: 48,
-    mfgCapacity: 30, exportInfra: 65, supplierDensity: 25, leadTimeReliability: 78,
-    sourcing: { technology: 15, textiles: 5,  generalMfg: 20, consumerGoods: 15, automotive: 5,  pharma: 15 } },
-  { name: 'France',         lat:  46.2, lng:   2.2, risk: 16, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40,
-    mfgCapacity: 62, exportInfra: 75, supplierDensity: 58, leadTimeReliability: 78,
-    sourcing: { technology: 40, textiles: 15, generalMfg: 50, consumerGoods: 45, automotive: 60, pharma: 55 } },
-  { name: 'Germany',        lat:  51.2, lng:  10.5, risk: 15, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40,
-    mfgCapacity: 88, exportInfra: 90, supplierDensity: 85, leadTimeReliability: 88,
+    mfgCapacity: 80, exportInfra: 88, supplierDensity: 75, leadTimeReliability: 90,
+    sourcing: { technology: 70, textiles: 8,  generalMfg: 65, consumerGoods: 55, automotive: 60, pharma: 70 } },
+  { name: 'Germany',        lat:  51.2, lng:  10.4, risk: 14, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 48,
+    mfgCapacity: 90, exportInfra: 92, supplierDensity: 88, leadTimeReliability: 92,
     sourcing: { technology: 72, textiles: 10, generalMfg: 78, consumerGoods: 55, automotive: 95, pharma: 65 } },
   { name: 'Canada',         lat:  56.1, lng:-106.3, risk: 14, shipping: 5, labor: 8, tariff:  1, infra:  9, costIndex: 40,
     mfgCapacity: 50, exportInfra: 70, supplierDensity: 45, leadTimeReliability: 80,
     sourcing: { technology: 30, textiles: 5,  generalMfg: 40, consumerGoods: 30, automotive: 45, pharma: 40 } },
   { name: 'United Kingdom', lat:  55.4, lng:  -3.4, risk: 14, shipping: 5, labor: 8, tariff:  5, infra:  9, costIndex: 42,
-    mfgCapacity: 55, exportInfra: 75, supplierDensity: 50, leadTimeReliability: 82,
-    sourcing: { technology: 38, textiles: 10, generalMfg: 42, consumerGoods: 35, automotive: 50, pharma: 55 } },
-  { name: 'Netherlands',    lat:  52.1, lng:   5.3, risk: 13, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40,
-    mfgCapacity: 50, exportInfra: 88, supplierDensity: 45, leadTimeReliability: 85,
-    sourcing: { technology: 30, textiles: 8,  generalMfg: 40, consumerGoods: 30, automotive: 30, pharma: 45 } },
-  { name: 'Singapore',      lat:   1.4, lng: 103.8, risk: 12, shipping: 7, labor: 7, tariff:  0, infra: 10, costIndex: 35,
-    mfgCapacity: 50, exportInfra: 95, supplierDensity: 45, leadTimeReliability: 90,
-    sourcing: { technology: 45, textiles: 5,  generalMfg: 38, consumerGoods: 28, automotive: 10, pharma: 30 } },
-  { name: 'Switzerland',    lat:  46.8, lng:   8.2, risk: 11, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45,
-    mfgCapacity: 45, exportInfra: 80, supplierDensity: 42, leadTimeReliability: 90,
-    sourcing: { technology: 30, textiles: 8,  generalMfg: 35, consumerGoods: 30, automotive: 20, pharma: 85 } },
-  // EU Countries
+    mfgCapacity: 55, exportInfra: 72, supplierDensity: 55, leadTimeReliability: 82,
+    sourcing: { technology: 40, textiles: 8,  generalMfg: 45, consumerGoods: 40, automotive: 45, pharma: 60 } },
+  { name: 'Japan',          lat:  36.2, lng: 138.3, risk: 18, shipping: 7, labor: 8, tariff:  3, infra:  9, costIndex: 50,
+    mfgCapacity: 88, exportInfra: 90, supplierDensity: 85, leadTimeReliability: 85,
+    sourcing: { technology: 88, textiles: 10, generalMfg: 75, consumerGoods: 60, automotive: 92, pharma: 35 } },
+  { name: 'Australia',      lat: -25.3, lng: 133.8, risk: 16, shipping: 8, labor: 8, tariff:  5, infra:  9, costIndex: 48,
+    mfgCapacity: 30, exportInfra: 65, supplierDensity: 25, leadTimeReliability: 78,
+    sourcing: { technology: 15, textiles: 5,  generalMfg: 20, consumerGoods: 15, automotive: 5,  pharma: 15 } },
+  { name: 'Malaysia',       lat:   4.2, lng: 101.9, risk: 28, shipping: 7, labor: 3, tariff:  5, infra:  7, costIndex: 24,
+    mfgCapacity: 60, exportInfra: 68, supplierDensity: 55, leadTimeReliability: 72,
+    sourcing: { technology: 60, textiles: 15, generalMfg: 50, consumerGoods: 40, automotive: 25, pharma: 15 } },
+  { name: 'Philippines',    lat:  12.9, lng: 121.8, risk: 40, shipping: 7, labor: 2, tariff: 10, infra:  5, costIndex: 28,
+    mfgCapacity: 40, exportInfra: 45, supplierDensity: 35, leadTimeReliability: 55,
+    sourcing: { technology: 35, textiles: 15, generalMfg: 30, consumerGoods: 25, automotive: 10, pharma: 8  } },
+  { name: 'Singapore',      lat:   1.4, lng: 103.8, risk: 10, shipping: 6, labor: 9, tariff:  0, infra: 10, costIndex: 55,
+    mfgCapacity: 35, exportInfra: 95, supplierDensity: 30, leadTimeReliability: 95,
+    sourcing: { technology: 50, textiles: 2,  generalMfg: 25, consumerGoods: 15, automotive: 5,  pharma: 40 } },
   { name: 'Austria',        lat:  47.5, lng:  14.6, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 42,
     mfgCapacity: 48, exportInfra: 70, supplierDensity: 42, leadTimeReliability: 82,
     sourcing: { technology: 25, textiles: 8,  generalMfg: 40, consumerGoods: 30, automotive: 45, pharma: 35 } },
   { name: 'Belgium',        lat:  50.5, lng:   4.5, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 42,
-    mfgCapacity: 48, exportInfra: 78, supplierDensity: 42, leadTimeReliability: 82,
-    sourcing: { technology: 22, textiles: 10, generalMfg: 38, consumerGoods: 28, automotive: 35, pharma: 45 } },
-  { name: 'Bulgaria',       lat:  42.7, lng:  25.5, risk: 22, shipping: 5, labor: 4, tariff:  3, infra:  7, costIndex: 24,
-    mfgCapacity: 35, exportInfra: 45, supplierDensity: 28, leadTimeReliability: 62,
-    sourcing: { technology: 12, textiles: 25, generalMfg: 28, consumerGoods: 18, automotive: 30, pharma: 15 } },
-  { name: 'Croatia',        lat:  45.1, lng:  16.4, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 28,
-    mfgCapacity: 28, exportInfra: 45, supplierDensity: 22, leadTimeReliability: 65,
-    sourcing: { technology: 10, textiles: 12, generalMfg: 22, consumerGoods: 15, automotive: 18, pharma: 12 } },
-  { name: 'Cyprus',         lat:  35.1, lng:  33.4, risk: 20, shipping: 6, labor: 6, tariff:  3, infra:  7, costIndex: 32,
-    mfgCapacity: 15, exportInfra: 40, supplierDensity: 10, leadTimeReliability: 60,
-    sourcing: { technology: 5,  textiles: 5,  generalMfg: 10, consumerGoods: 8,  automotive: 3,  pharma: 8  } },
-  { name: 'Denmark',        lat:  56.3, lng:   9.5, risk: 10, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45,
-    mfgCapacity: 38, exportInfra: 72, supplierDensity: 32, leadTimeReliability: 85,
-    sourcing: { technology: 22, textiles: 5,  generalMfg: 28, consumerGoods: 22, automotive: 15, pharma: 35 } },
-  { name: 'Estonia',        lat:  58.6, lng:  25.0, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  8, costIndex: 28,
-    mfgCapacity: 15, exportInfra: 45, supplierDensity: 12, leadTimeReliability: 72,
-    sourcing: { technology: 10, textiles: 5,  generalMfg: 12, consumerGoods: 8,  automotive: 5,  pharma: 5  } },
-  { name: 'Finland',        lat:  61.9, lng:  25.7, risk: 10, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 42,
-    mfgCapacity: 40, exportInfra: 70, supplierDensity: 35, leadTimeReliability: 85,
-    sourcing: { technology: 28, textiles: 5,  generalMfg: 30, consumerGoods: 22, automotive: 15, pharma: 20 } },
-  { name: 'Greece',         lat:  39.1, lng:  21.8, risk: 25, shipping: 6, labor: 6, tariff:  3, infra:  7, costIndex: 32,
-    mfgCapacity: 25, exportInfra: 55, supplierDensity: 20, leadTimeReliability: 62,
-    sourcing: { technology: 8,  textiles: 12, generalMfg: 18, consumerGoods: 12, automotive: 5,  pharma: 12 } },
-  { name: 'Ireland',        lat:  53.1, lng:  -8.2, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 40,
-    mfgCapacity: 35, exportInfra: 68, supplierDensity: 30, leadTimeReliability: 82,
-    sourcing: { technology: 25, textiles: 5,  generalMfg: 22, consumerGoods: 18, automotive: 10, pharma: 88 } },
-  { name: 'Italy',          lat:  41.9, lng:  12.6, risk: 18, shipping: 5, labor: 7, tariff:  3, infra:  8, costIndex: 38,
-    mfgCapacity: 70, exportInfra: 72, supplierDensity: 65, leadTimeReliability: 72,
-    sourcing: { technology: 30, textiles: 50, generalMfg: 62, consumerGoods: 55, automotive: 65, pharma: 40 } },
-  { name: 'Latvia',         lat:  56.9, lng:  24.6, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 26,
-    mfgCapacity: 15, exportInfra: 45, supplierDensity: 12, leadTimeReliability: 68,
-    sourcing: { technology: 8,  textiles: 8,  generalMfg: 12, consumerGoods: 8,  automotive: 5,  pharma: 5  } },
-  { name: 'Lithuania',      lat:  55.2, lng:  23.9, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 26,
-    mfgCapacity: 18, exportInfra: 45, supplierDensity: 14, leadTimeReliability: 68,
-    sourcing: { technology: 8,  textiles: 8,  generalMfg: 14, consumerGoods: 10, automotive: 5,  pharma: 8  } },
-  { name: 'Luxembourg',     lat:  49.8, lng:   6.1, risk: 10, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45,
-    mfgCapacity: 10, exportInfra: 60, supplierDensity: 8,  leadTimeReliability: 85,
-    sourcing: { technology: 5,  textiles: 2,  generalMfg: 8,  consumerGoods: 5,  automotive: 2,  pharma: 15 } },
-  { name: 'Malta',          lat:  35.9, lng:  14.4, risk: 12, shipping: 6, labor: 6, tariff:  3, infra:  7, costIndex: 32,
-    mfgCapacity: 12, exportInfra: 45, supplierDensity: 10, leadTimeReliability: 68,
-    sourcing: { technology: 5,  textiles: 3,  generalMfg: 8,  consumerGoods: 5,  automotive: 2,  pharma: 10 } },
+    mfgCapacity: 40, exportInfra: 72, supplierDensity: 38, leadTimeReliability: 80,
+    sourcing: { technology: 18, textiles: 8,  generalMfg: 35, consumerGoods: 28, automotive: 35, pharma: 55 } },
+  { name: 'Switzerland',    lat:  46.8, lng:   8.2, risk: 10, shipping: 5, labor: 9, tariff:  3, infra: 10, costIndex: 58,
+    mfgCapacity: 45, exportInfra: 80, supplierDensity: 35, leadTimeReliability: 92,
+    sourcing: { technology: 30, textiles: 8,  generalMfg: 35, consumerGoods: 30, automotive: 20, pharma: 85 } },
   { name: 'Portugal',       lat:  39.4, lng:  -8.2, risk: 15, shipping: 5, labor: 6, tariff:  3, infra:  8, costIndex: 30,
     mfgCapacity: 35, exportInfra: 60, supplierDensity: 28, leadTimeReliability: 72,
     sourcing: { technology: 12, textiles: 25, generalMfg: 28, consumerGoods: 20, automotive: 22, pharma: 18 } },
   { name: 'Slovakia',       lat:  48.7, lng:  19.7, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 24,
-    mfgCapacity: 42, exportInfra: 55, supplierDensity: 35, leadTimeReliability: 72,
-    sourcing: { technology: 15, textiles: 10, generalMfg: 38, consumerGoods: 22, automotive: 68, pharma: 20 } },
-  { name: 'Slovenia',       lat:  46.1, lng:  14.9, risk: 14, shipping: 5, labor: 6, tariff:  3, infra:  8, costIndex: 28,
-    mfgCapacity: 32, exportInfra: 55, supplierDensity: 28, leadTimeReliability: 75,
-    sourcing: { technology: 12, textiles: 8,  generalMfg: 28, consumerGoods: 18, automotive: 35, pharma: 20 } },
-  { name: 'Spain',          lat:  40.5, lng:  -3.7, risk: 16, shipping: 5, labor: 7, tariff:  3, infra:  8, costIndex: 36,
-    mfgCapacity: 58, exportInfra: 72, supplierDensity: 52, leadTimeReliability: 75,
-    sourcing: { technology: 22, textiles: 20, generalMfg: 48, consumerGoods: 38, automotive: 58, pharma: 28 } },
-  { name: 'Sweden',         lat:  60.1, lng:  18.6, risk: 12, shipping: 5, labor: 9, tariff:  3, infra:  9, costIndex: 45,
-    mfgCapacity: 48, exportInfra: 72, supplierDensity: 42, leadTimeReliability: 85,
-    sourcing: { technology: 30, textiles: 5,  generalMfg: 38, consumerGoods: 28, automotive: 42, pharma: 30 } }
+    mfgCapacity: 40, exportInfra: 55, supplierDensity: 35, leadTimeReliability: 70,
+    sourcing: { technology: 15, textiles: 10, generalMfg: 32, consumerGoods: 20, automotive: 68, pharma: 15 } },
+  { name: 'Ireland',        lat:  53.1, lng:  -7.7, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 48,
+    mfgCapacity: 30, exportInfra: 68, supplierDensity: 25, leadTimeReliability: 85,
+    sourcing: { technology: 35, textiles: 3,  generalMfg: 20, consumerGoods: 15, automotive: 8,  pharma: 88 } },
+  { name: 'France',         lat:  46.2, lng:   2.2, risk: 16, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 45,
+    mfgCapacity: 65, exportInfra: 78, supplierDensity: 60, leadTimeReliability: 82,
+    sourcing: { technology: 38, textiles: 15, generalMfg: 48, consumerGoods: 42, automotive: 55, pharma: 50 } },
+  { name: 'Italy',          lat:  41.9, lng:  12.6, risk: 18, shipping: 5, labor: 7, tariff:  3, infra:  8, costIndex: 40,
+    mfgCapacity: 65, exportInfra: 72, supplierDensity: 62, leadTimeReliability: 78,
+    sourcing: { technology: 25, textiles: 55, generalMfg: 55, consumerGoods: 50, automotive: 50, pharma: 40 } },
+  { name: 'Netherlands',    lat:  52.1, lng:   5.3, risk: 12, shipping: 5, labor: 8, tariff:  3, infra: 10, costIndex: 45,
+    mfgCapacity: 40, exportInfra: 90, supplierDensity: 35, leadTimeReliability: 90,
+    sourcing: { technology: 30, textiles: 5,  generalMfg: 30, consumerGoods: 25, automotive: 15, pharma: 35 } },
+  { name: 'Poland',         lat:  51.9, lng:  19.1, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  8, costIndex: 25,
+    mfgCapacity: 55, exportInfra: 62, supplierDensity: 48, leadTimeReliability: 72,
+    sourcing: { technology: 22, textiles: 18, generalMfg: 45, consumerGoods: 30, automotive: 55, pharma: 20 } },
+  { name: 'Morocco',        lat:  31.8, lng:  -7.1, risk: 38, shipping: 5, labor: 2, tariff:  8, infra:  6, costIndex: 22,
+    mfgCapacity: 35, exportInfra: 45, supplierDensity: 28, leadTimeReliability: 55,
+    sourcing: { technology: 10, textiles: 40, generalMfg: 30, consumerGoods: 20, automotive: 35, pharma: 8  } },
+  { name: 'Ethiopia',       lat:   9.1, lng:  40.5, risk: 55, shipping: 8, labor: 1, tariff: 15, infra:  3, costIndex: 42,
+    mfgCapacity: 15, exportInfra: 12, supplierDensity: 10, leadTimeReliability: 30,
+    sourcing: { technology: 2,  textiles: 25, generalMfg: 8,  consumerGoods: 5,  automotive: 1,  pharma: 2  } },
+  { name: 'Sri Lanka',      lat:   7.9, lng:  80.8, risk: 52, shipping: 7, labor: 2, tariff: 10, infra:  5, costIndex: 35,
+    mfgCapacity: 25, exportInfra: 30, supplierDensity: 20, leadTimeReliability: 45,
+    sourcing: { technology: 5,  textiles: 40, generalMfg: 15, consumerGoods: 12, automotive: 3,  pharma: 5  } },
+  { name: 'Bulgaria',       lat:  42.7, lng:  25.5, risk: 22, shipping: 5, labor: 4, tariff:  3, infra:  6, costIndex: 22,
+    mfgCapacity: 30, exportInfra: 42, supplierDensity: 25, leadTimeReliability: 60,
+    sourcing: { technology: 12, textiles: 22, generalMfg: 28, consumerGoods: 18, automotive: 30, pharma: 12 } },
+  { name: 'South Africa',   lat: -30.6, lng:  22.9, risk: 45, shipping: 7, labor: 3, tariff: 10, infra:  6, costIndex: 30,
+    mfgCapacity: 40, exportInfra: 50, supplierDensity: 32, leadTimeReliability: 55,
+    sourcing: { technology: 10, textiles: 12, generalMfg: 25, consumerGoods: 18, automotive: 30, pharma: 15 } },
+  { name: 'Saudi Arabia',   lat:  23.9, lng:  45.1, risk: 32, shipping: 6, labor: 4, tariff:  5, infra:  8, costIndex: 35,
+    mfgCapacity: 20, exportInfra: 65, supplierDensity: 12, leadTimeReliability: 70,
+    sourcing: { technology: 8,  textiles: 3,  generalMfg: 15, consumerGoods: 10, automotive: 5,  pharma: 10 } },
+  { name: 'Egypt',          lat:  26.8, lng:  30.8, risk: 52, shipping: 5, labor: 2, tariff: 15, infra:  5, costIndex: 38,
+    mfgCapacity: 30, exportInfra: 38, supplierDensity: 22, leadTimeReliability: 45,
+    sourcing: { technology: 5,  textiles: 30, generalMfg: 20, consumerGoods: 15, automotive: 10, pharma: 8  } },
+  { name: 'Argentina',      lat: -38.4, lng: -63.6, risk: 55, shipping: 6, labor: 4, tariff: 20, infra:  6, costIndex: 45,
+    mfgCapacity: 35, exportInfra: 40, supplierDensity: 28, leadTimeReliability: 45,
+    sourcing: { technology: 10, textiles: 12, generalMfg: 25, consumerGoods: 18, automotive: 25, pharma: 18 } },
+  { name: 'Chile',          lat: -35.7, lng: -71.5, risk: 25, shipping: 6, labor: 5, tariff:  5, infra:  7, costIndex: 32,
+    mfgCapacity: 25, exportInfra: 55, supplierDensity: 18, leadTimeReliability: 65,
+    sourcing: { technology: 8,  textiles: 5,  generalMfg: 15, consumerGoods: 10, automotive: 5,  pharma: 10 } }
 ];
 
-var ALL_COUNTRIES = [
-  'Afghanistan','Albania','Algeria','Angola','Argentina','Armenia','Australia','Austria','Azerbaijan',
-  'Bangladesh','Belarus','Belgium','Bolivia','Bosnia','Brazil','Bulgaria',
-  'Cambodia','Cameroon','Canada','Chile','China','Colombia','Congo','Costa Rica','Croatia','Cuba','Cyprus','Czech Republic',
-  'Denmark','Dominican Republic',
-  'Ecuador','Egypt','El Salvador','Estonia','Ethiopia',
-  'Finland','France',
-  'Germany','Ghana','Greece','Guatemala',
-  'Honduras','Hungary',
-  'India','Indonesia','Iran','Iraq','Ireland','Israel','Italy',
-  'Japan','Jordan',
-  'Kazakhstan','Kenya',
-  'Laos','Latvia','Lebanon','Lithuania','Luxembourg',
-  'Malaysia','Malta','Mexico','Moldova','Morocco','Mozambique','Myanmar',
-  'Nepal','Netherlands','New Zealand','Nicaragua','Nigeria','North Korea','North Macedonia','Norway',
-  'Oman',
-  'Pakistan','Panama','Paraguay','Peru','Philippines','Poland','Portugal',
-  'Qatar',
-  'Romania','Russia',
-  'Saudi Arabia','Senegal','Serbia','Singapore','Slovakia','Slovenia','South Africa','South Korea',
-  'South Sudan','Spain','Sri Lanka','Sudan','Sweden','Switzerland','Syria',
-  'Taiwan','Tanzania','Thailand','Tunisia','Turkey','Turkmenistan',
-  'Uganda','Ukraine','United Arab Emirates','United Kingdom','United States','Uruguay','Uzbekistan',
-  'Venezuela','Vietnam',
-  'Yemen','Zambia','Zimbabwe'
-];
-
-var SOURCING_COUNTRIES = [
-  'China','Vietnam','India','Bangladesh','Indonesia','Mexico','Thailand','Malaysia',
-  'Cambodia','Philippines','Pakistan','Turkey','Brazil','South Korea','Japan','Taiwan',
-  'Germany','Poland','Romania','Morocco','Ethiopia','Sri Lanka','Honduras','Guatemala','Myanmar',
-  'Italy','Portugal','Czech Republic','Bulgaria','Hungary','Slovakia'
-];
-
-var COUNTRY_COORDS = (function() {
-  var coords = {};
-  for (var i = 0; i < COUNTRY_DATA.length; i++) {
-    coords[COUNTRY_DATA[i].name] = [COUNTRY_DATA[i].lat, COUNTRY_DATA[i].lng];
-  }
-  var extra = { 'United Arab Emirates': [23.4, 53.8] };
-  for (var k in extra) { if (!coords[k]) coords[k] = extra[k]; }
-  return coords;
-})();
-
-// O(1) country lookup map
+// ============================================================
+// DERIVED LOOKUPS (O(1) access)
+// ============================================================
 var COUNTRY_MAP = (function() {
   var m = {};
-  for (var i = 0; i < COUNTRY_DATA.length; i++) { m[COUNTRY_DATA[i].name] = COUNTRY_DATA[i]; }
+  for (var i = 0; i < COUNTRY_DATA.length; i++) {
+    m[COUNTRY_DATA[i].name] = COUNTRY_DATA[i];
+  }
   return m;
 })();
 
+// ============================================================
+// LAYER CONFIGURATION
+// ============================================================
 var LAYER_CONFIG = {
   risk: {
     name: 'Risk Levels',
     sub: 'Geopolitical & operational risk by country',
     legendTitle: 'Risk Score',
     items: [
-      { color: '#ff0040', label: 'Critical (80\u2013100)' },
-      { color: '#ff8c00', label: 'High (60\u201379)' },
-      { color: '#f5c518', label: 'Medium-High (45\u201359)' },
-      { color: '#8bc34a', label: 'Medium (30\u201344)' },
-      { color: '#00e676', label: 'Low-Medium (15\u201329)' },
-      { color: '#00bcd4', label: 'Low (0\u201314)' }
+      { color: '#ff0040', label: 'Critical (80–100)' },
+      { color: '#ff8c00', label: 'High (60–79)' },
+      { color: '#f5c518', label: 'Medium-High (45–59)' },
+      { color: '#8bc34a', label: 'Medium (30–44)' },
+      { color: '#00e676', label: 'Low-Medium (15–29)' },
+      { color: '#00bcd4', label: 'Low (0–14)' }
     ]
   },
   shipping: {
     name: 'Shipping Cost',
-    sub: 'Relative shipping cost index by country',
+    sub: 'Relative container shipping cost index',
     legendTitle: 'Shipping Cost',
     items: [
-      { color: '#ff0040', label: 'Very High (9\u201310)' },
-      { color: '#ff8c00', label: 'High (7\u20138)' },
-      { color: '#f5c518', label: 'Medium-High (5\u20136)' },
-      { color: '#8bc34a', label: 'Medium (3\u20134)' },
-      { color: '#00e676', label: 'Low-Medium (2)' },
-      { color: '#00bcd4', label: 'Low (0\u20131)' }
+      { color: '#ff0040', label: 'Very High (9–10)' },
+      { color: '#ff8c00', label: 'High (7–8)' },
+      { color: '#f5c518', label: 'Moderate (5–6)' },
+      { color: '#00e676', label: 'Low (3–4)' },
+      { color: '#00bcd4', label: 'Very Low (1–2)' }
     ]
   },
   labor: {
     name: 'Labor Cost',
-    sub: 'Relative labor cost index by country',
+    sub: 'Relative labor cost index',
     legendTitle: 'Labor Cost',
     items: [
-      { color: '#ff0040', label: 'Very High (9\u201310)' },
-      { color: '#ff8c00', label: 'High (7\u20138)' },
-      { color: '#f5c518', label: 'Medium-High (5\u20136)' },
-      { color: '#8bc34a', label: 'Medium (3\u20134)' },
-      { color: '#00e676', label: 'Low-Medium (2)' },
-      { color: '#00bcd4', label: 'Low (0\u20131)' }
+      { color: '#ff0040', label: 'Very High (9–10)' },
+      { color: '#ff8c00', label: 'High (7–8)' },
+      { color: '#f5c518', label: 'Moderate (5–6)' },
+      { color: '#00e676', label: 'Low (3–4)' },
+      { color: '#00bcd4', label: 'Very Low (1–2)' }
     ]
   },
   cost: {
-    name: 'Total Score',
-    sub: 'Combined cost & risk index by country',
-    legendTitle: 'Total Score',
+    name: 'Total Cost Index',
+    sub: 'Combined tariff, shipping, labor & infrastructure cost',
+    legendTitle: 'Cost Index',
     items: [
-      { color: '#ff0040', label: 'Very High (80\u2013100)' },
-      { color: '#ff8c00', label: 'High (60\u201379)' },
-      { color: '#f5c518', label: 'Medium-High (45\u201359)' },
-      { color: '#8bc34a', label: 'Medium (30\u201344)' },
-      { color: '#00e676', label: 'Low-Medium (15\u201329)' },
-      { color: '#00bcd4', label: 'Low (0\u201314)' }
+      { color: '#ff0040', label: 'Very High (70–100)' },
+      { color: '#ff8c00', label: 'High (50–69)' },
+      { color: '#f5c518', label: 'Moderate (35–49)' },
+      { color: '#8bc34a', label: 'Below Average (25–34)' },
+      { color: '#00e676', label: 'Low (15–24)' },
+      { color: '#00bcd4', label: 'Very Low (0–14)' }
     ]
   },
   sourcing: {
@@ -1692,12 +542,12 @@ var LAYER_CONFIG = {
     sub: 'How attractive each country is as a sourcing destination',
     legendTitle: 'Sourcing Attractiveness',
     items: [
-      { color: '#00bcd4', label: 'Top Tier (80\u2013100)' },
-      { color: '#00e676', label: 'Strong (60\u201379)' },
-      { color: '#8bc34a', label: 'Good (40\u201359)' },
-      { color: '#f5c518', label: 'Moderate (20\u201339)' },
-      { color: '#ff8c00', label: 'Limited (10\u201319)' },
-      { color: '#ff0040', label: 'Minimal (0\u20139)' }
+      { color: '#00bcd4', label: 'Top Tier (80–100)' },
+      { color: '#00e676', label: 'Strong (60–79)' },
+      { color: '#8bc34a', label: 'Good (40–59)' },
+      { color: '#f5c518', label: 'Moderate (20–39)' },
+      { color: '#ff8c00', label: 'Limited (10–19)' },
+      { color: '#ff0040', label: 'Minimal (0–9)' }
     ]
   }
 };
@@ -1714,9 +564,6 @@ function getRiskColor(score) {
   return '#00bcd4';
 }
 
-function getCostColor(score) { return getRiskColor(score); }
-
-// For sourcing: high score = better (green), low = worse (red) — inverted from risk
 function getSourcingColor(score) {
   if (score >= 80) return '#00bcd4';
   if (score >= 60) return '#00e676';
@@ -1726,15 +573,22 @@ function getSourcingColor(score) {
   return '#ff0040';
 }
 
+function getRiskLabel(score) {
+  if (score >= 80) return 'CRITICAL';
+  if (score >= 60) return 'HIGH';
+  if (score >= 45) return 'MEDIUM-HIGH';
+  if (score >= 30) return 'MEDIUM';
+  if (score >= 15) return 'LOW-MEDIUM';
+  return 'LOW';
+}
+
 function getScoreForLayer(country, layer) {
-  if (layer === 'risk')     return country.risk;
   if (layer === 'shipping') return country.shipping * 10;
   if (layer === 'labor')    return country.labor * 10;
   if (layer === 'cost')     return country.costIndex;
   if (layer === 'sourcing') {
     var s = country.sourcing;
-    if (!s) return 0;
-    return s[currentCategory] || 0;
+    return s ? (s[currentCategory] || 0) : 0;
   }
   return country.risk;
 }
@@ -1744,1139 +598,23 @@ function getColorForLayer(score, layer) {
   return getRiskColor(score);
 }
 
-function getDotRadius(country) {
-  var cap = country.mfgCapacity || 10;
-  return 5 + (cap / 100) * 7;
-}
-
 function getCountryDotSize(name) {
   var tier1 = ['China', 'United States', 'Germany', 'Japan', 'South Korea'];
-  var tier2 = ['France', 'Italy', 'United Kingdom', 'Netherlands', 'Canada', 'Mexico', 'India', 'Vietnam', 'Taiwan', 'Singapore', 'Brazil', 'Russia'];
-
+  var tier2 = ['France', 'Italy', 'United Kingdom', 'Netherlands', 'Canada', 'Mexico',
+               'India', 'Vietnam', 'Taiwan', 'Singapore', 'Brazil', 'Russia'];
   if (tier1.indexOf(name) !== -1) return 8;
   if (tier2.indexOf(name) !== -1) return 6;
-  // Medium countries
-  var tier3 = ['Australia', 'Spain', 'Belgium', 'Switzerland', 'Poland', 'Thailand', 'Malaysia', 'Indonesia', 'Turkey', 'Saudi Arabia', 'UAE', 'Sweden', 'Austria', 'Bangladesh', 'Pakistan', 'Egypt', 'South Africa', 'Nigeria', 'Argentina', 'Chile', 'Colombia', 'Czech Republic', 'Romania', 'Philippines', 'Israel'];
-  if (tier3.indexOf(name) !== -1) return 4.5;
-  // All remaining small countries
-  return 3;
-}
-
-function getRiskLabel(score) {
-  if (score >= 80) return 'Critical';
-  if (score >= 60) return 'High';
-  if (score >= 45) return 'Medium-High';
-  if (score >= 30) return 'Medium';
-  if (score >= 15) return 'Low-Medium';
-  return 'Low';
-}
-
-function getSourcingLabel(score) {
-  if (score >= 80) return 'Top Tier';
-  if (score >= 60) return 'Strong';
-  if (score >= 40) return 'Good';
-  if (score >= 20) return 'Moderate';
-  if (score >= 10) return 'Limited';
-  return 'Minimal';
-}
-
-var CATEGORY_LABELS = {
-  technology:   'Technology',
-  textiles:     'Textiles/Apparel',
-  generalMfg:   'General Manufacturing',
-  consumerGoods:'Consumer Goods',
-  automotive:   'Automotive',
-  pharma:       'Pharmaceuticals'
-};
-
-function getTopIndustries(country) {
-  if (!country.sourcing) return [];
-  var keys = Object.keys(country.sourcing);
-  var pairs = keys.map(function(k) { return { key: k, val: country.sourcing[k] }; });
-  pairs.sort(function(a, b) { return b.val - a.val; });
-  return pairs.slice(0, 3).map(function(p) { return CATEGORY_LABELS[p.key] || p.key; });
-}
-
-function getCountryInsight(country) {
-  var name = country.name;
-  var s = country.sourcing || {};
-  // Pick insight based on top category
-  if (s.technology >= 85)   return name + ': World-class tech ecosystem, unmatched component supply chain depth.';
-  if (s.pharma >= 85)       return name + ': Global pharmaceuticals leader, dominant in generic drug manufacturing.';
-  if (s.automotive >= 85)   return name + ': Premier automotive manufacturing hub, deep OEM supplier network.';
-  if (s.textiles >= 75)     return name + ': Cost-competitive textile & apparel leader, large export capacity.';
-  if (s.technology >= 60)   return name + ': Maturing tech sector, growing electronics and semiconductor presence.';
-  if (s.generalMfg >= 70)   return name + ': Versatile general manufacturing base, strong export infrastructure.';
-  if (s.automotive >= 60)   return name + ': Strong automotive cluster, proximity advantage for major markets.';
-  if (s.consumerGoods >= 55) return name + ': Reliable consumer goods production, established trade corridors.';
-  if (s.textiles >= 50)     return name + ': Competitive apparel sector, lower-cost alternative for soft goods.';
-  if (country.risk >= 80)   return name + ': Extreme risk environment limits commercial sourcing viability.';
-  if (country.mfgCapacity <= 15) return name + ': Limited manufacturing capacity; niche sourcing only.';
-  return name + ': Moderate sourcing potential with specific category opportunities.';
-}
-
-function getCountryAnalysis(country) {
-  if (country.risk >= 80) return 'Extreme risk zone. Sanctions, active conflicts, or severe political instability make sourcing highly inadvisable without specialist oversight.';
-  if (country.risk >= 60) return 'Elevated risk. Monitor closely for political instability, labor disputes, currency volatility, and sudden regulatory changes.';
-  if (country.risk >= 45) return 'Moderate risk with cost advantages. Implement contingency planning, dual-sourcing strategies, and regular supplier audits.';
-  if (country.risk >= 30) return 'Acceptable risk profile. Good balance of cost competitiveness and operational stability for active sourcing.';
-  if (country.risk >= 15) return 'Low-risk, stable environment. Strong infrastructure and reliable trade relationships support consistent supply chains.';
-  return 'Excellent stability and world-class infrastructure. Premium sourcing destination with minimal supply chain disruption risk.';
+  return 5;
 }
 
 // ============================================================
-// MAP INITIALIZATION
+// POPUP BUILDER
 // ============================================================
-function initMap() {
-  if (typeof L === 'undefined') return;
-  if (map) { map.remove(); map = null; }
-
-  // Show skeleton until tiles load
-  var skeleton = document.getElementById('mapSkeleton');
-  if (skeleton) skeleton.style.display = 'block';
-
-  map = L.map('map', {
-    center: [20, 0],
-    zoom: 2,
-    zoomControl: false,
-    attributionControl: true
-  });
-  var tileLayer = L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
-    attribution: '© CartoDB © OpenStreetMap',
-    maxZoom: 19
-  }).addTo(map);
-
-  tileLayer.on('load', function() {
-    if (skeleton) skeleton.style.display = 'none';
-  });
-
-  // Re-render visible markers after pan/zoom
-  map.on('moveend', onMapMoveEnd);
-
-  renderMarkers();
-  drawTradeLines();
-}
-
-// ============================================================
-// RENDER MARKERS
-// ============================================================
-function renderMarkers() {
-  if (!map || typeof L === 'undefined') return;
-  for (var key in countryMarkers) { map.removeLayer(countryMarkers[key]); }
-  countryMarkers = {};
-  for (var r = 0; r < pulseRingMarkers.length; r++) { map.removeLayer(pulseRingMarkers[r]); }
-  pulseRingMarkers = [];
-
-  var bounds = map.getBounds();
-  var paddedBounds = bounds.pad(0.3); // compute once, reuse for all markers
-
-  for (var i = 0; i < COUNTRY_DATA.length; i++) {
-    (function(country, idx) {
-      // Viewport culling — skip if outside current view (with padding)
-      var latLng = L.latLng(country.lat, country.lng);
-      if (!paddedBounds.contains(latLng)) return;
-
-      var score  = getScoreForLayer(country, currentLayer);
-      var color  = getColorForLayer(score, currentLayer);
-      var radius = getCountryDotSize(country.name);
-      var size   = Math.round(radius * 2);
-      var isPulsing = currentLayer !== 'sourcing' ? (score >= 60) : (score <= 20);
-      var pulseHtml = isPulsing ? '<div class="marker-pulse" style="width:' + size + 'px;height:' + size + 'px;background:' + color + ';"></div>' : '';
-
-      // Compare mode ring
-      var compareRing = '';
-      if (compareMode && compareCountries.indexOf(country.name) > -1) {
-        compareRing = '<div class="marker-compare-ring" style="width:' + (size + 8) + 'px;height:' + (size + 8) + 'px;top:' + (-4) + 'px;left:' + (-4) + 'px;"></div>';
-      }
-      // Search highlight ring
-      var searchRing = '';
-      if (searchHighlight === country.name) {
-        searchRing = '<div class="marker-search-ring" style="width:' + (size + 10) + 'px;height:' + (size + 10) + 'px;top:' + (-5) + 'px;left:' + (-5) + 'px;"></div>';
-      }
-
-      var icon = L.divIcon({
-        html: '<div class="map-marker" style="width:' + size + 'px;height:' + size + 'px;">' +
-              compareRing + searchRing + pulseHtml +
-              '<div class="marker-dot" style="width:' + size + 'px;height:' + size + 'px;background:' + color + '; box-shadow:0 0 8px 0 ' + color + '66;border-radius:50%;position:absolute;"></div></div>',
-        className: '', iconSize: [size, size], iconAnchor: [Math.round(size/2), Math.round(size/2)]
-      });
-      var marker = L.marker([country.lat, country.lng], { icon: icon });
-
-      var popupHtml = buildCountryPopupHTML(country);
-      marker.bindPopup(popupHtml, { maxWidth: 290 });
-      countryMarkers[country.name] = marker;
-      marker.addTo(map);
-
-
-    })(COUNTRY_DATA[i], i);
-  }
-}
-
 function buildCountryPopupHTML(country) {
-  var riskColor  = getRiskColor(country.risk);
-  var riskLabel  = getRiskLabel(country.risk);
-  var analysis   = getCountryAnalysis(country);
-  var topInds    = getTopIndustries(country);
-  var insight    = getCountryInsight(country);
-  var srcScore   = (country.sourcing && country.sourcing[currentCategory]) || 0;
-  var srcColor   = getSourcingColor(srcScore);
-
-  var topIndsHtml = '';
-  for (var t = 0; t < topInds.length; t++) {
-    topIndsHtml += '<span class="popup-industry-tag">' + topInds[t] + '</span>';
-  }
+  var riskColor = getRiskColor(country.risk);
+  var riskLabel = getRiskLabel(country.risk);
+  var srcScore  = (country.sourcing && country.sourcing[currentCategory]) || 0;
+  var srcColor  = getSourcingColor(srcScore);
 
   return '<div class="popup-inner">' +
-    '<div class="popup-header">' +
-      '<span class="popup-country">' + country.name + '</span>' +
-      '<span class="popup-risk-badge" style="background:' + riskColor + '22;color:' + riskColor + ';border:1px solid ' + riskColor + '55;">' + riskLabel + '</span>' +
-    '</div>' +
-    '<div class="popup-scores-row">' +
-      '<div class="popup-score-block">' +
-        '<div class="popup-score-label">Risk Score</div>' +
-        '<div class="popup-score-value" style="color:' + riskColor + ';">' + country.risk + '</div>' +
-      '</div>' +
-      '<div class="popup-score-block">' +
-        '<div class="popup-score-label">Sourcing</div>' +
-        '<div class="popup-score-value" style="color:' + srcColor + ';">' + srcScore + '</div>' +
-      '</div>' +
-      '<div class="popup-score-block">' +
-        '<div class="popup-score-label">Mfg Scale</div>' +
-        '<div class="popup-score-value" style="color:#aaa;">' + (country.mfgCapacity || 0) + '</div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="popup-stats">' +
-      '<div class="popup-stat"><span class="popup-stat-label">Tariff Rate</span><span class="popup-stat-value">' + country.tariff + '%</span></div>' +
-      '<div class="popup-stat"><span class="popup-stat-label">Shipping</span><span class="popup-stat-value">' + country.shipping + ' / 10</span></div>' +
-      '<div class="popup-stat"><span class="popup-stat-label">Labor Cost</span><span class="popup-stat-value">' + country.labor + ' / 10</span></div>' +
-    '</div>' +
-    (topInds.length ? '<div class="popup-industries"><div class="popup-ind-label">Top Industries</div><div class="popup-ind-tags">' + topIndsHtml + '</div></div>' : '') +
-    '<div class="popup-insight">' + insight + '</div>' +
-    '<div class="popup-analysis">' + analysis + '</div>' +
-    '<div class="popup-actions">' +
-      '<button class="popup-deepdive-btn" onclick="deepDiveCountry(' + JSON.stringify(country.name) + ')">' +
-        'Deep Dive Analysis' +
-      '</button>' +
-      (compareMode
-        ? '<button class="popup-compare-btn" onclick="toggleCompareCountry(' + JSON.stringify(country.name) + ')">' +
-          (compareCountries.indexOf(country.name) > -1 ? 'Remove' : 'Add to Compare') +
-          '</button>'
-        : '') +
-    '</div>' +
-    '</div>';
-}
-
-// ============================================================
-// GEOJSON COUNTRY BOUNDARY CLICK LAYER
-// ============================================================
-var geoJsonLayer = null;
-
-// Map GeoJSON country names → COUNTRY_DATA names
-var GEO_NAME_MAP = {
-  'United States of America':'USA','United Kingdom':'UK',
-  'United Arab Emirates':'UAE','Korea, Republic of':'South Korea',
-  'Republic of Korea':'South Korea',
-  "Korea, Democratic People's Republic of":'North Korea',
-  "Dem. People's Rep. Korea":'North Korea',
-  'Czech Republic':'Czech Republic','Czechia':'Czech Republic',
-  'Russian Federation':'Russia','Iran (Islamic Republic of)':'Iran',
-  'Iran, Islamic Republic of':'Iran',
-  'Syrian Arab Republic':'Syria','Viet Nam':'Vietnam',
-  'Republic of the Congo':'Congo','Democratic Republic of the Congo':'Congo',
-  'Tanzania, United Republic of':'Tanzania',
-  'Venezuela, Bolivarian Republic of':'Venezuela',
-  'Venezuela (Bolivarian Republic of)':'Venezuela',
-  'Bolivia, Plurinational State of':'Bolivia',
-  'Bolivia (Plurinational State of)':'Bolivia',
-  'Myanmar':'Myanmar','Burma':'Myanmar',
-  "Lao People's Democratic Republic":'Laos',
-  'Dominican Republic':'Dominican Republic',
-  'Republic of China':'Taiwan','Taiwan, Province of China':'Taiwan',
-  'Palestine, State of':'Palestine',
-  'Macedonia':'North Macedonia','Republic of North Macedonia':'North Macedonia',
-  'Ivory Coast':"Cote d'Ivoire",'Eswatini':'Swaziland',
-  'Türkiye':'Turkey','Turkiye':'Turkey'
-};
-
-function loadCountryBoundaries() {
-  if (!map || typeof L === 'undefined') return;
-
-  fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      geoJsonLayer = L.geoJSON(data, {
-        style: function() {
-          return {
-            fillOpacity: 0,
-            weight: 0,
-            color: 'transparent',
-            fillColor: 'transparent'
-          };
-        },
-        onEachFeature: function(feature, layer) {
-          var geoName = feature.properties.ADMIN || feature.properties.name || '';
-          var mapped = GEO_NAME_MAP[geoName] || geoName;
-
-          // Find matching country in COUNTRY_DATA
-          var match = null;
-          for (var i = 0; i < COUNTRY_DATA.length; i++) {
-            if (COUNTRY_DATA[i].name === mapped) {
-              match = COUNTRY_DATA[i];
-              break;
-            }
-          }
-          if (!match) return;
-
-          layer.on('click', function(evt) {
-            console.log('GeoJSON clicked:', feature.properties);
-            // Bypass the marker entirely to avoid layerPointToContainerPoint null crashes.
-            // Build the popup inline and anchor it precisely to the GeoJSON click coordinate.
-            map.setView([match.lat, match.lng], map.getZoom(), { animate: true });
-            L.popup({ maxWidth: 290 })
-              .setLatLng(evt.latlng)
-              .setContent(buildCountryPopupHTML(match))
-              .openOn(map);
-          });
-
-          layer.on('mouseover', function() {
-            layer.setStyle({ fillOpacity: 0.08, fillColor: '#7DF9C2', weight: 1, color: 'rgba(125,249,194,0.2)' });
-          });
-
-          layer.on('mouseout', function() {
-            layer.setStyle({ fillOpacity: 0, weight: 0, color: 'transparent', fillColor: 'transparent' });
-          });
-        }
-      });
-      geoJsonLayer.addTo(map);
-      // Bring dot markers to front so they stay clickable on top
-      for (var key in countryMarkers) {
-        if (countryMarkers[key].bringToFront) countryMarkers[key].bringToFront();
-      }
-    })
-    .catch(function(err) {
-      console.warn('GeoJSON country boundaries failed to load:', err);
-    });
-}
-
-
-// ============================================================
-// UPDATE MAP LAYER
-// ============================================================
-function updateMapLayer(layer) {
-  currentLayer = layer;
-  var layerIds = ['risk', 'shipping', 'labor', 'cost', 'sourcing'];
-  var btnIds   = ['btnRisk', 'btnShipping', 'btnLabor', 'btnCost', 'btnSourcing'];
-  for (var i = 0; i < layerIds.length; i++) {
-    var btn = document.getElementById(btnIds[i]);
-    if (btn) btn.className = 'layer-btn' + (layerIds[i] === layer ? ' active' : '');
-  }
-  // Show/hide category dropdown only for sourcing layer
-  var catWrap = document.getElementById('categoryDropdownWrap');
-  if (catWrap) catWrap.style.display = layer === 'sourcing' ? 'block' : 'none';
-
-  var cfg = LAYER_CONFIG[layer];
-  document.getElementById('overlayName').textContent = cfg.name;
-  document.getElementById('overlaySub').textContent  = cfg.sub;
-  document.getElementById('legendTitle').textContent  = cfg.legendTitle;
-  var items = cfg.items;
-  var html  = '';
-  for (var j = 0; j < items.length; j++) {
-    html += '<div class="legend-item"><div class="legend-swatch" style="background:' + items[j].color + '"></div>' + items[j].label + '</div>';
-  }
-  document.getElementById('legendItems').innerHTML = html;
-  renderMarkers();
-}
-
-function updateCategory(cat) {
-  currentCategory = cat;
-  if (currentLayer === 'sourcing') renderMarkers();
-}
-
-// Viewport-based re-render on map move
-function onMapMoveEnd() {
-  renderMarkers();
-}
-
-// ============================================================
-// TRADE LINES
-// ============================================================
-function drawTradeLines() {
-  if (!map || typeof L === 'undefined') return;
-  for (var i = 0; i < tradeLines.length; i++) { map.removeLayer(tradeLines[i]); }
-  tradeLines = [];
-  if (!appProfile || !appProfile.homeCountry) return;
-  if (!appProfile.sourcingCountries || appProfile.sourcingCountries.length === 0) return;
-  var homeCoords = COUNTRY_COORDS[appProfile.homeCountry];
-  if (!homeCoords) return;
-  for (var j = 0; j < appProfile.sourcingCountries.length; j++) {
-    var dest = appProfile.sourcingCountries[j];
-    var destCoords = COUNTRY_COORDS[dest];
-    if (!destCoords) continue;
-    var line = L.polyline([homeCoords, destCoords], {
-      color: 'rgba(255,255,255,0.35)',
-      weight: 1.5, opacity: 1, dashArray: '5, 8'
-    });
-    line.addTo(map);
-    tradeLines.push(line);
-  }
-}
-
-// ============================================================
-// DEEP DIVE COUNTRY
-// ============================================================
-function deepDiveCountry(countryName) {
-  var prompt = 'Give me a detailed sourcing analysis for ' + countryName + '. ' +
-    'Cover: manufacturing capacity, key export industries, labor costs, political risk, ' +
-    'tariff environment, lead times, and whether it is recommended for sourcing in the ' +
-    CATEGORY_LABELS[currentCategory] + ' sector.';
-  if (chatState === 'expanded') {
-    document.getElementById('chatInputExp').value = prompt;
-    sendMessageFromExpanded();
-  } else {
-    document.getElementById('chatInput').value = prompt;
-    sendMessage();
-  }
-  // Close any open popups
-  if (map) map.closePopup();
-}
-
-// ============================================================
-// COUNTRY SEARCH
-// ============================================================
-function initSearch() {
-  var input = document.getElementById('countrySearch');
-  var suggestions = document.getElementById('searchSuggestions');
-  if (!input || !suggestions) return;
-
-  input.addEventListener('input', function() {
-    var val = input.value.trim().toLowerCase();
-    if (!val) { suggestions.style.display = 'none'; return; }
-    var matches = COUNTRY_DATA.filter(function(c) {
-      return c.name.toLowerCase().indexOf(val) === 0;
-    }).slice(0, 6);
-    if (!matches.length) { suggestions.style.display = 'none'; return; }
-    var html = '';
-    for (var i = 0; i < matches.length; i++) {
-      html += '<div class="search-suggestion" onclick="selectCountry(' + JSON.stringify(matches[i].name) + ')">' + matches[i].name + '</div>';
-    }
-    suggestions.innerHTML = html;
-    suggestions.style.display = 'block';
-  });
-
-  input.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { suggestions.style.display = 'none'; input.value = ''; }
-    if (e.key === 'Enter') {
-      var val = input.value.trim();
-      var match = COUNTRY_DATA.filter(function(c) { return c.name.toLowerCase() === val.toLowerCase(); })[0];
-      if (match) selectCountry(match.name);
-    }
-  });
-
-  document.addEventListener('click', function(e) {
-    if (!input.contains(e.target) && !suggestions.contains(e.target)) {
-      suggestions.style.display = 'none';
-    }
-  });
-}
-
-function selectCountry(name) {
-  var country = COUNTRY_MAP[name];
-  if (!country || !map) return;
-  var input = document.getElementById('countrySearch');
-  var suggestions = document.getElementById('searchSuggestions');
-  if (input) input.value = name;
-  if (suggestions) suggestions.style.display = 'none';
-  map.flyTo([country.lat, country.lng], 5, { duration: 1.2 });
-  searchHighlight = name;
-  renderMarkers();
-  // Open popup after fly
-  setTimeout(function() {
-    if (countryMarkers[name]) countryMarkers[name].openPopup();
-    // Remove highlight after 5 seconds
-    setTimeout(function() {
-      searchHighlight = null;
-      renderMarkers();
-    }, 5000);
-  }, 1400);
-}
-
-// ============================================================
-// COMPARE COUNTRIES
-// ============================================================
-function toggleCompareMode() {
-  compareMode = !compareMode;
-  compareCountries = [];
-  var btn = document.getElementById('compareBtn');
-  if (btn) {
-    btn.textContent = compareMode ? 'Cancel Compare' : 'Compare';
-    btn.className = compareMode ? 'btn-ghost btn-ghost-active' : 'btn-ghost';
-  }
-  var panel = document.getElementById('comparePanel');
-  if (panel) panel.classList.add('hidden');
-  renderMarkers();
-}
-
-function toggleCompareCountry(name) {
-  if (!compareMode) return;
-  var idx = compareCountries.indexOf(name);
-  if (idx > -1) {
-    compareCountries.splice(idx, 1);
-  } else {
-    if (compareCountries.length >= 3) compareCountries.shift();
-    compareCountries.push(name);
-  }
-  renderMarkers();
-  if (compareCountries.length >= 2) showComparePanel();
-}
-
-function showComparePanel() {
-  var panel = document.getElementById('comparePanel');
-  if (!panel) return;
-  var cats = Object.keys(CATEGORY_LABELS);
-  var html = '<div class="compare-header"><span class="compare-title">Country Comparison</span>' +
-    '<button class="compare-close" onclick="closeComparePanel()">Close</button></div>';
-
-  // Header row
-  html += '<div class="compare-table"><div class="compare-row compare-row-header">';
-  html += '<div class="compare-cell compare-label-col">Metric</div>';
-  for (var i = 0; i < compareCountries.length; i++) {
-    html += '<div class="compare-cell compare-country-col">' + compareCountries[i] + '</div>';
-  }
-  html += '</div>';
-
-  // Pre-resolve country objects once using O(1) lookup
-  var cds = compareCountries.map(function(name) { return COUNTRY_MAP[name] || null; });
-
-  // Metrics rows
-  var metrics = [
-    { label: 'Risk Score',   fn: function(c) { return c.risk; } },
-    { label: 'Labor Cost',   fn: function(c) { return c.labor + ' / 10'; } },
-    { label: 'Shipping',     fn: function(c) { return c.shipping + ' / 10'; } },
-    { label: 'Tariff',       fn: function(c) { return c.tariff + '%'; } },
-    { label: 'Mfg Scale',    fn: function(c) { return c.mfgCapacity || 0; } },
-    { label: 'Export Infra', fn: function(c) { return c.exportInfra || 0; } },
-    { label: 'Lead Time',    fn: function(c) { return c.leadTimeReliability || 0; } }
-  ];
-  for (var m = 0; m < metrics.length; m++) {
-    html += '<div class="compare-row"><div class="compare-cell compare-label-col">' + metrics[m].label + '</div>';
-    for (var ci = 0; ci < cds.length; ci++) {
-      html += '<div class="compare-cell compare-country-col">' + (cds[ci] ? metrics[m].fn(cds[ci]) : '—') + '</div>';
-    }
-    html += '</div>';
-  }
-
-  // Sourcing scores header
-  html += '<div class="compare-row compare-row-subheader"><div class="compare-cell compare-label-col">Sourcing Scores</div>';
-  for (var i = 0; i < cds.length; i++) html += '<div class="compare-cell compare-country-col"></div>';
-  html += '</div>';
-
-  for (var k = 0; k < cats.length; k++) {
-    var cat = cats[k];
-    html += '<div class="compare-row"><div class="compare-cell compare-label-col">' + CATEGORY_LABELS[cat] + '</div>';
-    for (var ci = 0; ci < cds.length; ci++) {
-      var val = cds[ci] && cds[ci].sourcing ? (cds[ci].sourcing[cat] || 0) : 0;
-      var col = getSourcingColor(val);
-      html += '<div class="compare-cell compare-country-col" style="color:' + col + ';">' + val + '</div>';
-    }
-    html += '</div>';
-  }
-
-  html += '</div>'; // compare-table
-  panel.innerHTML = html;
-  panel.classList.remove('hidden');
-}
-
-function closeComparePanel() {
-  var panel = document.getElementById('comparePanel');
-  if (panel) panel.classList.add('hidden');
-}
-
-// ============================================================
-// CHAT STATE MANAGEMENT
-// ============================================================
-function updateResumeIndicator() {
-  var bar = document.getElementById('resumeChatBar');
-  if (!bar) return;
-  bar.style.display = (chatState === 'floating' && chatHistory.length > 0) ? 'flex' : 'none';
-}
-
-function expandChatPanel() {
-  if (chatState === 'expanded') return;
-  chatState = 'expanded';
-  if (!hasShownWelcome && appProfile) {
-    hasShownWelcome = true;
-    addWelcomeMessage();
-  }
-  document.getElementById('chatOverlay').classList.add('hidden');
-  document.getElementById('chatExpandedPanel').classList.add('visible');
-  document.getElementById('mapContainer').classList.add('thumbnail');
-  document.getElementById('mapThumbnailOverlay').style.display = 'block';
-  document.getElementById('mapOverlayHeader').classList.add('hidden');
-  document.getElementById('layerControls').classList.add('hidden');
-  document.getElementById('mapLegend').classList.add('hidden');
-  var sb = document.getElementById('searchBarWrap');
-  if (sb) sb.classList.add('hidden');
-  updateResumeIndicator();
-  setTimeout(function() {
-    if (map) map.invalidateSize();
-    var mc = document.getElementById('messagesContainer');
-    mc.scrollTop = mc.scrollHeight;
-    document.getElementById('chatInputExp').focus();
-  }, 420);
-}
-
-function collapseChatPanel() {
-  if (chatState === 'floating') return;
-  chatState = 'floating';
-  document.getElementById('chatExpandedPanel').classList.remove('visible');
-  document.getElementById('chatOverlay').classList.remove('hidden');
-  document.getElementById('mapContainer').classList.remove('thumbnail');
-  document.getElementById('mapThumbnailOverlay').style.display = 'none';
-  document.getElementById('mapOverlayHeader').classList.remove('hidden');
-  document.getElementById('layerControls').classList.remove('hidden');
-  document.getElementById('mapLegend').classList.remove('hidden');
-  var sb = document.getElementById('searchBarWrap');
-  if (sb) sb.classList.remove('hidden');
-  updateResumeIndicator();
-  setTimeout(function() { if (map) map.invalidateSize(); }, 420);
-}
-
-// ============================================================
-// PROFILE MANAGEMENT
-// ============================================================
-function loadProfile() {
-  var stored = localStorage.getItem('riskSimProfile');
-  if (stored) {
-    try { appProfile = JSON.parse(stored); } catch(e) { appProfile = null; }
-  }
-  if (appProfile) { updateProfileUI(); }
-  else {
-    var appSection = document.getElementById('map');
-    if ('IntersectionObserver' in window && appSection) {
-      var welcomeObserver = new IntersectionObserver(function(entries) {
-        if (entries[0].isIntersecting) {
-          welcomeObserver.disconnect();
-          showWelcomeModal();
-        }
-      }, { threshold: 0.1 });
-      welcomeObserver.observe(appSection);
-    } else {
-      var scrollHandler = function() {
-        window.removeEventListener('scroll', scrollHandler);
-        showWelcomeModal();
-      };
-      window.addEventListener('scroll', scrollHandler, { passive: true });
-    }
-  }
-}
-
-function showWelcomeModal() {
-  document.getElementById('welcomeModal').classList.remove('hidden');
-}
-
-function closeModal() {
-  document.getElementById('welcomeModal').classList.add('hidden');
-}
-
-function showEditModal() {
-  if (!appProfile) { showWelcomeModal(); return; }
-  document.getElementById('eBusinessDescription').value = appProfile.businessDescription || '';
-  document.getElementById('eCompanyType').value  = appProfile.companyType  || '';
-  document.getElementById('eHomeCountry').value  = appProfile.homeCountry  || '';
-  document.getElementById('eIndustry').value     = appProfile.industry     || '';
-  document.getElementById('eRevenue').value      = appProfile.revenue      || '';
-  var boxes = document.querySelectorAll('#eSourcingBox input[type="checkbox"]');
-  for (var i = 0; i < boxes.length; i++) {
-    boxes[i].checked = !!(appProfile.sourcingCountries && appProfile.sourcingCountries.indexOf(boxes[i].value) > -1);
-  }
-  document.getElementById('editModal').classList.remove('hidden');
-}
-
-function closeEditModal() {
-  document.getElementById('editModal').classList.add('hidden');
-}
-
-function collectSourcingCountries(containerId) {
-  var selected = [];
-  var boxes = document.querySelectorAll('#' + containerId + ' input[type="checkbox"]:checked');
-  for (var i = 0; i < boxes.length; i++) { selected.push(boxes[i].value); }
-  return selected;
-}
-
-function showFormError(id, msg) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = msg; el.style.display = 'block';
-}
-
-function clearFormError(id) {
-  var el = document.getElementById(id);
-  if (el) el.style.display = 'none';
-}
-
-function saveProfile() {
-  var businessDescription = document.getElementById('wBusinessDescription').value.trim();
-  var companyType = document.getElementById('wCompanyType').value;
-  var homeCountry = document.getElementById('wHomeCountry').value;
-  var industry    = document.getElementById('wIndustry').value;
-  var revenue     = document.getElementById('wRevenue').value;
-  var sourcing    = collectSourcingCountries('wSourcingBox');
-  if (!companyType || !homeCountry || !industry || !revenue) {
-    showFormError('wFormError', 'Please fill in all required fields before continuing.');
-    return;
-  }
-  clearFormError('wFormError');
-  appProfile = { businessDescription: businessDescription, companyType: companyType, homeCountry: homeCountry, industry: industry, revenue: revenue, sourcingCountries: sourcing };
-  localStorage.setItem('riskSimProfile', JSON.stringify(appProfile));
-  closeModal();
-  window.parent.postMessage('risksim-modal-closed', '*');
-  updateProfileUI();
-  drawTradeLines();
-  addWelcomeMessage();
-}
-
-function updateProfile() {
-  var businessDescription = document.getElementById('eBusinessDescription').value.trim();
-  var companyType = document.getElementById('eCompanyType').value;
-  var homeCountry = document.getElementById('eHomeCountry').value;
-  var industry    = document.getElementById('eIndustry').value;
-  var revenue     = document.getElementById('eRevenue').value;
-  var sourcing    = collectSourcingCountries('eSourcingBox');
-  if (!companyType || !homeCountry || !industry || !revenue) {
-    showFormError('eFormError', 'Please fill in all required fields before continuing.');
-    return;
-  }
-  clearFormError('eFormError');
-  appProfile = { businessDescription: businessDescription, companyType: companyType, homeCountry: homeCountry, industry: industry, revenue: revenue, sourcingCountries: sourcing };
-  localStorage.setItem('riskSimProfile', JSON.stringify(appProfile));
-  closeEditModal();
-  updateProfileUI();
-  drawTradeLines();
-}
-
-function updateProfileUI() {
-  if (!appProfile) return;
-  var summary = appProfile.industry + ' \u00B7 ' + appProfile.homeCountry;
-  var subtitleEl = document.getElementById('chatSubtitle');
-  if (subtitleEl) subtitleEl.textContent = summary;
-  var badge = document.getElementById('profileBadge');
-  if (badge) {
-    var shortIndustry = appProfile.industry.split('/')[0];
-    badge.textContent = shortIndustry + ' \u00B7 ' + appProfile.homeCountry;
-    badge.style.display = 'inline-block';
-  }
-}
-
-// ============================================================
-// POPULATE DROPDOWNS
-// ============================================================
-function populateCountryDropdowns() {
-  var base = '<option value="">Select your country\u2026</option>';
-  var opts = base;
-  for (var i = 0; i < ALL_COUNTRIES.length; i++) {
-    opts += '<option value="' + ALL_COUNTRIES[i] + '">' + ALL_COUNTRIES[i] + '</option>';
-  }
-  document.getElementById('wHomeCountry').innerHTML = opts;
-  document.getElementById('eHomeCountry').innerHTML = opts;
-}
-
-function populateSourcingCheckboxes() {
-  var html = '';
-  for (var i = 0; i < SOURCING_COUNTRIES.length; i++) {
-    var c = SOURCING_COUNTRIES[i];
-    html += '<label class="sourcing-label"><input type="checkbox" value="' + c + '">' + c + '</label>';
-  }
-  document.getElementById('wSourcingBox').innerHTML = html;
-  document.getElementById('eSourcingBox').innerHTML = html;
-}
-
-// ============================================================
-// MARKDOWN RENDERER
-// ============================================================
-function applyInlineMarkdown(text) {
-  text = escapeHtml(text);
-  text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  text = text.replace(/\*([^*]+?)\*/g,  '<em>$1</em>');
-  text = text.replace(/`([^`]+?)`/g,    '<code>$1</code>');
-  return text;
-}
-
-function renderMarkdown(text) {
-  var blocks = text.split(/\n{2,}/);
-  var html = '';
-  for (var b = 0; b < blocks.length; b++) {
-    var block = blocks[b].trim();
-    if (!block) continue;
-    var lines = block.split('\n');
-    var firstLine = lines[0];
-
-    if (/^#{1,3} /.test(firstLine)) {
-      for (var l = 0; l < lines.length; l++) {
-        var ln = lines[l].trim();
-        if      (/^### (.+)/.test(ln)) html += '<h3>' + applyInlineMarkdown(ln.replace(/^### /, '')) + '</h3>';
-        else if (/^## (.+)/.test(ln))  html += '<h3>' + applyInlineMarkdown(ln.replace(/^## /,  '')) + '</h3>';
-        else if (/^# (.+)/.test(ln))   html += '<h3>' + applyInlineMarkdown(ln.replace(/^# /,   '')) + '</h3>';
-        else if (ln)                   html += '<p>' + applyInlineMarkdown(ln) + '</p>';
-      }
-      continue;
-    }
-
-    var isList = lines.every(function(ln) {
-      var t = ln.trim();
-      return !t || /^[-*\u2022] /.test(t) || /^\d+\. /.test(t);
-    });
-    if (isList) {
-      html += '<ul>';
-      for (var l = 0; l < lines.length; l++) {
-        var t = lines[l].trim();
-        if (!t) continue;
-        var item = t.replace(/^[-*\u2022] /, '').replace(/^\d+\. /, '');
-        html += '<li>' + applyInlineMarkdown(item) + '</li>';
-      }
-      html += '</ul>';
-      continue;
-    }
-
-    var paraLines = [], listItems = [];
-    var flushPara = function() {
-      if (paraLines.length) { html += '<p>' + applyInlineMarkdown(paraLines.join('<br>')) + '</p>'; paraLines = []; }
-    };
-    var flushList = function() {
-      if (listItems.length) { html += '<ul>' + listItems.join('') + '</ul>'; listItems = []; }
-    };
-    for (var l = 0; l < lines.length; l++) {
-      var ln = lines[l];
-      if (/^#{1,3} /.test(ln)) {
-        flushPara(); flushList();
-        html += '<h3>' + applyInlineMarkdown(ln.replace(/^#{1,3} /, '')) + '</h3>';
-      } else if (/^[-*\u2022] /.test(ln) || /^\d+\. /.test(ln)) {
-        flushPara();
-        var item = ln.replace(/^[-*\u2022] /, '').replace(/^\d+\. /, '');
-        listItems.push('<li>' + applyInlineMarkdown(item) + '</li>');
-      } else {
-        flushList();
-        if (ln.trim()) paraLines.push(ln);
-      }
-    }
-    flushPara(); flushList();
-  }
-  return html || '<p>' + applyInlineMarkdown(text) + '</p>';
-}
-
-// ============================================================
-// CHAT FUNCTIONS
-// ============================================================
-function addWelcomeMessage() {
-  var container = document.getElementById('messagesContainer');
-  container.innerHTML = '';
-  chatHistory = [];
-  if (!appProfile) return;
-  hasShownWelcome = true;
-  var text = 'Hello! I\'m **RiskSim AI**, your supply chain intelligence analyst. Based on your **' +
-    appProfile.industry + '** profile in **' + appProfile.homeCountry + '**, I\'m ready to help you ' +
-    'reduce costs and manage risk. What would you like to analyze today?';
-  // Add directly to DOM without calling addMessage() to avoid triggering expandChatPanel()
-  var div = document.createElement('div');
-  div.className = 'message bot';
-  div.innerHTML = '<div class="msg-avatar bot">' + BOT_AVATAR_SVG + '</div>' +
-    '<div class="msg-bubble">' + renderMarkdown(text) + '</div>';
-  container.appendChild(div);
-  chatHistory.push({ role: 'assistant', content: text });
-}
-
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function addMessage(content, role) {
-  // Expand chat panel if in floating state
-  if (chatState === 'floating') { expandChatPanel(); }
-
-  var container = document.getElementById('messagesContainer');
-  var div = document.createElement('div');
-  div.className = 'message ' + role;
-
-  var bubbleHtml = role === 'bot'
-    ? renderMarkdown(content)
-    : '<p>' + escapeHtml(content) + '</p>';
-
-  if (role === 'bot') {
-    div.innerHTML =
-      '<div class="msg-avatar bot">' + BOT_AVATAR_SVG + '</div>' +
-      '<div class="msg-bubble">' + bubbleHtml + '</div>';
-  } else {
-    div.innerHTML = '<div class="msg-bubble">' + bubbleHtml + '</div>';
-  }
-
-  // Insert before typing indicator (which is outside the container now)
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-
-  chatHistory.push({
-    role:    role === 'bot' ? 'assistant' : 'user',
-    content: content
-  });
-}
-
-function addErrorMessage(text) {
-  if (chatState === 'floating') { expandChatPanel(); }
-  var container = document.getElementById('messagesContainer');
-  var div = document.createElement('div');
-  div.className = 'message error';
-  div.innerHTML = '<div class="msg-bubble"><p>' + escapeHtml(text) + '</p></div>';
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
-
-function showTyping() {
-  var el = document.getElementById('typingIndicator');
-  el.style.display = 'flex';
-  var mc = document.getElementById('messagesContainer');
-  mc.scrollTop = mc.scrollHeight;
-}
-
-function hideTyping() {
-  document.getElementById('typingIndicator').style.display = 'none';
-}
-
-function _doSend(text) {
-  if (!text) return;
-
-  // Disable both send buttons
-  document.getElementById('sendBtn').disabled    = true;
-  document.getElementById('sendBtnExp').disabled = true;
-
-  addMessage(text, 'user');
-  showTyping();
-
-  var payload = JSON.stringify({
-    message:  text,
-    messages: chatHistory.slice(-20),
-    profile:  appProfile
-  });
-
-  fetch('/api/chat', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload
-  })
-  .then(function(res) { return res.json(); })
-  .then(function(data) {
-    hideTyping();
-    document.getElementById('sendBtn').disabled    = false;
-    document.getElementById('sendBtnExp').disabled = false;
-    if (data.error) { addErrorMessage(data.error); }
-    else { addMessage(data.reply || data.response || data.message || 'No response received.', 'bot'); }
-  })
-  .catch(function() {
-    hideTyping();
-    document.getElementById('sendBtn').disabled    = false;
-    document.getElementById('sendBtnExp').disabled = false;
-    addErrorMessage('Connection error. Please check your network and try again.');
-  });
-}
-
-function sendMessage() {
-  var input = document.getElementById('chatInput');
-  var text  = input.value.trim();
-  if (!text) return;
-  input.value = ''; input.style.height = 'auto';
-  _doSend(text);
-}
-
-function sendMessageFromExpanded() {
-  var input = document.getElementById('chatInputExp');
-  var text  = input.value.trim();
-  if (!text) return;
-  input.value = ''; input.style.height = 'auto';
-  _doSend(text);
-}
-
-function handleInputKeydown(event) {
-  if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }
-}
-
-function handleInputKeydownExp(event) {
-  if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessageFromExpanded(); }
-}
-
-function autoResizeTextarea(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-}
-
-// ============================================================
-// QUICK ACTIONS
-// ============================================================
-function getQuickPrompt(type) {
-  var ctx = '';
-  if (appProfile) {
-    ctx = ' My company is a ' + appProfile.companyType + ' headquartered in ' + appProfile.homeCountry +
-          ', operating in the ' + appProfile.industry + ' industry.';
-    if (appProfile.sourcingCountries && appProfile.sourcingCountries.length > 0) {
-      ctx += ' We currently source from: ' + appProfile.sourcingCountries.join(', ') + '.';
-    }
-    ctx += ' Annual revenue: ' + appProfile.revenue + '.';
-  }
-  var prompts = {
-    audit:        'Perform a comprehensive supply chain audit for my company. Analyze all risk factors, cost inefficiencies, and strategic vulnerabilities based on my profile.' + ctx,
-    cost:         'Compare the total landed cost of sourcing from my current countries versus lower-cost alternatives. Include shipping, tariffs, labor, compliance, and hidden costs.' + ctx,
-    risk:         'What are the current top geopolitical and supply chain risk events that directly affect companies in my industry sourcing from my countries? Give specific, actionable intelligence.' + ctx,
-    optimize:     'Give me the top 5 specific, high-impact recommendations to reduce my supply chain costs while maintaining quality and managing risk. Be concrete and quantify savings where possible.' + ctx,
-    alternatives: 'What are the best alternative sourcing countries for my industry that could meaningfully reduce my cost and risk exposure? Compare them on key metrics.' + ctx
-  };
-  return prompts[type] || ('Analyze my supply chain.' + ctx);
-}
-
-function sendQuickMessage(type) {
-  var prompt = getQuickPrompt(type);
-  // Put it in the active input but send directly
-  if (chatState === 'expanded') {
-    document.getElementById('chatInputExp').value = prompt;
-    sendMessageFromExpanded();
-  } else {
-    document.getElementById('chatInput').value = prompt;
-    sendMessage();
-  }
-}
-
-// ============================================================
-// ANIMATED COUNTERS
-// ============================================================
-function animateCounter(id, start, end, duration, suffix) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  var startTime = null;
-  function step(ts) {
-    if (!startTime) startTime = ts;
-    var progress = Math.min((ts - startTime) / duration, 1);
-    var eased    = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.round(start + (end - start) * eased) + suffix;
-    if (progress < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-function animateCounters() {
-  animateCounter('statCountries', 0, COUNTRY_DATA.length, 1500, '');
-  setTimeout(function() {
-    var el = document.getElementById('statAnalysis');
-    if (el) { el.textContent = 'Live'; el.style.fontSize = '15px'; el.style.fontWeight = '700'; }
-  }, 600);
-  var aiEl = document.getElementById('statAI');
-  if (aiEl) { aiEl.textContent = 'AI'; aiEl.style.fontSize = '15px'; aiEl.style.fontWeight = '700'; }
-}
-
-// ============================================================
-// INIT APP
-// ============================================================
-function initApp() {
-  window.scrollTo(0, 0);
-  populateCountryDropdowns();
-  populateSourcingCheckboxes();
-  loadProfile();
-  initMap();
-  loadCountryBoundaries();
-  animateCounters();
-  initSearch();
-  var mapEl = document.getElementById('map');
-  if ('IntersectionObserver' in window && mapEl) {
-    var appObserver = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) {
-        appObserver.disconnect();
-        setTimeout(initScrollReveal, 300);
-      }
-    }, { threshold: 0.1 });
-    appObserver.observe(mapEl);
-  } else {
-    setTimeout(initScrollReveal, 800);
-  }
-}
-
-// ============================================================
-// SCROLL REVEAL (IntersectionObserver)
-// ============================================================
-function initScrollReveal() {
-  // Tag every major element that should animate in
-  var selectors = [
-    '.hero-panel',
-    '.map-overlay-header',
-    '.layer-controls .layer-btn',
-    '.map-legend',
-    '.legend-item',
-    '.quick-chip',
-    '.chat-float-bar',
-    '.chat-input-wrapper',
-    '.quick-btn-exp',
-    '.search-bar-wrap',
-    '.compare-header'
-  ];
-
-  var elements = [];
-  for (var s = 0; s < selectors.length; s++) {
-    var nodes = document.querySelectorAll(selectors[s]);
-    for (var n = 0; n < nodes.length; n++) {
-      elements.push(nodes[n]);
-    }
-  }
-
-  // Group elements by their parent to stagger siblings
-  var parentGroups = {};
-  for (var i = 0; i < elements.length; i++) {
-    var el = elements[i];
-    el.classList.add('sr-hidden');
-    var parentId = getParentGroupId(el);
-    if (!parentGroups[parentId]) parentGroups[parentId] = [];
-    parentGroups[parentId].push(el);
-  }
-
-  // Add stagger delay within each group
-  for (var key in parentGroups) {
-    var group = parentGroups[key];
-    for (var g = 0; g < group.length; g++) {
-      group[g].style.transitionDelay = (g * 0.1) + 's';
-    }
-  }
-
-  // Create the observer
-  if (!('IntersectionObserver' in window)) {
-    // Fallback: just show everything
-    for (var f = 0; f < elements.length; f++) {
-      elements[f].classList.remove('sr-hidden');
-      elements[f].classList.add('sr-visible');
-    }
-    return;
-  }
-
-  var observer = new IntersectionObserver(function(entries) {
-    for (var e = 0; e < entries.length; e++) {
-      if (entries[e].isIntersecting) {
-        entries[e].target.classList.add('sr-visible');
-        observer.unobserve(entries[e].target);
-      }
-    }
-  }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
-
-  for (var o = 0; o < elements.length; o++) {
-    observer.observe(elements[o]);
-  }
-}
-
-var _parentGroupCounter = 0;
-function getParentGroupId(el) {
-  var p = el.parentElement;
-  if (!p) return '_root';
-  if (!p._srGroupId) {
-    p._srGroupId = '_g' + (++_parentGroupCounter);
-  }
-  return p._srGroupId;
-}
-
-    }
-    document.addEventListener('keydown', handleEnterKey);
-  })();
-</script>
-</body>
-</html>
+    '<div class="popup-header">
