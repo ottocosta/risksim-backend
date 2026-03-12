@@ -244,9 +244,23 @@
       line-height: 1.5;
       font-style: italic;
     }
+
+    /* ===== INTRO OVERLAY ===== */
+    #introOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      background-color: #0a0c12;
+      background-size: cover;
+    }
   </style>
 </head>
 <body>
+<script>document.body.style.overflow = 'hidden';</script>
+<div id="introOverlay"></div>
 
 <!-- Loading skeleton — hidden once tiles finish loading -->
 <div id="mapSkeleton">
