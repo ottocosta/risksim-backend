@@ -490,15 +490,16 @@
 <script>
 (function() {
   var dismissed = false;
-  window.addEventListener('message', function(e) {
-    if (e.data !== 'risksim-enter') return;
+  var overlay = document.getElementById('introOverlay');
+
+  function dismiss() {
     if (dismissed) return;
     dismissed = true;
-    var overlay = document.getElementById('introOverlay');
     if (!overlay) return;
     overlay.style.transition = 'opacity 0.5s ease';
     overlay.style.opacity = '0';
     overlay.style.pointerEvents = 'none';
+    document.removeEventListener('keydown', onKey);
     setTimeout(function() {
       window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
@@ -506,7 +507,27 @@
       document.body.style.overflow = '';
       if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
     }, 520);
+  }
+
+  // 1. postMessage from Shopify parent
+  window.addEventListener('message', function(e) {
+    if (e.data === 'risksim-enter') dismiss();
   });
+
+  // 2. Auto-dismiss after 3 seconds
+  setTimeout(dismiss, 3000);
+
+  // 3. Click / tap on the overlay
+  if (overlay) overlay.addEventListener('click', dismiss);
+
+  // 4. Keyboard: Enter, Space, or Escape
+  function onKey(e) {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar' || e.key === 'Escape') {
+      e.preventDefault();
+      dismiss();
+    }
+  }
+  document.addEventListener('keydown', onKey);
 })();
 </script>
 
