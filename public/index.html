@@ -15,14 +15,24 @@
   <style>
     /* ===== CSS VARIABLES ===== */
     :root {
-      --bg:       #0a0a0a;
-      --surface:  rgba(10,10,10,0.95);
-      --border:   rgba(255,255,255,0.08);
-      --text:     #e0e0e0;
-      --muted:    #888;
-      --accent:   #7DF9C2;
-      --font:     'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-mono:'JetBrains Mono', monospace;
+      --bg:         #07080d;
+      --surface:    rgba(12,14,22,0.82);
+      --surface2:   rgba(15,18,28,0.9);
+      --border:     rgba(255,255,255,0.07);
+      --border-glow:rgba(125,249,194,0.15);
+      --text:       #e2e8f0;
+      --muted:      #64748b;
+      --accent:     #7DF9C2;
+      --accent2:    #4ade80;
+      --danger:     #ff3355;
+      --warning:    #ff8c00;
+      --font:       'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono:  'JetBrains Mono', monospace;
+      --glass-bg:   rgba(10,12,22,0.6);
+      --glass-border:rgba(125,249,194,0.12);
+      --glass-shadow:0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
+      --radius:     12px;
+      --radius-sm:  8px;
     }
 
     /* ===== RESET ===== */
@@ -41,10 +51,55 @@
       inset: 0;
       z-index: 0;
     }
-
     #map {
       position: absolute;
       inset: 0;
+    }
+
+    /* ===== ENTRANCE ANIMATIONS ===== */
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes shimmer {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    @keyframes shimmerPulse {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 0.8; }
+    }
+    @keyframes skeletonPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.5; }
+    }
+    @keyframes marker-pulse {
+      0%   { transform: scale(1);   opacity: 0.75; }
+      100% { transform: scale(2.8); opacity: 0; }
+    }
+    @keyframes markerGlow {
+      0%, 100% { filter: brightness(1); }
+      50%       { filter: brightness(1.4) drop-shadow(0 0 4px currentColor); }
+    }
+    @keyframes legendItemIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes ripple {
+      0%   { transform: scale(0); opacity: 0.5; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: var(--glass-shadow); }
+      50%       { box-shadow: var(--glass-shadow), 0 0 20px rgba(125,249,194,0.08); }
     }
 
     /* ===== LOADING SKELETON ===== */
@@ -56,13 +111,40 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeIn 0.3s ease;
     }
-    #mapSkeleton::after {
-      content: 'Loading map…';
-      color: var(--muted);
-      font-size: 13px;
+    .skeleton-logo {
       font-family: var(--font-mono);
-      letter-spacing: 0.5px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      text-transform: uppercase;
+      animation: shimmerPulse 1.8s ease-in-out infinite;
+    }
+    .skeleton-sub {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      letter-spacing: 0.08em;
+      animation: shimmerPulse 1.8s ease-in-out 0.3s infinite;
+    }
+    .skeleton-bar {
+      width: 120px;
+      height: 2px;
+      background: rgba(125,249,194,0.15);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .skeleton-bar::after {
+      content: '';
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: shimmer 1.4s ease-in-out infinite;
     }
     .skeleton-shimmer {
       position: absolute;
@@ -70,29 +152,39 @@
       height: 100%;
       background: linear-gradient(90deg,
         rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.03) 50%,
+        rgba(125,249,194,0.03) 50%,
         rgba(255,255,255,0) 100%);
-      animation: shimmer 1.8s ease-in-out infinite;
-    }
-    @keyframes shimmer {
-      0%   { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+      animation: shimmer 2.2s ease-in-out infinite;
     }
 
     /* ===== LEAFLET OVERRIDES (dark theme) ===== */
     .leaflet-popup-content-wrapper {
-      background: rgba(10,10,10,0.98) !important;
+      background: rgba(8,10,18,0.96) !important;
       color: #fff !important;
-      border-radius: 10px !important;
-      border: 1px solid rgba(255,255,255,0.12) !important;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.8) !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(125,249,194,0.18) !important;
+      border-left: 3px solid var(--accent) !important;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
     }
-    .leaflet-popup-tip  { background: rgba(10,10,10,0.98) !important; }
+    .leaflet-popup-tip-container { display: none !important; }
     .leaflet-popup-content { margin: 0 !important; }
+    .leaflet-popup-close-button {
+      color: var(--muted) !important;
+      top: 10px !important;
+      right: 10px !important;
+      font-size: 16px !important;
+      width: 20px !important;
+      height: 20px !important;
+      line-height: 20px !important;
+    }
+    .leaflet-popup-close-button:hover { color: var(--text) !important; }
     .leaflet-control-attribution {
-      background: rgba(0,0,0,0.7) !important;
-      color: #444 !important;
+      background: rgba(0,0,0,0.5) !important;
+      color: #333 !important;
       font-size: 9px !important;
+      backdrop-filter: blur(8px);
     }
     .leaflet-control-attribution a { color: #444 !important; }
 
@@ -102,23 +194,50 @@
       top: 16px;
       left: 16px;
       z-index: 100;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 14px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      pointer-events: none;
+      box-shadow: var(--glass-shadow);
+      animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.2s both;
+      min-width: 160px;
+    }
+    .map-overlay-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(125,249,194,0.04) 0%, transparent 60%);
       pointer-events: none;
     }
     .map-layer-name {
       font-size: 13px;
       font-weight: 600;
       color: #fff;
+      letter-spacing: 0.01em;
     }
     .map-layer-sub {
       font-size: 10px;
       color: var(--muted);
-      margin-top: 2px;
+      margin-top: 3px;
+      letter-spacing: 0.02em;
+      line-height: 1.4;
+      max-width: 200px;
+    }
+    .header-accent {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 6px;
+      box-shadow: 0 0 6px var(--accent);
+      vertical-align: middle;
+      position: relative;
+      top: -1px;
     }
 
     /* ===== LAYER TOGGLE CONTROLS ===== */
@@ -129,29 +248,76 @@
       transform: translateX(-50%);
       z-index: 100;
       display: flex;
-      gap: 4px;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      gap: 2px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
       padding: 4px;
+      box-shadow: var(--glass-shadow);
+      animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+      overflow: hidden;
+    }
+    .layer-controls::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(125,249,194,0.03) 0%, transparent 50%);
+      pointer-events: none;
     }
     .layer-btn {
+      position: relative;
       font-family: var(--font);
       font-size: 11px;
       font-weight: 500;
       color: var(--muted);
       background: transparent;
       border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
+      padding: 7px 14px;
+      border-radius: 7px;
       cursor: pointer;
-      transition: background 0.2s, color 0.2s;
+      transition: color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.02em;
+      overflow: hidden;
+      white-space: nowrap;
     }
-    .layer-btn:hover { color: #ccc; background: rgba(255,255,255,0.06); }
+    .layer-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.25s ease;
+      box-shadow: 0 0 8px var(--accent);
+    }
+    .layer-btn:hover {
+      color: #cbd5e1;
+      background: rgba(255,255,255,0.06);
+      transform: translateY(-1px);
+    }
     .layer-btn.active {
       color: #fff;
-      background: rgba(255,255,255,0.12);
+      background: rgba(125,249,194,0.1);
+    }
+    .layer-btn.active::after {
+      width: calc(100% - 16px);
+    }
+    .layer-btn:active { transform: translateY(0); }
+    .ripple-effect {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(125,249,194,0.25);
+      width: 60px;
+      height: 60px;
+      margin-top: -30px;
+      margin-left: -30px;
+      pointer-events: none;
+      animation: ripple 0.5s ease-out forwards;
     }
 
     /* ===== MAP LEGEND ===== */
@@ -160,41 +326,56 @@
       bottom: 32px;
       left: 16px;
       z-index: 100;
-      background: rgba(8,8,8,0.88);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: 4px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-left: 2px solid var(--accent);
+      border-radius: var(--radius);
       padding: 14px 16px;
+      box-shadow: var(--glass-shadow);
+      animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s both;
+      min-width: 170px;
+    }
+    .map-legend::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(125,249,194,0.04) 0%, transparent 50%);
+      pointer-events: none;
     }
     .legend-title {
       font-size: 9px;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 1px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       font-family: var(--font-mono);
     }
     .legend-items {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
     }
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 9px;
       font-size: 10px;
-      color: var(--muted);
+      color: #94a3b8;
       font-family: var(--font-mono);
+      letter-spacing: 0.01em;
+      opacity: 0;
+      animation: legendItemIn 0.3s ease forwards;
     }
     .legend-swatch {
       width: 10px;
       height: 10px;
       border-radius: 50%;
       flex-shrink: 0;
+      box-shadow: 0 0 4px currentColor;
     }
 
     /* ===== MAP MARKERS ===== */
@@ -204,45 +385,84 @@
       position: absolute;
       top: 0;
       left: 0;
+      box-shadow: 0 0 6px currentColor;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .marker-pulse {
       position: absolute;
       border-radius: 50%;
-      animation: marker-pulse 2s ease-out infinite;
+      animation: marker-pulse 2.2s ease-out infinite;
       opacity: 0;
       top: 0;
       left: 0;
     }
-    @keyframes marker-pulse {
-      0%   { transform: scale(1); opacity: 0.8; }
-      100% { transform: scale(2.5); opacity: 0; }
-    }
 
     /* ===== POPUP STYLES ===== */
-    .popup-inner    { padding: 12px 14px; min-width: 230px; }
-    .popup-header   { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .popup-country  { font-size: 14px; font-weight: 700; color: #fff; }
+    .popup-inner    { padding: 14px 16px; min-width: 240px; }
+    .popup-header   { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .popup-country  { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
     .popup-risk-badge {
-      font-size: 10px;
-      font-weight: 600;
+      font-size: 9px;
+      font-weight: 700;
       padding: 3px 8px;
-      border-radius: 12px;
+      border-radius: 20px;
+      letter-spacing: 0.08em;
+      font-family: var(--font-mono);
+    }
+    .popup-divider {
+      height: 1px;
+      background: linear-gradient(90deg, rgba(125,249,194,0.2), transparent);
+      margin-bottom: 10px;
     }
     .popup-row {
       display: flex;
       justify-content: space-between;
-      padding: 4px 0;
+      align-items: center;
+      padding: 5px 0;
       font-size: 11px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    .popup-label { color: var(--muted); }
-    .popup-value { color: #fff; font-weight: 500; }
-    .popup-insight {
-      margin-top: 10px;
+    .popup-row:last-of-type { border-bottom: none; }
+    .popup-label { color: var(--muted); letter-spacing: 0.02em; }
+    .popup-value {
+      color: #fff;
+      font-weight: 600;
+      font-family: var(--font-mono);
       font-size: 10px;
-      color: var(--muted);
-      line-height: 1.5;
+    }
+    .popup-insight {
+      margin-top: 12px;
+      font-size: 10px;
+      color: #64748b;
+      line-height: 1.6;
       font-style: italic;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .popup-score-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .popup-bar-track {
+      flex: 1;
+      height: 3px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .popup-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+    .popup-bar-label {
+      font-size: 9px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      width: 26px;
+      text-align: right;
     }
 
     /* ===== INTRO OVERLAY ===== */
@@ -259,12 +479,43 @@
   </style>
 </head>
 <body>
+<script>
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+</script>
 <script>document.body.style.overflow = 'hidden';</script>
 <div id="introOverlay"></div>
 
-<!-- Loading skeleton — hidden once tiles finish loading -->
+<script>
+(function() {
+  var dismissed = false;
+  window.addEventListener('message', function(e) {
+    if (e.data !== 'risksim-enter') return;
+    if (dismissed) return;
+    dismissed = true;
+    var overlay = document.getElementById('introOverlay');
+    if (!overlay) return;
+    overlay.style.transition = 'opacity 0.5s ease';
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    setTimeout(function() {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      document.body.style.overflow = '';
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 520);
+  });
+})();
+</script>
+
+<!-- Loading skeleton -->
 <div id="mapSkeleton">
   <div class="skeleton-shimmer"></div>
+  <div class="skeleton-logo">RiskSim</div>
+  <div class="skeleton-sub">Loading Intelligence Map…</div>
+  <div class="skeleton-bar"></div>
 </div>
 
 <!-- Map container (fullscreen) -->
@@ -274,7 +525,9 @@
 
 <!-- Overlay: current layer name -->
 <div class="map-overlay-header">
-  <div class="map-layer-name" id="overlayName">Risk Levels</div>
+  <div class="map-layer-name">
+    <span class="header-accent"></span><span id="overlayName">Risk Levels</span>
+  </div>
   <div class="map-layer-sub" id="overlaySub">Geopolitical &amp; operational risk by country</div>
 </div>
 
@@ -506,12 +759,12 @@ var LAYER_CONFIG = {
     sub: 'Geopolitical & operational risk by country',
     legendTitle: 'Risk Score',
     items: [
-      { color: '#ff0040', label: 'Critical (80–100)' },
-      { color: '#ff8c00', label: 'High (60–79)' },
-      { color: '#f5c518', label: 'Medium-High (45–59)' },
-      { color: '#8bc34a', label: 'Medium (30–44)' },
-      { color: '#00e676', label: 'Low-Medium (15–29)' },
-      { color: '#00bcd4', label: 'Low (0–14)' }
+      { color: '#ff1a4a', label: 'Critical (80–100)' },
+      { color: '#ff8c00', label: 'High (60–79)' },
+      { color: '#f5c518', label: 'Medium-High (45–59)' },
+      { color: '#8bc34a', label: 'Medium (30–44)' },
+      { color: '#00e676', label: 'Low-Medium (15–29)' },
+      { color: '#00e5ff', label: 'Low (0–14)' }
     ]
   },
   shipping: {
@@ -519,11 +772,11 @@ var LAYER_CONFIG = {
     sub: 'Relative container shipping cost index',
     legendTitle: 'Shipping Cost',
     items: [
-      { color: '#ff0040', label: 'Very High (9–10)' },
-      { color: '#ff8c00', label: 'High (7–8)' },
-      { color: '#f5c518', label: 'Moderate (5–6)' },
-      { color: '#00e676', label: 'Low (3–4)' },
-      { color: '#00bcd4', label: 'Very Low (1–2)' }
+      { color: '#ff1a4a', label: 'Very High (9–10)' },
+      { color: '#ff8c00', label: 'High (7–8)' },
+      { color: '#f5c518', label: 'Moderate (5–6)' },
+      { color: '#00e676', label: 'Low (3–4)' },
+      { color: '#00e5ff', label: 'Very Low (1–2)' }
     ]
   },
   labor: {
@@ -531,11 +784,11 @@ var LAYER_CONFIG = {
     sub: 'Relative labor cost index',
     legendTitle: 'Labor Cost',
     items: [
-      { color: '#ff0040', label: 'Very High (9–10)' },
-      { color: '#ff8c00', label: 'High (7–8)' },
-      { color: '#f5c518', label: 'Moderate (5–6)' },
-      { color: '#00e676', label: 'Low (3–4)' },
-      { color: '#00bcd4', label: 'Very Low (1–2)' }
+      { color: '#ff1a4a', label: 'Very High (9–10)' },
+      { color: '#ff8c00', label: 'High (7–8)' },
+      { color: '#f5c518', label: 'Moderate (5–6)' },
+      { color: '#00e676', label: 'Low (3–4)' },
+      { color: '#00e5ff', label: 'Very Low (1–2)' }
     ]
   },
   cost: {
@@ -543,12 +796,12 @@ var LAYER_CONFIG = {
     sub: 'Combined tariff, shipping, labor & infrastructure cost',
     legendTitle: 'Cost Index',
     items: [
-      { color: '#ff0040', label: 'Very High (70–100)' },
-      { color: '#ff8c00', label: 'High (50–69)' },
-      { color: '#f5c518', label: 'Moderate (35–49)' },
-      { color: '#8bc34a', label: 'Below Average (25–34)' },
-      { color: '#00e676', label: 'Low (15–24)' },
-      { color: '#00bcd4', label: 'Very Low (0–14)' }
+      { color: '#ff1a4a', label: 'Very High (70–100)' },
+      { color: '#ff8c00', label: 'High (50–69)' },
+      { color: '#f5c518', label: 'Moderate (35–49)' },
+      { color: '#8bc34a', label: 'Below Average (25–34)' },
+      { color: '#00e676', label: 'Low (15–24)' },
+      { color: '#00e5ff', label: 'Very Low (0–14)' }
     ]
   },
   sourcing: {
@@ -556,12 +809,12 @@ var LAYER_CONFIG = {
     sub: 'How attractive each country is as a sourcing destination',
     legendTitle: 'Sourcing Attractiveness',
     items: [
-      { color: '#00bcd4', label: 'Top Tier (80–100)' },
-      { color: '#00e676', label: 'Strong (60–79)' },
-      { color: '#8bc34a', label: 'Good (40–59)' },
-      { color: '#f5c518', label: 'Moderate (20–39)' },
-      { color: '#ff8c00', label: 'Limited (10–19)' },
-      { color: '#ff0040', label: 'Minimal (0–9)' }
+      { color: '#00e5ff', label: 'Top Tier (80–100)' },
+      { color: '#00e676', label: 'Strong (60–79)' },
+      { color: '#8bc34a', label: 'Good (40–59)' },
+      { color: '#f5c518', label: 'Moderate (20–39)' },
+      { color: '#ff8c00', label: 'Limited (10–19)' },
+      { color: '#ff1a4a', label: 'Minimal (0–9)' }
     ]
   }
 };
@@ -570,29 +823,29 @@ var LAYER_CONFIG = {
 // COLOR & SCORE HELPERS
 // ============================================================
 function getRiskColor(score) {
-  if (score >= 80) return '#ff0040';
+  if (score >= 80) return '#ff1a4a';
   if (score >= 60) return '#ff8c00';
   if (score >= 45) return '#f5c518';
   if (score >= 30) return '#8bc34a';
   if (score >= 15) return '#00e676';
-  return '#00bcd4';
+  return '#00e5ff';
 }
 
 function getSourcingColor(score) {
-  if (score >= 80) return '#00bcd4';
+  if (score >= 80) return '#00e5ff';
   if (score >= 60) return '#00e676';
   if (score >= 40) return '#8bc34a';
   if (score >= 20) return '#f5c518';
   if (score >= 10) return '#ff8c00';
-  return '#ff0040';
+  return '#ff1a4a';
 }
 
 function getRiskLabel(score) {
   if (score >= 80) return 'CRITICAL';
   if (score >= 60) return 'HIGH';
-  if (score >= 45) return 'MEDIUM-HIGH';
+  if (score >= 45) return 'MED-HIGH';
   if (score >= 30) return 'MEDIUM';
-  if (score >= 15) return 'LOW-MEDIUM';
+  if (score >= 15) return 'LOW-MED';
   return 'LOW';
 }
 
@@ -616,9 +869,9 @@ function getCountryDotSize(name) {
   var tier1 = ['China', 'United States', 'Germany', 'Japan', 'South Korea'];
   var tier2 = ['France', 'Italy', 'United Kingdom', 'Netherlands', 'Canada', 'Mexico',
                'India', 'Vietnam', 'Taiwan', 'Singapore', 'Brazil', 'Russia'];
-  if (tier1.indexOf(name) !== -1) return 8;
-  if (tier2.indexOf(name) !== -1) return 6;
-  return 5;
+  if (tier1.indexOf(name) !== -1) return 9; // tier-1: slightly larger for key global hubs
+  if (tier2.indexOf(name) !== -1) return 7; // tier-2: medium for major sourcing nations
+  return 5; // default size for remaining countries
 }
 
 // ============================================================
@@ -630,5 +883,206 @@ function buildCountryPopupHTML(country) {
   var srcScore  = (country.sourcing && country.sourcing[currentCategory]) || 0;
   var srcColor  = getSourcingColor(srcScore);
 
+  var riskPct  = country.risk;
+  var srcPct   = srcScore;
+  var costPct  = country.costIndex;
+
   return '<div class="popup-inner">' +
-    '<div class="popup-header">
+    '<div class="popup-header">' +
+      '<span class="popup-country">' + country.name + '</span>' +
+      '<span class="popup-risk-badge" style="background:' + riskColor + '22;color:' + riskColor + ';border:1px solid ' + riskColor + '44;">' + riskLabel + '</span>' +
+    '</div>' +
+    '<div class="popup-divider"></div>' +
+    '<div class="popup-row">' +
+      '<span class="popup-label">Risk Score</span>' +
+      '<span class="popup-value" style="color:' + riskColor + '">' + country.risk + '/100</span>' +
+    '</div>' +
+    '<div class="popup-row">' +
+      '<span class="popup-label">Shipping Cost</span>' +
+      '<span class="popup-value">' + country.shipping + '/10</span>' +
+    '</div>' +
+    '<div class="popup-row">' +
+      '<span class="popup-label">Labor Cost</span>' +
+      '<span class="popup-value">' + country.labor + '/10</span>' +
+    '</div>' +
+    '<div class="popup-row">' +
+      '<span class="popup-label">Tariff Rate</span>' +
+      '<span class="popup-value">' + country.tariff + '%</span>' +
+    '</div>' +
+    '<div class="popup-row">' +
+      '<span class="popup-label">Infrastructure</span>' +
+      '<span class="popup-value">' + country.infra + '/10</span>' +
+    '</div>' +
+    '<div class="popup-row">' +
+      '<span class="popup-label">Sourcing Score</span>' +
+      '<span class="popup-value" style="color:' + srcColor + '">' + srcScore + '/100</span>' +
+    '</div>' +
+    '<div class="popup-score-bar">' +
+      '<span class="popup-bar-label" style="color:' + riskColor + '">Risk</span>' +
+      '<div class="popup-bar-track"><div class="popup-bar-fill" style="width:' + riskPct + '%;background:' + riskColor + ';"></div></div>' +
+    '</div>' +
+    '<div class="popup-score-bar">' +
+      '<span class="popup-bar-label" style="color:' + srcColor + '">Src</span>' +
+      '<div class="popup-bar-track"><div class="popup-bar-fill" style="width:' + srcPct + '%;background:' + srcColor + ';"></div></div>' +
+    '</div>' +
+    '<p class="popup-insight">Mfg Capacity: ' + country.mfgCapacity + '  ·  Export Infra: ' + country.exportInfra + '  ·  Lead Time: ' + country.leadTimeReliability + '</p>' +
+  '</div>';
+}
+
+// ============================================================
+// MAP INITIALIZATION
+// ============================================================
+function initMap() {
+  map = L.map('map', {
+    center: [20, 15],
+    zoom: 2,
+    zoomControl: false,
+    attributionControl: true,
+    minZoom: 2,
+    maxZoom: 8,
+    scrollWheelZoom: true
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(map);
+
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+  map.on('load', function() {
+    var skeleton = document.getElementById('mapSkeleton');
+    if (skeleton) skeleton.style.display = 'none';
+  });
+
+  renderMarkers();
+  buildLegend(currentLayer);
+}
+
+// ============================================================
+// MARKER RENDERING
+// ============================================================
+function renderMarkers() {
+  for (var key in countryMarkers) {
+    countryMarkers[key].remove();
+  }
+  countryMarkers = {};
+
+  for (var i = 0; i < COUNTRY_DATA.length; i++) {
+    (function(country) {
+      var score = getScoreForLayer(country, currentLayer);
+      var color = getColorForLayer(score, currentLayer);
+      var size  = getCountryDotSize(country.name);
+
+      var icon = L.divIcon({
+        className: '',
+        html: '<div class="map-marker" style="width:' + (size*2) + 'px;height:' + (size*2) + 'px;">' +
+                '<div class="marker-dot" style="width:' + (size*2) + 'px;height:' + (size*2) + 'px;background:' + color + ';color:' + color + ';"></div>' +
+                '<div class="marker-pulse" style="width:' + (size*2) + 'px;height:' + (size*2) + 'px;border:2px solid ' + color + ';animation-duration:' + (1.8 + (country.name.length % 5) * 0.2) + 's;"></div>' +
+              '</div>',
+        iconSize:   [size*2, size*2],
+        iconAnchor: [size,   size]
+      });
+
+      var marker = L.marker([country.lat, country.lng], { icon: icon });
+
+      marker.bindPopup(buildCountryPopupHTML(country), {
+        maxWidth: 290,
+        minWidth: 250,
+        className: 'custom-popup'
+      });
+
+      marker.addTo(map);
+      countryMarkers[country.name] = marker;
+    })(COUNTRY_DATA[i]);
+  }
+}
+
+// ============================================================
+// LEGEND BUILDER
+// ============================================================
+function buildLegend(layer) {
+  var config = LAYER_CONFIG[layer];
+  if (!config) return;
+
+  var titleEl = document.getElementById('legendTitle');
+  var itemsEl = document.getElementById('legendItems');
+  if (!titleEl || !itemsEl) return;
+
+  titleEl.textContent = config.legendTitle;
+  itemsEl.innerHTML = '';
+
+  for (var i = 0; i < config.items.length; i++) {
+    (function(item, idx) {
+      var div = document.createElement('div');
+      div.className = 'legend-item';
+      div.style.animationDelay = (idx * LEGEND_STAGGER_DELAY) + 's';
+      div.innerHTML =
+        '<div class="legend-swatch" style="background:' + item.color + ';box-shadow:0 0 5px ' + item.color + '88;"></div>' +
+        '<span>' + item.label + '</span>';
+      itemsEl.appendChild(div);
+    })(config.items[i], i);
+  }
+}
+
+var LEGEND_STAGGER_DELAY = 0.05; // seconds between each legend item fade-in
+function updateMapLayer(layer) {
+  currentLayer = layer;
+
+  // Update button states
+  var btnMap = { risk:'btnRisk', shipping:'btnShipping', labor:'btnLabor', cost:'btnCost', sourcing:'btnSourcing' };
+  for (var k in btnMap) {
+    var btn = document.getElementById(btnMap[k]);
+    if (btn) {
+      btn.classList.toggle('active', k === layer);
+    }
+  }
+
+  // Ripple effect on clicked button
+  var activeBtn = document.getElementById(btnMap[layer]);
+  if (activeBtn) {
+    var ripple = document.createElement('span');
+    ripple.className = 'ripple-effect';
+    var rect = activeBtn.getBoundingClientRect();
+    ripple.style.left = (rect.width / 2) + 'px';
+    ripple.style.top  = (rect.height / 2) + 'px';
+    activeBtn.appendChild(ripple);
+    setTimeout(function() { if (ripple.parentNode) ripple.parentNode.removeChild(ripple); }, 600);
+  }
+
+  // Update overlay header
+  var config = LAYER_CONFIG[layer];
+  if (config) {
+    var nameEl = document.getElementById('overlayName');
+    var subEl  = document.getElementById('overlaySub');
+    if (nameEl) nameEl.textContent = config.name;
+    if (subEl)  subEl.textContent  = config.sub;
+  }
+
+  // Re-render markers and legend
+  renderMarkers();
+  buildLegend(layer);
+}
+
+// ============================================================
+// BOOTSTRAP
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  initMap();
+
+  // Hide skeleton once map tiles start loading
+  setTimeout(function() {
+    var skeleton = document.getElementById('mapSkeleton');
+    if (skeleton) {
+      skeleton.style.transition = 'opacity 0.5s ease';
+      skeleton.style.opacity = '0';
+      setTimeout(function() {
+        if (skeleton.parentNode) skeleton.style.display = 'none';
+      }, 500);
+    }
+  }, 1200);
+});
+</script>
+</body>
+</html>
