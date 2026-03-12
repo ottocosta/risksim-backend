@@ -112,7 +112,7 @@
       text-transform: uppercase;
       color: rgba(148,163,184,0.3);
       opacity: 0;
-      animation: fadeIn 1s ease 1.5s forwards;
+      animation: introFadeIn 1s ease 1.5s forwards;
     }
     .corner-tl { top: 2rem; left: 2.5rem; }
     .corner-tr { top: 2rem; right: 2.5rem; text-align: right; }
@@ -132,7 +132,7 @@
       width: 10px;
       height: 10px;
       opacity: 0;
-      animation: fadeIn 1.2s ease 1.8s forwards;
+      animation: introFadeIn 1.2s ease 1.8s forwards;
     }
     .deco-cross::before, .deco-cross::after { content: ''; position: absolute; background: rgba(255,255,255,0.15); }
     .deco-cross::before { width: 1px; height: 100%; left: 50%; transform: translateX(-50%); }
@@ -145,14 +145,14 @@
     .h-rule {
       position: absolute; z-index: 3; height: 1px;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-      opacity: 0; animation: fadeIn 1.5s ease 2s forwards;
+      opacity: 0; animation: introFadeIn 1.5s ease 2s forwards;
     }
     .h-rule-top { top: 5.5rem; left: 2.5rem; right: 2.5rem; }
     .h-rule-bot { bottom: 5.5rem; left: 2.5rem; right: 2.5rem; }
     .enter-hint {
       position: absolute; bottom: 3.5rem; left: 50%; transform: translateX(-50%);
       z-index: 3; display: flex; align-items: center; gap: 0.6rem;
-      opacity: 0; animation: fadeIn 1s ease 2.2s forwards;
+      opacity: 0; animation: introFadeIn 1s ease 2.2s forwards;
     }
     .enter-hint-text {
       font-family: 'DM Sans', sans-serif; font-size: 0.7rem; font-weight: 400;
@@ -171,7 +171,7 @@
       z-index: 3; width: 36px; height: 36px;
       border: 1px solid rgba(255,255,255,0.12); border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      opacity: 0; animation: fadeIn 1s ease 2s forwards;
+      opacity: 0; animation: introFadeIn 1s ease 2s forwards;
     }
     .scroll-indicator svg { width: 12px; height: 12px; animation: bobDown 2s ease-in-out infinite; }
     .vignette {
@@ -200,7 +200,7 @@
     @keyframes fadeUp {
       0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); }
     }
-    @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+    @keyframes introFadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
     @keyframes pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.7; } }
     @keyframes bobDown {
       0%, 100% { transform: translateY(-2px); opacity: 0.4; } 50% { transform: translateY(3px); opacity: 0.8; }
@@ -235,15 +235,28 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       height: 100%;
+      width: 100%;
       font-family: var(--font);
       background: var(--bg);
       color: var(--text);
       overflow: hidden;
     }
 
-    /* ===== MAP ===== */
-    #mapContainer { position: fixed; inset: 0; z-index: 0; }
-    #map { position: absolute; inset: 0; }
+    /* ===== MAP — FULLSCREEN FIX ===== */
+    #mapContainer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      background: #07080d;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+      background: #07080d;
+    }
 
     /* ===== ANIMATIONS ===== */
     @keyframes slideUpFade {
@@ -261,6 +274,7 @@
     @keyframes chatIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes typingDot { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(-4px); opacity: 1; } }
     @keyframes pulseRing { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(125,249,194,0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(125,249,194,0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(125,249,194,0); } }
+    @keyframes rsBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
     /* ===== LOADING SKELETON ===== */
     #mapSkeleton {
@@ -275,6 +289,11 @@
     .skeleton-shimmer { position: absolute; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(125,249,194,0.02) 50%, rgba(255,255,255,0) 100%); animation: shimmer 2.2s ease-in-out infinite; }
 
     /* ===== LEAFLET OVERRIDES ===== */
+    .leaflet-container {
+      background: #07080d !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
     .leaflet-popup-content-wrapper {
       background: rgba(8,10,18,0.97) !important; color: #fff !important; border-radius: 16px !important;
       border: 1px solid rgba(125,249,194,0.2) !important; border-left: 3px solid var(--accent) !important;
@@ -286,7 +305,8 @@
     .leaflet-popup-close-button { color: var(--muted) !important; top: 10px !important; right: 10px !important; font-size: 16px !important; width: 20px !important; height: 20px !important; line-height: 20px !important; }
     .leaflet-popup-close-button:hover { color: var(--text) !important; }
     .leaflet-control-attribution { background: rgba(0,0,0,0.5) !important; color: #333 !important; font-size: 9px !important; backdrop-filter: blur(8px); }
-    .leaflet-control-attribution a { color: #444 !important; }.leaflet-container { background: #07080d !important; }
+    .leaflet-control-attribution a { color: #444 !important; }
+    .leaflet-tile-pane { filter: brightness(0.95) saturate(0.85); }
 
     /* ===== MAP OVERLAY HEADER ===== */
     .map-overlay-header {
@@ -324,7 +344,7 @@
 
     /* ===== LEGEND ===== */
     .map-legend {
-      position: fixed; bottom: 32px; left: 16px; z-index: 100;
+      position: fixed; bottom: 100px; left: 16px; z-index: 100;
       background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
       border: 1px solid var(--glass-border); border-left: 2px solid var(--accent); border-radius: var(--radius);
       padding: 14px 16px; box-shadow: var(--glass-shadow); animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s both; min-width: 170px;
@@ -403,35 +423,10 @@
     .btn-secondary:hover { border-color: var(--border-glow); background: rgba(255,255,255,0.04); }
     .hero-founder-line { font-family: var(--font-mono); font-size: 10px; color: var(--accent2); letter-spacing: 0.02em; }
 
-    /* ===== SEARCH BAR ===== */
-    #searchWrap {
-      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-      z-index: 101; display: none;
-    }
-    #searchInput {
-      width: 320px; padding: 10px 16px; background: var(--glass-bg);
-      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--glass-border); border-radius: 10px;
-      color: #fff; font-size: 13px; font-family: var(--font); outline: none;
-      box-shadow: var(--glass-shadow);
-    }
-    #searchInput::placeholder { color: var(--muted); }
-    #searchResults {
-      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
-      background: rgba(8,10,20,0.98); border: 1px solid var(--glass-border);
-      border-radius: 10px; backdrop-filter: blur(24px); overflow: hidden;
-      box-shadow: var(--glass-shadow); display: none;
-    }
-    .search-result-item { padding: 10px 14px; font-size: 12px; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; gap: 10px; }
-    .search-result-item:hover { background: rgba(125,249,194,0.06); }
-    .search-result-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .search-result-name { color: #fff; font-weight: 500; }
-    .search-result-score { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-left: auto; }
-
     /* ===== ONBOARDING FORM ===== */
     #onboardingPanel {
       position: fixed; top: 50%; right: 16px; transform: translateY(-50%);
-      z-index: 200; width: 360px;
+      z-index: 200; width: 380px;
       background: rgba(8,10,20,0.98); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
       border: 1px solid var(--glass-border); border-radius: 20px;
       box-shadow: 0 24px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
@@ -444,6 +439,7 @@
     .onboard-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
     .onboard-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
     .onboard-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+    .onboard-section-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 14px; margin-top: 6px; display: block; }
     .onboard-divider { height: 1px; background: var(--border); margin-bottom: 20px; }
     .field-group { margin-bottom: 16px; }
     .field-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-bottom: 7px; display: block; }
@@ -455,9 +451,20 @@
     }
     .field-input:focus, .field-select:focus, .field-textarea:focus { border-color: var(--border-glow); background: rgba(125,249,194,0.03); }
     .field-input::placeholder, .field-textarea::placeholder { color: var(--muted); }
-    .field-select { cursor: pointer; }
-    .field-select option { background: #0f1220; }
-    .field-textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+    .field-select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    .field-select option { background: #0f1220; color: #e2e8f0; }
+    .field-textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+
+    /* Multi-select chips for sourcing countries */
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .chip-option {
+      padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 500;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--muted); cursor: pointer; transition: all 0.2s; user-select: none;
+    }
+    .chip-option:hover { border-color: rgba(125,249,194,0.3); color: var(--text); }
+    .chip-option.selected { background: rgba(125,249,194,0.1); border-color: rgba(125,249,194,0.4); color: var(--accent); }
+
     .onboard-submit {
       width: 100%; padding: 12px; background: linear-gradient(135deg, #7DF9C2, #4ade80);
       border: none; border-radius: var(--radius-sm); color: #0a0c14; font-size: 13px;
@@ -465,6 +472,17 @@
       letter-spacing: 0.01em;
     }
     .onboard-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(125,249,194,0.3); }
+    .onboard-cancel {
+      width: 100%; padding: 10px; background: transparent;
+      border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--muted); font-size: 12px;
+      cursor: pointer; transition: all 0.2s; margin-top: 8px;
+    }
+    .onboard-cancel:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+
+    /* Scrollbar for onboarding */
+    #onboardingPanel::-webkit-scrollbar { width: 4px; }
+    #onboardingPanel::-webkit-scrollbar-track { background: transparent; }
+    #onboardingPanel::-webkit-scrollbar-thumb { background: rgba(125,249,194,0.15); border-radius: 4px; }
 
     /* ===== AI CHAT PANEL ===== */
     #chatPanel {
@@ -478,41 +496,42 @@
       flex-wrap: wrap; justify-content: center; padding: 0 16px;
     }
     .quick-btn {
-      padding: 8px 14px; background: var(--glass-bg); backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border); border-radius: 999px;
-      color: var(--text); font-size: 11px; font-weight: 500; cursor: pointer;
-      transition: all 0.2s; white-space: nowrap; pointer-events: all;
+      padding: 8px 16px; background: rgba(8,10,20,0.85); backdrop-filter: blur(20px);
+      border: 1px solid rgba(125,249,194,0.15); border-radius: 999px;
+      color: #cbd5e1; font-size: 12px; font-weight: 500; cursor: pointer;
+      transition: all 0.25s; white-space: nowrap; pointer-events: all;
+      letter-spacing: 0.01em;
     }
-    .quick-btn:hover { border-color: var(--border-glow); background: rgba(125,249,194,0.08); color: #fff; transform: translateY(-2px); }
+    .quick-btn:hover { border-color: rgba(125,249,194,0.4); background: rgba(125,249,194,0.08); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
     #chatInputWrap {
       display: flex; align-items: center; gap: 10px; width: 100%; max-width: 780px;
       background: rgba(8,10,20,0.92); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
-      border: 1px solid var(--glass-border); border-radius: 16px;
-      padding: 10px 12px 10px 16px;
-      box-shadow: 0 -4px 40px rgba(0,0,0,0.4), var(--glass-shadow);
+      border: 1px solid rgba(125,249,194,0.15); border-radius: 16px;
+      padding: 12px 14px 12px 18px;
+      box-shadow: 0 -4px 40px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.5);
       pointer-events: all;
       animation: panelIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.9s both;
+      position: relative;
     }
     #chatInputWrap::before { content: ''; position: absolute; top: 0; left: 20px; right: 20px; height: 1px; background: linear-gradient(90deg, transparent, rgba(125,249,194,0.2), transparent); }
     #chatInput {
       flex: 1; background: transparent; border: none; outline: none;
-      color: var(--text); font-size: 13px; font-family: var(--font);
-      placeholder-color: var(--muted);
+      color: var(--text); font-size: 14px; font-family: var(--font);
     }
     #chatInput::placeholder { color: var(--muted); }
     #chatSend {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: linear-gradient(135deg, rgba(125,249,194,0.15), rgba(74,222,128,0.1));
-      border: 1px solid rgba(125,249,194,0.2); color: var(--accent);
+      width: 38px; height: 38px; border-radius: 10px;
+      background: rgba(125,249,194,0.12);
+      border: 1px solid rgba(125,249,194,0.25); color: #fff;
       font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
       transition: all 0.2s; flex-shrink: 0;
     }
-    #chatSend:hover { background: rgba(125,249,194,0.2); border-color: rgba(125,249,194,0.4); transform: scale(1.05); }
+    #chatSend:hover { background: rgba(125,249,194,0.2); border-color: rgba(125,249,194,0.5); transform: scale(1.05); }
     #chatSend:active { transform: scale(0.97); }
 
     /* ===== CHAT MESSAGES ===== */
     #chatMessages {
-      position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
+      position: fixed; bottom: 130px; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 780px; z-index: 100;
       display: flex; flex-direction: column; gap: 10px; padding: 0 16px;
       pointer-events: none; max-height: 45vh; overflow-y: auto;
@@ -543,6 +562,16 @@
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 2px; }
+
+    /* ===== MOBILE ===== */
+    @media (max-width: 768px) {
+      #heroPanel { top: auto; bottom: 160px; left: 8px; right: 8px; width: auto; max-height: 50vh; overflow-y: auto; }
+      .layer-controls { top: 8px; }
+      .map-overlay-header { display: none; }
+      .map-legend { bottom: 170px; left: 8px; }
+      #onboardingPanel { right: 8px; left: 8px; width: auto; }
+      #chatInputWrap { max-width: calc(100% - 32px); }
+    }
   </style>
 </head>
 <body>
@@ -629,7 +658,7 @@
     </div>
     <div class="hero-actions">
       <button class="btn-primary" onclick="document.getElementById('onboardingPanel').style.display='block'">Claim Founder Access</button>
-      <button class="btn-secondary" onclick="document.getElementById('map').scrollIntoView()">Explore Map</button>
+      <button class="btn-secondary" onclick="document.getElementById('heroPanel').style.display='none'">Explore Map</button>
     </div>
     <div class="hero-founder-line">First 10 founders get 50% off forever.</div>
   </div>
@@ -640,55 +669,97 @@
   <div class="onboard-inner">
     <button class="onboard-close" onclick="document.getElementById('onboardingPanel').style.display='none'">✕</button>
     <div class="onboard-title">Welcome to RiskSim</div>
-    <div class="onboard-sub">Set up your company profile for personalized supply chain intelligence</div>
+    <div class="onboard-sub">Set up your company profile for personalized supply chain intelligence.</div>
     <div class="onboard-divider"></div>
-    <div class="field-group">
-      <label class="field-label">Tell us about your business</label>
-      <textarea class="field-textarea" id="bizDesc" placeholder="Describe your business, supply chain needs, key concerns, or what you're looking for..."></textarea>
-    </div>
+
+    <span class="onboard-section-label">About your business</span>
+
     <div class="field-group">
       <label class="field-label">Company Type</label>
       <select class="field-select" id="companyType">
-        <option value="">Select company type...</option>
+        <option value="">Select company type…</option>
         <option value="manufacturer">Manufacturer</option>
-        <option value="retailer">Retailer / Brand</option>
+        <option value="retailer">Retailer</option>
         <option value="distributor">Distributor</option>
         <option value="logistics">Logistics Provider</option>
-        <option value="consulting">Consulting / Advisory</option>
         <option value="other">Other</option>
       </select>
     </div>
+
     <div class="field-group">
       <label class="field-label">Home Country</label>
       <select class="field-select" id="homeCountry">
-        <option value="">Select your country...</option>
-        <option value="us">United States</option>
-        <option value="uk">United Kingdom</option>
-        <option value="de">Germany</option>
-        <option value="fi">Finland</option>
-        <option value="sg">Singapore</option>
-        <option value="au">Australia</option>
-        <option value="ca">Canada</option>
+        <option value="">Select your country…</option>
+        <option>Afghanistan</option><option>Albania</option><option>Algeria</option><option>Angola</option><option>Argentina</option><option>Armenia</option><option>Australia</option><option>Austria</option><option>Azerbaijan</option><option>Bangladesh</option><option>Belarus</option><option>Belgium</option><option>Bolivia</option><option>Bosnia</option><option>Brazil</option><option>Bulgaria</option><option>Cambodia</option><option>Cameroon</option><option>Canada</option><option>Chile</option><option>China</option><option>Colombia</option><option>Congo</option><option>Costa Rica</option><option>Croatia</option><option>Cuba</option><option>Cyprus</option><option>Czech Republic</option><option>Denmark</option><option>Dominican Republic</option><option>Ecuador</option><option>Egypt</option><option>El Salvador</option><option>Estonia</option><option>Ethiopia</option><option>Finland</option><option>France</option><option>Germany</option><option>Ghana</option><option>Greece</option><option>Guatemala</option><option>Honduras</option><option>Hungary</option><option>India</option><option>Indonesia</option><option>Iran</option><option>Iraq</option><option>Ireland</option><option>Israel</option><option>Italy</option><option>Japan</option><option>Jordan</option><option>Kazakhstan</option><option>Kenya</option><option>Laos</option><option>Latvia</option><option>Lebanon</option><option>Lithuania</option><option>Luxembourg</option><option>Malaysia</option><option>Malta</option><option>Mexico</option><option>Moldova</option><option>Morocco</option><option>Mozambique</option><option>Myanmar</option><option>Nepal</option><option>Netherlands</option><option>New Zealand</option><option>Nicaragua</option><option>Nigeria</option><option>North Korea</option><option>North Macedonia</option><option>Norway</option><option>Oman</option><option>Pakistan</option><option>Panama</option><option>Paraguay</option><option>Peru</option><option>Philippines</option><option>Poland</option><option>Portugal</option><option>Qatar</option><option>Romania</option><option>Russia</option><option>Saudi Arabia</option><option>Senegal</option><option>Serbia</option><option>Singapore</option><option>Slovakia</option><option>Slovenia</option><option>South Africa</option><option>South Korea</option><option>South Sudan</option><option>Spain</option><option>Sri Lanka</option><option>Sudan</option><option>Sweden</option><option>Switzerland</option><option>Syria</option><option>Taiwan</option><option>Tanzania</option><option>Thailand</option><option>Tunisia</option><option>Turkey</option><option>Turkmenistan</option><option>Uganda</option><option>Ukraine</option><option>United Arab Emirates</option><option>United Kingdom</option><option>United States</option><option>Uruguay</option><option>Uzbekistan</option><option>Venezuela</option><option>Vietnam</option><option>Yemen</option><option>Zambia</option><option>Zimbabwe</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Industry</label>
+      <select class="field-select" id="industry">
+        <option value="">Select industry…</option>
+        <option value="technology">Electronics</option>
+        <option value="textiles">Textiles/Apparel</option>
+        <option value="automotive">Automotive</option>
+        <option value="food">Food/Agriculture</option>
+        <option value="pharma">Pharmaceuticals</option>
+        <option value="rawMaterials">Raw Materials</option>
+        <option value="consumerGoods">Consumer Goods</option>
         <option value="other">Other</option>
       </select>
     </div>
+
     <div class="field-group">
-      <label class="field-label">Primary Sourcing Regions</label>
-      <input class="field-input" id="sourcingRegions" type="text" placeholder="e.g. China, Vietnam, India...">
+      <label class="field-label">Primary Sourcing Countries</label>
+      <div class="chip-grid" id="sourcingChips">
+        <span class="chip-option" data-country="China">China</span>
+        <span class="chip-option" data-country="Vietnam">Vietnam</span>
+        <span class="chip-option" data-country="India">India</span>
+        <span class="chip-option" data-country="Bangladesh">Bangladesh</span>
+        <span class="chip-option" data-country="Indonesia">Indonesia</span>
+        <span class="chip-option" data-country="Mexico">Mexico</span>
+        <span class="chip-option" data-country="Thailand">Thailand</span>
+        <span class="chip-option" data-country="Malaysia">Malaysia</span>
+        <span class="chip-option" data-country="Cambodia">Cambodia</span>
+        <span class="chip-option" data-country="Philippines">Philippines</span>
+        <span class="chip-option" data-country="Pakistan">Pakistan</span>
+        <span class="chip-option" data-country="Turkey">Turkey</span>
+        <span class="chip-option" data-country="Brazil">Brazil</span>
+        <span class="chip-option" data-country="South Korea">South Korea</span>
+        <span class="chip-option" data-country="Japan">Japan</span>
+        <span class="chip-option" data-country="Taiwan">Taiwan</span>
+        <span class="chip-option" data-country="Germany">Germany</span>
+        <span class="chip-option" data-country="Poland">Poland</span>
+        <span class="chip-option" data-country="Romania">Romania</span>
+        <span class="chip-option" data-country="Morocco">Morocco</span>
+        <span class="chip-option" data-country="Ethiopia">Ethiopia</span>
+        <span class="chip-option" data-country="Sri Lanka">Sri Lanka</span>
+        <span class="chip-option" data-country="Honduras">Honduras</span>
+        <span class="chip-option" data-country="Guatemala">Guatemala</span>
+        <span class="chip-option" data-country="Myanmar">Myanmar</span>
+        <span class="chip-option" data-country="Italy">Italy</span>
+        <span class="chip-option" data-country="Portugal">Portugal</span>
+        <span class="chip-option" data-country="Czech Republic">Czech Republic</span>
+        <span class="chip-option" data-country="Bulgaria">Bulgaria</span>
+        <span class="chip-option" data-country="Hungary">Hungary</span>
+        <span class="chip-option" data-country="Slovakia">Slovakia</span>
+      </div>
     </div>
+
     <div class="field-group">
-      <label class="field-label">Industry / Product Category</label>
-      <select class="field-select" id="industry">
-        <option value="">Select industry...</option>
-        <option value="technology">Technology / Electronics</option>
-        <option value="textiles">Apparel / Textiles</option>
-        <option value="automotive">Automotive</option>
-        <option value="pharma">Pharma / Medical</option>
-        <option value="consumerGoods">Consumer Goods</option>
-        <option value="generalMfg">General Manufacturing</option>
+      <label class="field-label">Annual Revenue</label>
+      <select class="field-select" id="annualRevenue">
+        <option value="">Select revenue range…</option>
+        <option value="under1m">&lt;$1M</option>
+        <option value="1m10m">$1M–$10M</option>
+        <option value="10m50m">$10M–$50M</option>
+        <option value="50m100m">$50M–$100M</option>
+        <option value="over100m">$100M+</option>
       </select>
     </div>
-    <button class="onboard-submit" onclick="handleOnboardSubmit()">Start Intelligence Analysis →</button>
+
+    <button class="onboard-submit" onclick="handleOnboardSubmit()">Update Profile</button>
+    <button class="onboard-cancel" onclick="document.getElementById('onboardingPanel').style.display='none'">Cancel</button>
   </div>
 </div>
 
@@ -721,6 +792,7 @@ var countryMarkers = {};
 var currentLayer   = 'risk';
 var currentCategory= 'technology';
 var userProfile    = {};
+var selectedSourcingCountries = [];
 
 // ============================================================
 // COUNTRY DATA
@@ -872,6 +944,11 @@ function initMap() {
   L.control.zoom({ position: 'bottomright' }).addTo(map);
   renderMarkers();
   buildLegend(currentLayer);
+
+  // Force map to fill container after init
+  setTimeout(function() { map.invalidateSize(); }, 100);
+  setTimeout(function() { map.invalidateSize(); }, 500);
+
   setTimeout(function() {
     var s = document.getElementById('mapSkeleton');
     if (s) { s.style.transition='opacity 0.5s ease'; s.style.opacity='0'; setTimeout(function(){if(s.parentNode)s.style.display='none';},500); }
@@ -934,21 +1011,39 @@ function deepDive(countryName) {
 }
 
 // ============================================================
+// SOURCING CHIP TOGGLE
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  var chipGrid = document.getElementById('sourcingChips');
+  if (chipGrid) {
+    chipGrid.addEventListener('click', function(e) {
+      var chip = e.target.closest('.chip-option');
+      if (!chip) return;
+      chip.classList.toggle('selected');
+      selectedSourcingCountries = [];
+      var selected = chipGrid.querySelectorAll('.chip-option.selected');
+      for (var i = 0; i < selected.length; i++) {
+        selectedSourcingCountries.push(selected[i].getAttribute('data-country'));
+      }
+    });
+  }
+});
+
+// ============================================================
 // ONBOARDING
 // ============================================================
 function handleOnboardSubmit() {
-  var biz = document.getElementById('bizDesc').value;
   var type = document.getElementById('companyType').value;
   var country = document.getElementById('homeCountry').value;
-  var regions = document.getElementById('sourcingRegions').value;
   var industry = document.getElementById('industry').value;
+  var revenue = document.getElementById('annualRevenue').value;
   if (industry) currentCategory = industry;
-  userProfile = { biz: biz, type: type, country: country, regions: regions, industry: industry };
+  userProfile = { type: type, country: country, regions: selectedSourcingCountries.join(', '), industry: industry, revenue: revenue };
   document.getElementById('onboardingPanel').style.display = 'none';
   renderMarkers();
   var greeting = 'Welcome to RiskSim! I\'ve set up your profile';
   if (type) greeting += ' as a ' + type;
-  if (regions) greeting += ' sourcing from ' + regions;
+  if (selectedSourcingCountries.length) greeting += ' sourcing from ' + selectedSourcingCountries.join(', ');
   greeting += '. What supply chain intelligence can I help you with?';
   addAIMessage(greeting);
 }
@@ -1042,13 +1137,11 @@ document.addEventListener('DOMContentLoaded', function() { initMap(); });
   renderer.setClearColor(0x000000, 1);
   intro.insertBefore(renderer.domElement, intro.firstChild);
 
-  // Globe wireframe
   const globeGeo = new THREE.IcosahedronGeometry(1.6, 12);
   const globeMat = new THREE.MeshBasicMaterial({ color: 0x8899aa, wireframe: true, transparent: true, opacity: 0.07 });
   const globe = new THREE.Mesh(globeGeo, globeMat);
   scene.add(globe);
 
-  // Globe point cloud
   const pointsCount = 4000;
   const pointsGeo = new THREE.BufferGeometry();
   const pointsPos = new Float32Array(pointsCount * 3);
@@ -1065,7 +1158,6 @@ document.addEventListener('DOMContentLoaded', function() { initMap(); });
   const globePoints = new THREE.Points(pointsGeo, pointsMat);
   scene.add(globePoints);
 
-  // Latitude rings
   const ringMat = new THREE.LineBasicMaterial({ color: 0x667788, transparent: true, opacity: 0.05 });
   for (let i = 0; i < 8; i++) {
     const ringGeo = new THREE.BufferGeometry();
@@ -1081,7 +1173,6 @@ document.addEventListener('DOMContentLoaded', function() { initMap(); });
     globe.add(new THREE.Line(ringGeo, ringMat));
   }
 
-  // Ambient particles
   const ambientCount = 3000;
   const ambientGeo = new THREE.BufferGeometry();
   const ambientPos = new Float32Array(ambientCount * 3);
@@ -1095,7 +1186,6 @@ document.addEventListener('DOMContentLoaded', function() { initMap(); });
   const ambientParticles = new THREE.Points(ambientGeo, ambientMat);
   scene.add(ambientParticles);
 
-  // Orbital rings
   function makeOrbit(radius, rx, rz, opacity) {
     const pts = [];
     for (let i = 0; i <= 128; i++) { const a = (i/128)*Math.PI*2; pts.push(new THREE.Vector3(radius*Math.cos(a), 0, radius*Math.sin(a))); }
@@ -1107,12 +1197,10 @@ document.addEventListener('DOMContentLoaded', function() { initMap(); });
   const orbit1 = makeOrbit(2.4, Math.PI*0.35,  Math.PI*0.1,  0.08);
   const orbit2 = makeOrbit(2.8, Math.PI*0.55, -Math.PI*0.15, 0.04);
 
-  // Glow light
   const glowLight = new THREE.PointLight(0x6688aa, 1.0, 10);
   glowLight.position.set(0, 0, 3);
   scene.add(glowLight);
 
-  // Animation
   let animationId;
   const clock = new THREE.Clock();
 
@@ -1136,7 +1224,6 @@ document.addEventListener('DOMContentLoaded', function() { initMap(); });
   }
   animate();
 
-  // Resize
   function onResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -1144,14 +1231,12 @@ document.addEventListener('DOMContentLoaded', function() { initMap(); });
   }
   window.addEventListener('resize', onResize);
 
-  // Mouse parallax
   document.addEventListener('mousemove', (e) => {
     const mx = (e.clientX / window.innerWidth - 0.5) * 0.3;
     globe.rotation.z = mx * 0.2;
     globePoints.rotation.z = mx * 0.2;
   });
 
-  // Dismiss
   let dismissed = false;
   function dismiss() {
     if (dismissed) return; dismissed = true;
@@ -1166,6 +1251,8 @@ document.addEventListener('DOMContentLoaded', function() { initMap(); });
       intro.remove();
       document.body.style.overflow = '';
       window.removeEventListener('resize', onResize);
+      // Force map resize after intro dismissed
+      if (map) { map.invalidateSize(); }
     }, 900);
   }
 
