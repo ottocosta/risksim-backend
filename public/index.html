@@ -6,7 +6,7 @@
   <title>RiskSim — Supply Chain Intelligence</title>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -212,24 +212,27 @@
 
     /* ===== CSS VARIABLES ===== */
     :root {
-      --bg:          #07080d;
+      --bg:          #050608;
       --surface:     rgba(12,14,22,0.82);
       --surface2:    rgba(15,18,28,0.9);
-      --border:      rgba(255,255,255,0.07);
-      --border-glow: rgba(125,249,194,0.15);
+      --border:      rgba(255,255,255,0.06);
+      --border-glow: rgba(125,249,194,0.18);
       --text:        #e2e8f0;
       --muted:       #64748b;
       --accent:      #7DF9C2;
       --accent2:     #4ade80;
+      --accent-cyan: #22d3ee;
       --danger:      #ff3355;
       --warning:     #ff8c00;
       --font:        'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono:   'JetBrains Mono', monospace;
-      --glass-bg:    rgba(10,12,22,0.65);
-      --glass-border:rgba(125,249,194,0.12);
-      --glass-shadow:0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+      --font-display:'Orbitron', sans-serif;
+      --glass-bg:    rgba(8,10,18,0.55);
+      --glass-border:rgba(125,249,194,0.1);
+      --glass-shadow:0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
       --radius:      14px;
       --radius-sm:   8px;
+      --glow-green:  0 0 20px rgba(125,249,194,0.15), 0 0 60px rgba(125,249,194,0.05);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -242,21 +245,30 @@
       overflow: hidden;
     }
 
-    /* ===== MAP — FULLSCREEN FIX ===== */
-    #mapContainer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      background: #07080d;
-    }
-    #map {
-      width: 100%;
-      height: 100%;
-      background: #07080d;
-    }
+    /* ===== FULLSCREEN MAP ===== */
+    #mapContainer { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; z-index: 0; background: var(--bg); }
+    #map { width: 100% !important; height: 100% !important; background: var(--bg) !important; }
+
+    /* ===== ANIMATED GRID OVERLAY ===== */
+    .grid-overlay { position: fixed; inset: 0; z-index: 1; pointer-events: none; background-image: linear-gradient(rgba(125,249,194,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(125,249,194,0.018) 1px, transparent 1px); background-size: 80px 80px; mask-image: radial-gradient(ellipse at center, transparent 20%, black 80%); -webkit-mask-image: radial-gradient(ellipse at center, transparent 20%, black 80%); animation: gridDrift 20s linear infinite; }
+    @keyframes gridDrift { 0% { background-position: 0 0; } 100% { background-position: 80px 80px; } }
+    .map-vignette { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at center, transparent 30%, rgba(5,6,8,0.5) 70%, rgba(5,6,8,0.85) 100%); }
+    .hud-scanline { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 99; background: linear-gradient(90deg, transparent, rgba(125,249,194,0.12), rgba(34,211,238,0.08), transparent); animation: scanDown 8s linear infinite; pointer-events: none; box-shadow: 0 0 20px rgba(125,249,194,0.08); }
+    @keyframes scanDown { 0% { top: -2px; } 100% { top: 100vh; } }
+    .hud-corner { position: fixed; z-index: 50; pointer-events: none; opacity: 0; animation: hudFadeIn 0.8s ease forwards; }
+    .hud-corner svg { width: 100%; height: 100%; }
+    .hud-tl { top: 10px; left: 10px; width: 40px; height: 40px; animation-delay: 0.5s; }
+    .hud-tr { top: 10px; right: 10px; width: 40px; height: 40px; animation-delay: 0.6s; }
+    .hud-bl { bottom: 10px; left: 10px; width: 40px; height: 40px; animation-delay: 0.7s; }
+    .hud-br { bottom: 10px; right: 10px; width: 40px; height: 40px; animation-delay: 0.8s; }
+    @keyframes hudFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes borderGlow { 0%, 100% { border-color: rgba(125,249,194,0.1); } 50% { border-color: rgba(125,249,194,0.22); box-shadow: var(--glass-shadow), var(--glow-green); } }
+    @keyframes borderGlowCyan { 0%, 100% { border-color: rgba(34,211,238,0.06); } 50% { border-color: rgba(34,211,238,0.16); } }
+    .float-particle { position: fixed; z-index: 2; pointer-events: none; border-radius: 50%; animation: floatUp linear infinite; }
+    @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 0.5; } 100% { transform: translateY(-100vh) scale(0.4); opacity: 0; } }
+    .status-bar { position: fixed; bottom: 16px; left: 16px; z-index: 50; display: flex; align-items: center; gap: 12px; font-family: var(--font-mono); font-size: 9px; color: var(--muted); letter-spacing: 0.06em; opacity: 0; animation: hudFadeIn 0.8s ease 1.5s forwards; }
+    .status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: rsBlink 2s ease-in-out infinite; }
+    .status-sep { color: rgba(255,255,255,0.08); }
 
     /* ===== ANIMATIONS ===== */
     @keyframes slideUpFade {
@@ -275,6 +287,7 @@
     @keyframes typingDot { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(-4px); opacity: 1; } }
     @keyframes pulseRing { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(125,249,194,0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(125,249,194,0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(125,249,194,0); } }
     @keyframes rsBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ===== LOADING SKELETON ===== */
     #mapSkeleton {
@@ -282,22 +295,26 @@
       background: var(--bg);
       display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px;
     }
-    .skeleton-logo { font-family: var(--font-mono); font-size: 18px; font-weight: 700; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; animation: shimmerPulse 1.8s ease-in-out infinite; }
+    .skeleton-logo { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; animation: shimmerPulse 1.8s ease-in-out infinite; text-shadow: 0 0 30px rgba(125,249,194,0.3); }
     .skeleton-sub { font-size: 11px; color: var(--muted); font-family: var(--font-mono); letter-spacing: 0.08em; animation: shimmerPulse 1.8s ease-in-out 0.3s infinite; }
-    .skeleton-bar { width: 120px; height: 2px; background: rgba(125,249,194,0.15); border-radius: 2px; overflow: hidden; margin-top: 4px; }
-    .skeleton-bar::after { content: ''; display: block; height: 100%; background: linear-gradient(90deg, transparent, var(--accent), transparent); animation: shimmer 1.4s ease-in-out infinite; }
+    .skeleton-bar { width: 160px; height: 2px; background: rgba(125,249,194,0.1); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+    .skeleton-bar::after { content: ''; display: block; height: 100%; width: 60%; background: linear-gradient(90deg, transparent, var(--accent), transparent); animation: shimmer 1.2s ease-in-out infinite; }
     .skeleton-shimmer { position: absolute; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(125,249,194,0.02) 50%, rgba(255,255,255,0) 100%); animation: shimmer 2.2s ease-in-out infinite; }
 
     /* ===== LEAFLET OVERRIDES ===== */
     .leaflet-container {
-      background: #07080d !important;
+      background: var(--bg) !important;
       width: 100% !important;
       height: 100% !important;
     }
+    .leaflet-tile-pane { filter: brightness(0.9) saturate(0.8) contrast(1.1); }
+    .leaflet-control-zoom { border: none !important; }
+    .leaflet-control-zoom a { background: rgba(8,10,18,0.8) !important; color: var(--accent) !important; border: 1px solid rgba(125,249,194,0.12) !important; backdrop-filter: blur(16px) !important; }
+    .leaflet-control-zoom a:hover { background: rgba(125,249,194,0.1) !important; }
     .leaflet-popup-content-wrapper {
-      background: rgba(8,10,18,0.97) !important; color: #fff !important; border-radius: 16px !important;
-      border: 1px solid rgba(125,249,194,0.2) !important; border-left: 3px solid var(--accent) !important;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04) !important;
+      background: rgba(8,10,18,0.95) !important; color: #fff !important; border-radius: 16px !important;
+      border: 1px solid rgba(125,249,194,0.15) !important; border-left: 3px solid var(--accent) !important;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8), var(--glow-green) !important;
       backdrop-filter: blur(24px) !important; -webkit-backdrop-filter: blur(24px) !important;
     }
     .leaflet-popup-tip-container { display: none !important; }
@@ -319,7 +336,7 @@
     .map-overlay-header::before { content: ''; position: absolute; inset: 0; border-radius: var(--radius); background: linear-gradient(135deg, rgba(125,249,194,0.05) 0%, transparent 60%); pointer-events: none; }
     .map-layer-name { font-size: 13px; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
     .map-layer-sub { font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: 0.02em; line-height: 1.4; max-width: 200px; }
-    .header-accent { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-right: 6px; box-shadow: 0 0 6px var(--accent); vertical-align: middle; position: relative; top: -1px; }
+    .header-accent { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-right: 7px; box-shadow: 0 0 8px var(--accent), 0 0 20px rgba(125,249,194,0.3); vertical-align: middle; position: relative; top: -1px; animation: rsBlink 2s ease-in-out infinite; }
 
     /* ===== LAYER TOGGLE ===== */
     .layer-controls {
@@ -353,11 +370,11 @@
     .legend-title { font-size: 9px; font-weight: 700; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; font-family: var(--font-mono); }
     .legend-items { display: flex; flex-direction: column; gap: 6px; }
     .legend-item { display: flex; align-items: center; gap: 9px; font-size: 10px; color: #94a3b8; font-family: var(--font-mono); letter-spacing: 0.01em; opacity: 0; animation: legendItemIn 0.3s ease forwards; }
-    .legend-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 4px currentColor; }
+    .legend-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px currentColor, 0 0 14px currentColor; }
 
     /* ===== MARKERS ===== */
     .map-marker { position: relative; }
-    .marker-dot { border-radius: 50%; position: absolute; top: 0; left: 0; box-shadow: 0 0 6px currentColor; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .marker-dot { border-radius: 50%; position: absolute; top: 0; left: 0; box-shadow: 0 0 8px currentColor, 0 0 16px currentColor; transition: transform 0.2s ease, box-shadow 0.2s ease; }
     .marker-pulse { position: absolute; border-radius: 50%; animation: marker-pulse 2.2s ease-out infinite; opacity: 0; top: 0; left: 0; }
 
     /* ===== POPUP ===== */
@@ -510,7 +527,7 @@
       padding: 12px 14px 12px 18px;
       box-shadow: 0 -4px 40px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.5);
       pointer-events: all;
-      animation: panelIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.9s both;
+      animation: panelIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.9s both, borderGlowCyan 4s ease-in-out infinite;
       position: relative;
     }
     #chatInputWrap::before { content: ''; position: absolute; top: 0; left: 20px; right: 20px; height: 1px; background: linear-gradient(90deg, transparent, rgba(125,249,194,0.2), transparent); }
@@ -554,7 +571,7 @@
     }
     .chat-msg.ai .msg-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; display: block; }
     .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
-    .typing-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); animation: typingDot 1.2s ease-in-out infinite; }
+    .typing-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: typingDot 1.2s ease-in-out infinite; box-shadow: 0 0 6px var(--accent); }
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
@@ -571,6 +588,7 @@
       .map-legend { bottom: 170px; left: 8px; }
       #onboardingPanel { right: 8px; left: 8px; width: auto; }
       #chatInputWrap { max-width: calc(100% - 32px); }
+      .hud-corner, .status-bar, .grid-overlay { display: none; }
     }
   </style>
 </head>
@@ -613,13 +631,23 @@
 <!-- ===== LOADING SKELETON ===== -->
 <div id="mapSkeleton">
   <div class="skeleton-shimmer"></div>
-  <div class="skeleton-logo">RiskSim</div>
-  <div class="skeleton-sub">Loading Intelligence Map…</div>
+  <div style="width:60px;height:60px;border:2px solid transparent;border-top-color:var(--accent);border-right-color:rgba(34,211,238,0.3);border-radius:50%;animation:spin 1.2s linear infinite;margin-bottom:8px;"></div>
+  <div class="skeleton-logo">RISKSIM</div>
+  <div class="skeleton-sub">Initializing Intelligence Map…</div>
   <div class="skeleton-bar"></div>
 </div>
 
 <!-- ===== MAP ===== -->
 <div id="mapContainer"><div id="map"></div></div>
+
+<!-- ===== MAP EFFECTS ===== -->
+<div class="grid-overlay"></div>
+<div class="map-vignette"></div>
+<div class="hud-scanline"></div>
+<div class="hud-corner hud-tl"><svg viewBox="0 0 40 40"><path d="M0 15 L0 0 L15 0" fill="none" stroke="rgba(125,249,194,0.2)" stroke-width="1.5"/></svg></div>
+<div class="hud-corner hud-tr"><svg viewBox="0 0 40 40"><path d="M25 0 L40 0 L40 15" fill="none" stroke="rgba(125,249,194,0.2)" stroke-width="1.5"/></svg></div>
+<div class="hud-corner hud-bl"><svg viewBox="0 0 40 40"><path d="M0 25 L0 40 L15 40" fill="none" stroke="rgba(125,249,194,0.2)" stroke-width="1.5"/></svg></div>
+<div class="hud-corner hud-br"><svg viewBox="0 0 40 40"><path d="M25 40 L40 40 L40 25" fill="none" stroke="rgba(125,249,194,0.2)" stroke-width="1.5"/></svg></div>
 
 <!-- ===== MAP OVERLAY HEADER ===== -->
 <div class="map-overlay-header">
@@ -763,6 +791,18 @@
   </div>
 </div>
 
+<!-- ===== STATUS BAR ===== -->
+<div class="status-bar">
+  <span class="status-dot"></span>
+  <span>SYSTEM ONLINE</span>
+  <span class="status-sep">|</span>
+  <span id="statusTime">00:00:00</span>
+  <span class="status-sep">|</span>
+  <span>58 NODES ACTIVE</span>
+  <span class="status-sep">|</span>
+  <span>LATENCY &lt;2ms</span>
+</div>
+
 <!-- ===== CHAT MESSAGES ===== -->
 <div id="chatMessages"></div>
 
@@ -787,12 +827,13 @@
 // ============================================================
 // STATE
 // ============================================================
-var map            = null;
-var countryMarkers = {};
-var currentLayer   = 'risk';
-var currentCategory= 'technology';
-var userProfile    = {};
-var selectedSourcingCountries = [];
+var map = null, countryMarkers = {}, currentLayer = 'risk', currentCategory = 'technology', userProfile = {}, selectedSourcingCountries = [];
+
+// Floating particles
+(function(){for(var i=0;i<15;i++){var p=document.createElement('div');p.className='float-particle';var size=Math.random()*3+1,left=Math.random()*100,dur=Math.random()*15+10,delay=Math.random()*10,hue=Math.random()>0.5?'125,249,194':'34,211,238';p.style.cssText='width:'+size+'px;height:'+size+'px;left:'+left+'%;bottom:-10px;background:rgba('+hue+','+(Math.random()*0.25+0.1).toFixed(2)+');box-shadow:0 0 '+(size*3)+'px rgba('+hue+',0.15);animation-duration:'+dur+'s;animation-delay:'+delay+'s;';document.body.appendChild(p);}})();
+
+// Status clock
+setInterval(function(){var el=document.getElementById('statusTime');if(el){var d=new Date();el.textContent=d.toTimeString().split(' ')[0];}},1000);
 
 // ============================================================
 // COUNTRY DATA
@@ -945,9 +986,9 @@ function initMap() {
   renderMarkers();
   buildLegend(currentLayer);
 
-  // Force map to fill container after init
-  setTimeout(function() { map.invalidateSize(); }, 100);
-  setTimeout(function() { map.invalidateSize(); }, 500);
+  setTimeout(function(){map.invalidateSize();},100);
+  setTimeout(function(){map.invalidateSize();},500);
+  setTimeout(function(){map.invalidateSize();},1500);
 
   setTimeout(function() {
     var s = document.getElementById('mapSkeleton');
