@@ -5,680 +5,418 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>RiskSim — Supply Chain Intelligence</title>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Syne:wght@400;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous" />
+  <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" onerror="console.error('d3 cdnjs failed')"></script>
+  <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" onerror="console.error('leaflet cdnjs failed')"></script>
+  <!-- Fallbacks if cdnjs fails -->
+  <script>
+    if(typeof d3==='undefined'){document.write('<scr'+'ipt src="https://unpkg.com/d3@7.9.0/dist/d3.min.js"><\/scr'+'ipt>');}
+    if(typeof L==='undefined'){document.write('<scr'+'ipt src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/scr'+'ipt>');}
+  </script>
 
   <style>
-    /* ===== CINEMATIC INTRO (Opus) ===== */
-    #rs-intro {
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background: #000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      cursor: pointer;
-      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    #rs-intro.dismissing {
-      opacity: 0;
-      transform: scale(1.05);
-      pointer-events: none;
-    }
-    #rs-intro canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
-    .intro-content {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-    .intro-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-weight: 400;
-      font-size: clamp(6rem, 20vw, 22rem);
-      color: rgba(255,255,255,0.92);
-      letter-spacing: 0.06em;
-      line-height: 0.85;
-      text-align: center;
-      text-transform: uppercase;
-      position: relative;
-      margin-top: -6vh;
-      opacity: 0;
-      animation: titleIn 1.4s cubic-bezier(0.16,1,0.3,1) 0.3s forwards;
-      text-shadow: 0 0 80px rgba(255,255,255,0.06), 0 0 200px rgba(59,130,246,0.06);
-    }
-    .intro-title::before {
-      content: 'RISKSIM';
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: inherit;
-      font-family: inherit;
-      letter-spacing: inherit;
-      line-height: inherit;
-      color: transparent;
-      -webkit-text-stroke: 1px rgba(255,255,255,0.04);
-      transform: scale(1.08);
-      z-index: -1;
-    }
-    .intro-title span.accent { color: rgba(255,255,255,0.55); }
-    .intro-subtitle {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
-      font-size: clamp(0.75rem, 1.4vw, 1.2rem);
-      color: rgba(148,163,184,0.7);
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      margin-top: 1.5rem;
-      opacity: 0;
-      animation: fadeUp 1s cubic-bezier(0.16,1,0.3,1) 0.8s forwards;
-    }
-    .intro-tagline {
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 400;
-      font-size: clamp(0.85rem, 1.2vw, 1.1rem);
-      color: rgba(148,163,184,0.4);
-      letter-spacing: 0.05em;
-      margin-top: 0.8rem;
-      opacity: 0;
-      animation: fadeUp 1s cubic-bezier(0.16,1,0.3,1) 1.1s forwards;
-    }
-    .corner-label {
-      position: absolute;
-      z-index: 3;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.65rem;
-      font-weight: 400;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(148,163,184,0.3);
-      opacity: 0;
-      animation: introFadeIn 1s ease 1.5s forwards;
-    }
-    .corner-tl { top: 2rem; left: 2.5rem; }
-    .corner-tr { top: 2rem; right: 2.5rem; text-align: right; }
-    .corner-bl { bottom: 2rem; left: 2.5rem; }
-    .corner-br { bottom: 2rem; right: 2.5rem; text-align: right; }
-    .corner-label .value {
-      display: block;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 0.95rem;
-      color: rgba(255,255,255,0.6);
-      letter-spacing: 0;
-      margin-top: 0.2rem;
-    }
-    .deco-cross {
-      position: absolute;
-      z-index: 3;
-      width: 10px;
-      height: 10px;
-      opacity: 0;
-      animation: introFadeIn 1.2s ease 1.8s forwards;
-    }
-    .deco-cross::before, .deco-cross::after { content: ''; position: absolute; background: rgba(255,255,255,0.15); }
-    .deco-cross::before { width: 1px; height: 100%; left: 50%; transform: translateX(-50%); }
-    .deco-cross::after  { height: 1px; width: 100%; top: 50%; transform: translateY(-50%); }
-    .cross-1 { top: 15%; left: 20%; }
-    .cross-2 { top: 25%; right: 15%; }
-    .cross-3 { bottom: 30%; left: 12%; }
-    .cross-4 { top: 12%; left: 50%; }
-    .cross-5 { bottom: 20%; right: 25%; }
-    .h-rule {
-      position: absolute; z-index: 3; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-      opacity: 0; animation: introFadeIn 1.5s ease 2s forwards;
-    }
-    .h-rule-top { top: 5.5rem; left: 2.5rem; right: 2.5rem; }
-    .h-rule-bot { bottom: 5.5rem; left: 2.5rem; right: 2.5rem; }
-    .enter-hint {
-      position: absolute; bottom: 3.5rem; left: 50%; transform: translateX(-50%);
-      z-index: 3; display: flex; align-items: center; gap: 0.6rem;
-      opacity: 0; animation: introFadeIn 1s ease 2.2s forwards;
-    }
-    .enter-hint-text {
-      font-family: 'DM Sans', sans-serif; font-size: 0.7rem; font-weight: 400;
-      letter-spacing: 0.25em; text-transform: uppercase; color: rgba(148,163,184,0.35);
-      animation: pulse 2.5s ease-in-out infinite;
-    }
-    .enter-key {
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 0.2rem 0.55rem; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;
-      font-family: 'DM Sans', sans-serif; font-size: 0.6rem; font-weight: 500;
-      letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4);
-      animation: pulse 2.5s ease-in-out infinite;
-    }
-    .scroll-indicator {
-      position: absolute; bottom: 6.5rem; left: 50%; transform: translateX(-50%);
-      z-index: 3; width: 36px; height: 36px;
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; animation: introFadeIn 1s ease 2s forwards;
-    }
-    .scroll-indicator svg { width: 12px; height: 12px; animation: bobDown 2s ease-in-out infinite; }
-    .vignette {
-      position: absolute; inset: 0; z-index: 1; pointer-events: none;
-      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
-    }
-    .scanlines {
-      position: absolute; inset: 0; z-index: 2; pointer-events: none;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
-    }
-    .grain {
-      position: absolute; inset: -50%; z-index: 2; pointer-events: none;
-      opacity: 0.035; animation: grainShift 0.5s steps(10) infinite;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size: 256px 256px;
-    }
-    @keyframes grainShift {
-      0%, 100% { transform: translate(0,0); } 10% { transform: translate(-5%,-10%); }
-      30% { transform: translate(3%,-15%); } 50% { transform: translate(12%,9%); }
-      70% { transform: translate(9%,4%); }   90% { transform: translate(-1%,7%); }
-    }
-    @keyframes titleIn {
-      0%   { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(10px); }
-      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-    }
-    @keyframes fadeUp {
-      0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes introFadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
-    @keyframes pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.7; } }
-    @keyframes bobDown {
-      0%, 100% { transform: translateY(-2px); opacity: 0.4; } 50% { transform: translateY(3px); opacity: 0.8; }
-    }
-    @media (max-width: 768px) {
-      .corner-label, .deco-cross, .h-rule { display: none; }
-      .intro-title { margin-top: -4vh; }
-    }
-
-    /* ===== CSS VARIABLES ===== */
-    :root {
-      --bg:          #050608;
-      --surface:     rgba(12,14,22,0.82);
-      --surface2:    rgba(15,18,28,0.9);
-      --border:      rgba(255,255,255,0.06);
-      --border-glow: rgba(125,249,194,0.18);
-      --text:        #e2e8f0;
-      --muted:       #64748b;
-      --accent:      #7DF9C2;
-      --accent2:     #4ade80;
-      --accent-cyan: #22d3ee;
-      --danger:      #ff3355;
-      --warning:     #ff8c00;
-      --font:        'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-mono:   'JetBrains Mono', monospace;
-      --font-display:'Orbitron', sans-serif;
-      --glass-bg:    rgba(8,10,18,0.55);
-      --glass-border:rgba(125,249,194,0.1);
-      --glass-shadow:0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
-      --radius:      14px;
-      --radius-sm:   8px;
-      --glow-green:  0 0 20px rgba(125,249,194,0.15), 0 0 60px rgba(125,249,194,0.05);
-    }
-
+    /* ===== RESET ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #050608;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --accent: #2dd4bf;
+      --accent2: #14b8a6;
+      --accent-glow: rgba(45,212,191,0.15);
+      --glass: rgba(8,12,20,0.55);
+      --glass-border: rgba(45,212,191,0.12);
+      --glass-shadow: 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+      --font: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-display: 'Orbitron', sans-serif;
+      --radius: 16px;
+    }
+
     html, body {
-      height: 100%;
-      width: 100%;
+      height: 100%; width: 100%;
       font-family: var(--font);
       background: var(--bg);
       color: var(--text);
       overflow: hidden;
     }
 
+    /* ===== CINEMATIC INTRO ===== */
+    #rs-intro {
+      position: fixed; inset: 0; z-index: 99999; background: #000;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      overflow: hidden; cursor: pointer;
+      transition: opacity 1.2s cubic-bezier(0.16,1,0.3,1), transform 1.2s cubic-bezier(0.16,1,0.3,1);
+    }
+    #rs-intro.dismissing {
+      opacity: 0; transform: scale(1.08);
+      pointer-events: none;
+    }
+
+    /* RISKSIM wordmark — thick modern geometric */
+    .intro-wordmark {
+      position: relative; z-index: 10;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(3.5rem, 12vw, 10rem);
+      letter-spacing: 0.04em;
+      color: #fff;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-top: -12vh;
+      opacity: 0;
+      animation: wmIn 1.2s cubic-bezier(0.16,1,0.3,1) 0.4s forwards;
+      /* Thick stroke effect via text-shadow stacking */
+      text-shadow:
+        -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff,
+        -3px 0 0 #fff, 3px 0 0 #fff, 0 -3px 0 #fff, 0 3px 0 #fff;
+      paint-order: stroke fill;
+      -webkit-text-stroke: 3px #fff;
+    }
+    @media (min-width: 768px) {
+      .intro-wordmark { -webkit-text-stroke: 5px #fff; font-size: clamp(5rem, 14vw, 13rem); }
+    }
+
+    .intro-subtitle {
+      position: relative; z-index: 10;
+      font-family: 'DM Sans', sans-serif; font-weight: 300;
+      font-size: clamp(0.7rem, 1.2vw, 1rem);
+      color: rgba(255,255,255,0.4); letter-spacing: 0.4em; text-transform: uppercase;
+      margin-top: 1.2rem; opacity: 0;
+      animation: fadeUp 0.8s ease 1s forwards;
+    }
+
+    .intro-hint {
+      position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%);
+      z-index: 10; display: flex; align-items: center; gap: 0.5rem;
+      font-family: 'DM Sans', sans-serif; font-size: 0.65rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.25);
+      opacity: 0; animation: fadeIn 0.8s ease 2s forwards;
+    }
+    .intro-hint-key {
+      padding: 2px 8px; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 4px; color: rgba(255,255,255,0.35); font-size: 0.6rem;
+    }
+
+    /* Globe canvas */
+    #introGlobe {
+      position: absolute; inset: 0; z-index: 1;
+      opacity: 0; animation: fadeIn 1.5s ease 0.2s forwards;
+    }
+
+    /* Vignette */
+    .intro-vignette {
+      position: absolute; inset: 0; z-index: 5; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.7) 70%, #000 100%);
+    }
+
+    @keyframes wmIn {
+      0% { opacity: 0; transform: translateY(30px) scale(0.96); filter: blur(8px); }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    @keyframes fadeUp { 0% { opacity:0; transform:translateY(15px); } 100% { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn { 0% { opacity:0; } 100% { opacity:1; } }
+    @keyframes pulse { 0%,100% { opacity:0.25; } 50% { opacity:0.5; } }
+    @keyframes rsBlink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+    @keyframes shimmer { 0% { transform:translateX(-100%); } 100% { transform:translateX(100%); } }
+    @keyframes shimmerPulse { 0%,100% { opacity:0.4; } 50% { opacity:0.8; } }
+    @keyframes panelIn { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes chatIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes marker-pulse { 0% { transform:scale(1); opacity:0.7; } 100% { transform:scale(2.8); opacity:0; } }
+    @keyframes legendItemIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes ripple { 0% { transform:scale(0); opacity:0.5; } 100% { transform:scale(2.5); opacity:0; } }
+    @keyframes typingDot { 0%,100% { transform:translateY(0); opacity:0.4; } 50% { transform:translateY(-4px); opacity:1; } }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
     /* ===== FULLSCREEN MAP ===== */
-    #mapContainer { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; z-index: 0; background: var(--bg); }
-    #map { width: 100% !important; height: 100% !important; background: var(--bg) !important; }
+    #mapContainer { position: fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:0; background:var(--bg); }
+    #map { width:100%!important; height:100%!important; background:var(--bg)!important; }
 
-    /* ===== ANIMATED GRID OVERLAY ===== */
-    .grid-overlay { position: fixed; inset: 0; z-index: 1; pointer-events: none; background-image: linear-gradient(rgba(125,249,194,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(125,249,194,0.018) 1px, transparent 1px); background-size: 80px 80px; mask-image: radial-gradient(ellipse at center, transparent 20%, black 80%); -webkit-mask-image: radial-gradient(ellipse at center, transparent 20%, black 80%); animation: gridDrift 20s linear infinite; }
-    @keyframes gridDrift { 0% { background-position: 0 0; } 100% { background-position: 80px 80px; } }
-    .map-vignette { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at center, transparent 30%, rgba(5,6,8,0.5) 70%, rgba(5,6,8,0.85) 100%); }
-    .hud-scanline { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 99; background: linear-gradient(90deg, transparent, rgba(125,249,194,0.12), rgba(34,211,238,0.08), transparent); animation: scanDown 8s linear infinite; pointer-events: none; box-shadow: 0 0 20px rgba(125,249,194,0.08); }
-    @keyframes scanDown { 0% { top: -2px; } 100% { top: 100vh; } }
-    .hud-corner { position: fixed; z-index: 50; pointer-events: none; opacity: 0; animation: hudFadeIn 0.8s ease forwards; }
-    .hud-corner svg { width: 100%; height: 100%; }
-    .hud-tl { top: 10px; left: 10px; width: 40px; height: 40px; animation-delay: 0.5s; }
-    .hud-tr { top: 10px; right: 10px; width: 40px; height: 40px; animation-delay: 0.6s; }
-    .hud-bl { bottom: 10px; left: 10px; width: 40px; height: 40px; animation-delay: 0.7s; }
-    .hud-br { bottom: 10px; right: 10px; width: 40px; height: 40px; animation-delay: 0.8s; }
-    @keyframes hudFadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes borderGlow { 0%, 100% { border-color: rgba(125,249,194,0.1); } 50% { border-color: rgba(125,249,194,0.22); box-shadow: var(--glass-shadow), var(--glow-green); } }
-    @keyframes borderGlowCyan { 0%, 100% { border-color: rgba(34,211,238,0.06); } 50% { border-color: rgba(34,211,238,0.16); } }
-    .float-particle { position: fixed; z-index: 2; pointer-events: none; border-radius: 50%; animation: floatUp linear infinite; }
-    @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 0.5; } 100% { transform: translateY(-100vh) scale(0.4); opacity: 0; } }
-    .status-bar { position: fixed; bottom: 16px; left: 16px; z-index: 50; display: flex; align-items: center; gap: 12px; font-family: var(--font-mono); font-size: 9px; color: var(--muted); letter-spacing: 0.06em; opacity: 0; animation: hudFadeIn 0.8s ease 1.5s forwards; }
-    .status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: rsBlink 2s ease-in-out infinite; }
-    .status-sep { color: rgba(255,255,255,0.08); }
-
-    /* ===== ANIMATIONS ===== */
-    @keyframes slideUpFade {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-    @keyframes shimmerPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
-    @keyframes marker-pulse { 0% { transform: scale(1); opacity: 0.75; } 100% { transform: scale(2.8); opacity: 0; } }
-    @keyframes legendItemIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-    @keyframes ripple { 0% { transform: scale(0); opacity: 0.5; } 100% { transform: scale(2.5); opacity: 0; } }
-    @keyframes panelIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes glowPulse { 0%, 100% { box-shadow: var(--glass-shadow); } 50% { box-shadow: var(--glass-shadow), 0 0 24px rgba(125,249,194,0.08); } }
-    @keyframes chatIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes typingDot { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(-4px); opacity: 1; } }
-    @keyframes pulseRing { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(125,249,194,0.4); } 70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(125,249,194,0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(125,249,194,0); } }
-    @keyframes rsBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ===== LOADING SKELETON ===== */
-    #mapSkeleton {
-      position: fixed; inset: 0; z-index: 1;
-      background: var(--bg);
-      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px;
-    }
-    .skeleton-logo { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; animation: shimmerPulse 1.8s ease-in-out infinite; text-shadow: 0 0 30px rgba(125,249,194,0.3); }
-    .skeleton-sub { font-size: 11px; color: var(--muted); font-family: var(--font-mono); letter-spacing: 0.08em; animation: shimmerPulse 1.8s ease-in-out 0.3s infinite; }
-    .skeleton-bar { width: 160px; height: 2px; background: rgba(125,249,194,0.1); border-radius: 2px; overflow: hidden; margin-top: 6px; }
-    .skeleton-bar::after { content: ''; display: block; height: 100%; width: 60%; background: linear-gradient(90deg, transparent, var(--accent), transparent); animation: shimmer 1.2s ease-in-out infinite; }
-    .skeleton-shimmer { position: absolute; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(125,249,194,0.02) 50%, rgba(255,255,255,0) 100%); animation: shimmer 2.2s ease-in-out infinite; }
-
-    /* ===== LEAFLET OVERRIDES ===== */
-    .leaflet-container {
-      background: var(--bg) !important;
-      width: 100% !important;
-      height: 100% !important;
-    }
-    .leaflet-tile-pane { filter: brightness(0.9) saturate(0.8) contrast(1.1); }
-    .leaflet-control-zoom { border: none !important; }
-    .leaflet-control-zoom a { background: rgba(8,10,18,0.8) !important; color: var(--accent) !important; border: 1px solid rgba(125,249,194,0.12) !important; backdrop-filter: blur(16px) !important; }
-    .leaflet-control-zoom a:hover { background: rgba(125,249,194,0.1) !important; }
+    /* ===== LEAFLET ===== */
+    .leaflet-container { background:var(--bg)!important; }
+    .leaflet-tile-pane { filter: brightness(0.85) saturate(0.7) contrast(1.1); }
     .leaflet-popup-content-wrapper {
-      background: rgba(8,10,18,0.95) !important; color: #fff !important; border-radius: 16px !important;
-      border: 1px solid rgba(125,249,194,0.15) !important; border-left: 3px solid var(--accent) !important;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.8), var(--glow-green) !important;
-      backdrop-filter: blur(24px) !important; -webkit-backdrop-filter: blur(24px) !important;
+      background: rgba(8,12,20,0.95)!important; color:#fff!important; border-radius:16px!important;
+      border:1px solid var(--glass-border)!important; border-left:3px solid var(--accent)!important;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8)!important;
+      backdrop-filter:blur(24px)!important;
     }
-    .leaflet-popup-tip-container { display: none !important; }
-    .leaflet-popup-content { margin: 0 !important; }
-    .leaflet-popup-close-button { color: var(--muted) !important; top: 10px !important; right: 10px !important; font-size: 16px !important; width: 20px !important; height: 20px !important; line-height: 20px !important; }
-    .leaflet-popup-close-button:hover { color: var(--text) !important; }
-    .leaflet-control-attribution { background: rgba(0,0,0,0.5) !important; color: #333 !important; font-size: 9px !important; backdrop-filter: blur(8px); }
-    .leaflet-control-attribution a { color: #444 !important; }
-    .leaflet-tile-pane { filter: brightness(0.95) saturate(0.85); }
+    .leaflet-popup-tip-container { display:none!important; }
+    .leaflet-popup-content { margin:0!important; }
+    .leaflet-popup-close-button { color:var(--muted)!important; top:10px!important; right:10px!important; }
+    .leaflet-popup-close-button:hover { color:#fff!important; }
+    .leaflet-control-attribution { background:rgba(0,0,0,0.6)!important; color:#333!important; font-size:9px!important; }
+    .leaflet-control-attribution a { color:#444!important; }
+    .leaflet-control-zoom { border:none!important; }
+    .leaflet-control-zoom a { background:rgba(8,12,20,0.8)!important; color:var(--accent)!important; border:1px solid var(--glass-border)!important; backdrop-filter:blur(16px)!important; }
+    .leaflet-control-zoom a:hover { background:rgba(45,212,191,0.1)!important; }
 
-    /* ===== MAP OVERLAY HEADER ===== */
-    .map-overlay-header {
-      position: fixed; top: 16px; left: 16px; z-index: 100;
-      background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--glass-border); border-radius: var(--radius);
-      padding: 12px 16px; pointer-events: none; box-shadow: var(--glass-shadow);
-      animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.2s both; min-width: 160px;
+    /* ===== GLASSMORPHISM BASE ===== */
+    .glass {
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(1.3); -webkit-backdrop-filter: blur(20px) saturate(1.3);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      box-shadow: var(--glass-shadow);
+      position: relative;
     }
-    .map-overlay-header::before { content: ''; position: absolute; inset: 0; border-radius: var(--radius); background: linear-gradient(135deg, rgba(125,249,194,0.05) 0%, transparent 60%); pointer-events: none; }
-    .map-layer-name { font-size: 13px; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
-    .map-layer-sub { font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: 0.02em; line-height: 1.4; max-width: 200px; }
-    .header-accent { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-right: 7px; box-shadow: 0 0 8px var(--accent), 0 0 20px rgba(125,249,194,0.3); vertical-align: middle; position: relative; top: -1px; animation: rsBlink 2s ease-in-out infinite; }
+    .glass::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:1px;
+      background: linear-gradient(90deg, transparent, rgba(45,212,191,0.2), transparent);
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
 
-    /* ===== LAYER TOGGLE ===== */
+    /* ===== SKELETON ===== */
+    #mapSkeleton {
+      position:fixed; inset:0; z-index:1; background:var(--bg);
+      display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px;
+    }
+    .sk-ring { width:50px; height:50px; border:2px solid transparent; border-top-color:var(--accent); border-right-color:rgba(45,212,191,0.3); border-radius:50%; animation:spin 1.2s linear infinite; }
+    .sk-text { font-family:var(--font-display); font-size:16px; font-weight:600; letter-spacing:0.2em; color:var(--accent); text-transform:uppercase; animation:shimmerPulse 1.8s ease-in-out infinite; }
+    .sk-sub { font-size:10px; color:var(--muted); font-family:var(--font-mono); letter-spacing:0.06em; }
+    .sk-bar { width:140px; height:2px; background:rgba(45,212,191,0.1); border-radius:2px; overflow:hidden; }
+    .sk-bar::after { content:''; display:block; height:100%; width:50%; background:linear-gradient(90deg,transparent,var(--accent),transparent); animation:shimmer 1.2s ease-in-out infinite; }
+
+    /* ===== LAYER CONTROLS ===== */
     .layer-controls {
-      position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 100;
-      display: flex; gap: 2px;
-      background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--glass-border); border-radius: 12px; padding: 4px;
-      box-shadow: var(--glass-shadow); animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.3s both; overflow: hidden;
+      position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:100;
+      display:flex; gap:2px; padding:4px;
+      animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.3s both;
     }
-    .layer-controls::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(125,249,194,0.03) 0%, transparent 50%); pointer-events: none; }
     .layer-btn {
-      position: relative; font-family: var(--font); font-size: 11px; font-weight: 500;
-      color: var(--muted); background: transparent; border: none; padding: 7px 14px;
-      border-radius: 8px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em; overflow: hidden; white-space: nowrap;
+      position:relative; font-family:var(--font); font-size:11px; font-weight:500;
+      color:var(--muted); background:transparent; border:none; padding:8px 16px;
+      border-radius:10px; cursor:pointer; transition:all 0.25s; letter-spacing:0.02em; white-space:nowrap;
     }
-    .layer-btn::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: var(--accent); border-radius: 2px; transition: width 0.25s ease; box-shadow: 0 0 8px var(--accent); }
-    .layer-btn:hover { color: #cbd5e1; background: rgba(255,255,255,0.06); transform: translateY(-1px); }
-    .layer-btn.active { color: #fff; background: rgba(125,249,194,0.1); }
-    .layer-btn.active::after { width: calc(100% - 16px); }
-    .layer-btn:active { transform: translateY(0); }
-    .ripple-effect { position: absolute; border-radius: 50%; background: rgba(125,249,194,0.25); width: 60px; height: 60px; margin-top: -30px; margin-left: -30px; pointer-events: none; animation: ripple 0.5s ease-out forwards; }
+    .layer-btn::after { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:0; height:2px; background:var(--accent); border-radius:2px; transition:width 0.3s; }
+    .layer-btn:hover { color:#cbd5e1; background:rgba(255,255,255,0.04); }
+    .layer-btn.active { color:#fff; background:rgba(45,212,191,0.08); }
+    .layer-btn.active::after { width:calc(100% - 16px); }
+    .ripple-effect { position:absolute; border-radius:50%; background:rgba(45,212,191,0.2); width:60px; height:60px; margin-top:-30px; margin-left:-30px; pointer-events:none; animation:ripple 0.5s ease-out forwards; }
+
+    /* ===== OVERLAY HEADER ===== */
+    .map-overlay-header {
+      position:fixed; top:16px; left:16px; z-index:100; padding:14px 18px; min-width:170px; pointer-events:none;
+      animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.2s both;
+    }
+    .map-layer-name { font-size:13px; font-weight:600; color:#fff; }
+    .map-layer-sub { font-size:10px; color:var(--muted); margin-top:3px; max-width:200px; }
+    .header-accent { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--accent); margin-right:7px; box-shadow:0 0 8px var(--accent); vertical-align:middle; animation:rsBlink 2s ease-in-out infinite; }
 
     /* ===== LEGEND ===== */
     .map-legend {
-      position: fixed; bottom: 100px; left: 16px; z-index: 100;
-      background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--glass-border); border-left: 2px solid var(--accent); border-radius: var(--radius);
-      padding: 14px 16px; box-shadow: var(--glass-shadow); animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s both; min-width: 170px;
+      position:fixed; bottom:110px; left:16px; z-index:100; padding:14px 16px; min-width:170px;
+      border-left:2px solid var(--accent);
+      animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s both;
     }
-    .map-legend::before { content: ''; position: absolute; inset: 0; border-radius: var(--radius); background: linear-gradient(180deg, rgba(125,249,194,0.04) 0%, transparent 50%); pointer-events: none; }
-    .legend-title { font-size: 9px; font-weight: 700; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; font-family: var(--font-mono); }
-    .legend-items { display: flex; flex-direction: column; gap: 6px; }
-    .legend-item { display: flex; align-items: center; gap: 9px; font-size: 10px; color: #94a3b8; font-family: var(--font-mono); letter-spacing: 0.01em; opacity: 0; animation: legendItemIn 0.3s ease forwards; }
-    .legend-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px currentColor, 0 0 14px currentColor; }
+    .legend-title { font-size:9px; font-weight:700; color:var(--accent); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:10px; font-family:var(--font-mono); }
+    .legend-items { display:flex; flex-direction:column; gap:6px; }
+    .legend-item { display:flex; align-items:center; gap:9px; font-size:10px; color:#94a3b8; font-family:var(--font-mono); opacity:0; animation:legendItemIn 0.3s ease forwards; }
+    .legend-swatch { width:10px; height:10px; border-radius:50%; flex-shrink:0; box-shadow:0 0 6px currentColor; }
 
     /* ===== MARKERS ===== */
-    .map-marker { position: relative; }
-    .marker-dot { border-radius: 50%; position: absolute; top: 0; left: 0; box-shadow: 0 0 8px currentColor, 0 0 16px currentColor; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    .marker-pulse { position: absolute; border-radius: 50%; animation: marker-pulse 2.2s ease-out infinite; opacity: 0; top: 0; left: 0; }
+    .map-marker { position:relative; }
+    .marker-dot { border-radius:50%; position:absolute; top:0; left:0; box-shadow:0 0 6px currentColor; transition:transform 0.2s; }
+    .marker-pulse { position:absolute; border-radius:50%; animation:marker-pulse 2.2s ease-out infinite; opacity:0; top:0; left:0; }
 
     /* ===== POPUP ===== */
-    .popup-inner { padding: 16px 18px; min-width: 260px; }
-    .popup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .popup-country { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
-    .popup-risk-badge { font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.08em; font-family: var(--font-mono); }
-    .popup-divider { height: 1px; background: linear-gradient(90deg, rgba(125,249,194,0.2), transparent); margin-bottom: 10px; }
-    .popup-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .popup-row:last-of-type { border-bottom: none; }
-    .popup-label { color: var(--muted); letter-spacing: 0.02em; }
-    .popup-value { color: #fff; font-weight: 600; font-family: var(--font-mono); font-size: 10px; }
-    .popup-insight { margin-top: 12px; font-size: 10px; color: #64748b; line-height: 1.6; font-style: italic; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
-    .popup-score-bar { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
-    .popup-bar-track { flex: 1; height: 3px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
-    .popup-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
-    .popup-bar-label { font-size: 9px; font-family: var(--font-mono); color: var(--muted); width: 26px; text-align: right; }
+    .popup-inner { padding:16px 18px; min-width:260px; }
+    .popup-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .popup-country { font-size:15px; font-weight:700; color:#fff; }
+    .popup-risk-badge { font-size:9px; font-weight:700; padding:3px 8px; border-radius:20px; letter-spacing:0.08em; font-family:var(--font-mono); }
+    .popup-divider { height:1px; background:linear-gradient(90deg,rgba(45,212,191,0.2),transparent); margin-bottom:10px; }
+    .popup-row { display:flex; justify-content:space-between; padding:5px 0; font-size:11px; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .popup-row:last-of-type { border-bottom:none; }
+    .popup-label { color:var(--muted); }
+    .popup-value { color:#fff; font-weight:600; font-family:var(--font-mono); font-size:10px; }
+    .popup-insight { margin-top:12px; font-size:10px; color:#64748b; line-height:1.6; font-style:italic; padding-top:10px; border-top:1px solid rgba(255,255,255,0.04); }
+    .popup-score-bar { display:flex; align-items:center; gap:6px; margin-top:10px; }
+    .popup-bar-track { flex:1; height:3px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+    .popup-bar-fill { height:100%; border-radius:3px; transition:width 0.5s ease; }
+    .popup-bar-label { font-size:9px; font-family:var(--font-mono); color:var(--muted); width:26px; text-align:right; }
     .popup-deepdive-btn {
-      display: block; width: 100%; margin-top: 14px; padding: 9px;
-      background: rgba(125,249,194,0.08); border: 1px solid rgba(125,249,194,0.2);
-      border-radius: 8px; color: var(--accent); font-family: var(--font-mono); font-size: 10px;
-      letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; text-align: center;
-      transition: all 0.2s;
+      display:block; width:100%; margin-top:14px; padding:10px;
+      background:rgba(45,212,191,0.06); border:1px solid rgba(45,212,191,0.15);
+      border-radius:8px; color:var(--accent); font-family:var(--font-mono); font-size:10px;
+      letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; text-align:center; transition:all 0.2s;
     }
-    .popup-deepdive-btn:hover { background: rgba(125,249,194,0.15); border-color: rgba(125,249,194,0.4); }
+    .popup-deepdive-btn:hover { background:rgba(45,212,191,0.12); border-color:rgba(45,212,191,0.3); }
 
-    /* ===== HERO PANEL (left) ===== */
+    /* ===== HERO PANEL ===== */
     #heroPanel {
-      position: fixed; top: 80px; left: 16px; z-index: 100; width: 320px;
-      background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--glass-border); border-radius: var(--radius);
-      box-shadow: var(--glass-shadow); animation: panelIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.5s both;
-      overflow: hidden;
+      position:fixed; top:80px; left:16px; z-index:100; width:340px;
+      animation: panelIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.5s both;
     }
-    #heroPanel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(125,249,194,0.3), transparent); }
-    .hero-inner { padding: 22px 20px; }
+    .hero-inner { padding:24px 22px; }
     .hero-live-badge {
-      display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px;
-      border: 1px solid rgba(125,249,194,0.3); border-radius: 999px; background: rgba(125,249,194,0.06);
-      margin-bottom: 16px;
+      display:inline-flex; align-items:center; gap:7px; padding:5px 14px;
+      border:1px solid rgba(45,212,191,0.2); border-radius:999px; background:rgba(45,212,191,0.04); margin-bottom:16px;
     }
-    .hero-live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); box-shadow: 0 0 6px var(--accent2); animation: rsBlink 1.8s ease-in-out infinite; }
-    .hero-live-text { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; }
-    .hero-title { font-size: 22px; font-weight: 800; color: #fff; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 10px; font-family: 'Syne', sans-serif; }
-    .hero-title-accent { color: var(--accent2); }
-    .hero-desc { font-size: 12px; color: var(--muted); line-height: 1.65; margin-bottom: 18px; }
-    .hero-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 18px; }
-    .hero-stat { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 8px; text-align: center; }
-    .hero-stat-num { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #fff; }
-    .hero-stat-lbl { font-family: var(--font-mono); font-size: 7px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-top: 3px; }
-    .hero-actions { display: flex; gap: 8px; margin-bottom: 14px; }
+    .hero-live-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent); animation:rsBlink 1.8s ease-in-out infinite; }
+    .hero-live-text { font-family:var(--font-mono); font-size:9px; letter-spacing:0.2em; color:var(--accent); text-transform:uppercase; }
+    .hero-title { font-size:24px; font-weight:800; color:#fff; line-height:1.15; letter-spacing:-0.02em; margin-bottom:10px; font-family:'Syne',sans-serif; }
+    .hero-title-accent { color:var(--accent); }
+    .hero-desc { font-size:12px; color:var(--muted); line-height:1.65; margin-bottom:20px; }
+    .hero-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:20px; }
+    .hero-stat { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:10px; padding:12px 8px; text-align:center; transition:all 0.3s; }
+    .hero-stat:hover { border-color:rgba(45,212,191,0.15); background:rgba(45,212,191,0.03); }
+    .hero-stat-num { font-family:var(--font-display); font-size:18px; font-weight:700; color:#fff; }
+    .hero-stat-lbl { font-family:var(--font-mono); font-size:7px; letter-spacing:0.1em; color:var(--muted); text-transform:uppercase; margin-top:4px; }
+    .hero-actions { display:flex; gap:8px; margin-bottom:14px; }
     .btn-primary {
-      flex: 1; padding: 10px 14px; background: #fff; color: #0a0c14;
-      border: none; border-radius: 10px; font-size: 12px; font-weight: 700;
-      cursor: pointer; transition: all 0.2s; letter-spacing: -0.01em;
+      flex:1; padding:11px 14px; background:var(--accent); color:#050608;
+      border:none; border-radius:10px; font-size:12px; font-weight:700;
+      cursor:pointer; transition:all 0.25s;
     }
-    .btn-primary:hover { background: #f0fdf4; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,255,255,0.15); }
+    .btn-primary:hover { background:#5eead4; transform:translateY(-1px); box-shadow:0 4px 20px rgba(45,212,191,0.25); }
     .btn-secondary {
-      flex: 1; padding: 10px 14px; background: transparent; color: var(--text);
-      border: 1px solid var(--border); border-radius: 10px; font-size: 12px; font-weight: 500;
-      cursor: pointer; transition: all 0.2s;
+      flex:1; padding:11px 14px; background:transparent; color:var(--text);
+      border:1px solid rgba(255,255,255,0.06); border-radius:10px; font-size:12px; font-weight:500;
+      cursor:pointer; transition:all 0.25s;
     }
-    .btn-secondary:hover { border-color: var(--border-glow); background: rgba(255,255,255,0.04); }
-    .hero-founder-line { font-family: var(--font-mono); font-size: 10px; color: var(--accent2); letter-spacing: 0.02em; }
+    .btn-secondary:hover { border-color:rgba(45,212,191,0.15); background:rgba(45,212,191,0.04); }
+    .hero-founder-line { font-family:var(--font-mono); font-size:10px; color:var(--accent); letter-spacing:0.02em; }
 
-    /* ===== ONBOARDING FORM ===== */
+    /* ===== ONBOARDING ===== */
     #onboardingPanel {
-      position: fixed; top: 50%; right: 16px; transform: translateY(-50%);
-      z-index: 200; width: 380px;
-      background: rgba(8,10,20,0.98); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
-      border: 1px solid var(--glass-border); border-radius: 20px;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
-      display: none; animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
-      max-height: 90vh; overflow-y: auto;
+      position:fixed; top:50%; right:16px; transform:translateY(-50%);
+      z-index:200; width:380px;
+      background:rgba(8,12,20,0.97); backdrop-filter:blur(32px);
+      border:1px solid var(--glass-border); border-radius:20px;
+      box-shadow:0 24px 80px rgba(0,0,0,0.8);
+      display:none; animation:panelIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+      max-height:90vh; overflow-y:auto;
     }
-    #onboardingPanel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(125,249,194,0.4), transparent); border-radius: 20px 20px 0 0; }
-    .onboard-inner { padding: 28px 24px; }
-    .onboard-close { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--muted); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-    .onboard-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
-    .onboard-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
-    .onboard-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
-    .onboard-section-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 14px; margin-top: 6px; display: block; }
-    .onboard-divider { height: 1px; background: var(--border); margin-bottom: 20px; }
-    .field-group { margin-bottom: 16px; }
-    .field-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-bottom: 7px; display: block; }
-    .field-input, .field-select, .field-textarea {
-      width: 100%; padding: 10px 12px; background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border); border-radius: var(--radius-sm);
-      color: var(--text); font-size: 13px; font-family: var(--font); outline: none;
-      transition: border-color 0.2s, background 0.2s;
+    #onboardingPanel::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(45,212,191,0.3),transparent); border-radius:20px 20px 0 0; }
+    .onboard-inner { padding:28px 24px; }
+    .onboard-close { position:absolute; top:16px; right:16px; width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.06); color:var(--muted); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+    .onboard-close:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .onboard-title { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#fff; margin-bottom:6px; }
+    .onboard-sub { font-size:12px; color:var(--muted); margin-bottom:24px; line-height:1.5; }
+    .onboard-section-label { font-family:var(--font-display); font-size:8px; letter-spacing:0.18em; color:var(--accent); text-transform:uppercase; margin-bottom:14px; margin-top:6px; display:block; }
+    .onboard-divider { height:1px; background:rgba(255,255,255,0.06); margin-bottom:20px; }
+    .field-group { margin-bottom:16px; }
+    .field-label { font-family:var(--font-mono); font-size:9px; letter-spacing:0.12em; color:var(--muted); text-transform:uppercase; margin-bottom:7px; display:block; }
+    .field-select, .field-input {
+      width:100%; padding:10px 12px; background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.06); border-radius:8px;
+      color:var(--text); font-size:13px; font-family:var(--font); outline:none;
+      transition:border-color 0.3s, background 0.3s;
     }
-    .field-input:focus, .field-select:focus, .field-textarea:focus { border-color: var(--border-glow); background: rgba(125,249,194,0.03); }
-    .field-input::placeholder, .field-textarea::placeholder { color: var(--muted); }
-    .field-select { cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
-    .field-select option { background: #0f1220; color: #e2e8f0; }
-    .field-textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+    .field-select:focus, .field-input:focus { border-color:rgba(45,212,191,0.25); background:rgba(45,212,191,0.02); }
+    .field-select { cursor:pointer; -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; }
+    .field-select option { background:#0a0e18; color:#e2e8f0; }
+    .chip-grid { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+    .chip-option { padding:6px 12px; border-radius:999px; font-size:11px; font-weight:500; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:var(--muted); cursor:pointer; transition:all 0.25s; user-select:none; }
+    .chip-option:hover { border-color:rgba(45,212,191,0.2); color:var(--text); }
+    .chip-option.selected { background:rgba(45,212,191,0.08); border-color:rgba(45,212,191,0.3); color:var(--accent); }
+    .onboard-submit { width:100%; padding:12px; background:var(--accent); border:none; border-radius:8px; color:#050608; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.25s; margin-top:8px; }
+    .onboard-submit:hover { background:#5eead4; transform:translateY(-1px); }
+    .onboard-cancel { width:100%; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.06); border-radius:8px; color:var(--muted); font-size:12px; cursor:pointer; transition:all 0.2s; margin-top:8px; }
+    .onboard-cancel:hover { border-color:rgba(255,255,255,0.1); color:var(--text); }
+    #onboardingPanel::-webkit-scrollbar { width:4px; }
+    #onboardingPanel::-webkit-scrollbar-thumb { background:rgba(45,212,191,0.1); border-radius:4px; }
 
-    /* Multi-select chips for sourcing countries */
-    .chip-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-    .chip-option {
-      padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 500;
-      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-      color: var(--muted); cursor: pointer; transition: all 0.2s; user-select: none;
-    }
-    .chip-option:hover { border-color: rgba(125,249,194,0.3); color: var(--text); }
-    .chip-option.selected { background: rgba(125,249,194,0.1); border-color: rgba(125,249,194,0.4); color: var(--accent); }
-
-    .onboard-submit {
-      width: 100%; padding: 12px; background: linear-gradient(135deg, #7DF9C2, #4ade80);
-      border: none; border-radius: var(--radius-sm); color: #0a0c14; font-size: 13px;
-      font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 8px;
-      letter-spacing: 0.01em;
-    }
-    .onboard-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(125,249,194,0.3); }
-    .onboard-cancel {
-      width: 100%; padding: 10px; background: transparent;
-      border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--muted); font-size: 12px;
-      cursor: pointer; transition: all 0.2s; margin-top: 8px;
-    }
-    .onboard-cancel:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
-
-    /* Scrollbar for onboarding */
-    #onboardingPanel::-webkit-scrollbar { width: 4px; }
-    #onboardingPanel::-webkit-scrollbar-track { background: transparent; }
-    #onboardingPanel::-webkit-scrollbar-thumb { background: rgba(125,249,194,0.15); border-radius: 4px; }
-
-    /* ===== AI CHAT PANEL ===== */
-    #chatPanel {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-      display: flex; flex-direction: column; align-items: center; pointer-events: none;
-      padding-bottom: 20px;
-    }
-    #quickActions {
-      display: flex; gap: 8px; margin-bottom: 10px; pointer-events: all;
-      animation: panelIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.8s both;
-      flex-wrap: wrap; justify-content: center; padding: 0 16px;
-    }
-    .quick-btn {
-      padding: 8px 16px; background: rgba(8,10,20,0.85); backdrop-filter: blur(20px);
-      border: 1px solid rgba(125,249,194,0.15); border-radius: 999px;
-      color: #cbd5e1; font-size: 12px; font-weight: 500; cursor: pointer;
-      transition: all 0.25s; white-space: nowrap; pointer-events: all;
-      letter-spacing: 0.01em;
-    }
-    .quick-btn:hover { border-color: rgba(125,249,194,0.4); background: rgba(125,249,194,0.08); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+    /* ===== CHAT ===== */
+    #chatPanel { position:fixed; bottom:0; left:0; right:0; z-index:100; display:flex; flex-direction:column; align-items:center; pointer-events:none; padding-bottom:20px; }
+    #quickActions { display:flex; gap:8px; margin-bottom:10px; pointer-events:all; animation:panelIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.8s both; flex-wrap:wrap; justify-content:center; padding:0 16px; }
+    .quick-btn { padding:8px 16px; background:rgba(8,12,20,0.8); backdrop-filter:blur(16px); border:1px solid rgba(45,212,191,0.1); border-radius:999px; color:#94a3b8; font-size:12px; font-weight:500; cursor:pointer; transition:all 0.3s; white-space:nowrap; }
+    .quick-btn:hover { border-color:rgba(45,212,191,0.3); background:rgba(45,212,191,0.06); color:#fff; transform:translateY(-2px); }
     #chatInputWrap {
-      display: flex; align-items: center; gap: 10px; width: 100%; max-width: 780px;
-      background: rgba(8,10,20,0.92); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
-      border: 1px solid rgba(125,249,194,0.15); border-radius: 16px;
-      padding: 12px 14px 12px 18px;
-      box-shadow: 0 -4px 40px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.5);
-      pointer-events: all;
-      animation: panelIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.9s both, borderGlowCyan 4s ease-in-out infinite;
-      position: relative;
+      display:flex; align-items:center; gap:10px; width:100%; max-width:780px;
+      background:var(--glass); backdrop-filter:blur(32px); -webkit-backdrop-filter:blur(32px);
+      border:1px solid var(--glass-border); border-radius:16px;
+      padding:12px 14px 12px 18px; pointer-events:all; position:relative;
+      box-shadow: var(--glass-shadow);
+      animation: panelIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.9s both;
     }
-    #chatInputWrap::before { content: ''; position: absolute; top: 0; left: 20px; right: 20px; height: 1px; background: linear-gradient(90deg, transparent, rgba(125,249,194,0.2), transparent); }
-    #chatInput {
-      flex: 1; background: transparent; border: none; outline: none;
-      color: var(--text); font-size: 14px; font-family: var(--font);
-    }
-    #chatInput::placeholder { color: var(--muted); }
-    #chatSend {
-      width: 38px; height: 38px; border-radius: 10px;
-      background: #fff;
-      border: none; color: #0a0c14;
-      font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s; flex-shrink: 0;
-    }
-    #chatSend:hover { background: #e2e8f0; transform: scale(1.05); }
-    #chatSend:active { transform: scale(0.97); }
+    #chatInputWrap::before { content:''; position:absolute; top:0; left:20px; right:20px; height:1px; background:linear-gradient(90deg,transparent,rgba(45,212,191,0.15),transparent); }
+    #chatInput { flex:1; background:transparent; border:none; outline:none; color:var(--text); font-size:14px; font-family:var(--font); }
+    #chatInput::placeholder { color:var(--muted); }
+    #chatSend { width:38px; height:38px; border-radius:10px; background:#fff; border:none; color:#0a0e18; font-size:16px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+    #chatSend:hover { background:#e2e8f0; transform:scale(1.05); }
 
     /* ===== CHAT MESSAGES ===== */
-    #chatMessages {
-      position: fixed; bottom: 130px; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 780px; z-index: 100;
-      display: flex; flex-direction: column; gap: 10px; padding: 0 16px;
-      pointer-events: none; max-height: 45vh; overflow-y: auto;
-    }
-    #chatMessages::-webkit-scrollbar { width: 3px; }
-    #chatMessages::-webkit-scrollbar-track { background: transparent; }
-    #chatMessages::-webkit-scrollbar-thumb { background: rgba(125,249,194,0.2); border-radius: 3px; }
-    .chat-msg {
-      max-width: 75%; padding: 12px 16px; border-radius: 14px; font-size: 13px;
-      line-height: 1.6; animation: chatIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards;
-      pointer-events: all; word-wrap: break-word;
-    }
-    .chat-msg.user {
-      align-self: flex-end; background: rgba(125,249,194,0.1); border: 1px solid rgba(125,249,194,0.2);
-      color: #fff; border-bottom-right-radius: 4px;
-    }
-    .chat-msg.ai {
-      align-self: flex-start; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-      color: var(--text); border-bottom-left-radius: 4px;
-    }
-    .chat-msg.ai .msg-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; display: block; }
-    .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
-    .typing-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: typingDot 1.2s ease-in-out infinite; box-shadow: 0 0 6px var(--accent); }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    #chatMessages { position:fixed; bottom:130px; left:50%; transform:translateX(-50%); width:100%; max-width:780px; z-index:100; display:flex; flex-direction:column; gap:10px; padding:0 16px; pointer-events:none; max-height:45vh; overflow-y:auto; }
+    .chat-msg { max-width:75%; padding:12px 16px; border-radius:14px; font-size:13px; line-height:1.6; animation:chatIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards; pointer-events:all; word-wrap:break-word; }
+    .chat-msg.user { align-self:flex-end; background:rgba(45,212,191,0.08); border:1px solid rgba(45,212,191,0.15); color:#fff; border-bottom-right-radius:4px; }
+    .chat-msg.ai { align-self:flex-start; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:var(--text); border-bottom-left-radius:4px; backdrop-filter:blur(8px); }
+    .chat-msg.ai .msg-label { font-family:var(--font-display); font-size:8px; letter-spacing:0.12em; color:var(--accent); text-transform:uppercase; margin-bottom:6px; display:block; }
+    .typing-indicator { display:flex; gap:4px; align-items:center; padding:4px 0; }
+    .typing-dot { width:5px; height:5px; border-radius:50%; background:var(--accent); animation:typingDot 1.2s ease-in-out infinite; }
+    .typing-dot:nth-child(2) { animation-delay:0.2s; }
+    .typing-dot:nth-child(3) { animation-delay:0.4s; }
 
-    /* ===== SCROLLBAR ===== */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 2px; }
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:#1e293b; border-radius:2px; }
 
     /* ===== MOBILE ===== */
-    @media (max-width: 768px) {
-      #heroPanel { top: auto; bottom: 160px; left: 8px; right: 8px; width: auto; max-height: 50vh; overflow-y: auto; }
-      .layer-controls { top: 8px; }
-      .map-overlay-header { display: none; }
-      .map-legend { bottom: 170px; left: 8px; }
-      #onboardingPanel { right: 8px; left: 8px; width: auto; }
-      #chatInputWrap { max-width: calc(100% - 32px); }
-      .hud-corner, .status-bar, .grid-overlay { display: none; }
+    @media (max-width:768px) {
+      #heroPanel { top:auto; bottom:160px; left:8px; right:8px; width:auto; max-height:50vh; overflow-y:auto; }
+      .layer-controls { top:8px; }
+      .map-overlay-header { display:none; }
+      .map-legend { bottom:170px; left:8px; }
+      #onboardingPanel { right:8px; left:8px; width:auto; }
+      #chatInputWrap { max-width:calc(100% - 32px); }
     }
   </style>
 </head>
 <body>
-<script>document.body.style.overflow = 'hidden';</script>
+<script>document.body.style.overflow='hidden';</script>
 
-<!-- ===== CINEMATIC INTRO (Opus) ===== -->
+<!-- ===== INTRO ===== -->
 <div id="rs-intro">
-  <div class="vignette"></div>
-  <div class="scanlines"></div>
-  <div class="grain"></div>
-  <div class="corner-label corner-tl">Platform<span class="value">RiskSim AI</span></div>
-  <div class="corner-tr corner-label">Version<span class="value">1.0</span></div>
-  <div class="corner-label corner-bl">Intelligence<span class="value">Supply Chain</span></div>
-  <div class="corner-br corner-label">Status<span class="value">Online</span></div>
-  <div class="deco-cross cross-1"></div>
-  <div class="deco-cross cross-2"></div>
-  <div class="deco-cross cross-3"></div>
-  <div class="deco-cross cross-4"></div>
-  <div class="deco-cross cross-5"></div>
-  <div class="h-rule h-rule-top"></div>
-  <div class="h-rule h-rule-bot"></div>
-  <div class="intro-content">
-    <div class="intro-title">RISK<span class="accent">SIM</span></div>
-    <div class="intro-subtitle">Supply Chain Intelligence</div>
-    <div class="intro-tagline">See risk before it hits the supply chain.</div>
-  </div>
-  <div class="scroll-indicator">
-    <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round">
-      <path d="M12 5v14M5 12l7 7 7-7"/>
-    </svg>
-  </div>
-  <div class="enter-hint">
-    <span class="enter-hint-text">Press</span>
-    <span class="enter-key">Enter</span>
-    <span class="enter-hint-text">to continue</span>
+  <canvas id="introGlobe"></canvas>
+  <div class="intro-vignette"></div>
+  <div class="intro-wordmark">RISKSIM</div>
+  <div class="intro-subtitle">Supply Chain Intelligence</div>
+  <div class="intro-hint">
+    <span>Press</span><span class="intro-hint-key">Enter</span><span>to continue</span>
   </div>
 </div>
 
-<!-- ===== LOADING SKELETON ===== -->
+<!-- ===== SKELETON ===== -->
 <div id="mapSkeleton">
-  <div class="skeleton-shimmer"></div>
-  <div style="width:60px;height:60px;border:2px solid transparent;border-top-color:var(--accent);border-right-color:rgba(34,211,238,0.3);border-radius:50%;animation:spin 1.2s linear infinite;margin-bottom:8px;"></div>
-  <div class="skeleton-logo">RISKSIM</div>
-  <div class="skeleton-sub">Initializing Intelligence Map…</div>
-  <div class="skeleton-bar"></div>
+  <div class="sk-ring"></div>
+  <div class="sk-text">RISKSIM</div>
+  <div class="sk-sub">Initializing Intelligence Map…</div>
+  <div class="sk-bar"></div>
 </div>
 
 <!-- ===== MAP ===== -->
 <div id="mapContainer"><div id="map"></div></div>
 
-<!-- ===== MAP EFFECTS ===== -->
-<div class="grid-overlay"></div>
-<div class="map-vignette"></div>
-<div class="hud-scanline"></div>
-<div class="hud-corner hud-tl"><svg viewBox="0 0 40 40"><path d="M0 15 L0 0 L15 0" fill="none" stroke="rgba(125,249,194,0.2)" stroke-width="1.5"/></svg></div>
-<div class="hud-corner hud-tr"><svg viewBox="0 0 40 40"><path d="M25 0 L40 0 L40 15" fill="none" stroke="rgba(125,249,194,0.2)" stroke-width="1.5"/></svg></div>
-<div class="hud-corner hud-bl"><svg viewBox="0 0 40 40"><path d="M0 25 L0 40 L15 40" fill="none" stroke="rgba(125,249,194,0.2)" stroke-width="1.5"/></svg></div>
-<div class="hud-corner hud-br"><svg viewBox="0 0 40 40"><path d="M25 40 L40 40 L40 25" fill="none" stroke="rgba(125,249,194,0.2)" stroke-width="1.5"/></svg></div>
-
-<!-- ===== MAP OVERLAY HEADER ===== -->
-<div class="map-overlay-header">
+<!-- ===== OVERLAY HEADER ===== -->
+<div class="map-overlay-header glass">
   <div class="map-layer-name"><span class="header-accent"></span><span id="overlayName">Risk Levels</span></div>
   <div class="map-layer-sub" id="overlaySub">Geopolitical &amp; operational risk by country</div>
 </div>
 
 <!-- ===== LAYER CONTROLS ===== -->
-<div class="layer-controls" id="layerControls">
-  <button class="layer-btn active" id="btnRisk"     onclick="updateMapLayer('risk')">Risk Levels</button>
-  <button class="layer-btn"        id="btnShipping" onclick="updateMapLayer('shipping')">Shipping</button>
-  <button class="layer-btn"        id="btnLabor"    onclick="updateMapLayer('labor')">Labor</button>
-  <button class="layer-btn"        id="btnCost"     onclick="updateMapLayer('cost')">Total Cost</button>
-  <button class="layer-btn"        id="btnSourcing" onclick="updateMapLayer('sourcing')">Sourcing</button>
+<div class="layer-controls glass" id="layerControls">
+  <button class="layer-btn active" id="btnRisk" onclick="updateMapLayer('risk')">Risk</button>
+  <button class="layer-btn" id="btnShipping" onclick="updateMapLayer('shipping')">Shipping</button>
+  <button class="layer-btn" id="btnLabor" onclick="updateMapLayer('labor')">Labor</button>
+  <button class="layer-btn" id="btnCost" onclick="updateMapLayer('cost')">Cost</button>
+  <button class="layer-btn" id="btnSourcing" onclick="updateMapLayer('sourcing')">Sourcing</button>
 </div>
 
 <!-- ===== LEGEND ===== -->
-<div class="map-legend">
+<div class="map-legend glass">
   <div class="legend-title" id="legendTitle">Risk Score</div>
   <div class="legend-items" id="legendItems"></div>
 </div>
 
-<!-- ===== HERO PANEL ===== -->
-<div id="heroPanel">
+<!-- ===== HERO ===== -->
+<div id="heroPanel" class="glass">
   <div class="hero-inner">
-    <div class="hero-live-badge">
-      <div class="hero-live-dot"></div>
-      <span class="hero-live-text">Live Intelligence</span>
-    </div>
+    <div class="hero-live-badge"><div class="hero-live-dot"></div><span class="hero-live-text">Live Intelligence</span></div>
     <h2 class="hero-title">Supply Chain Risk<br><span class="hero-title-accent">Intelligence.</span></h2>
-    <p class="hero-desc">RiskSim AI continuously monitors global supply chains, analyzing geopolitical, economic, and operational data to predict disruptions before they impact your operations.</p>
+    <p class="hero-desc">RiskSim AI monitors global supply chains, analyzing geopolitical, economic, and operational data to predict disruptions before they impact your operations.</p>
     <div class="hero-stats">
       <div class="hero-stat"><div class="hero-stat-num">73</div><div class="hero-stat-lbl">Countries</div></div>
       <div class="hero-stat"><div class="hero-stat-num">2.4M</div><div class="hero-stat-lbl">Data/Day</div></div>
@@ -692,121 +430,25 @@
   </div>
 </div>
 
-<!-- ===== ONBOARDING FORM ===== -->
+<!-- ===== ONBOARDING ===== -->
 <div id="onboardingPanel">
   <div class="onboard-inner">
     <button class="onboard-close" onclick="document.getElementById('onboardingPanel').style.display='none'">✕</button>
     <div class="onboard-title">Welcome to RiskSim</div>
     <div class="onboard-sub">Set up your company profile for personalized supply chain intelligence.</div>
     <div class="onboard-divider"></div>
-
     <span class="onboard-section-label">About your business</span>
-
-    <div class="field-group">
-      <label class="field-label">Company Type</label>
-      <select class="field-select" id="companyType">
-        <option value="">Select company type…</option>
-        <option value="manufacturer">Manufacturer</option>
-        <option value="retailer">Retailer</option>
-        <option value="distributor">Distributor</option>
-        <option value="logistics">Logistics Provider</option>
-        <option value="other">Other</option>
-      </select>
-    </div>
-
-    <div class="field-group">
-      <label class="field-label">Home Country</label>
-      <select class="field-select" id="homeCountry">
-        <option value="">Select your country…</option>
-        <option>Afghanistan</option><option>Albania</option><option>Algeria</option><option>Angola</option><option>Argentina</option><option>Armenia</option><option>Australia</option><option>Austria</option><option>Azerbaijan</option><option>Bangladesh</option><option>Belarus</option><option>Belgium</option><option>Bolivia</option><option>Bosnia</option><option>Brazil</option><option>Bulgaria</option><option>Cambodia</option><option>Cameroon</option><option>Canada</option><option>Chile</option><option>China</option><option>Colombia</option><option>Congo</option><option>Costa Rica</option><option>Croatia</option><option>Cuba</option><option>Cyprus</option><option>Czech Republic</option><option>Denmark</option><option>Dominican Republic</option><option>Ecuador</option><option>Egypt</option><option>El Salvador</option><option>Estonia</option><option>Ethiopia</option><option>Finland</option><option>France</option><option>Germany</option><option>Ghana</option><option>Greece</option><option>Guatemala</option><option>Honduras</option><option>Hungary</option><option>India</option><option>Indonesia</option><option>Iran</option><option>Iraq</option><option>Ireland</option><option>Israel</option><option>Italy</option><option>Japan</option><option>Jordan</option><option>Kazakhstan</option><option>Kenya</option><option>Laos</option><option>Latvia</option><option>Lebanon</option><option>Lithuania</option><option>Luxembourg</option><option>Malaysia</option><option>Malta</option><option>Mexico</option><option>Moldova</option><option>Morocco</option><option>Mozambique</option><option>Myanmar</option><option>Nepal</option><option>Netherlands</option><option>New Zealand</option><option>Nicaragua</option><option>Nigeria</option><option>North Korea</option><option>North Macedonia</option><option>Norway</option><option>Oman</option><option>Pakistan</option><option>Panama</option><option>Paraguay</option><option>Peru</option><option>Philippines</option><option>Poland</option><option>Portugal</option><option>Qatar</option><option>Romania</option><option>Russia</option><option>Saudi Arabia</option><option>Senegal</option><option>Serbia</option><option>Singapore</option><option>Slovakia</option><option>Slovenia</option><option>South Africa</option><option>South Korea</option><option>South Sudan</option><option>Spain</option><option>Sri Lanka</option><option>Sudan</option><option>Sweden</option><option>Switzerland</option><option>Syria</option><option>Taiwan</option><option>Tanzania</option><option>Thailand</option><option>Tunisia</option><option>Turkey</option><option>Turkmenistan</option><option>Uganda</option><option>Ukraine</option><option>United Arab Emirates</option><option>United Kingdom</option><option>United States</option><option>Uruguay</option><option>Uzbekistan</option><option>Venezuela</option><option>Vietnam</option><option>Yemen</option><option>Zambia</option><option>Zimbabwe</option>
-      </select>
-    </div>
-
-    <div class="field-group">
-      <label class="field-label">Industry</label>
-      <select class="field-select" id="industry">
-        <option value="">Select industry…</option>
-        <option value="technology">Electronics</option>
-        <option value="textiles">Textiles/Apparel</option>
-        <option value="automotive">Automotive</option>
-        <option value="food">Food/Agriculture</option>
-        <option value="pharma">Pharmaceuticals</option>
-        <option value="rawMaterials">Raw Materials</option>
-        <option value="consumerGoods">Consumer Goods</option>
-        <option value="other">Other</option>
-      </select>
-    </div>
-
-    <div class="field-group">
-      <label class="field-label">Primary Sourcing Countries</label>
-      <div class="chip-grid" id="sourcingChips">
-        <span class="chip-option" data-country="China">China</span>
-        <span class="chip-option" data-country="Vietnam">Vietnam</span>
-        <span class="chip-option" data-country="India">India</span>
-        <span class="chip-option" data-country="Bangladesh">Bangladesh</span>
-        <span class="chip-option" data-country="Indonesia">Indonesia</span>
-        <span class="chip-option" data-country="Mexico">Mexico</span>
-        <span class="chip-option" data-country="Thailand">Thailand</span>
-        <span class="chip-option" data-country="Malaysia">Malaysia</span>
-        <span class="chip-option" data-country="Cambodia">Cambodia</span>
-        <span class="chip-option" data-country="Philippines">Philippines</span>
-        <span class="chip-option" data-country="Pakistan">Pakistan</span>
-        <span class="chip-option" data-country="Turkey">Turkey</span>
-        <span class="chip-option" data-country="Brazil">Brazil</span>
-        <span class="chip-option" data-country="South Korea">South Korea</span>
-        <span class="chip-option" data-country="Japan">Japan</span>
-        <span class="chip-option" data-country="Taiwan">Taiwan</span>
-        <span class="chip-option" data-country="Germany">Germany</span>
-        <span class="chip-option" data-country="Poland">Poland</span>
-        <span class="chip-option" data-country="Romania">Romania</span>
-        <span class="chip-option" data-country="Morocco">Morocco</span>
-        <span class="chip-option" data-country="Ethiopia">Ethiopia</span>
-        <span class="chip-option" data-country="Sri Lanka">Sri Lanka</span>
-        <span class="chip-option" data-country="Honduras">Honduras</span>
-        <span class="chip-option" data-country="Guatemala">Guatemala</span>
-        <span class="chip-option" data-country="Myanmar">Myanmar</span>
-        <span class="chip-option" data-country="Italy">Italy</span>
-        <span class="chip-option" data-country="Portugal">Portugal</span>
-        <span class="chip-option" data-country="Czech Republic">Czech Republic</span>
-        <span class="chip-option" data-country="Bulgaria">Bulgaria</span>
-        <span class="chip-option" data-country="Hungary">Hungary</span>
-        <span class="chip-option" data-country="Slovakia">Slovakia</span>
-      </div>
-    </div>
-
-    <div class="field-group">
-      <label class="field-label">Annual Revenue</label>
-      <select class="field-select" id="annualRevenue">
-        <option value="">Select revenue range…</option>
-        <option value="under1m">&lt;$1M</option>
-        <option value="1m10m">$1M–$10M</option>
-        <option value="10m50m">$10M–$50M</option>
-        <option value="50m100m">$50M–$100M</option>
-        <option value="over100m">$100M+</option>
-      </select>
-    </div>
-
+    <div class="field-group"><label class="field-label">Company Type</label><select class="field-select" id="companyType"><option value="">Select company type…</option><option value="manufacturer">Manufacturer</option><option value="retailer">Retailer</option><option value="distributor">Distributor</option><option value="logistics">Logistics Provider</option><option value="other">Other</option></select></div>
+    <div class="field-group"><label class="field-label">Home Country</label><select class="field-select" id="homeCountry"><option value="">Select your country…</option><option>Afghanistan</option><option>Albania</option><option>Algeria</option><option>Angola</option><option>Argentina</option><option>Armenia</option><option>Australia</option><option>Austria</option><option>Azerbaijan</option><option>Bangladesh</option><option>Belarus</option><option>Belgium</option><option>Bolivia</option><option>Bosnia</option><option>Brazil</option><option>Bulgaria</option><option>Cambodia</option><option>Cameroon</option><option>Canada</option><option>Chile</option><option>China</option><option>Colombia</option><option>Congo</option><option>Costa Rica</option><option>Croatia</option><option>Cuba</option><option>Cyprus</option><option>Czech Republic</option><option>Denmark</option><option>Dominican Republic</option><option>Ecuador</option><option>Egypt</option><option>El Salvador</option><option>Estonia</option><option>Ethiopia</option><option>Finland</option><option>France</option><option>Germany</option><option>Ghana</option><option>Greece</option><option>Guatemala</option><option>Honduras</option><option>Hungary</option><option>India</option><option>Indonesia</option><option>Iran</option><option>Iraq</option><option>Ireland</option><option>Israel</option><option>Italy</option><option>Japan</option><option>Jordan</option><option>Kazakhstan</option><option>Kenya</option><option>Laos</option><option>Latvia</option><option>Lebanon</option><option>Lithuania</option><option>Luxembourg</option><option>Malaysia</option><option>Malta</option><option>Mexico</option><option>Moldova</option><option>Morocco</option><option>Mozambique</option><option>Myanmar</option><option>Nepal</option><option>Netherlands</option><option>New Zealand</option><option>Nicaragua</option><option>Nigeria</option><option>North Korea</option><option>North Macedonia</option><option>Norway</option><option>Oman</option><option>Pakistan</option><option>Panama</option><option>Paraguay</option><option>Peru</option><option>Philippines</option><option>Poland</option><option>Portugal</option><option>Qatar</option><option>Romania</option><option>Russia</option><option>Saudi Arabia</option><option>Senegal</option><option>Serbia</option><option>Singapore</option><option>Slovakia</option><option>Slovenia</option><option>South Africa</option><option>South Korea</option><option>South Sudan</option><option>Spain</option><option>Sri Lanka</option><option>Sudan</option><option>Sweden</option><option>Switzerland</option><option>Syria</option><option>Taiwan</option><option>Tanzania</option><option>Thailand</option><option>Tunisia</option><option>Turkey</option><option>Turkmenistan</option><option>Uganda</option><option>Ukraine</option><option>United Arab Emirates</option><option>United Kingdom</option><option>United States</option><option>Uruguay</option><option>Uzbekistan</option><option>Venezuela</option><option>Vietnam</option><option>Yemen</option><option>Zambia</option><option>Zimbabwe</option></select></div>
+    <div class="field-group"><label class="field-label">Industry</label><select class="field-select" id="industry"><option value="">Select industry…</option><option value="technology">Electronics</option><option value="textiles">Textiles/Apparel</option><option value="automotive">Automotive</option><option value="food">Food/Agriculture</option><option value="pharma">Pharmaceuticals</option><option value="rawMaterials">Raw Materials</option><option value="consumerGoods">Consumer Goods</option><option value="other">Other</option></select></div>
+    <div class="field-group"><label class="field-label">Primary Sourcing Countries</label><div class="chip-grid" id="sourcingChips"><span class="chip-option" data-country="China">China</span><span class="chip-option" data-country="Vietnam">Vietnam</span><span class="chip-option" data-country="India">India</span><span class="chip-option" data-country="Bangladesh">Bangladesh</span><span class="chip-option" data-country="Indonesia">Indonesia</span><span class="chip-option" data-country="Mexico">Mexico</span><span class="chip-option" data-country="Thailand">Thailand</span><span class="chip-option" data-country="Malaysia">Malaysia</span><span class="chip-option" data-country="Cambodia">Cambodia</span><span class="chip-option" data-country="Philippines">Philippines</span><span class="chip-option" data-country="Pakistan">Pakistan</span><span class="chip-option" data-country="Turkey">Turkey</span><span class="chip-option" data-country="Brazil">Brazil</span><span class="chip-option" data-country="South Korea">South Korea</span><span class="chip-option" data-country="Japan">Japan</span><span class="chip-option" data-country="Taiwan">Taiwan</span><span class="chip-option" data-country="Germany">Germany</span><span class="chip-option" data-country="Poland">Poland</span><span class="chip-option" data-country="Romania">Romania</span><span class="chip-option" data-country="Morocco">Morocco</span><span class="chip-option" data-country="Ethiopia">Ethiopia</span><span class="chip-option" data-country="Italy">Italy</span><span class="chip-option" data-country="Portugal">Portugal</span><span class="chip-option" data-country="Czech Republic">Czech Republic</span><span class="chip-option" data-country="Hungary">Hungary</span><span class="chip-option" data-country="Slovakia">Slovakia</span></div></div>
+    <div class="field-group"><label class="field-label">Annual Revenue</label><select class="field-select" id="annualRevenue"><option value="">Select revenue range…</option><option value="under1m">&lt;$1M</option><option value="1m10m">$1M–$10M</option><option value="10m50m">$10M–$50M</option><option value="50m100m">$50M–$100M</option><option value="over100m">$100M+</option></select></div>
     <button class="onboard-submit" onclick="handleOnboardSubmit()">Update Profile</button>
     <button class="onboard-cancel" onclick="document.getElementById('onboardingPanel').style.display='none'">Cancel</button>
   </div>
 </div>
 
-<!-- ===== STATUS BAR ===== -->
-<div class="status-bar">
-  <span class="status-dot"></span>
-  <span>SYSTEM ONLINE</span>
-  <span class="status-sep">|</span>
-  <span id="statusTime">00:00:00</span>
-  <span class="status-sep">|</span>
-  <span>58 NODES ACTIVE</span>
-  <span class="status-sep">|</span>
-  <span>LATENCY &lt;2ms</span>
-</div>
-
-<!-- ===== CHAT MESSAGES ===== -->
 <div id="chatMessages"></div>
-
-<!-- ===== CHAT INPUT ===== -->
 <div id="chatPanel">
   <div id="quickActions">
     <button class="quick-btn" onclick="sendQuickMsg('Full Audit')">Full Audit</button>
@@ -821,488 +463,124 @@
   </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
-// ============================================================
-// STATE
-// ============================================================
-var map = null, countryMarkers = {}, currentLayer = 'risk', currentCategory = 'technology', userProfile = {}, selectedSourcingCountries = [];
+var map=null,countryMarkers={},currentLayer='risk',currentCategory='technology',userProfile={},selectedSourcingCountries=[];
 
-// Floating particles
-(function(){for(var i=0;i<15;i++){var p=document.createElement('div');p.className='float-particle';var size=Math.random()*3+1,left=Math.random()*100,dur=Math.random()*15+10,delay=Math.random()*10,hue=Math.random()>0.5?'125,249,194':'34,211,238';p.style.cssText='width:'+size+'px;height:'+size+'px;left:'+left+'%;bottom:-10px;background:rgba('+hue+','+(Math.random()*0.25+0.1).toFixed(2)+');box-shadow:0 0 '+(size*3)+'px rgba('+hue+',0.15);animation-duration:'+dur+'s;animation-delay:'+delay+'s;';document.body.appendChild(p);}})();
+// === COUNTRY DATA ===
+var COUNTRY_DATA=[{name:'North Korea',lat:40.3,lng:127.5,risk:98,shipping:9,labor:4,tariff:25,infra:3,costIndex:80,mfgCapacity:5,exportInfra:2,supplierDensity:2,leadTimeReliability:10,sourcing:{technology:2,textiles:3,generalMfg:3,consumerGoods:2,automotive:1,pharma:1}},{name:'Russia',lat:61.5,lng:90,risk:95,shipping:8,labor:5,tariff:35,infra:6,costIndex:75,mfgCapacity:55,exportInfra:50,supplierDensity:45,leadTimeReliability:40,sourcing:{technology:10,textiles:5,generalMfg:25,consumerGoods:10,automotive:15,pharma:20}},{name:'Iran',lat:32.4,lng:53.7,risk:93,shipping:7,labor:4,tariff:30,infra:5,costIndex:72,mfgCapacity:25,exportInfra:20,supplierDensity:18,leadTimeReliability:25,sourcing:{technology:5,textiles:15,generalMfg:15,consumerGoods:8,automotive:10,pharma:12}},{name:'Venezuela',lat:6.4,lng:-66.6,risk:89,shipping:6,labor:3,tariff:25,infra:3,costIndex:72,mfgCapacity:15,exportInfra:20,supplierDensity:10,leadTimeReliability:20,sourcing:{technology:3,textiles:5,generalMfg:8,consumerGoods:5,automotive:5,pharma:5}},{name:'Iraq',lat:33.2,lng:43.7,risk:88,shipping:7,labor:3,tariff:15,infra:3,costIndex:70,mfgCapacity:10,exportInfra:15,supplierDensity:8,leadTimeReliability:15,sourcing:{technology:2,textiles:3,generalMfg:5,consumerGoods:3,automotive:2,pharma:5}},{name:'Ukraine',lat:48.4,lng:31.2,risk:88,shipping:5,labor:3,tariff:10,infra:6,costIndex:60,mfgCapacity:35,exportInfra:40,supplierDensity:30,leadTimeReliability:25,sourcing:{technology:15,textiles:10,generalMfg:20,consumerGoods:10,automotive:15,pharma:10}},{name:'Myanmar',lat:17.1,lng:95.9,risk:85,shipping:8,labor:2,tariff:15,infra:3,costIndex:58,mfgCapacity:18,exportInfra:15,supplierDensity:12,leadTimeReliability:20,sourcing:{technology:2,textiles:25,generalMfg:10,consumerGoods:8,automotive:1,pharma:2}},{name:'Lebanon',lat:33.9,lng:35.5,risk:79,shipping:6,labor:4,tariff:15,infra:4,costIndex:65,mfgCapacity:8,exportInfra:15,supplierDensity:5,leadTimeReliability:10,sourcing:{technology:5,textiles:5,generalMfg:5,consumerGoods:5,automotive:2,pharma:8}},{name:'China',lat:35.8,lng:104.2,risk:28,shipping:7,labor:3,tariff:25,infra:7,costIndex:30,mfgCapacity:98,exportInfra:95,supplierDensity:99,leadTimeReliability:80,sourcing:{technology:95,textiles:75,generalMfg:95,consumerGoods:92,automotive:70,pharma:65}},{name:'Pakistan',lat:30.4,lng:69.3,risk:76,shipping:8,labor:2,tariff:17,infra:4,costIndex:55,mfgCapacity:40,exportInfra:35,supplierDensity:35,leadTimeReliability:45,sourcing:{technology:10,textiles:60,generalMfg:30,consumerGoods:25,automotive:8,pharma:15}},{name:'Nigeria',lat:9.1,lng:8.7,risk:72,shipping:7,labor:2,tariff:20,infra:4,costIndex:58,mfgCapacity:15,exportInfra:20,supplierDensity:12,leadTimeReliability:30,sourcing:{technology:3,textiles:10,generalMfg:10,consumerGoods:8,automotive:3,pharma:5}},{name:'India',lat:20.6,lng:79,risk:35,shipping:7,labor:2,tariff:10,infra:6,costIndex:25,mfgCapacity:80,exportInfra:68,supplierDensity:75,leadTimeReliability:60,sourcing:{technology:45,textiles:70,generalMfg:72,consumerGoods:65,automotive:50,pharma:92}},{name:'Turkey',lat:38.9,lng:35.2,risk:42,shipping:5,labor:4,tariff:5,infra:7,costIndex:32,mfgCapacity:60,exportInfra:65,supplierDensity:55,leadTimeReliability:65,sourcing:{technology:20,textiles:70,generalMfg:55,consumerGoods:40,automotive:55,pharma:20}},{name:'Bangladesh',lat:23.7,lng:90.4,risk:62,shipping:8,labor:1,tariff:12,infra:5,costIndex:42,mfgCapacity:60,exportInfra:50,supplierDensity:55,leadTimeReliability:55,sourcing:{technology:5,textiles:88,generalMfg:30,consumerGoods:35,automotive:3,pharma:5}},{name:'Vietnam',lat:14.1,lng:108.3,risk:32,shipping:7,labor:2,tariff:6,infra:6,costIndex:22,mfgCapacity:72,exportInfra:70,supplierDensity:65,leadTimeReliability:65,sourcing:{technology:55,textiles:85,generalMfg:65,consumerGoods:62,automotive:20,pharma:10}},{name:'Thailand',lat:15.9,lng:100.9,risk:30,shipping:7,labor:3,tariff:5,infra:7,costIndex:24,mfgCapacity:65,exportInfra:70,supplierDensity:58,leadTimeReliability:70,sourcing:{technology:40,textiles:30,generalMfg:55,consumerGoods:55,automotive:60,pharma:15}},{name:'Indonesia',lat:-0.8,lng:113.9,risk:38,shipping:7,labor:2,tariff:10,infra:5,costIndex:28,mfgCapacity:55,exportInfra:50,supplierDensity:45,leadTimeReliability:55,sourcing:{technology:15,textiles:40,generalMfg:40,consumerGoods:45,automotive:25,pharma:10}},{name:'Cambodia',lat:12.6,lng:104.9,risk:48,shipping:8,labor:2,tariff:12,infra:4,costIndex:38,mfgCapacity:30,exportInfra:30,supplierDensity:25,leadTimeReliability:50,sourcing:{technology:5,textiles:65,generalMfg:22,consumerGoods:18,automotive:2,pharma:3}},{name:'Brazil',lat:-14.2,lng:-51.9,risk:50,shipping:6,labor:4,tariff:18,infra:6,costIndex:42,mfgCapacity:60,exportInfra:60,supplierDensity:55,leadTimeReliability:55,sourcing:{technology:20,textiles:25,generalMfg:50,consumerGoods:35,automotive:45,pharma:30}},{name:'Mexico',lat:23.6,lng:-102.6,risk:42,shipping:4,labor:3,tariff:2,infra:7,costIndex:25,mfgCapacity:78,exportInfra:80,supplierDensity:72,leadTimeReliability:70,sourcing:{technology:35,textiles:30,generalMfg:78,consumerGoods:45,automotive:88,pharma:15}},{name:'Romania',lat:45.9,lng:24.9,risk:22,shipping:5,labor:4,tariff:3,infra:7,costIndex:26,mfgCapacity:40,exportInfra:50,supplierDensity:35,leadTimeReliability:65,sourcing:{technology:20,textiles:30,generalMfg:35,consumerGoods:25,automotive:50,pharma:20}},{name:'UAE',lat:23.4,lng:53.8,risk:30,shipping:6,labor:5,tariff:5,infra:9,costIndex:32,mfgCapacity:25,exportInfra:75,supplierDensity:20,leadTimeReliability:75,sourcing:{technology:10,textiles:5,generalMfg:18,consumerGoods:15,automotive:5,pharma:12}},{name:'South Korea',lat:35.9,lng:127.8,risk:28,shipping:7,labor:6,tariff:3,infra:9,costIndex:35,mfgCapacity:85,exportInfra:90,supplierDensity:82,leadTimeReliability:88,sourcing:{technology:88,textiles:10,generalMfg:70,consumerGoods:55,automotive:80,pharma:30}},{name:'Taiwan',lat:23.7,lng:120.9,risk:45,shipping:7,labor:6,tariff:5,infra:9,costIndex:30,mfgCapacity:82,exportInfra:88,supplierDensity:80,leadTimeReliability:85,sourcing:{technology:95,textiles:10,generalMfg:55,consumerGoods:40,automotive:25,pharma:20}},{name:'Czech Republic',lat:49.8,lng:15.5,risk:16,shipping:5,labor:5,tariff:3,infra:8,costIndex:26,mfgCapacity:55,exportInfra:65,supplierDensity:48,leadTimeReliability:75,sourcing:{technology:28,textiles:12,generalMfg:50,consumerGoods:30,automotive:72,pharma:30}},{name:'United States',lat:37.1,lng:-95.7,risk:18,shipping:4,labor:9,tariff:0,infra:9,costIndex:45,mfgCapacity:80,exportInfra:88,supplierDensity:75,leadTimeReliability:90,sourcing:{technology:70,textiles:8,generalMfg:65,consumerGoods:55,automotive:60,pharma:70}},{name:'Germany',lat:51.2,lng:10.4,risk:14,shipping:5,labor:8,tariff:3,infra:9,costIndex:48,mfgCapacity:90,exportInfra:92,supplierDensity:88,leadTimeReliability:92,sourcing:{technology:72,textiles:10,generalMfg:78,consumerGoods:55,automotive:95,pharma:65}},{name:'Japan',lat:36.2,lng:138.3,risk:18,shipping:7,labor:8,tariff:3,infra:9,costIndex:50,mfgCapacity:88,exportInfra:90,supplierDensity:85,leadTimeReliability:85,sourcing:{technology:88,textiles:10,generalMfg:75,consumerGoods:60,automotive:92,pharma:35}},{name:'Singapore',lat:1.4,lng:103.8,risk:10,shipping:6,labor:9,tariff:0,infra:10,costIndex:55,mfgCapacity:35,exportInfra:95,supplierDensity:30,leadTimeReliability:95,sourcing:{technology:50,textiles:2,generalMfg:25,consumerGoods:15,automotive:5,pharma:40}},{name:'Malaysia',lat:4.2,lng:101.9,risk:28,shipping:7,labor:3,tariff:5,infra:7,costIndex:24,mfgCapacity:60,exportInfra:68,supplierDensity:55,leadTimeReliability:72,sourcing:{technology:60,textiles:15,generalMfg:50,consumerGoods:40,automotive:25,pharma:15}},{name:'Philippines',lat:12.9,lng:121.8,risk:40,shipping:7,labor:2,tariff:10,infra:5,costIndex:28,mfgCapacity:40,exportInfra:45,supplierDensity:35,leadTimeReliability:55,sourcing:{technology:35,textiles:15,generalMfg:30,consumerGoods:25,automotive:10,pharma:8}},{name:'France',lat:46.2,lng:2.2,risk:16,shipping:5,labor:8,tariff:3,infra:9,costIndex:45,mfgCapacity:65,exportInfra:78,supplierDensity:60,leadTimeReliability:82,sourcing:{technology:38,textiles:15,generalMfg:48,consumerGoods:42,automotive:55,pharma:50}},{name:'Italy',lat:41.9,lng:12.6,risk:18,shipping:5,labor:7,tariff:3,infra:8,costIndex:40,mfgCapacity:65,exportInfra:72,supplierDensity:62,leadTimeReliability:78,sourcing:{technology:25,textiles:55,generalMfg:55,consumerGoods:50,automotive:50,pharma:40}},{name:'Netherlands',lat:52.1,lng:5.3,risk:12,shipping:5,labor:8,tariff:3,infra:10,costIndex:45,mfgCapacity:40,exportInfra:90,supplierDensity:35,leadTimeReliability:90,sourcing:{technology:30,textiles:5,generalMfg:30,consumerGoods:25,automotive:15,pharma:35}},{name:'Poland',lat:51.9,lng:19.1,risk:18,shipping:5,labor:5,tariff:3,infra:8,costIndex:25,mfgCapacity:55,exportInfra:62,supplierDensity:48,leadTimeReliability:72,sourcing:{technology:22,textiles:18,generalMfg:45,consumerGoods:30,automotive:55,pharma:20}},{name:'Morocco',lat:31.8,lng:-7.1,risk:38,shipping:5,labor:2,tariff:8,infra:6,costIndex:22,mfgCapacity:35,exportInfra:45,supplierDensity:28,leadTimeReliability:55,sourcing:{technology:10,textiles:40,generalMfg:30,consumerGoods:20,automotive:35,pharma:8}},{name:'South Africa',lat:-30.6,lng:22.9,risk:45,shipping:7,labor:3,tariff:10,infra:6,costIndex:30,mfgCapacity:40,exportInfra:50,supplierDensity:32,leadTimeReliability:55,sourcing:{technology:10,textiles:12,generalMfg:25,consumerGoods:18,automotive:30,pharma:15}},{name:'Saudi Arabia',lat:23.9,lng:45.1,risk:32,shipping:6,labor:4,tariff:5,infra:8,costIndex:35,mfgCapacity:20,exportInfra:65,supplierDensity:12,leadTimeReliability:70,sourcing:{technology:8,textiles:3,generalMfg:15,consumerGoods:10,automotive:5,pharma:10}},{name:'Egypt',lat:26.8,lng:30.8,risk:52,shipping:5,labor:2,tariff:15,infra:5,costIndex:38,mfgCapacity:30,exportInfra:38,supplierDensity:22,leadTimeReliability:45,sourcing:{technology:5,textiles:30,generalMfg:20,consumerGoods:15,automotive:10,pharma:8}},{name:'Australia',lat:-25.3,lng:133.8,risk:16,shipping:8,labor:8,tariff:5,infra:9,costIndex:48,mfgCapacity:30,exportInfra:65,supplierDensity:25,leadTimeReliability:78,sourcing:{technology:15,textiles:5,generalMfg:20,consumerGoods:15,automotive:5,pharma:15}},{name:'Canada',lat:56.1,lng:-106.3,risk:14,shipping:5,labor:8,tariff:1,infra:9,costIndex:40,mfgCapacity:50,exportInfra:70,supplierDensity:45,leadTimeReliability:80,sourcing:{technology:30,textiles:5,generalMfg:40,consumerGoods:30,automotive:45,pharma:40}},{name:'United Kingdom',lat:55.4,lng:-3.4,risk:14,shipping:5,labor:8,tariff:5,infra:9,costIndex:42,mfgCapacity:55,exportInfra:72,supplierDensity:55,leadTimeReliability:82,sourcing:{technology:40,textiles:8,generalMfg:45,consumerGoods:40,automotive:45,pharma:60}},{name:'Hungary',lat:47.2,lng:19.5,risk:20,shipping:5,labor:5,tariff:3,infra:7,costIndex:26,mfgCapacity:45,exportInfra:55,supplierDensity:40,leadTimeReliability:70,sourcing:{technology:20,textiles:15,generalMfg:38,consumerGoods:25,automotive:65,pharma:30}},{name:'Switzerland',lat:46.8,lng:8.2,risk:10,shipping:5,labor:9,tariff:3,infra:10,costIndex:58,mfgCapacity:45,exportInfra:80,supplierDensity:35,leadTimeReliability:92,sourcing:{technology:30,textiles:8,generalMfg:35,consumerGoods:30,automotive:20,pharma:85}},{name:'Ireland',lat:53.1,lng:-7.7,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:48,mfgCapacity:30,exportInfra:68,supplierDensity:25,leadTimeReliability:85,sourcing:{technology:35,textiles:3,generalMfg:20,consumerGoods:15,automotive:8,pharma:88}},{name:'Belgium',lat:50.5,lng:4.5,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:42,mfgCapacity:40,exportInfra:72,supplierDensity:38,leadTimeReliability:80,sourcing:{technology:18,textiles:8,generalMfg:35,consumerGoods:28,automotive:35,pharma:55}},{name:'Portugal',lat:39.4,lng:-8.2,risk:15,shipping:5,labor:6,tariff:3,infra:8,costIndex:30,mfgCapacity:35,exportInfra:60,supplierDensity:28,leadTimeReliability:72,sourcing:{technology:12,textiles:25,generalMfg:28,consumerGoods:20,automotive:22,pharma:18}},{name:'Slovakia',lat:48.7,lng:19.7,risk:18,shipping:5,labor:5,tariff:3,infra:7,costIndex:24,mfgCapacity:40,exportInfra:55,supplierDensity:35,leadTimeReliability:70,sourcing:{technology:15,textiles:10,generalMfg:32,consumerGoods:20,automotive:68,pharma:15}},{name:'Austria',lat:47.5,lng:14.6,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:42,mfgCapacity:48,exportInfra:70,supplierDensity:42,leadTimeReliability:82,sourcing:{technology:25,textiles:8,generalMfg:40,consumerGoods:30,automotive:45,pharma:35}},{name:'Bulgaria',lat:42.7,lng:25.5,risk:22,shipping:5,labor:4,tariff:3,infra:6,costIndex:22,mfgCapacity:30,exportInfra:42,supplierDensity:25,leadTimeReliability:60,sourcing:{technology:12,textiles:22,generalMfg:28,consumerGoods:18,automotive:30,pharma:12}},{name:'Sri Lanka',lat:7.9,lng:80.8,risk:52,shipping:7,labor:2,tariff:10,infra:5,costIndex:35,mfgCapacity:25,exportInfra:30,supplierDensity:20,leadTimeReliability:45,sourcing:{technology:5,textiles:40,generalMfg:15,consumerGoods:12,automotive:3,pharma:5}},{name:'Ethiopia',lat:9.1,lng:40.5,risk:55,shipping:8,labor:1,tariff:15,infra:3,costIndex:42,mfgCapacity:15,exportInfra:12,supplierDensity:10,leadTimeReliability:30,sourcing:{technology:2,textiles:25,generalMfg:8,consumerGoods:5,automotive:1,pharma:2}},{name:'Honduras',lat:14.1,lng:-86.2,risk:62,shipping:5,labor:2,tariff:8,infra:5,costIndex:35,mfgCapacity:25,exportInfra:25,supplierDensity:20,leadTimeReliability:45,sourcing:{technology:5,textiles:35,generalMfg:20,consumerGoods:15,automotive:5,pharma:3}},{name:'Colombia',lat:4.6,lng:-74.1,risk:50,shipping:5,labor:3,tariff:15,infra:6,costIndex:40,mfgCapacity:30,exportInfra:40,supplierDensity:25,leadTimeReliability:50,sourcing:{technology:10,textiles:20,generalMfg:22,consumerGoods:18,automotive:8,pharma:12}},{name:'Peru',lat:-9.2,lng:-75,risk:46,shipping:6,labor:3,tariff:10,infra:6,costIndex:38,mfgCapacity:25,exportInfra:35,supplierDensity:18,leadTimeReliability:50,sourcing:{technology:5,textiles:25,generalMfg:18,consumerGoods:12,automotive:5,pharma:5}},{name:'Argentina',lat:-38.4,lng:-63.6,risk:55,shipping:6,labor:4,tariff:20,infra:6,costIndex:45,mfgCapacity:35,exportInfra:40,supplierDensity:28,leadTimeReliability:45,sourcing:{technology:10,textiles:12,generalMfg:25,consumerGoods:18,automotive:25,pharma:18}},{name:'Chile',lat:-35.7,lng:-71.5,risk:25,shipping:6,labor:5,tariff:5,infra:7,costIndex:32,mfgCapacity:25,exportInfra:55,supplierDensity:18,leadTimeReliability:65,sourcing:{technology:8,textiles:5,generalMfg:15,consumerGoods:10,automotive:5,pharma:10}}];
+var COUNTRY_MAP=(function(){var m={};for(var i=0;i<COUNTRY_DATA.length;i++)m[COUNTRY_DATA[i].name]=COUNTRY_DATA[i];return m;})();
 
-// Status clock
-setInterval(function(){var el=document.getElementById('statusTime');if(el){var d=new Date();el.textContent=d.toTimeString().split(' ')[0];}},1000);
+var LAYER_CONFIG={risk:{name:'Risk Levels',sub:'Geopolitical & operational risk by country',legendTitle:'Risk Score',items:[{color:'#ff1a4a',label:'Critical (80–100)'},{color:'#ff8c00',label:'High (60–79)'},{color:'#f5c518',label:'Medium-High (45–59)'},{color:'#8bc34a',label:'Medium (30–44)'},{color:'#00e676',label:'Low-Medium (15–29)'},{color:'#00e5ff',label:'Low (0–14)'}]},shipping:{name:'Shipping Cost',sub:'Relative container shipping cost index',legendTitle:'Shipping Cost',items:[{color:'#ff1a4a',label:'Very High (9–10)'},{color:'#ff8c00',label:'High (7–8)'},{color:'#f5c518',label:'Moderate (5–6)'},{color:'#00e676',label:'Low (3–4)'},{color:'#00e5ff',label:'Very Low (1–2)'}]},labor:{name:'Labor Cost',sub:'Relative labor cost index',legendTitle:'Labor Cost',items:[{color:'#ff1a4a',label:'Very High (9–10)'},{color:'#ff8c00',label:'High (7–8)'},{color:'#f5c518',label:'Moderate (5–6)'},{color:'#00e676',label:'Low (3–4)'},{color:'#00e5ff',label:'Very Low (1–2)'}]},cost:{name:'Total Cost Index',sub:'Combined tariff, shipping, labor & infrastructure cost',legendTitle:'Cost Index',items:[{color:'#ff1a4a',label:'Very High (70–100)'},{color:'#ff8c00',label:'High (50–69)'},{color:'#f5c518',label:'Moderate (35–49)'},{color:'#8bc34a',label:'Below Average (25–34)'},{color:'#00e676',label:'Low (15–24)'},{color:'#00e5ff',label:'Very Low (0–14)'}]},sourcing:{name:'Sourcing Attractiveness',sub:'How attractive each country is as a sourcing destination',legendTitle:'Sourcing Attractiveness',items:[{color:'#00e5ff',label:'Top Tier (80–100)'},{color:'#00e676',label:'Strong (60–79)'},{color:'#8bc34a',label:'Good (40–59)'},{color:'#f5c518',label:'Moderate (20–39)'},{color:'#ff8c00',label:'Limited (10–19)'},{color:'#ff1a4a',label:'Minimal (0–9)'}]}};
 
-// ============================================================
-// COUNTRY DATA
-// ============================================================
-var COUNTRY_DATA = [
-  { name: 'North Korea',    lat:  40.3, lng: 127.5, risk: 98, shipping: 9, labor: 4, tariff: 25, infra:  3, costIndex: 80, mfgCapacity: 5,  exportInfra: 2,  supplierDensity: 2,  leadTimeReliability: 10, sourcing: { technology: 2,  textiles: 3,  generalMfg: 3,  consumerGoods: 2,  automotive: 1,  pharma: 1  } },
-  { name: 'Russia',         lat:  61.5, lng:  90.0, risk: 95, shipping: 8, labor: 5, tariff: 35, infra:  6, costIndex: 75, mfgCapacity: 55, exportInfra: 50, supplierDensity: 45, leadTimeReliability: 40, sourcing: { technology: 10, textiles: 5,  generalMfg: 25, consumerGoods: 10, automotive: 15, pharma: 20 } },
-  { name: 'Iran',           lat:  32.4, lng:  53.7, risk: 93, shipping: 7, labor: 4, tariff: 30, infra:  5, costIndex: 72, mfgCapacity: 25, exportInfra: 20, supplierDensity: 18, leadTimeReliability: 25, sourcing: { technology: 5,  textiles: 15, generalMfg: 15, consumerGoods: 8,  automotive: 10, pharma: 12 } },
-  { name: 'Venezuela',      lat:   6.4, lng: -66.6, risk: 89, shipping: 6, labor: 3, tariff: 25, infra:  3, costIndex: 72, mfgCapacity: 15, exportInfra: 20, supplierDensity: 10, leadTimeReliability: 20, sourcing: { technology: 3,  textiles: 5,  generalMfg: 8,  consumerGoods: 5,  automotive: 5,  pharma: 5  } },
-  { name: 'Iraq',           lat:  33.2, lng:  43.7, risk: 88, shipping: 7, labor: 3, tariff: 15, infra:  3, costIndex: 70, mfgCapacity: 10, exportInfra: 15, supplierDensity: 8,  leadTimeReliability: 15, sourcing: { technology: 2,  textiles: 3,  generalMfg: 5,  consumerGoods: 3,  automotive: 2,  pharma: 5  } },
-  { name: 'Ukraine',        lat:  48.4, lng:  31.2, risk: 88, shipping: 5, labor: 3, tariff: 10, infra:  6, costIndex: 60, mfgCapacity: 35, exportInfra: 40, supplierDensity: 30, leadTimeReliability: 25, sourcing: { technology: 15, textiles: 10, generalMfg: 20, consumerGoods: 10, automotive: 15, pharma: 10 } },
-  { name: 'Myanmar',        lat:  17.1, lng:  95.9, risk: 85, shipping: 8, labor: 2, tariff: 15, infra:  3, costIndex: 58, mfgCapacity: 18, exportInfra: 15, supplierDensity: 12, leadTimeReliability: 20, sourcing: { technology: 2,  textiles: 25, generalMfg: 10, consumerGoods: 8,  automotive: 1,  pharma: 2  } },
-  { name: 'Lebanon',        lat:  33.9, lng:  35.5, risk: 79, shipping: 6, labor: 4, tariff: 15, infra:  4, costIndex: 65, mfgCapacity: 8,  exportInfra: 15, supplierDensity: 5,  leadTimeReliability: 10, sourcing: { technology: 5,  textiles: 5,  generalMfg: 5,  consumerGoods: 5,  automotive: 2,  pharma: 8  } },
-  { name: 'China',          lat:  35.8, lng: 104.2, risk: 28, shipping: 7, labor: 3, tariff: 25, infra:  7, costIndex: 30, mfgCapacity: 98, exportInfra: 95, supplierDensity: 99, leadTimeReliability: 80, sourcing: { technology: 95, textiles: 75, generalMfg: 95, consumerGoods: 92, automotive: 70, pharma: 65 } },
-  { name: 'Pakistan',       lat:  30.4, lng:  69.3, risk: 76, shipping: 8, labor: 2, tariff: 17, infra:  4, costIndex: 55, mfgCapacity: 40, exportInfra: 35, supplierDensity: 35, leadTimeReliability: 45, sourcing: { technology: 10, textiles: 60, generalMfg: 30, consumerGoods: 25, automotive: 8,  pharma: 15 } },
-  { name: 'Nigeria',        lat:   9.1, lng:   8.7, risk: 72, shipping: 7, labor: 2, tariff: 20, infra:  4, costIndex: 58, mfgCapacity: 15, exportInfra: 20, supplierDensity: 12, leadTimeReliability: 30, sourcing: { technology: 3,  textiles: 10, generalMfg: 10, consumerGoods: 8,  automotive: 3,  pharma: 5  } },
-  { name: 'India',          lat:  20.6, lng:  79.0, risk: 35, shipping: 7, labor: 2, tariff: 10, infra:  6, costIndex: 25, mfgCapacity: 80, exportInfra: 68, supplierDensity: 75, leadTimeReliability: 60, sourcing: { technology: 45, textiles: 70, generalMfg: 72, consumerGoods: 65, automotive: 50, pharma: 92 } },
-  { name: 'Turkey',         lat:  38.9, lng:  35.2, risk: 42, shipping: 5, labor: 4, tariff:  5, infra:  7, costIndex: 32, mfgCapacity: 60, exportInfra: 65, supplierDensity: 55, leadTimeReliability: 65, sourcing: { technology: 20, textiles: 70, generalMfg: 55, consumerGoods: 40, automotive: 55, pharma: 20 } },
-  { name: 'Bangladesh',     lat:  23.7, lng:  90.4, risk: 62, shipping: 8, labor: 1, tariff: 12, infra:  5, costIndex: 42, mfgCapacity: 60, exportInfra: 50, supplierDensity: 55, leadTimeReliability: 55, sourcing: { technology: 5,  textiles: 88, generalMfg: 30, consumerGoods: 35, automotive: 3,  pharma: 5  } },
-  { name: 'Vietnam',        lat:  14.1, lng: 108.3, risk: 32, shipping: 7, labor: 2, tariff:  6, infra:  6, costIndex: 22, mfgCapacity: 72, exportInfra: 70, supplierDensity: 65, leadTimeReliability: 65, sourcing: { technology: 55, textiles: 85, generalMfg: 65, consumerGoods: 62, automotive: 20, pharma: 10 } },
-  { name: 'Thailand',       lat:  15.9, lng: 100.9, risk: 30, shipping: 7, labor: 3, tariff:  5, infra:  7, costIndex: 24, mfgCapacity: 65, exportInfra: 70, supplierDensity: 58, leadTimeReliability: 70, sourcing: { technology: 40, textiles: 30, generalMfg: 55, consumerGoods: 55, automotive: 60, pharma: 15 } },
-  { name: 'Indonesia',      lat:  -0.8, lng: 113.9, risk: 38, shipping: 7, labor: 2, tariff: 10, infra:  5, costIndex: 28, mfgCapacity: 55, exportInfra: 50, supplierDensity: 45, leadTimeReliability: 55, sourcing: { technology: 15, textiles: 40, generalMfg: 40, consumerGoods: 45, automotive: 25, pharma: 10 } },
-  { name: 'Cambodia',       lat:  12.6, lng: 104.9, risk: 48, shipping: 8, labor: 2, tariff: 12, infra:  4, costIndex: 38, mfgCapacity: 30, exportInfra: 30, supplierDensity: 25, leadTimeReliability: 50, sourcing: { technology: 5,  textiles: 65, generalMfg: 22, consumerGoods: 18, automotive: 2,  pharma: 3  } },
-  { name: 'Brazil',         lat: -14.2, lng: -51.9, risk: 50, shipping: 6, labor: 4, tariff: 18, infra:  6, costIndex: 42, mfgCapacity: 60, exportInfra: 60, supplierDensity: 55, leadTimeReliability: 55, sourcing: { technology: 20, textiles: 25, generalMfg: 50, consumerGoods: 35, automotive: 45, pharma: 30 } },
-  { name: 'Mexico',         lat:  23.6, lng:-102.6, risk: 42, shipping: 4, labor: 3, tariff:  2, infra:  7, costIndex: 25, mfgCapacity: 78, exportInfra: 80, supplierDensity: 72, leadTimeReliability: 70, sourcing: { technology: 35, textiles: 30, generalMfg: 78, consumerGoods: 45, automotive: 88, pharma: 15 } },
-  { name: 'Romania',        lat:  45.9, lng:  24.9, risk: 22, shipping: 5, labor: 4, tariff:  3, infra:  7, costIndex: 26, mfgCapacity: 40, exportInfra: 50, supplierDensity: 35, leadTimeReliability: 65, sourcing: { technology: 20, textiles: 30, generalMfg: 35, consumerGoods: 25, automotive: 50, pharma: 20 } },
-  { name: 'UAE',            lat:  23.4, lng:  53.8, risk: 30, shipping: 6, labor: 5, tariff:  5, infra:  9, costIndex: 32, mfgCapacity: 25, exportInfra: 75, supplierDensity: 20, leadTimeReliability: 75, sourcing: { technology: 10, textiles: 5,  generalMfg: 18, consumerGoods: 15, automotive: 5,  pharma: 12 } },
-  { name: 'South Korea',    lat:  35.9, lng: 127.8, risk: 28, shipping: 7, labor: 6, tariff:  3, infra:  9, costIndex: 35, mfgCapacity: 85, exportInfra: 90, supplierDensity: 82, leadTimeReliability: 88, sourcing: { technology: 88, textiles: 10, generalMfg: 70, consumerGoods: 55, automotive: 80, pharma: 30 } },
-  { name: 'Taiwan',         lat:  23.7, lng: 120.9, risk: 45, shipping: 7, labor: 6, tariff:  5, infra:  9, costIndex: 30, mfgCapacity: 82, exportInfra: 88, supplierDensity: 80, leadTimeReliability: 85, sourcing: { technology: 95, textiles: 10, generalMfg: 55, consumerGoods: 40, automotive: 25, pharma: 20 } },
-  { name: 'Czech Republic', lat:  49.8, lng:  15.5, risk: 16, shipping: 5, labor: 5, tariff:  3, infra:  8, costIndex: 26, mfgCapacity: 55, exportInfra: 65, supplierDensity: 48, leadTimeReliability: 75, sourcing: { technology: 28, textiles: 12, generalMfg: 50, consumerGoods: 30, automotive: 72, pharma: 30 } },
-  { name: 'United States',  lat:  37.1, lng: -95.7, risk: 18, shipping: 4, labor: 9, tariff:  0, infra:  9, costIndex: 45, mfgCapacity: 80, exportInfra: 88, supplierDensity: 75, leadTimeReliability: 90, sourcing: { technology: 70, textiles: 8,  generalMfg: 65, consumerGoods: 55, automotive: 60, pharma: 70 } },
-  { name: 'Germany',        lat:  51.2, lng:  10.4, risk: 14, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 48, mfgCapacity: 90, exportInfra: 92, supplierDensity: 88, leadTimeReliability: 92, sourcing: { technology: 72, textiles: 10, generalMfg: 78, consumerGoods: 55, automotive: 95, pharma: 65 } },
-  { name: 'Japan',          lat:  36.2, lng: 138.3, risk: 18, shipping: 7, labor: 8, tariff:  3, infra:  9, costIndex: 50, mfgCapacity: 88, exportInfra: 90, supplierDensity: 85, leadTimeReliability: 85, sourcing: { technology: 88, textiles: 10, generalMfg: 75, consumerGoods: 60, automotive: 92, pharma: 35 } },
-  { name: 'Singapore',      lat:   1.4, lng: 103.8, risk: 10, shipping: 6, labor: 9, tariff:  0, infra: 10, costIndex: 55, mfgCapacity: 35, exportInfra: 95, supplierDensity: 30, leadTimeReliability: 95, sourcing: { technology: 50, textiles: 2,  generalMfg: 25, consumerGoods: 15, automotive: 5,  pharma: 40 } },
-  { name: 'Malaysia',       lat:   4.2, lng: 101.9, risk: 28, shipping: 7, labor: 3, tariff:  5, infra:  7, costIndex: 24, mfgCapacity: 60, exportInfra: 68, supplierDensity: 55, leadTimeReliability: 72, sourcing: { technology: 60, textiles: 15, generalMfg: 50, consumerGoods: 40, automotive: 25, pharma: 15 } },
-  { name: 'Philippines',    lat:  12.9, lng: 121.8, risk: 40, shipping: 7, labor: 2, tariff: 10, infra:  5, costIndex: 28, mfgCapacity: 40, exportInfra: 45, supplierDensity: 35, leadTimeReliability: 55, sourcing: { technology: 35, textiles: 15, generalMfg: 30, consumerGoods: 25, automotive: 10, pharma: 8  } },
-  { name: 'France',         lat:  46.2, lng:   2.2, risk: 16, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 45, mfgCapacity: 65, exportInfra: 78, supplierDensity: 60, leadTimeReliability: 82, sourcing: { technology: 38, textiles: 15, generalMfg: 48, consumerGoods: 42, automotive: 55, pharma: 50 } },
-  { name: 'Italy',          lat:  41.9, lng:  12.6, risk: 18, shipping: 5, labor: 7, tariff:  3, infra:  8, costIndex: 40, mfgCapacity: 65, exportInfra: 72, supplierDensity: 62, leadTimeReliability: 78, sourcing: { technology: 25, textiles: 55, generalMfg: 55, consumerGoods: 50, automotive: 50, pharma: 40 } },
-  { name: 'Netherlands',    lat:  52.1, lng:   5.3, risk: 12, shipping: 5, labor: 8, tariff:  3, infra: 10, costIndex: 45, mfgCapacity: 40, exportInfra: 90, supplierDensity: 35, leadTimeReliability: 90, sourcing: { technology: 30, textiles: 5,  generalMfg: 30, consumerGoods: 25, automotive: 15, pharma: 35 } },
-  { name: 'Poland',         lat:  51.9, lng:  19.1, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  8, costIndex: 25, mfgCapacity: 55, exportInfra: 62, supplierDensity: 48, leadTimeReliability: 72, sourcing: { technology: 22, textiles: 18, generalMfg: 45, consumerGoods: 30, automotive: 55, pharma: 20 } },
-  { name: 'Morocco',        lat:  31.8, lng:  -7.1, risk: 38, shipping: 5, labor: 2, tariff:  8, infra:  6, costIndex: 22, mfgCapacity: 35, exportInfra: 45, supplierDensity: 28, leadTimeReliability: 55, sourcing: { technology: 10, textiles: 40, generalMfg: 30, consumerGoods: 20, automotive: 35, pharma: 8  } },
-  { name: 'South Africa',   lat: -30.6, lng:  22.9, risk: 45, shipping: 7, labor: 3, tariff: 10, infra:  6, costIndex: 30, mfgCapacity: 40, exportInfra: 50, supplierDensity: 32, leadTimeReliability: 55, sourcing: { technology: 10, textiles: 12, generalMfg: 25, consumerGoods: 18, automotive: 30, pharma: 15 } },
-  { name: 'Saudi Arabia',   lat:  23.9, lng:  45.1, risk: 32, shipping: 6, labor: 4, tariff:  5, infra:  8, costIndex: 35, mfgCapacity: 20, exportInfra: 65, supplierDensity: 12, leadTimeReliability: 70, sourcing: { technology: 8,  textiles: 3,  generalMfg: 15, consumerGoods: 10, automotive: 5,  pharma: 10 } },
-  { name: 'Egypt',          lat:  26.8, lng:  30.8, risk: 52, shipping: 5, labor: 2, tariff: 15, infra:  5, costIndex: 38, mfgCapacity: 30, exportInfra: 38, supplierDensity: 22, leadTimeReliability: 45, sourcing: { technology: 5,  textiles: 30, generalMfg: 20, consumerGoods: 15, automotive: 10, pharma: 8  } },
-  { name: 'Australia',      lat: -25.3, lng: 133.8, risk: 16, shipping: 8, labor: 8, tariff:  5, infra:  9, costIndex: 48, mfgCapacity: 30, exportInfra: 65, supplierDensity: 25, leadTimeReliability: 78, sourcing: { technology: 15, textiles: 5,  generalMfg: 20, consumerGoods: 15, automotive: 5,  pharma: 15 } },
-  { name: 'Canada',         lat:  56.1, lng:-106.3, risk: 14, shipping: 5, labor: 8, tariff:  1, infra:  9, costIndex: 40, mfgCapacity: 50, exportInfra: 70, supplierDensity: 45, leadTimeReliability: 80, sourcing: { technology: 30, textiles: 5,  generalMfg: 40, consumerGoods: 30, automotive: 45, pharma: 40 } },
-  { name: 'United Kingdom', lat:  55.4, lng:  -3.4, risk: 14, shipping: 5, labor: 8, tariff:  5, infra:  9, costIndex: 42, mfgCapacity: 55, exportInfra: 72, supplierDensity: 55, leadTimeReliability: 82, sourcing: { technology: 40, textiles: 8,  generalMfg: 45, consumerGoods: 40, automotive: 45, pharma: 60 } },
-  { name: 'Hungary',        lat:  47.2, lng:  19.5, risk: 20, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 26, mfgCapacity: 45, exportInfra: 55, supplierDensity: 40, leadTimeReliability: 70, sourcing: { technology: 20, textiles: 15, generalMfg: 38, consumerGoods: 25, automotive: 65, pharma: 30 } },
-  { name: 'Switzerland',    lat:  46.8, lng:   8.2, risk: 10, shipping: 5, labor: 9, tariff:  3, infra: 10, costIndex: 58, mfgCapacity: 45, exportInfra: 80, supplierDensity: 35, leadTimeReliability: 92, sourcing: { technology: 30, textiles: 8,  generalMfg: 35, consumerGoods: 30, automotive: 20, pharma: 85 } },
-  { name: 'Ireland',        lat:  53.1, lng:  -7.7, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 48, mfgCapacity: 30, exportInfra: 68, supplierDensity: 25, leadTimeReliability: 85, sourcing: { technology: 35, textiles: 3,  generalMfg: 20, consumerGoods: 15, automotive: 8,  pharma: 88 } },
-  { name: 'Belgium',        lat:  50.5, lng:   4.5, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 42, mfgCapacity: 40, exportInfra: 72, supplierDensity: 38, leadTimeReliability: 80, sourcing: { technology: 18, textiles: 8,  generalMfg: 35, consumerGoods: 28, automotive: 35, pharma: 55 } },
-  { name: 'Portugal',       lat:  39.4, lng:  -8.2, risk: 15, shipping: 5, labor: 6, tariff:  3, infra:  8, costIndex: 30, mfgCapacity: 35, exportInfra: 60, supplierDensity: 28, leadTimeReliability: 72, sourcing: { technology: 12, textiles: 25, generalMfg: 28, consumerGoods: 20, automotive: 22, pharma: 18 } },
-  { name: 'Slovakia',       lat:  48.7, lng:  19.7, risk: 18, shipping: 5, labor: 5, tariff:  3, infra:  7, costIndex: 24, mfgCapacity: 40, exportInfra: 55, supplierDensity: 35, leadTimeReliability: 70, sourcing: { technology: 15, textiles: 10, generalMfg: 32, consumerGoods: 20, automotive: 68, pharma: 15 } },
-  { name: 'Austria',        lat:  47.5, lng:  14.6, risk: 12, shipping: 5, labor: 8, tariff:  3, infra:  9, costIndex: 42, mfgCapacity: 48, exportInfra: 70, supplierDensity: 42, leadTimeReliability: 82, sourcing: { technology: 25, textiles: 8,  generalMfg: 40, consumerGoods: 30, automotive: 45, pharma: 35 } },
-  { name: 'Bulgaria',       lat:  42.7, lng:  25.5, risk: 22, shipping: 5, labor: 4, tariff:  3, infra:  6, costIndex: 22, mfgCapacity: 30, exportInfra: 42, supplierDensity: 25, leadTimeReliability: 60, sourcing: { technology: 12, textiles: 22, generalMfg: 28, consumerGoods: 18, automotive: 30, pharma: 12 } },
-  { name: 'Sri Lanka',      lat:   7.9, lng:  80.8, risk: 52, shipping: 7, labor: 2, tariff: 10, infra:  5, costIndex: 35, mfgCapacity: 25, exportInfra: 30, supplierDensity: 20, leadTimeReliability: 45, sourcing: { technology: 5,  textiles: 40, generalMfg: 15, consumerGoods: 12, automotive: 3,  pharma: 5  } },
-  { name: 'Ethiopia',       lat:   9.1, lng:  40.5, risk: 55, shipping: 8, labor: 1, tariff: 15, infra:  3, costIndex: 42, mfgCapacity: 15, exportInfra: 12, supplierDensity: 10, leadTimeReliability: 30, sourcing: { technology: 2,  textiles: 25, generalMfg: 8,  consumerGoods: 5,  automotive: 1,  pharma: 2  } },
-  { name: 'Honduras',       lat:  14.1, lng: -86.2, risk: 62, shipping: 5, labor: 2, tariff:  8, infra:  5, costIndex: 35, mfgCapacity: 25, exportInfra: 25, supplierDensity: 20, leadTimeReliability: 45, sourcing: { technology: 5,  textiles: 35, generalMfg: 20, consumerGoods: 15, automotive: 5,  pharma: 3  } },
-  { name: 'Colombia',       lat:   4.6, lng: -74.1, risk: 50, shipping: 5, labor: 3, tariff: 15, infra:  6, costIndex: 40, mfgCapacity: 30, exportInfra: 40, supplierDensity: 25, leadTimeReliability: 50, sourcing: { technology: 10, textiles: 20, generalMfg: 22, consumerGoods: 18, automotive: 8,  pharma: 12 } },
-  { name: 'Peru',           lat:  -9.2, lng: -75.0, risk: 46, shipping: 6, labor: 3, tariff: 10, infra:  6, costIndex: 38, mfgCapacity: 25, exportInfra: 35, supplierDensity: 18, leadTimeReliability: 50, sourcing: { technology: 5,  textiles: 25, generalMfg: 18, consumerGoods: 12, automotive: 5,  pharma: 5  } },
-  { name: 'Argentina',      lat: -38.4, lng: -63.6, risk: 55, shipping: 6, labor: 4, tariff: 20, infra:  6, costIndex: 45, mfgCapacity: 35, exportInfra: 40, supplierDensity: 28, leadTimeReliability: 45, sourcing: { technology: 10, textiles: 12, generalMfg: 25, consumerGoods: 18, automotive: 25, pharma: 18 } },
-  { name: 'Chile',          lat: -35.7, lng: -71.5, risk: 25, shipping: 6, labor: 5, tariff:  5, infra:  7, costIndex: 32, mfgCapacity: 25, exportInfra: 55, supplierDensity: 18, leadTimeReliability: 65, sourcing: { technology: 8,  textiles: 5,  generalMfg: 15, consumerGoods: 10, automotive: 5,  pharma: 10 } }
-];
+function getRiskColor(s){return s>=80?'#ff1a4a':s>=60?'#ff8c00':s>=45?'#f5c518':s>=30?'#8bc34a':s>=15?'#00e676':'#00e5ff';}
+function getSourcingColor(s){return s>=80?'#00e5ff':s>=60?'#00e676':s>=40?'#8bc34a':s>=20?'#f5c518':s>=10?'#ff8c00':'#ff1a4a';}
+function getRiskLabel(s){return s>=80?'CRITICAL':s>=60?'HIGH':s>=45?'MED-HIGH':s>=30?'MEDIUM':s>=15?'LOW-MED':'LOW';}
+function getScoreForLayer(c,l){if(l==='shipping')return c.shipping*10;if(l==='labor')return c.labor*10;if(l==='cost')return c.costIndex;if(l==='sourcing')return(c.sourcing&&c.sourcing[currentCategory])||0;return c.risk;}
+function getColorForLayer(s,l){return l==='sourcing'?getSourcingColor(s):getRiskColor(s);}
+function getCountryDotSize(n){if(['China','United States','Germany','Japan','South Korea'].indexOf(n)!==-1)return 9;if(['France','Italy','United Kingdom','Netherlands','Canada','Mexico','India','Vietnam','Taiwan','Singapore','Brazil','Russia'].indexOf(n)!==-1)return 7;return 5;}
 
-var COUNTRY_MAP = (function() {
-  var m = {};
-  for (var i = 0; i < COUNTRY_DATA.length; i++) m[COUNTRY_DATA[i].name] = COUNTRY_DATA[i];
-  return m;
-})();
+function buildCountryPopupHTML(c){var rc=getRiskColor(c.risk),rl=getRiskLabel(c.risk),ss=(c.sourcing&&c.sourcing[currentCategory])||0,sc=getSourcingColor(ss);return'<div class="popup-inner"><div class="popup-header"><span class="popup-country">'+c.name+'</span><span class="popup-risk-badge" style="background:'+rc+'22;color:'+rc+';border:1px solid '+rc+'44;">'+rl+'</span></div><div class="popup-divider"></div><div class="popup-row"><span class="popup-label">Risk Score</span><span class="popup-value" style="color:'+rc+'">'+c.risk+'/100</span></div><div class="popup-row"><span class="popup-label">Shipping</span><span class="popup-value">'+c.shipping+'/10</span></div><div class="popup-row"><span class="popup-label">Labor</span><span class="popup-value">'+c.labor+'/10</span></div><div class="popup-row"><span class="popup-label">Tariff</span><span class="popup-value">'+c.tariff+'%</span></div><div class="popup-row"><span class="popup-label">Infra</span><span class="popup-value">'+c.infra+'/10</span></div><div class="popup-row"><span class="popup-label">Sourcing</span><span class="popup-value" style="color:'+sc+'">'+ss+'/100</span></div><div class="popup-score-bar"><span class="popup-bar-label" style="color:'+rc+'">Risk</span><div class="popup-bar-track"><div class="popup-bar-fill" style="width:'+c.risk+'%;background:'+rc+'"></div></div></div><div class="popup-score-bar"><span class="popup-bar-label" style="color:'+sc+'">Src</span><div class="popup-bar-track"><div class="popup-bar-fill" style="width:'+ss+'%;background:'+sc+'"></div></div></div><p class="popup-insight">Mfg:'+c.mfgCapacity+' · Export:'+c.exportInfra+' · Lead:'+c.leadTimeReliability+'</p><button class="popup-deepdive-btn" onclick="deepDive(\''+c.name+'\')">Deep Dive →</button></div>';}
 
-// ============================================================
-// LAYER CONFIG
-// ============================================================
-var LAYER_CONFIG = {
-  risk: { name: 'Risk Levels', sub: 'Geopolitical & operational risk by country', legendTitle: 'Risk Score', items: [
-    { color: '#ff1a4a', label: 'Critical (80–100)' }, { color: '#ff8c00', label: 'High (60–79)' },
-    { color: '#f5c518', label: 'Medium-High (45–59)' }, { color: '#8bc34a', label: 'Medium (30–44)' },
-    { color: '#00e676', label: 'Low-Medium (15–29)' }, { color: '#00e5ff', label: 'Low (0–14)' }
-  ]},
-  shipping: { name: 'Shipping Cost', sub: 'Relative container shipping cost index', legendTitle: 'Shipping Cost', items: [
-    { color: '#ff1a4a', label: 'Very High (9–10)' }, { color: '#ff8c00', label: 'High (7–8)' },
-    { color: '#f5c518', label: 'Moderate (5–6)' }, { color: '#00e676', label: 'Low (3–4)' }, { color: '#00e5ff', label: 'Very Low (1–2)' }
-  ]},
-  labor: { name: 'Labor Cost', sub: 'Relative labor cost index', legendTitle: 'Labor Cost', items: [
-    { color: '#ff1a4a', label: 'Very High (9–10)' }, { color: '#ff8c00', label: 'High (7–8)' },
-    { color: '#f5c518', label: 'Moderate (5–6)' }, { color: '#00e676', label: 'Low (3–4)' }, { color: '#00e5ff', label: 'Very Low (1–2)' }
-  ]},
-  cost: { name: 'Total Cost Index', sub: 'Combined tariff, shipping, labor & infrastructure cost', legendTitle: 'Cost Index', items: [
-    { color: '#ff1a4a', label: 'Very High (70–100)' }, { color: '#ff8c00', label: 'High (50–69)' },
-    { color: '#f5c518', label: 'Moderate (35–49)' }, { color: '#8bc34a', label: 'Below Average (25–34)' },
-    { color: '#00e676', label: 'Low (15–24)' }, { color: '#00e5ff', label: 'Very Low (0–14)' }
-  ]},
-  sourcing: { name: 'Sourcing Attractiveness', sub: 'How attractive each country is as a sourcing destination', legendTitle: 'Sourcing Attractiveness', items: [
-    { color: '#00e5ff', label: 'Top Tier (80–100)' }, { color: '#00e676', label: 'Strong (60–79)' },
-    { color: '#8bc34a', label: 'Good (40–59)' }, { color: '#f5c518', label: 'Moderate (20–39)' },
-    { color: '#ff8c00', label: 'Limited (10–19)' }, { color: '#ff1a4a', label: 'Minimal (0–9)' }
-  ]}
-};
+function initMap(){map=L.map('map',{center:[20,15],zoom:2,zoomControl:false,attributionControl:true,minZoom:2,maxZoom:8,scrollWheelZoom:true,maxBounds:[[-90,-180],[90,180]],maxBoundsViscosity:1});L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OSM &copy; CARTO',subdomains:'abcd',maxZoom:19,noWrap:true}).addTo(map);L.control.zoom({position:'bottomright'}).addTo(map);renderMarkers();buildLegend(currentLayer);setTimeout(function(){map.invalidateSize();},100);setTimeout(function(){map.invalidateSize();},500);setTimeout(function(){map.invalidateSize();},1500);setTimeout(function(){var s=document.getElementById('mapSkeleton');if(s){s.style.transition='opacity 0.6s';s.style.opacity='0';setTimeout(function(){s.style.display='none';},600);}},1200);}
 
-// ============================================================
-// COLOR HELPERS
-// ============================================================
-function getRiskColor(s) { return s>=80?'#ff1a4a':s>=60?'#ff8c00':s>=45?'#f5c518':s>=30?'#8bc34a':s>=15?'#00e676':'#00e5ff'; }
-function getSourcingColor(s) { return s>=80?'#00e5ff':s>=60?'#00e676':s>=40?'#8bc34a':s>=20?'#f5c518':s>=10?'#ff8c00':'#ff1a4a'; }
-function getRiskLabel(s) { return s>=80?'CRITICAL':s>=60?'HIGH':s>=45?'MED-HIGH':s>=30?'MEDIUM':s>=15?'LOW-MED':'LOW'; }
-function getScoreForLayer(c, l) {
-  if (l==='shipping') return c.shipping*10;
-  if (l==='labor')    return c.labor*10;
-  if (l==='cost')     return c.costIndex;
-  if (l==='sourcing') return (c.sourcing&&c.sourcing[currentCategory])||0;
-  return c.risk;
-}
-function getColorForLayer(s, l) { return l==='sourcing'?getSourcingColor(s):getRiskColor(s); }
-function getCountryDotSize(n) {
-  if (['China','United States','Germany','Japan','South Korea'].indexOf(n)!==-1) return 9;
-  if (['France','Italy','United Kingdom','Netherlands','Canada','Mexico','India','Vietnam','Taiwan','Singapore','Brazil','Russia'].indexOf(n)!==-1) return 7;
-  return 5;
-}
+function renderMarkers(){for(var k in countryMarkers)countryMarkers[k].remove();countryMarkers={};for(var i=0;i<COUNTRY_DATA.length;i++){(function(c){var score=getScoreForLayer(c,currentLayer),color=getColorForLayer(score,currentLayer),size=getCountryDotSize(c.name);var icon=L.divIcon({className:'',html:'<div class="map-marker" style="width:'+(size*2)+'px;height:'+(size*2)+'px;"><div class="marker-dot" style="width:'+(size*2)+'px;height:'+(size*2)+'px;background:'+color+';color:'+color+';"></div><div class="marker-pulse" style="width:'+(size*2)+'px;height:'+(size*2)+'px;border:2px solid '+color+';animation-duration:'+(1.8+(c.name.length%5)*0.2)+'s;"></div></div>',iconSize:[size*2,size*2],iconAnchor:[size,size]});var marker=L.marker([c.lat,c.lng],{icon:icon});marker.bindPopup(buildCountryPopupHTML(c),{maxWidth:300,minWidth:260});marker.addTo(map);countryMarkers[c.name]=marker;})(COUNTRY_DATA[i]);}}
 
-// ============================================================
-// POPUP
-// ============================================================
-function buildCountryPopupHTML(country) {
-  var rc = getRiskColor(country.risk), rl = getRiskLabel(country.risk);
-  var ss = (country.sourcing&&country.sourcing[currentCategory])||0, sc = getSourcingColor(ss);
-  return '<div class="popup-inner">' +
-    '<div class="popup-header"><span class="popup-country">'+country.name+'</span>' +
-    '<span class="popup-risk-badge" style="background:'+rc+'22;color:'+rc+';border:1px solid '+rc+'44;">'+rl+'</span></div>' +
-    '<div class="popup-divider"></div>' +
-    '<div class="popup-row"><span class="popup-label">Risk Score</span><span class="popup-value" style="color:'+rc+'">'+country.risk+'/100</span></div>' +
-    '<div class="popup-row"><span class="popup-label">Shipping Cost</span><span class="popup-value">'+country.shipping+'/10</span></div>' +
-    '<div class="popup-row"><span class="popup-label">Labor Cost</span><span class="popup-value">'+country.labor+'/10</span></div>' +
-    '<div class="popup-row"><span class="popup-label">Tariff Rate</span><span class="popup-value">'+country.tariff+'%</span></div>' +
-    '<div class="popup-row"><span class="popup-label">Infrastructure</span><span class="popup-value">'+country.infra+'/10</span></div>' +
-    '<div class="popup-row"><span class="popup-label">Sourcing Score</span><span class="popup-value" style="color:'+sc+'">'+ss+'/100</span></div>' +
-    '<div class="popup-score-bar"><span class="popup-bar-label" style="color:'+rc+'">Risk</span><div class="popup-bar-track"><div class="popup-bar-fill" style="width:'+country.risk+'%;background:'+rc+'"></div></div></div>' +
-    '<div class="popup-score-bar"><span class="popup-bar-label" style="color:'+sc+'">Src</span><div class="popup-bar-track"><div class="popup-bar-fill" style="width:'+ss+'%;background:'+sc+'"></div></div></div>' +
-    '<p class="popup-insight">Mfg: '+country.mfgCapacity+' · Export Infra: '+country.exportInfra+' · Lead Time: '+country.leadTimeReliability+'</p>' +
-    '<button class="popup-deepdive-btn" onclick="deepDive(\''+country.name+'\')">Deep Dive Analysis →</button>' +
-  '</div>';
-}
+function buildLegend(layer){var cfg=LAYER_CONFIG[layer];if(!cfg)return;var t=document.getElementById('legendTitle'),items=document.getElementById('legendItems');if(!t||!items)return;t.textContent=cfg.legendTitle;items.innerHTML='';for(var i=0;i<cfg.items.length;i++){(function(item,idx){var d=document.createElement('div');d.className='legend-item';d.style.animationDelay=(idx*0.06)+'s';d.innerHTML='<div class="legend-swatch" style="background:'+item.color+';box-shadow:0 0 6px '+item.color+'88;"></div><span>'+item.label+'</span>';items.appendChild(d);})(cfg.items[i],i);}}
 
-// ============================================================
-// MAP
-// ============================================================
-function initMap() {
-  map = L.map('map', { center: [20,15], zoom: 2, zoomControl: false, attributionControl: true, minZoom: 2, maxZoom: 8, scrollWheelZoom: true, maxBounds: [[-90,-180],[90,180]], maxBoundsViscosity: 1.0 });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>', subdomains: 'abcd', maxZoom: 19, noWrap: true }).addTo(map);
-  L.control.zoom({ position: 'bottomright' }).addTo(map);
-  renderMarkers();
-  buildLegend(currentLayer);
+function updateMapLayer(layer){currentLayer=layer;var btnMap={risk:'btnRisk',shipping:'btnShipping',labor:'btnLabor',cost:'btnCost',sourcing:'btnSourcing'};for(var k in btnMap){var b=document.getElementById(btnMap[k]);if(b)b.classList.toggle('active',k===layer);}var cfg=LAYER_CONFIG[layer];if(cfg){var n=document.getElementById('overlayName'),s=document.getElementById('overlaySub');if(n)n.textContent=cfg.name;if(s)s.textContent=cfg.sub;}renderMarkers();buildLegend(layer);}
 
-  setTimeout(function(){map.invalidateSize();},100);
-  setTimeout(function(){map.invalidateSize();},500);
-  setTimeout(function(){map.invalidateSize();},1500);
+function deepDive(name){var c=COUNTRY_MAP[name];if(!c)return;sendMessage('Deep dive analysis of '+name+'. Risk:'+c.risk+'/100, Tariff:'+c.tariff+'%, Infra:'+c.infra+'/10.');}
 
-  setTimeout(function() {
-    var s = document.getElementById('mapSkeleton');
-    if (s) { s.style.transition='opacity 0.5s ease'; s.style.opacity='0'; setTimeout(function(){if(s.parentNode)s.style.display='none';},500); }
-  }, 1200);
-}
+document.addEventListener('DOMContentLoaded',function(){var cg=document.getElementById('sourcingChips');if(cg)cg.addEventListener('click',function(e){var chip=e.target.closest('.chip-option');if(!chip)return;chip.classList.toggle('selected');selectedSourcingCountries=[];var sel=cg.querySelectorAll('.chip-option.selected');for(var i=0;i<sel.length;i++)selectedSourcingCountries.push(sel[i].getAttribute('data-country'));});});
 
-function renderMarkers() {
-  for (var k in countryMarkers) countryMarkers[k].remove();
-  countryMarkers = {};
-  for (var i=0; i<COUNTRY_DATA.length; i++) {
-    (function(c) {
-      var score = getScoreForLayer(c, currentLayer);
-      var color = getColorForLayer(score, currentLayer);
-      var size  = getCountryDotSize(c.name);
-      var icon = L.divIcon({ className: '',
-        html: '<div class="map-marker" style="width:'+(size*2)+'px;height:'+(size*2)+'px;">' +
-              '<div class="marker-dot" style="width:'+(size*2)+'px;height:'+(size*2)+'px;background:'+color+';color:'+color+';"></div>' +
-              '<div class="marker-pulse" style="width:'+(size*2)+'px;height:'+(size*2)+'px;border:2px solid '+color+';animation-duration:'+(1.8+(c.name.length%5)*0.2)+'s;"></div></div>',
-        iconSize:[size*2,size*2], iconAnchor:[size,size] });
-      var marker = L.marker([c.lat,c.lng],{icon:icon});
-      marker.bindPopup(buildCountryPopupHTML(c),{maxWidth:300,minWidth:260,className:'custom-popup'});
-      marker.addTo(map);
-      countryMarkers[c.name] = marker;
-    })(COUNTRY_DATA[i]);
-  }
-}
+function handleOnboardSubmit(){var type=document.getElementById('companyType').value,country=document.getElementById('homeCountry').value,industry=document.getElementById('industry').value,revenue=document.getElementById('annualRevenue').value;if(industry)currentCategory=industry;userProfile={type:type,country:country,regions:selectedSourcingCountries.join(', '),industry:industry,revenue:revenue};document.getElementById('onboardingPanel').style.display='none';renderMarkers();var g='Welcome! Profile set';if(type)g+=' as '+type;if(selectedSourcingCountries.length)g+=' sourcing from '+selectedSourcingCountries.join(', ');g+='. How can I help?';addAIMessage(g);}
 
-function buildLegend(layer) {
-  var config = LAYER_CONFIG[layer]; if (!config) return;
-  var t = document.getElementById('legendTitle'), items = document.getElementById('legendItems');
-  if (!t||!items) return;
-  t.textContent = config.legendTitle; items.innerHTML = '';
-  for (var i=0; i<config.items.length; i++) {
-    (function(item,idx) {
-      var d = document.createElement('div'); d.className='legend-item'; d.style.animationDelay=(idx*0.05)+'s';
-      d.innerHTML='<div class="legend-swatch" style="background:'+item.color+';box-shadow:0 0 5px '+item.color+'88;"></div><span>'+item.label+'</span>';
-      items.appendChild(d);
-    })(config.items[i],i);
-  }
-}
+function sendQuickMsg(t){sendMessage(t);}
+function handleChatSend(){var input=document.getElementById('chatInput'),msg=input.value.trim();if(!msg)return;input.value='';sendMessage(msg);}
+document.addEventListener('DOMContentLoaded',function(){document.getElementById('chatInput').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleChatSend();}});});
+function addUserMessage(t){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg user';d.textContent=t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function addAIMessage(t){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.innerHTML='<span class="msg-label">RiskSim AI</span>'+t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function addTypingIndicator(){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.id='typing';d.innerHTML='<span class="msg-label">RiskSim AI</span><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function removeTypingIndicator(){var t=document.getElementById('typing');if(t)t.remove();}
+async function sendMessage(userText){addUserMessage(userText);addTypingIndicator();try{var cd=COUNTRY_DATA.slice(0,10).map(function(c){return c.name+':risk='+c.risk;}).join(';');var pc=userProfile.regions?'Sources:'+userProfile.regions+'. ':'';var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,context:pc+cd})});var d=await r.json();removeTypingIndicator();addAIMessage(d.response||'Unable to process.');}catch(e){removeTypingIndicator();addAIMessage('Connection error.');}}
 
-function updateMapLayer(layer) {
-  currentLayer = layer;
-  var btnMap = {risk:'btnRisk',shipping:'btnShipping',labor:'btnLabor',cost:'btnCost',sourcing:'btnSourcing'};
-  for (var k in btnMap) { var b=document.getElementById(btnMap[k]); if(b) b.classList.toggle('active',k===layer); }
-  var ab = document.getElementById(btnMap[layer]);
-  if (ab) { var r=document.createElement('span'); r.className='ripple-effect'; var rect=ab.getBoundingClientRect(); r.style.left=(rect.width/2)+'px'; r.style.top=(rect.height/2)+'px'; ab.appendChild(r); setTimeout(function(){if(r.parentNode)r.parentNode.removeChild(r);},600); }
-  var config = LAYER_CONFIG[layer];
-  if (config) { var n=document.getElementById('overlayName'),s=document.getElementById('overlaySub'); if(n)n.textContent=config.name; if(s)s.textContent=config.sub; }
-  renderMarkers(); buildLegend(layer);
-}
-
-// ============================================================
-// DEEP DIVE
-// ============================================================
-function deepDive(countryName) {
-  var c = COUNTRY_MAP[countryName]; if (!c) return;
-  var msg = 'Give me a deep dive analysis of ' + countryName + ' as a sourcing destination. Risk score: ' + c.risk + '/100, Tariff: ' + c.tariff + '%, Infrastructure: ' + c.infra + '/10. What should I know about sourcing from here?';
-  sendMessage(msg);
-}
-
-// ============================================================
-// SOURCING CHIP TOGGLE
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-  var chipGrid = document.getElementById('sourcingChips');
-  if (chipGrid) {
-    chipGrid.addEventListener('click', function(e) {
-      var chip = e.target.closest('.chip-option');
-      if (!chip) return;
-      chip.classList.toggle('selected');
-      selectedSourcingCountries = [];
-      var selected = chipGrid.querySelectorAll('.chip-option.selected');
-      for (var i = 0; i < selected.length; i++) {
-        selectedSourcingCountries.push(selected[i].getAttribute('data-country'));
-      }
-    });
-  }
-});
-
-// ============================================================
-// ONBOARDING
-// ============================================================
-function handleOnboardSubmit() {
-  var type = document.getElementById('companyType').value;
-  var country = document.getElementById('homeCountry').value;
-  var industry = document.getElementById('industry').value;
-  var revenue = document.getElementById('annualRevenue').value;
-  if (industry) currentCategory = industry;
-  userProfile = { type: type, country: country, regions: selectedSourcingCountries.join(', '), industry: industry, revenue: revenue };
-  document.getElementById('onboardingPanel').style.display = 'none';
-  renderMarkers();
-  var greeting = 'Welcome to RiskSim! I\'ve set up your profile';
-  if (type) greeting += ' as a ' + type;
-  if (selectedSourcingCountries.length) greeting += ' sourcing from ' + selectedSourcingCountries.join(', ');
-  greeting += '. What supply chain intelligence can I help you with?';
-  addAIMessage(greeting);
-}
-
-// ============================================================
-// CHAT
-// ============================================================
-function sendQuickMsg(text) { sendMessage(text); }
-
-function handleChatSend() {
-  var input = document.getElementById('chatInput');
-  var msg = input.value.trim(); if (!msg) return;
-  input.value = '';
-  sendMessage(msg);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('chatInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') { e.preventDefault(); handleChatSend(); }
-  });
-});
-
-function addUserMessage(text) {
-  var msgs = document.getElementById('chatMessages');
-  var div = document.createElement('div'); div.className = 'chat-msg user'; div.textContent = text;
-  msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
-}
-
-function addAIMessage(text) {
-  var msgs = document.getElementById('chatMessages');
-  var div = document.createElement('div'); div.className = 'chat-msg ai';
-  div.innerHTML = '<span class="msg-label">RiskSim AI</span>' + text;
-  msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
-}
-
-function addTypingIndicator() {
-  var msgs = document.getElementById('chatMessages');
-  var div = document.createElement('div'); div.className = 'chat-msg ai'; div.id = 'typing';
-  div.innerHTML = '<span class="msg-label">RiskSim AI</span><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
-  msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
-}
-
-function removeTypingIndicator() {
-  var t = document.getElementById('typing'); if (t) t.remove();
-}
-
-async function sendMessage(userText) {
-  addUserMessage(userText);
-  addTypingIndicator();
-  try {
-    var contextData = COUNTRY_DATA.slice(0,10).map(function(c){return c.name+': risk='+c.risk+', sourcing='+((c.sourcing&&c.sourcing[currentCategory])||0);}).join('; ');
-    var profileContext = userProfile.regions ? 'User sources from: '+userProfile.regions+'. Industry: '+(userProfile.industry||'general')+'. ' : '';
-    var response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: userText,
-        context: profileContext + 'Country data sample: ' + contextData
-      })
-    });
-    var data = await response.json();
-    removeTypingIndicator();
-    addAIMessage(data.response || 'Unable to process request.');
-  } catch (err) {
-    removeTypingIndicator();
-    addAIMessage('Connection error. Please try again.');
-  }
-}
+document.addEventListener('DOMContentLoaded',function(){initMap();});
 </script>
 
-<!-- ===== BOOTSTRAP ===== -->
+<!-- ===== D3 INTRO GLOBE ===== -->
 <script>
-document.addEventListener('DOMContentLoaded', function() { initMap(); });
-</script>
+(function(){
+  var intro=document.getElementById('rs-intro');
+  if(!intro)return;
+  document.body.style.overflow='hidden';
 
-<!-- ===== CINEMATIC INTRO JS (Opus) ===== -->
-<script>
-(function() {
-  const intro = document.getElementById('rs-intro');
-  if (!intro) return;
+  var canvas=document.getElementById('introGlobe');
+  var ctx=canvas.getContext('2d');
+  var W=window.innerWidth, H=window.innerHeight;
+  var dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  ctx.scale(dpr,dpr);
 
-  document.body.style.overflow = 'hidden';
+  var radius=Math.min(W,H)*0.35;
+  var proj=d3.geoOrthographic().scale(radius).translate([W/2,H/2+H*0.08]).clipAngle(90);
+  var pathGen=d3.geoPath().projection(proj).context(ctx);
+  var rotation=[0,-15];
+  var allDots=[];
+  var landData=null;
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 4.5;
+  function pointInPoly(pt,poly){var x=pt[0],y=pt[1],inside=false;for(var i=0,j=poly.length-1;i<poly.length;j=i++){var xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(yi>y!==yj>y&&x<((xj-xi)*(y-yi))/(yj-yi)+xi)inside=!inside;}return inside;}
+  function pointInFeature(pt,f){var g=f.geometry;if(g.type==='Polygon'){if(!pointInPoly(pt,g.coordinates[0]))return false;for(var i=1;i<g.coordinates.length;i++)if(pointInPoly(pt,g.coordinates[i]))return false;return true;}if(g.type==='MultiPolygon'){for(var p=0;p<g.coordinates.length;p++){if(pointInPoly(pt,g.coordinates[p][0])){var hole=false;for(var i=1;i<g.coordinates[p].length;i++)if(pointInPoly(pt,g.coordinates[p][i])){hole=true;break;}if(!hole)return true;}}return false;}return false;}
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setClearColor(0x000000, 1);
-  intro.insertBefore(renderer.domElement, intro.firstChild);
+  function genDots(feature,spacing){var dots=[];var b=d3.geoBounds(feature);var step=spacing*0.08;for(var lng=b[0][0];lng<=b[1][0];lng+=step)for(var lat=b[0][1];lat<=b[1][1];lat+=step)if(pointInFeature([lng,lat],feature))dots.push([lng,lat]);return dots;}
 
-  const globeGeo = new THREE.IcosahedronGeometry(1.6, 12);
-  const globeMat = new THREE.MeshBasicMaterial({ color: 0x8899aa, wireframe: true, transparent: true, opacity: 0.07 });
-  const globe = new THREE.Mesh(globeGeo, globeMat);
-  scene.add(globe);
-
-  const pointsCount = 4000;
-  const pointsGeo = new THREE.BufferGeometry();
-  const pointsPos = new Float32Array(pointsCount * 3);
-  for (let i = 0; i < pointsCount; i++) {
-    const phi = Math.acos(2 * Math.random() - 1);
-    const theta = Math.random() * Math.PI * 2;
-    const r = 1.55;
-    pointsPos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
-    pointsPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
-    pointsPos[i*3+2] = r * Math.cos(phi);
-  }
-  pointsGeo.setAttribute('position', new THREE.BufferAttribute(pointsPos, 3));
-  const pointsMat = new THREE.PointsMaterial({ color: 0xc0ccdd, size: 0.012, transparent: true, opacity: 0.6, sizeAttenuation: true });
-  const globePoints = new THREE.Points(pointsGeo, pointsMat);
-  scene.add(globePoints);
-
-  const ringMat = new THREE.LineBasicMaterial({ color: 0x667788, transparent: true, opacity: 0.05 });
-  for (let i = 0; i < 8; i++) {
-    const ringGeo = new THREE.BufferGeometry();
-    const ringPts = [];
-    const latAngle = (Math.PI / 8) * (i + 1) - Math.PI / 2;
-    const ringR = 1.58 * Math.cos(latAngle);
-    const y = 1.58 * Math.sin(latAngle);
-    for (let j = 0; j <= 64; j++) {
-      const angle = (j / 64) * Math.PI * 2;
-      ringPts.push(new THREE.Vector3(ringR * Math.cos(angle), y, ringR * Math.sin(angle)));
+  function render(){
+    ctx.clearRect(0,0,W,H);
+    var s=proj.scale();
+    // Globe bg
+    ctx.beginPath();ctx.arc(W/2,H/2+H*0.08,s,0,2*Math.PI);ctx.fillStyle='#000';ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1.5;ctx.stroke();
+    if(landData){
+      // Graticule
+      var grat=d3.geoGraticule();ctx.beginPath();pathGen(grat());ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=0.5;ctx.stroke();
+      // Land outlines
+      ctx.beginPath();landData.features.forEach(function(f){pathGen(f);});ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=0.8;ctx.stroke();
+      // Dots
+      allDots.forEach(function(d){var p=proj(d);if(p&&p[0]>=0&&p[0]<=W&&p[1]>=0&&p[1]<=H){ctx.beginPath();ctx.arc(p[0],p[1],1,0,2*Math.PI);ctx.fillStyle='rgba(160,170,180,0.5)';ctx.fill();}});
     }
-    ringGeo.setFromPoints(ringPts);
-    globe.add(new THREE.Line(ringGeo, ringMat));
   }
 
-  const ambientCount = 3000;
-  const ambientGeo = new THREE.BufferGeometry();
-  const ambientPos = new Float32Array(ambientCount * 3);
-  for (let i = 0; i < ambientCount; i++) {
-    ambientPos[i*3]   = (Math.random() - 0.5) * 20;
-    ambientPos[i*3+1] = (Math.random() - 0.5) * 20;
-    ambientPos[i*3+2] = (Math.random() - 0.5) * 15 - 3;
-  }
-  ambientGeo.setAttribute('position', new THREE.BufferAttribute(ambientPos, 3));
-  const ambientMat = new THREE.PointsMaterial({ color: 0xb0bfcf, size: 0.02, transparent: true, opacity: 0.4, sizeAttenuation: true });
-  const ambientParticles = new THREE.Points(ambientGeo, ambientMat);
-  scene.add(ambientParticles);
+  // Load land data
+  fetch('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      landData=data;
+      data.features.forEach(function(f){var dots=genDots(f,14);dots.forEach(function(d){allDots.push(d);});});
+      render();
+    }).catch(function(){render();});
 
-  function makeOrbit(radius, rx, rz, opacity) {
-    const pts = [];
-    for (let i = 0; i <= 128; i++) { const a = (i/128)*Math.PI*2; pts.push(new THREE.Vector3(radius*Math.cos(a), 0, radius*Math.sin(a))); }
-    const geo = new THREE.BufferGeometry(); geo.setFromPoints(pts);
-    const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x667788, transparent: true, opacity }));
-    line.rotation.x = rx; line.rotation.z = rz;
-    scene.add(line); return { line, geo };
-  }
-  const orbit1 = makeOrbit(2.4, Math.PI*0.35,  Math.PI*0.1,  0.08);
-  const orbit2 = makeOrbit(2.8, Math.PI*0.55, -Math.PI*0.15, 0.04);
-
-  const glowLight = new THREE.PointLight(0x6688aa, 1.0, 10);
-  glowLight.position.set(0, 0, 3);
-  scene.add(glowLight);
-
-  let animationId;
-  const clock = new THREE.Clock();
-
-  function animate() {
-    animationId = requestAnimationFrame(animate);
-    const t = clock.getElapsedTime();
-    globe.rotation.y = t * 0.08;
-    globe.rotation.x = Math.sin(t * 0.05) * 0.1;
-    globePoints.rotation.y = t * 0.08;
-    globePoints.rotation.x = Math.sin(t * 0.05) * 0.1;
-    globe.position.y = Math.sin(t * 0.4) * 0.08;
-    globePoints.position.y = globe.position.y;
-    orbit1.line.rotation.y = t * 0.04;
-    orbit2.line.rotation.y = -t * 0.03;
-    ambientParticles.rotation.y = t * 0.01;
-    ambientParticles.rotation.x = t * 0.005;
-    camera.position.x = Math.sin(t * 0.15) * 0.15;
-    camera.position.y = Math.cos(t * 0.12) * 0.1;
-    camera.lookAt(0, 0, 0);
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  function onResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }
-  window.addEventListener('resize', onResize);
-
-  document.addEventListener('mousemove', (e) => {
-    const mx = (e.clientX / window.innerWidth - 0.5) * 0.3;
-    globe.rotation.z = mx * 0.2;
-    globePoints.rotation.z = mx * 0.2;
+  // Auto-rotate
+  var autoRotate=true;
+  var timer=d3.timer(function(){
+    if(autoRotate){rotation[0]+=0.3;proj.rotate(rotation);render();}
   });
 
-  let dismissed = false;
-  function dismiss() {
-    if (dismissed) return; dismissed = true;
-    intro.classList.add('dismissing');
-    setTimeout(() => {
-      cancelAnimationFrame(animationId);
-      renderer.dispose();
-      globeGeo.dispose(); globeMat.dispose();
-      pointsGeo.dispose(); pointsMat.dispose();
-      ambientGeo.dispose(); ambientMat.dispose();
-      orbit1.geo.dispose(); orbit2.geo.dispose();
-      intro.remove();
-      document.body.style.overflow = '';
-      window.removeEventListener('resize', onResize);
-      // Force map resize after intro dismissed
-      if (map) { map.invalidateSize(); }
-    }, 900);
-  }
+  // Resize
+  function onResize(){W=window.innerWidth;H=window.innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.scale(dpr,dpr);radius=Math.min(W,H)*0.35;proj.scale(radius).translate([W/2,H/2+H*0.08]);render();}
+  window.addEventListener('resize',onResize);
 
-  document.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') { e.preventDefault(); dismiss(); } });
-  intro.addEventListener('click', dismiss);
-  intro.addEventListener('wheel', dismiss, { passive: true });
-  let ty = 0;
-  intro.addEventListener('touchstart', (e) => { ty = e.touches[0].clientY; }, { passive: true });
-  intro.addEventListener('touchmove',  (e) => { if (e.touches[0].clientY < ty - 30) dismiss(); }, { passive: true });
+  // Dismiss
+  var dismissed=false;
+  function dismiss(){
+    if(dismissed)return;dismissed=true;
+    intro.classList.add('dismissing');
+    setTimeout(function(){timer.stop();intro.remove();document.body.style.overflow='';window.removeEventListener('resize',onResize);if(map)map.invalidateSize();},1300);
+  }
+  document.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '||e.key==='Escape'){e.preventDefault();dismiss();}});
+  intro.addEventListener('click',dismiss);
+  intro.addEventListener('wheel',dismiss,{passive:true});
+  var ty=0;
+  intro.addEventListener('touchstart',function(e){ty=e.touches[0].clientY;},{passive:true});
+  intro.addEventListener('touchmove',function(e){if(e.touches[0].clientY<ty-30)dismiss();},{passive:true});
 })();
 </script>
 </body>
