@@ -368,16 +368,32 @@
   </style>
 </head>
 <body>
-<script>document.body.style.overflow='hidden';document.documentElement.style.overflow='hidden';
+<script>
+// Lock scroll completely
+document.body.style.overflow='hidden';
+document.documentElement.style.overflow='hidden';
+document.body.style.height='100vh';
+document.documentElement.style.height='100vh';
+document.body.style.position='fixed';
+document.body.style.width='100%';
+document.body.style.top='0';
+
+// Auto-focus so keyboard events work in iframe
+window.focus();
+document.body.setAttribute('tabindex','-1');
+document.body.focus();
+
 // Early Enter key listener for intro dismiss
 window.__introDismissed=false;
-document.addEventListener('keydown',function(e){
+function __handleIntroKey(e){
   if(window.__introDismissed)return;
   if(e.key==='Enter'||e.key===' '||e.key==='Escape'){
     e.preventDefault();e.stopPropagation();
     if(window.__dismissIntro)window.__dismissIntro();
   }
-},true); // useCapture=true so it fires before chat input
+}
+document.addEventListener('keydown',__handleIntroKey,true);
+window.addEventListener('keydown',__handleIntroKey,true);
 </script>
 
 <!-- ===== INTRO ===== -->
@@ -387,7 +403,7 @@ document.addEventListener('keydown',function(e){
   <div class="intro-wordmark">RISKSIM</div>
   <div class="intro-subtitle">Supply Chain Intelligence</div>
   <div class="intro-hint">
-    <span>Press</span><span class="intro-hint-key">Enter</span><span>to continue</span>
+    <span>Click anywhere or press</span><span class="intro-hint-key">Enter</span><span>to continue</span>
   </div>
 </div>
 
@@ -586,7 +602,18 @@ document.addEventListener('DOMContentLoaded',function(){initMap();});
     if(dismissed)return;dismissed=true;
     window.__introDismissed=true;
     intro.classList.add('dismissing');
-    setTimeout(function(){timer.stop();intro.remove();document.body.style.overflow='';document.documentElement.style.overflow='';window.removeEventListener('resize',onResize);if(map)map.invalidateSize();},1300);
+    setTimeout(function(){
+      timer.stop();intro.remove();
+      document.body.style.overflow='';
+      document.documentElement.style.overflow='';
+      document.body.style.position='';
+      document.body.style.height='';
+      document.body.style.width='';
+      document.body.style.top='';
+      document.documentElement.style.height='';
+      window.removeEventListener('resize',onResize);
+      if(map)map.invalidateSize();
+    },1300);
   }
   window.__dismissIntro=dismiss;
   intro.addEventListener('click',dismiss);
