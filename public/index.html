@@ -163,22 +163,22 @@
 
     /* ===== GLASSMORPHISM BASE ===== */
     .glass {
-      background: rgba(8,10,20,0.7);
-      backdrop-filter: blur(40px) saturate(1.6); -webkit-backdrop-filter: blur(40px) saturate(1.6);
-      border: 1px solid rgba(125,249,194,0.15);
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(60px) saturate(200%); -webkit-backdrop-filter: blur(60px) saturate(200%);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: var(--radius);
-      box-shadow: var(--glass-shadow), 0 0 40px rgba(125,249,194,0.04);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.6);
       position: relative;
       transition: border-color 0.3s, box-shadow 0.3s, transform 0.15s ease;
       transform-style: preserve-3d;
     }
     .glass:hover {
-      border-color: rgba(125,249,194,0.28);
-      box-shadow: var(--glass-shadow), 0 0 80px rgba(125,249,194,0.08);
+      border-color: rgba(255,255,255,0.18);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 8px 32px rgba(0,0,0,0.6), 0 0 60px rgba(45,212,191,0.06);
     }
     .glass::before {
       content:''; position:absolute; top:0; left:0; right:0; height:1px;
-      background: linear-gradient(90deg, transparent, rgba(125,249,194,0.3), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
       border-radius: var(--radius) var(--radius) 0 0;
     }
 
@@ -203,9 +203,8 @@
 
     /* ===== CHAT INPUT FOCUS GLOW ===== */
     #chatInputWrap:focus-within {
-      border-color: rgba(125,249,194,0.4);
-      box-shadow: var(--glass-shadow), 0 0 30px rgba(125,249,194,0.14);
-      background: rgba(8,10,20,0.85);
+      border-color: rgba(255,255,255,0.25);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 8px 32px rgba(0,0,0,0.6), 0 0 30px rgba(45,212,191,0.15);
     }
 
     /* ===== MARKER HOVER 3D ===== */
@@ -407,17 +406,19 @@
     .quick-btn:hover { border-color:rgba(45,212,191,0.3); background:rgba(45,212,191,0.06); color:#fff; transform:translateY(-2px); }
     #chatInputWrap {
       display:flex; align-items:center; gap:10px; width:100%; max-width:780px;
-      background:var(--glass); backdrop-filter:blur(32px); -webkit-backdrop-filter:blur(32px);
-      border:1px solid var(--glass-border); border-radius:16px;
+      background: rgba(255,255,255,0.04); backdrop-filter:blur(60px) saturate(200%); -webkit-backdrop-filter:blur(60px) saturate(200%);
+      border:1px solid rgba(255,255,255,0.1); border-radius:16px;
       padding:12px 14px 12px 18px; pointer-events:all; position:relative;
-      box-shadow: var(--glass-shadow);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.6);
       animation: panelIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.9s both;
+      transition: border-color 0.3s, box-shadow 0.3s;
     }
     #chatInputWrap::before { content:''; position:absolute; top:0; left:20px; right:20px; height:1px; background:linear-gradient(90deg,transparent,rgba(45,212,191,0.15),transparent); }
     #chatInput { flex:1; background:transparent; border:none; outline:none; color:var(--text); font-size:14px; font-family:var(--font); }
     #chatInput::placeholder { color:var(--muted); }
     #chatSend { width:38px; height:38px; border-radius:10px; background:#fff; border:none; color:#0a0e18; font-size:16px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
     #chatSend:hover { background:#e2e8f0; transform:scale(1.05); }
+    #chatSend:active { transform:scale(0.95); }
 
     /* ===== CHAT MESSAGES ===== */
     #chatMessages { position:fixed; bottom:130px; left:50%; transform:translateX(-50%); width:100%; max-width:780px; z-index:100; display:flex; flex-direction:column; gap:10px; padding:0 16px; pointer-events:none; max-height:45vh; overflow-y:auto; }
@@ -595,6 +596,7 @@
 </head>
 <body>
 <script>
+if (window.self !== window.top) { window.top.location.href = window.self.location.href; }
 // Lock scroll completely
 document.body.style.overflow='hidden';
 document.documentElement.style.overflow='hidden';
@@ -669,6 +671,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
   <button class="layer-btn" id="btnLabor" onclick="updateMapLayer('labor')">Labor</button>
   <button class="layer-btn" id="btnCost" onclick="updateMapLayer('cost')">Cost</button>
   <button class="layer-btn" id="btnSourcing" onclick="updateMapLayer('sourcing')">Sourcing</button>
+  <button class="layer-btn" onclick="openCompTool()">⊞ Compare</button>
 </div>
 
 <!-- ===== LEGEND ===== -->
@@ -693,7 +696,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <button class="btn-secondary" onclick="document.getElementById('heroPanel').style.display='none'">Explore Map</button>
     </div>
     <div class="hero-founder-line">First 10 founders get 50% off forever.</div>
-    <button class="btn-compare" onclick="openCompTool()">⊞ Compare Countries</button>
   </div>
 </div>
 
