@@ -164,15 +164,20 @@
     /* ===== GLASSMORPHISM BASE ===== */
     .glass {
       background: var(--glass);
-      backdrop-filter: blur(20px) saturate(1.3); -webkit-backdrop-filter: blur(20px) saturate(1.3);
-      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(28px) saturate(1.4); -webkit-backdrop-filter: blur(28px) saturate(1.4);
+      border: 1px solid rgba(45,212,191,0.16);
       border-radius: var(--radius);
-      box-shadow: var(--glass-shadow);
+      box-shadow: var(--glass-shadow), 0 0 40px rgba(45,212,191,0.03);
       position: relative;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .glass:hover {
+      border-color: rgba(45,212,191,0.24);
+      box-shadow: var(--glass-shadow), 0 0 60px rgba(45,212,191,0.06);
     }
     .glass::before {
       content:''; position:absolute; top:0; left:0; right:0; height:1px;
-      background: linear-gradient(90deg, transparent, rgba(45,212,191,0.2), transparent);
+      background: linear-gradient(90deg, transparent, rgba(45,212,191,0.28), transparent);
       border-radius: var(--radius) var(--radius) 0 0;
     }
 
@@ -361,6 +366,154 @@
     ::-webkit-scrollbar-track { background:transparent; }
     ::-webkit-scrollbar-thumb { background:#1e293b; border-radius:2px; }
 
+    /* ===== PROFILE SECTION ===== */
+    #profileSection {
+      position: fixed; inset: 0; z-index: 9998;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(5,6,8,0.94); backdrop-filter: blur(10px);
+      padding: 20px; opacity: 0; pointer-events: none;
+      transition: opacity 0.55s cubic-bezier(0.16,1,0.3,1);
+    }
+    #profileSection.ps-visible { opacity: 1; pointer-events: all; }
+    #profileSection.ps-exiting { opacity: 0; pointer-events: none; }
+
+    .ps-card {
+      width: 100%; max-width: 880px; max-height: 92vh; overflow-y: auto;
+      background: rgba(8,12,20,0.72);
+      backdrop-filter: blur(32px) saturate(1.5); -webkit-backdrop-filter: blur(32px) saturate(1.5);
+      border: 1px solid rgba(45,212,191,0.22);
+      border-radius: 24px;
+      box-shadow: 0 0 0 1px rgba(45,212,191,0.06), 0 32px 100px rgba(0,0,0,0.85), 0 0 140px rgba(45,212,191,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+      position: relative; transform-style: preserve-3d;
+      animation: psCardIn 0.65s cubic-bezier(0.16,1,0.3,1) forwards;
+      transition: transform 0.15s ease, box-shadow 0.3s ease;
+    }
+    .ps-card::-webkit-scrollbar { width: 4px; }
+    .ps-card::-webkit-scrollbar-thumb { background: rgba(45,212,191,0.12); border-radius: 4px; }
+    @keyframes psCardIn {
+      from { opacity: 0; transform: translateY(28px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes psFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    @keyframes psShimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+
+    .ps-shimmer-top {
+      position: absolute; top: 0; left: 0; right: 0; height: 1px; border-radius: 24px 24px 0 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(45,212,191,0.5) 50%, transparent 100%);
+      background-size: 400px 1px; animation: psShimmer 3s linear infinite;
+    }
+    .ps-inner { padding: 36px 40px; }
+    @media (max-width:600px) { .ps-inner { padding: 24px 20px; } }
+
+    .ps-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
+    .ps-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: var(--accent); letter-spacing: 0.14em; text-transform: uppercase; }
+    .ps-badge { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; padding: 4px 12px; border: 1px solid rgba(255,255,255,0.06); border-radius: 999px; }
+    .ps-title { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; color: #fff; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .ps-title em { color: var(--accent); font-style: normal; }
+    .ps-subtitle { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 28px; }
+
+    /* Summary view */
+    .ps-stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+    @media (max-width:600px) { .ps-stat-grid { grid-template-columns: 1fr 1fr; } }
+    .ps-stat { background: rgba(255,255,255,0.02); border: 1px solid rgba(45,212,191,0.08); border-radius: 12px; padding: 14px 12px; transition: all 0.28s; }
+    .ps-stat:hover { border-color: rgba(45,212,191,0.2); background: rgba(45,212,191,0.04); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(45,212,191,0.07); }
+    .ps-stat-lbl { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; margin-bottom: 7px; }
+    .ps-stat-val { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.3; }
+    .ps-stat-val.accent { color: var(--accent); }
+
+    .ps-sentence { background: rgba(45,212,191,0.04); border: 1px solid rgba(45,212,191,0.1); border-left: 3px solid var(--accent); border-radius: 10px; padding: 13px 15px; font-size: 13px; color: #cbd5e1; line-height: 1.65; margin-bottom: 20px; font-style: italic; }
+
+    .ps-chips-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 26px; }
+    .ps-chip { padding: 5px 11px; border-radius: 999px; font-size: 10px; font-weight: 500; background: rgba(45,212,191,0.07); border: 1px solid rgba(45,212,191,0.18); color: var(--accent); font-family: var(--font-mono); }
+
+    .ps-actions { display: flex; gap: 10px; justify-content: flex-end; align-items: center; padding-top: 4px; }
+    .ps-edit-btn { padding: 10px 18px; background: transparent; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: var(--muted); font-size: 12px; cursor: pointer; transition: all 0.25s; }
+    .ps-edit-btn:hover { border-color: rgba(255,255,255,0.16); color: var(--text); }
+    .ps-proceed-btn { padding: 12px 26px; background: var(--accent); border: none; border-radius: 10px; color: #050608; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; gap: 8px; }
+    .ps-proceed-btn:hover { background: #5eead4; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(45,212,191,0.3); }
+
+    /* Form view */
+    .ps-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 16px; }
+    @media (max-width:600px) { .ps-form-grid { grid-template-columns: 1fr; } }
+    .ps-section-lbl { font-family: var(--font-display); font-size: 8px; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; display: block; }
+    .ps-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 20px 0; }
+    .ps-submit-btn { width: 100%; padding: 13px; background: var(--accent); border: none; border-radius: 10px; color: #050608; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; margin-top: 6px; }
+    .ps-submit-btn:hover { background: #5eead4; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(45,212,191,0.25); }
+    .ps-chips-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+
+    /* Reopen button */
+    #psReopenBtn {
+      position: fixed; bottom: 88px; right: 16px; z-index: 200;
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(8,12,20,0.85); backdrop-filter: blur(16px);
+      border: 1px solid rgba(45,212,191,0.22); color: var(--accent);
+      font-size: 16px; cursor: pointer; display: none; align-items: center; justify-content: center;
+      transition: all 0.25s; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      font-family: var(--font-mono);
+    }
+    #psReopenBtn:hover { background: rgba(45,212,191,0.1); border-color: rgba(45,212,191,0.4); transform: scale(1.08); }
+
+    /* ===== COMPARISON TOOL ===== */
+    #compTool {
+      position: fixed; inset: 0; z-index: 9000;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(5,6,8,0.9); backdrop-filter: blur(8px);
+      padding: 20px; opacity: 0; pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(0.16,1,0.3,1);
+    }
+    #compTool.ct-visible { opacity: 1; pointer-events: all; }
+
+    .ct-wrap {
+      width: 100%; max-width: 1020px; max-height: 90vh; overflow-y: auto;
+      background: rgba(8,12,20,0.75);
+      backdrop-filter: blur(32px) saturate(1.5); -webkit-backdrop-filter: blur(32px) saturate(1.5);
+      border: 1px solid rgba(45,212,191,0.16); border-radius: 24px;
+      box-shadow: 0 32px 100px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.04);
+      position: relative; animation: psCardIn 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .ct-wrap::-webkit-scrollbar { width: 4px; }
+    .ct-wrap::-webkit-scrollbar-thumb { background: rgba(45,212,191,0.1); border-radius: 4px; }
+    .ct-shimmer-top { position: absolute; top: 0; left: 0; right: 0; height: 1px; border-radius: 24px 24px 0 0; background: linear-gradient(90deg, transparent, rgba(45,212,191,0.4), transparent); background-size: 400px 1px; animation: psShimmer 3s linear infinite; }
+    .ct-inner { padding: 30px 34px; }
+    @media (max-width:700px) { .ct-inner { padding: 20px 18px; } }
+
+    .ct-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+    .ct-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
+    .ct-title span { color: var(--accent); font-size: 12px; font-family: var(--font-mono); letter-spacing: 0.1em; vertical-align: middle; margin-left: 10px; }
+    .ct-close { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07); color: var(--muted); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .ct-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    .ct-selectors { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: end; margin-bottom: 26px; }
+    .ct-sel-lbl { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 7px; }
+    .ct-vs { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--accent); text-align: center; letter-spacing: 0.1em; padding-bottom: 10px; }
+    @media (max-width:600px) { .ct-selectors { grid-template-columns: 1fr; } .ct-vs { display: none; } }
+
+    .ct-results { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width:600px) { .ct-results { grid-template-columns: 1fr; } }
+    .ct-empty { grid-column: 1/-1; text-align: center; padding: 50px 20px; color: var(--muted); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; }
+
+    .ct-country-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(45,212,191,0.08); border-radius: 16px; padding: 20px; transition: all 0.3s; }
+    .ct-country-card:hover { border-color: rgba(45,212,191,0.18); transform: translateY(-2px); box-shadow: 0 10px 36px rgba(45,212,191,0.07); }
+    .ct-cname { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .ct-risk-badge { display: inline-block; font-family: var(--font-mono); font-size: 9px; font-weight: 700; padding: 3px 9px; border-radius: 999px; letter-spacing: 0.08em; margin-bottom: 14px; }
+    .ct-metric { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 11px; }
+    .ct-metric:last-of-type { border-bottom: none; }
+    .ct-mlabel { color: var(--muted); font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .ct-mval { color: #fff; font-weight: 600; font-family: var(--font-mono); font-size: 11px; }
+    .ct-bar { margin: 5px 0 8px; }
+    .ct-bar-track { height: 3px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+    .ct-bar-fill { height: 100%; border-radius: 3px; transition: width 0.7s ease; }
+
+    .ct-news { margin-top: 14px; padding: 12px 13px; background: rgba(45,212,191,0.03); border: 1px dashed rgba(45,212,191,0.14); border-radius: 10px; }
+    .ct-news-label { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+    .ct-news-item { font-size: 10px; color: #64748b; line-height: 1.55; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .ct-news-item:last-of-type { border-bottom: none; }
+    .ct-news-powered { font-size: 8px; color: rgba(100,116,139,0.4); margin-top: 7px; font-family: var(--font-mono); letter-spacing: 0.04em; }
+
+    /* Compare button in hero */
+    .btn-compare { width: 100%; margin-top: 10px; padding: 9px 14px; background: rgba(45,212,191,0.06); border: 1px solid rgba(45,212,191,0.16); border-radius: 9px; color: var(--accent); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.25s; }
+    .btn-compare:hover { background: rgba(45,212,191,0.1); border-color: rgba(45,212,191,0.3); }
+
     /* ===== MOBILE ===== */
     @media (max-width:768px) {
       #heroPanel { top:auto; bottom:160px; left:8px; right:8px; width:auto; max-height:50vh; overflow-y:auto; }
@@ -383,6 +536,9 @@ document.documentElement.style.height=_vh;
 document.body.style.position='fixed';
 document.body.style.width='100%';
 document.body.style.top='0';
+
+// Attempt to hide Shopify navigation from parent frame
+try { if(window.parent&&window.parent!==window)window.parent.postMessage({action:'risksim-hide-nav',source:'risksim-app'},'*'); } catch(e){}
 
 // Auto-focus so keyboard events work in iframe
 window.focus();
@@ -419,6 +575,14 @@ window.addEventListener('keydown',__handleIntroKey,true);
   <div class="sk-text">RISKSIM</div>
   <div class="sk-sub">Initializing Intelligence Map…</div>
   <div class="sk-bar"></div>
+</div>
+
+<!-- ===== PROFILE SECTION ===== -->
+<div id="profileSection">
+  <div class="ps-card" id="psCard">
+    <div class="ps-shimmer-top"></div>
+    <div class="ps-inner" id="psInner"><!-- rendered by JS --></div>
+  </div>
 </div>
 
 <!-- ===== MAP ===== -->
@@ -461,6 +625,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <button class="btn-secondary" onclick="document.getElementById('heroPanel').style.display='none'">Explore Map</button>
     </div>
     <div class="hero-founder-line">First 10 founders get 50% off forever.</div>
+    <button class="btn-compare" onclick="openCompTool()">⊞ Compare Countries</button>
   </div>
 </div>
 
@@ -481,6 +646,36 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <button class="onboard-cancel" onclick="document.getElementById('onboardingPanel').style.display='none'">Cancel</button>
   </div>
 </div>
+
+<!-- ===== COMPARISON TOOL ===== -->
+<div id="compTool">
+  <div class="ct-wrap">
+    <div class="ct-shimmer-top"></div>
+    <div class="ct-inner">
+      <div class="ct-header">
+        <div class="ct-title">Country Comparison <span>PERSONALIZED</span></div>
+        <button class="ct-close" onclick="closeCompTool()">✕</button>
+      </div>
+      <div class="ct-selectors">
+        <div>
+          <span class="ct-sel-lbl">Country A</span>
+          <select class="field-select" id="ctCountryA" onchange="updateComparison()"><option value="">Select country…</option></select>
+        </div>
+        <div class="ct-vs">VS</div>
+        <div>
+          <span class="ct-sel-lbl">Country B</span>
+          <select class="field-select" id="ctCountryB" onchange="updateComparison()"><option value="">Select country…</option></select>
+        </div>
+      </div>
+      <div class="ct-results" id="ctResults">
+        <div class="ct-empty">SELECT TWO COUNTRIES TO COMPARE</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile reopen button -->
+<button id="psReopenBtn" title="View Profile" onclick="showProfileSection()">⊕</button>
 
 <div id="chatMessages"></div>
 <div id="chatPanel">
@@ -527,7 +722,239 @@ function deepDive(name){var c=COUNTRY_MAP[name];if(!c)return;sendMessage('Deep d
 
 document.addEventListener('DOMContentLoaded',function(){var cg=document.getElementById('sourcingChips');if(cg)cg.addEventListener('click',function(e){var chip=e.target.closest('.chip-option');if(!chip)return;chip.classList.toggle('selected');selectedSourcingCountries=[];var sel=cg.querySelectorAll('.chip-option.selected');for(var i=0;i<sel.length;i++)selectedSourcingCountries.push(sel[i].getAttribute('data-country'));});});
 
-function handleOnboardSubmit(){var type=document.getElementById('companyType').value,country=document.getElementById('homeCountry').value,industry=document.getElementById('industry').value,revenue=document.getElementById('annualRevenue').value;if(industry)currentCategory=industry;userProfile={type:type,country:country,regions:selectedSourcingCountries.join(', '),industry:industry,revenue:revenue};document.getElementById('onboardingPanel').style.display='none';renderMarkers();var g='Welcome! Profile set';if(type)g+=' as '+type;if(selectedSourcingCountries.length)g+=' sourcing from '+selectedSourcingCountries.join(', ');g+='. How can I help?';addAIMessage(g);}
+function handleOnboardSubmit(){
+  var type=document.getElementById('companyType').value,country=document.getElementById('homeCountry').value,industry=document.getElementById('industry').value,revenue=document.getElementById('annualRevenue').value;
+  if(industry)currentCategory=industry;
+  userProfile={type:type,country:country,regions:selectedSourcingCountries.join(', '),industry:industry,revenue:revenue};
+  document.getElementById('onboardingPanel').style.display='none';
+  renderMarkers();
+  // Refresh profile section if it's open
+  renderProfileContent();
+  var g='Welcome! Profile set';if(type)g+=' as '+type;if(selectedSourcingCountries.length)g+=' sourcing from '+selectedSourcingCountries.join(', ');g+='. How can I help?';addAIMessage(g);
+}
+
+// ===== PROFILE SECTION =====
+var PS_TYPE_LABELS={'manufacturer':'Manufacturer','retailer':'Retailer','distributor':'Distributor','logistics':'Logistics Provider','other':'Business'};
+var PS_IND_LABELS={'technology':'Electronics','textiles':'Textiles / Apparel','automotive':'Automotive','food':'Food / Agriculture','pharma':'Pharmaceuticals','rawMaterials':'Raw Materials','consumerGoods':'Consumer Goods','other':'General Industry'};
+var PS_SOURCING_COUNTRIES=['China','Vietnam','India','Bangladesh','Indonesia','Mexico','Thailand','Malaysia','Cambodia','Philippines','Pakistan','Turkey','Brazil','South Korea','Japan','Taiwan','Germany','Poland','Romania','Morocco','Ethiopia','Italy','Portugal','Czech Republic','Hungary','Slovakia'];
+
+function showProfileSection() {
+  renderProfileContent();
+  var ps=document.getElementById('profileSection');
+  if(ps){ ps.classList.add('ps-visible'); }
+  var card=document.getElementById('psCard');
+  if(card){ card.addEventListener('mousemove',psTilt); card.addEventListener('mouseleave',psUntilt); }
+  var btn=document.getElementById('psReopenBtn');
+  if(btn) btn.style.display='none';
+}
+
+function closeProfileSection() {
+  var ps=document.getElementById('profileSection');
+  if(!ps) return;
+  ps.classList.add('ps-exiting');
+  setTimeout(function(){
+    ps.classList.remove('ps-visible','ps-exiting');
+    var card=document.getElementById('psCard');
+    if(card){ card.removeEventListener('mousemove',psTilt); card.removeEventListener('mouseleave',psUntilt); }
+    var btn=document.getElementById('psReopenBtn');
+    if(btn) btn.style.display='flex';
+  }, 560);
+}
+
+function psTilt(e) {
+  var r=this.getBoundingClientRect();
+  var x=(e.clientX-r.left-r.width/2)/r.width;
+  var y=(e.clientY-r.top-r.height/2)/r.height;
+  this.style.transform='perspective(1200px) rotateX('+(-y*3)+'deg) rotateY('+(x*3)+'deg) translateZ(6px)';
+}
+function psUntilt() { this.style.transform=''; }
+
+function renderProfileContent() {
+  var inner=document.getElementById('psInner');
+  if(!inner) return;
+  var hasProfile=!!(userProfile.type||userProfile.industry);
+  inner.innerHTML = hasProfile ? buildPSSummary() : buildPSForm();
+  if(!hasProfile) initPSFormChips();
+}
+
+function buildPSSummary() {
+  var typeLabel=PS_TYPE_LABELS[userProfile.type]||userProfile.type||'Business';
+  var indLabel=PS_IND_LABELS[userProfile.industry]||userProfile.industry||'General Industry';
+  var regions=selectedSourcingCountries.length?selectedSourcingCountries:['Global'];
+  var sentence='You\'re a <strong>'+typeLabel+'</strong> in <strong>'+indLabel+'</strong> sourcing from <strong>'+regions.slice(0,4).join(', ')+(regions.length>4?' +'+( regions.length-4)+' more':'')+'</strong>.';
+  var chips=regions.slice(0,12).map(function(r){return'<span class="ps-chip">'+r+'</span>';}).join('');
+  return '<div class="ps-header-row"><span class="ps-brand">RiskSim AI</span><span class="ps-badge">Your Profile</span></div>'+
+    '<div class="ps-title">Welcome back,<br><em>'+typeLabel+'</em></div>'+
+    '<p class="ps-subtitle">Your personalized supply chain intelligence is ready. Data is filtered to your industry and sourcing regions.</p>'+
+    '<div class="ps-stat-grid">'+
+      '<div class="ps-stat"><div class="ps-stat-lbl">Company Type</div><div class="ps-stat-val">'+typeLabel+'</div></div>'+
+      '<div class="ps-stat"><div class="ps-stat-lbl">Industry</div><div class="ps-stat-val accent">'+indLabel+'</div></div>'+
+      '<div class="ps-stat"><div class="ps-stat-lbl">Sourcing Regions</div><div class="ps-stat-val">'+regions.length+' countries</div></div>'+
+      (userProfile.country?'<div class="ps-stat"><div class="ps-stat-lbl">Home Country</div><div class="ps-stat-val">'+userProfile.country+'</div></div>':'')+
+      (userProfile.revenue?'<div class="ps-stat"><div class="ps-stat-lbl">Revenue</div><div class="ps-stat-val">'+userProfile.revenue+'</div></div>':'')+
+      '<div class="ps-stat"><div class="ps-stat-lbl">Data Points/Day</div><div class="ps-stat-val accent">2.4M</div></div>'+
+    '</div>'+
+    '<div class="ps-sentence">'+sentence+'</div>'+
+    '<div class="ps-chips-row">'+chips+'</div>'+
+    '<div class="ps-actions">'+
+      '<button class="ps-edit-btn" onclick="editPSProfile()">Edit Profile</button>'+
+      '<button class="ps-proceed-btn" onclick="closeProfileSection()">Proceed to Map →</button>'+
+    '</div>';
+}
+
+function buildPSForm() {
+  var indOpts=['<option value="">Select industry…</option>',
+    '<option value="technology">Electronics</option>',
+    '<option value="textiles">Textiles / Apparel</option>',
+    '<option value="automotive">Automotive</option>',
+    '<option value="food">Food / Agriculture</option>',
+    '<option value="pharma">Pharmaceuticals</option>',
+    '<option value="rawMaterials">Raw Materials</option>',
+    '<option value="consumerGoods">Consumer Goods</option>',
+    '<option value="other">Other</option>'].join('');
+  var typeOpts=['<option value="">Select type…</option>',
+    '<option value="manufacturer">Manufacturer</option>',
+    '<option value="retailer">Retailer</option>',
+    '<option value="distributor">Distributor</option>',
+    '<option value="logistics">Logistics Provider</option>',
+    '<option value="other">Other</option>'].join('');
+  var revOpts=['<option value="">Select range…</option>',
+    '<option value="under1m">&lt;$1M</option>',
+    '<option value="1m10m">$1M–$10M</option>',
+    '<option value="10m50m">$10M–$50M</option>',
+    '<option value="50m100m">$50M–$100M</option>',
+    '<option value="over100m">$100M+</option>'].join('');
+  var chips=PS_SOURCING_COUNTRIES.map(function(c){return'<span class="chip-option ps-sourcing-chip" data-country="'+c+'">'+c+'</span>';}).join('');
+  return '<div class="ps-header-row"><span class="ps-brand">RiskSim AI</span><span class="ps-badge">Step 1 of 1</span></div>'+
+    '<div class="ps-title">Set Up Your<br><em>Intelligence Profile</em></div>'+
+    '<p class="ps-subtitle">Personalize your supply chain risk data — every metric will be filtered to your industry, company type, and sourcing regions.</p>'+
+    '<div class="ps-divider"></div>'+
+    '<span class="ps-section-lbl">About Your Business</span>'+
+    '<div class="ps-form-grid">'+
+      '<div class="field-group"><label class="field-label">Company Type</label><select class="field-select" id="ps-companyType">'+typeOpts+'</select></div>'+
+      '<div class="field-group"><label class="field-label">Industry</label><select class="field-select" id="ps-industry">'+indOpts+'</select></div>'+
+    '</div>'+
+    '<div class="field-group"><label class="field-label">Annual Revenue</label><select class="field-select" id="ps-revenue">'+revOpts+'</select></div>'+
+    '<div class="ps-divider"></div>'+
+    '<span class="ps-section-lbl">Primary Sourcing Regions</span>'+
+    '<div class="ps-chips-grid" id="ps-sourcingChips">'+chips+'</div>'+
+    '<div style="margin-top:24px">'+
+      '<button class="ps-submit-btn" onclick="handlePSSubmit()">Start Intelligence →</button>'+
+    '</div>';
+}
+
+function initPSFormChips() {
+  var grid=document.getElementById('ps-sourcingChips');
+  if(!grid) return;
+  // Re-select any already selected countries
+  var chips=grid.querySelectorAll('.ps-sourcing-chip');
+  for(var i=0;i<chips.length;i++){
+    if(selectedSourcingCountries.indexOf(chips[i].getAttribute('data-country'))!==-1)
+      chips[i].classList.add('selected');
+  }
+  grid.addEventListener('click',function(e){
+    var chip=e.target.closest('.ps-sourcing-chip');
+    if(!chip) return;
+    chip.classList.toggle('selected');
+    selectedSourcingCountries=[];
+    var sel=grid.querySelectorAll('.ps-sourcing-chip.selected');
+    for(var i=0;i<sel.length;i++) selectedSourcingCountries.push(sel[i].getAttribute('data-country'));
+  });
+}
+
+function handlePSSubmit() {
+  var type=(document.getElementById('ps-companyType')||{}).value||'';
+  var industry=(document.getElementById('ps-industry')||{}).value||'';
+  var revenue=(document.getElementById('ps-revenue')||{}).value||'';
+  if(industry) currentCategory=industry;
+  userProfile={type:type,country:'',regions:selectedSourcingCountries.join(', '),industry:industry,revenue:revenue};
+  // Sync main onboarding form values so they match
+  var mtype=document.getElementById('companyType'); if(mtype&&type) mtype.value=type;
+  var mind=document.getElementById('industry'); if(mind&&industry) mind.value=industry;
+  var mrev=document.getElementById('annualRevenue'); if(mrev&&revenue) mrev.value=revenue;
+  renderMarkers();
+  renderProfileContent(); // Re-render as summary
+}
+
+function editPSProfile() {
+  userProfile={};
+  renderProfileContent();
+}
+
+// ===== COMPARISON TOOL =====
+function openCompTool() {
+  populateCompDropdowns();
+  document.getElementById('compTool').classList.add('ct-visible');
+}
+function closeCompTool() {
+  document.getElementById('compTool').classList.remove('ct-visible');
+}
+
+function populateCompDropdowns() {
+  var countries=selectedSourcingCountries.length
+    ? selectedSourcingCountries.filter(function(n){return !!COUNTRY_MAP[n];})
+    : COUNTRY_DATA.map(function(c){return c.name;});
+  ['ctCountryA','ctCountryB'].forEach(function(id){
+    var sel=document.getElementById(id);
+    if(!sel) return;
+    var cur=sel.value;
+    sel.innerHTML='<option value="">Select country…</option>';
+    countries.forEach(function(name){
+      var o=document.createElement('option');
+      o.value=name; o.textContent=name;
+      if(name===cur) o.selected=true;
+      sel.appendChild(o);
+    });
+  });
+}
+
+function updateComparison() {
+  var a=document.getElementById('ctCountryA').value;
+  var b=document.getElementById('ctCountryB').value;
+  var results=document.getElementById('ctResults');
+  if(!a||!b){results.innerHTML='<div class="ct-empty">SELECT TWO COUNTRIES TO COMPARE</div>';return;}
+  var ca=COUNTRY_MAP[a],cb=COUNTRY_MAP[b];
+  if(!ca||!cb) return;
+  results.innerHTML=buildCompCard(ca)+buildCompCard(cb);
+}
+
+function buildCompCard(c) {
+  var rc=getRiskColor(c.risk);
+  var rl=getRiskLabel(c.risk);
+  var ss=(c.sourcing&&c.sourcing[currentCategory])||0;
+  var sc=getSourcingColor(ss);
+  var indLbl=PS_IND_LABELS[currentCategory]||'Sourcing';
+  var news=getNewsPlaceholder(c);
+  return '<div class="ct-country-card">'+
+    '<div class="ct-cname">'+c.name+'</div>'+
+    '<div class="ct-risk-badge" style="background:'+rc+'22;color:'+rc+';border:1px solid '+rc+'44;">'+rl+'</div>'+
+    '<div class="ct-metric"><span class="ct-mlabel">Risk Score</span><span class="ct-mval" style="color:'+rc+'">'+c.risk+' / 100</span></div>'+
+    '<div class="ct-bar"><div class="ct-bar-track"><div class="ct-bar-fill" style="width:'+c.risk+'%;background:'+rc+'"></div></div></div>'+
+    '<div class="ct-metric"><span class="ct-mlabel">Tariff Rate</span><span class="ct-mval">'+c.tariff+'%</span></div>'+
+    '<div class="ct-metric"><span class="ct-mlabel">Shipping Cost</span><span class="ct-mval">'+c.shipping+' / 10</span></div>'+
+    '<div class="ct-metric"><span class="ct-mlabel">Labor Cost</span><span class="ct-mval">'+c.labor+' / 10</span></div>'+
+    '<div class="ct-metric"><span class="ct-mlabel">Cost Index</span><span class="ct-mval">'+c.costIndex+'</span></div>'+
+    '<div class="ct-metric"><span class="ct-mlabel">Mfg Capacity</span><span class="ct-mval">'+c.mfgCapacity+' / 100</span></div>'+
+    '<div class="ct-metric"><span class="ct-mlabel">'+indLbl+' Sourcing</span><span class="ct-mval" style="color:'+sc+'">'+ss+' / 100</span></div>'+
+    '<div class="ct-bar"><div class="ct-bar-track"><div class="ct-bar-fill" style="width:'+ss+'%;background:'+sc+'"></div></div></div>'+
+    '<div class="ct-news">'+
+      '<div class="ct-news-label">Live Intelligence · '+c.name+'</div>'+
+      news.map(function(item){return'<div class="ct-news-item">'+item+'</div>';}).join('')+
+      '<div class="ct-news-powered">Powered by n8n · Live tariff &amp; disruption data coming soon</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function getNewsPlaceholder(c) {
+  var items=[];
+  if(c.risk>=80) items.push('⚠ Critical risk region — heightened monitoring active');
+  else if(c.risk>=60) items.push('◈ Elevated risk — disruption alerts enabled');
+  else if(c.risk>=30) items.push('◇ Moderate risk — standard monitoring active');
+  else items.push('✓ Stable region — baseline monitoring active');
+  items.push('Tariff rate: '+c.tariff+'% — tracking live changes');
+  items.push('Export infrastructure: '+c.exportInfra+'/100 · Lead time reliability: '+c.leadTimeReliability+'/100');
+  return items;
+}
 
 function sendQuickMsg(t){sendMessage(t);}
 function handleChatSend(){var input=document.getElementById('chatInput'),msg=input.value.trim();if(!msg)return;input.value='';sendMessage(msg);}
@@ -622,7 +1049,10 @@ document.addEventListener('DOMContentLoaded',function(){initMap();});
       document.body.style.width='';
       document.body.style.top='';
       document.documentElement.style.height='';
-      requestAnimationFrame(function(){if(map)map.invalidateSize();});
+      requestAnimationFrame(function(){
+        if(map)map.invalidateSize();
+        if(window.showProfileSection)window.showProfileSection();
+      });
     }
     function onTransitionEnd(e){if(e.propertyName==='opacity')cleanup();}
     intro.addEventListener('transitionend',onTransitionEnd);
