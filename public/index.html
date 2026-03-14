@@ -163,23 +163,88 @@
 
     /* ===== GLASSMORPHISM BASE ===== */
     .glass {
-      background: var(--glass);
-      backdrop-filter: blur(28px) saturate(1.4); -webkit-backdrop-filter: blur(28px) saturate(1.4);
-      border: 1px solid rgba(45,212,191,0.16);
+      background: rgba(8,10,20,0.7);
+      backdrop-filter: blur(40px) saturate(1.6); -webkit-backdrop-filter: blur(40px) saturate(1.6);
+      border: 1px solid rgba(125,249,194,0.15);
       border-radius: var(--radius);
-      box-shadow: var(--glass-shadow), 0 0 40px rgba(45,212,191,0.03);
+      box-shadow: var(--glass-shadow), 0 0 40px rgba(125,249,194,0.04);
       position: relative;
-      transition: border-color 0.3s, box-shadow 0.3s;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.15s ease;
+      transform-style: preserve-3d;
     }
     .glass:hover {
-      border-color: rgba(45,212,191,0.24);
-      box-shadow: var(--glass-shadow), 0 0 60px rgba(45,212,191,0.06);
+      border-color: rgba(125,249,194,0.28);
+      box-shadow: var(--glass-shadow), 0 0 80px rgba(125,249,194,0.08);
     }
     .glass::before {
       content:''; position:absolute; top:0; left:0; right:0; height:1px;
-      background: linear-gradient(90deg, transparent, rgba(45,212,191,0.28), transparent);
+      background: linear-gradient(90deg, transparent, rgba(125,249,194,0.3), transparent);
       border-radius: var(--radius) var(--radius) 0 0;
     }
+
+    /* ===== HERO FLOAT ===== */
+    @keyframes heroFloat { 0%,100% { transform:translateY(0px); } 50% { transform:translateY(-6px); } }
+
+    /* ===== SCROLL INDICATOR ===== */
+    @keyframes scrollBounce { 0%,100% { transform:translateX(-50%) translateY(0); opacity:0.7; } 50% { transform:translateX(-50%) translateY(7px); opacity:1; } }
+    .scroll-indicator {
+      position: sticky; bottom: 0; left: 0; right: 0; width: 100%;
+      padding: 18px 0 10px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+      pointer-events: none; background: linear-gradient(to bottom, transparent, rgba(8,10,20,0.97));
+      border-radius: 0 0 20px 20px; transition: opacity 0.3s; z-index: 5;
+    }
+    .scroll-indicator.si-hidden { opacity: 0; }
+    .scroll-indicator-arrow {
+      font-size: 18px; color: rgba(125,249,194,0.8); display: block;
+      position: relative; left: 0; animation: scrollBounce 1.4s ease-in-out infinite;
+      transform-origin: center; filter: drop-shadow(0 0 6px rgba(125,249,194,0.5));
+    }
+    .scroll-indicator-text { font-family:var(--font-mono); font-size:8px; letter-spacing:0.18em; color:rgba(125,249,194,0.45); text-transform:uppercase; }
+
+    /* ===== CHAT INPUT FOCUS GLOW ===== */
+    #chatInputWrap:focus-within {
+      border-color: rgba(125,249,194,0.4);
+      box-shadow: var(--glass-shadow), 0 0 30px rgba(125,249,194,0.14);
+      background: rgba(8,10,20,0.85);
+    }
+
+    /* ===== MARKER HOVER 3D ===== */
+    .marker-dot { transition: transform 0.2s, filter 0.2s; }
+    .map-marker:hover .marker-dot { transform: scale(1.5) !important; filter: brightness(1.4) drop-shadow(0 0 8px currentColor); cursor: pointer; }
+    .sourcing-region-dot { outline: 2px solid rgba(125,249,194,0.6); outline-offset: 2px; border-radius: 50%; }
+
+    /* ===== ALERT BANNER ===== */
+    #alertBanner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      display: none; flex-direction: column;
+      transform: translateY(-100%); transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    #alertBanner.ab-visible { display: flex; transform: translateY(0); }
+    .alert-banner-header {
+      display: flex; align-items: center; justify-content: space-between; padding: 7px 16px;
+      background: rgba(5,6,8,0.97); border-bottom: 1px solid rgba(125,249,194,0.12);
+      backdrop-filter: blur(20px);
+    }
+    .alert-banner-title { font-family:var(--font-mono); font-size:8px; letter-spacing:0.2em; color:rgba(125,249,194,0.8); text-transform:uppercase; display:flex; align-items:center; gap:7px; }
+    .alert-live-dot { width:6px; height:6px; border-radius:50%; background:rgba(125,249,194,0.9); box-shadow:0 0 6px rgba(125,249,194,0.6); animation:rsBlink 1.8s infinite; display:inline-block; }
+    .alert-banner-close-all { font-family:var(--font-mono); font-size:9px; color:var(--muted); cursor:pointer; background:none; border:1px solid rgba(255,255,255,0.06); border-radius:4px; padding:3px 8px; transition:all 0.2s; }
+    .alert-banner-close-all:hover { color:#fff; border-color:rgba(255,255,255,0.15); }
+    .alert-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px 16px;
+      background: rgba(8,10,20,0.93); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.04); font-size:11px; font-family:var(--font-mono);
+      transition: opacity 0.3s, max-height 0.3s;
+    }
+    .alert-item.severity-high { border-left: 3px solid #ff4466; }
+    .alert-item.severity-medium { border-left: 3px solid #f5c518; }
+    .alert-item.severity-low { border-left: 3px solid rgba(125,249,194,0.6); }
+    .alert-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; animation:rsBlink 2s infinite; }
+    .severity-high .alert-dot { background:#ff4466; box-shadow:0 0 6px #ff4466; }
+    .severity-medium .alert-dot { background:#f5c518; box-shadow:0 0 6px #f5c518; }
+    .severity-low .alert-dot { background:rgba(125,249,194,0.8); box-shadow:0 0 5px rgba(125,249,194,0.4); }
+    .alert-text { flex:1; color:#94a3b8; letter-spacing:0.02em; line-height:1.4; }
+    .alert-dismiss { width:20px; height:20px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); color:var(--muted); font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; padding:0; }
+    .alert-dismiss:hover { background:rgba(255,255,255,0.12); color:#fff; }
 
     /* ===== SKELETON ===== */
     #mapSkeleton {
@@ -329,8 +394,11 @@
     .onboard-submit:hover { background:#5eead4; transform:translateY(-1px); }
     .onboard-cancel { width:100%; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.06); border-radius:8px; color:var(--muted); font-size:12px; cursor:pointer; transition:all 0.2s; margin-top:8px; }
     .onboard-cancel:hover { border-color:rgba(255,255,255,0.1); color:var(--text); }
-    #onboardingPanel::-webkit-scrollbar { width:4px; }
-    #onboardingPanel::-webkit-scrollbar-thumb { background:rgba(45,212,191,0.1); border-radius:4px; }
+    #onboardingPanel { overflow-y: auto; }
+    #onboardingPanel::-webkit-scrollbar { width:5px; }
+    #onboardingPanel::-webkit-scrollbar-track { background:rgba(255,255,255,0.02); border-radius:5px; }
+    #onboardingPanel::-webkit-scrollbar-thumb { background:rgba(125,249,194,0.25); border-radius:5px; }
+    #onboardingPanel::-webkit-scrollbar-thumb:hover { background:rgba(125,249,194,0.45); }
 
     /* ===== CHAT ===== */
     #chatPanel { position:fixed; bottom:0; left:0; right:0; z-index:100; display:flex; flex-direction:column; align-items:center; pointer-events:none; padding-bottom:20px; }
@@ -621,7 +689,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <div class="hero-stat"><div class="hero-stat-num">&lt;2s</div><div class="hero-stat-lbl">Analysis</div></div>
     </div>
     <div class="hero-actions">
-      <button class="btn-primary" onclick="document.getElementById('onboardingPanel').style.display='block'">Claim Founder Access</button>
+      <button class="btn-primary" onclick="var p=document.getElementById('onboardingPanel');p.style.display='block';p.scrollTop=0;var si=document.getElementById('onboardScrollIndicator');if(si)si.classList.remove('si-hidden');">Claim Founder Access</button>
       <button class="btn-secondary" onclick="document.getElementById('heroPanel').style.display='none'">Explore Map</button>
     </div>
     <div class="hero-founder-line">First 10 founders get 50% off forever.</div>
@@ -644,6 +712,10 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <div class="field-group"><label class="field-label">Annual Revenue</label><select class="field-select" id="annualRevenue"><option value="">Select revenue range…</option><option value="under1m">&lt;$1M</option><option value="1m10m">$1M–$10M</option><option value="10m50m">$10M–$50M</option><option value="50m100m">$50M–$100M</option><option value="over100m">$100M+</option></select></div>
     <button class="onboard-submit" onclick="handleOnboardSubmit()">Update Profile</button>
     <button class="onboard-cancel" onclick="document.getElementById('onboardingPanel').style.display='none'">Cancel</button>
+  </div>
+  <div class="scroll-indicator" id="onboardScrollIndicator">
+    <span class="scroll-indicator-arrow">↓</span>
+    <span class="scroll-indicator-text">Scroll for more</span>
   </div>
 </div>
 
@@ -674,6 +746,9 @@ window.addEventListener('keydown',__handleIntroKey,true);
   </div>
 </div>
 
+<!-- ===== ALERT BANNER ===== -->
+<div id="alertBanner"></div>
+
 <!-- Profile reopen button -->
 <button id="psReopenBtn" title="View Profile" onclick="showProfileSection()">⊕</button>
 
@@ -693,7 +768,29 @@ window.addEventListener('keydown',__handleIntroKey,true);
 </div>
 
 <script>
+// ===== LIVE ALERTS (replace array content for live API feed from n8n without changing display code) =====
+var LIVE_ALERTS = [
+  { id: 'la1', text: 'US tariffs on Chinese electronics increased to 30% — affects technology sourcing chains globally', severity: 'high' },
+  { id: 'la2', text: 'Red Sea disruptions continuing — container rates up 18% on Asia-Europe routes, expect 5-9 day delays', severity: 'high' },
+  { id: 'la3', text: 'India export restrictions on select pharmaceutical APIs — monitor pharma supply chains closely', severity: 'medium' },
+  { id: 'la4', text: 'Vietnam labor disputes in Ho Chi Minh City industrial zones — possible 2-week production delays', severity: 'medium' },
+  { id: 'la5', text: 'EU CBAM carbon tariffs effective Q2 2026 — impacts steel, aluminum and cement imports from non-EU countries', severity: 'low' }
+];
+
 var map=null,countryMarkers={},currentLayer='risk',currentCategory='technology',userProfile={},selectedSourcingCountries=[];
+
+// ===== LOAD PROFILE FROM LOCALSTORAGE =====
+(function(){
+  try {
+    var saved=localStorage.getItem('risksim_profile');
+    if(saved){
+      var d=JSON.parse(saved);
+      if(d.userProfile) userProfile=d.userProfile;
+      if(d.selectedSourcingCountries) selectedSourcingCountries=d.selectedSourcingCountries;
+      if(d.currentCategory) currentCategory=d.currentCategory;
+    }
+  } catch(e){}
+})();
 
 // === COUNTRY DATA ===
 var COUNTRY_DATA=[{name:'North Korea',lat:40.3,lng:127.5,risk:98,shipping:9,labor:4,tariff:25,infra:3,costIndex:80,mfgCapacity:5,exportInfra:2,supplierDensity:2,leadTimeReliability:10,sourcing:{technology:2,textiles:3,generalMfg:3,consumerGoods:2,automotive:1,pharma:1}},{name:'Russia',lat:61.5,lng:90,risk:95,shipping:8,labor:5,tariff:35,infra:6,costIndex:75,mfgCapacity:55,exportInfra:50,supplierDensity:45,leadTimeReliability:40,sourcing:{technology:10,textiles:5,generalMfg:25,consumerGoods:10,automotive:15,pharma:20}},{name:'Iran',lat:32.4,lng:53.7,risk:93,shipping:7,labor:4,tariff:30,infra:5,costIndex:72,mfgCapacity:25,exportInfra:20,supplierDensity:18,leadTimeReliability:25,sourcing:{technology:5,textiles:15,generalMfg:15,consumerGoods:8,automotive:10,pharma:12}},{name:'Venezuela',lat:6.4,lng:-66.6,risk:89,shipping:6,labor:3,tariff:25,infra:3,costIndex:72,mfgCapacity:15,exportInfra:20,supplierDensity:10,leadTimeReliability:20,sourcing:{technology:3,textiles:5,generalMfg:8,consumerGoods:5,automotive:5,pharma:5}},{name:'Iraq',lat:33.2,lng:43.7,risk:88,shipping:7,labor:3,tariff:15,infra:3,costIndex:70,mfgCapacity:10,exportInfra:15,supplierDensity:8,leadTimeReliability:15,sourcing:{technology:2,textiles:3,generalMfg:5,consumerGoods:3,automotive:2,pharma:5}},{name:'Ukraine',lat:48.4,lng:31.2,risk:88,shipping:5,labor:3,tariff:10,infra:6,costIndex:60,mfgCapacity:35,exportInfra:40,supplierDensity:30,leadTimeReliability:25,sourcing:{technology:15,textiles:10,generalMfg:20,consumerGoods:10,automotive:15,pharma:10}},{name:'Myanmar',lat:17.1,lng:95.9,risk:85,shipping:8,labor:2,tariff:15,infra:3,costIndex:58,mfgCapacity:18,exportInfra:15,supplierDensity:12,leadTimeReliability:20,sourcing:{technology:2,textiles:25,generalMfg:10,consumerGoods:8,automotive:1,pharma:2}},{name:'Lebanon',lat:33.9,lng:35.5,risk:79,shipping:6,labor:4,tariff:15,infra:4,costIndex:65,mfgCapacity:8,exportInfra:15,supplierDensity:5,leadTimeReliability:10,sourcing:{technology:5,textiles:5,generalMfg:5,consumerGoods:5,automotive:2,pharma:8}},{name:'China',lat:35.8,lng:104.2,risk:28,shipping:7,labor:3,tariff:25,infra:7,costIndex:30,mfgCapacity:98,exportInfra:95,supplierDensity:99,leadTimeReliability:80,sourcing:{technology:95,textiles:75,generalMfg:95,consumerGoods:92,automotive:70,pharma:65}},{name:'Pakistan',lat:30.4,lng:69.3,risk:76,shipping:8,labor:2,tariff:17,infra:4,costIndex:55,mfgCapacity:40,exportInfra:35,supplierDensity:35,leadTimeReliability:45,sourcing:{technology:10,textiles:60,generalMfg:30,consumerGoods:25,automotive:8,pharma:15}},{name:'Nigeria',lat:9.1,lng:8.7,risk:72,shipping:7,labor:2,tariff:20,infra:4,costIndex:58,mfgCapacity:15,exportInfra:20,supplierDensity:12,leadTimeReliability:30,sourcing:{technology:3,textiles:10,generalMfg:10,consumerGoods:8,automotive:3,pharma:5}},{name:'India',lat:20.6,lng:79,risk:35,shipping:7,labor:2,tariff:10,infra:6,costIndex:25,mfgCapacity:80,exportInfra:68,supplierDensity:75,leadTimeReliability:60,sourcing:{technology:45,textiles:70,generalMfg:72,consumerGoods:65,automotive:50,pharma:92}},{name:'Turkey',lat:38.9,lng:35.2,risk:42,shipping:5,labor:4,tariff:5,infra:7,costIndex:32,mfgCapacity:60,exportInfra:65,supplierDensity:55,leadTimeReliability:65,sourcing:{technology:20,textiles:70,generalMfg:55,consumerGoods:40,automotive:55,pharma:20}},{name:'Bangladesh',lat:23.7,lng:90.4,risk:62,shipping:8,labor:1,tariff:12,infra:5,costIndex:42,mfgCapacity:60,exportInfra:50,supplierDensity:55,leadTimeReliability:55,sourcing:{technology:5,textiles:88,generalMfg:30,consumerGoods:35,automotive:3,pharma:5}},{name:'Vietnam',lat:14.1,lng:108.3,risk:32,shipping:7,labor:2,tariff:6,infra:6,costIndex:22,mfgCapacity:72,exportInfra:70,supplierDensity:65,leadTimeReliability:65,sourcing:{technology:55,textiles:85,generalMfg:65,consumerGoods:62,automotive:20,pharma:10}},{name:'Thailand',lat:15.9,lng:100.9,risk:30,shipping:7,labor:3,tariff:5,infra:7,costIndex:24,mfgCapacity:65,exportInfra:70,supplierDensity:58,leadTimeReliability:70,sourcing:{technology:40,textiles:30,generalMfg:55,consumerGoods:55,automotive:60,pharma:15}},{name:'Indonesia',lat:-0.8,lng:113.9,risk:38,shipping:7,labor:2,tariff:10,infra:5,costIndex:28,mfgCapacity:55,exportInfra:50,supplierDensity:45,leadTimeReliability:55,sourcing:{technology:15,textiles:40,generalMfg:40,consumerGoods:45,automotive:25,pharma:10}},{name:'Cambodia',lat:12.6,lng:104.9,risk:48,shipping:8,labor:2,tariff:12,infra:4,costIndex:38,mfgCapacity:30,exportInfra:30,supplierDensity:25,leadTimeReliability:50,sourcing:{technology:5,textiles:65,generalMfg:22,consumerGoods:18,automotive:2,pharma:3}},{name:'Brazil',lat:-14.2,lng:-51.9,risk:50,shipping:6,labor:4,tariff:18,infra:6,costIndex:42,mfgCapacity:60,exportInfra:60,supplierDensity:55,leadTimeReliability:55,sourcing:{technology:20,textiles:25,generalMfg:50,consumerGoods:35,automotive:45,pharma:30}},{name:'Mexico',lat:23.6,lng:-102.6,risk:42,shipping:4,labor:3,tariff:2,infra:7,costIndex:25,mfgCapacity:78,exportInfra:80,supplierDensity:72,leadTimeReliability:70,sourcing:{technology:35,textiles:30,generalMfg:78,consumerGoods:45,automotive:88,pharma:15}},{name:'Romania',lat:45.9,lng:24.9,risk:22,shipping:5,labor:4,tariff:3,infra:7,costIndex:26,mfgCapacity:40,exportInfra:50,supplierDensity:35,leadTimeReliability:65,sourcing:{technology:20,textiles:30,generalMfg:35,consumerGoods:25,automotive:50,pharma:20}},{name:'UAE',lat:23.4,lng:53.8,risk:30,shipping:6,labor:5,tariff:5,infra:9,costIndex:32,mfgCapacity:25,exportInfra:75,supplierDensity:20,leadTimeReliability:75,sourcing:{technology:10,textiles:5,generalMfg:18,consumerGoods:15,automotive:5,pharma:12}},{name:'South Korea',lat:35.9,lng:127.8,risk:28,shipping:7,labor:6,tariff:3,infra:9,costIndex:35,mfgCapacity:85,exportInfra:90,supplierDensity:82,leadTimeReliability:88,sourcing:{technology:88,textiles:10,generalMfg:70,consumerGoods:55,automotive:80,pharma:30}},{name:'Taiwan',lat:23.7,lng:120.9,risk:45,shipping:7,labor:6,tariff:5,infra:9,costIndex:30,mfgCapacity:82,exportInfra:88,supplierDensity:80,leadTimeReliability:85,sourcing:{technology:95,textiles:10,generalMfg:55,consumerGoods:40,automotive:25,pharma:20}},{name:'Czech Republic',lat:49.8,lng:15.5,risk:16,shipping:5,labor:5,tariff:3,infra:8,costIndex:26,mfgCapacity:55,exportInfra:65,supplierDensity:48,leadTimeReliability:75,sourcing:{technology:28,textiles:12,generalMfg:50,consumerGoods:30,automotive:72,pharma:30}},{name:'United States',lat:37.1,lng:-95.7,risk:18,shipping:4,labor:9,tariff:0,infra:9,costIndex:45,mfgCapacity:80,exportInfra:88,supplierDensity:75,leadTimeReliability:90,sourcing:{technology:70,textiles:8,generalMfg:65,consumerGoods:55,automotive:60,pharma:70}},{name:'Germany',lat:51.2,lng:10.4,risk:14,shipping:5,labor:8,tariff:3,infra:9,costIndex:48,mfgCapacity:90,exportInfra:92,supplierDensity:88,leadTimeReliability:92,sourcing:{technology:72,textiles:10,generalMfg:78,consumerGoods:55,automotive:95,pharma:65}},{name:'Japan',lat:36.2,lng:138.3,risk:18,shipping:7,labor:8,tariff:3,infra:9,costIndex:50,mfgCapacity:88,exportInfra:90,supplierDensity:85,leadTimeReliability:85,sourcing:{technology:88,textiles:10,generalMfg:75,consumerGoods:60,automotive:92,pharma:35}},{name:'Singapore',lat:1.4,lng:103.8,risk:10,shipping:6,labor:9,tariff:0,infra:10,costIndex:55,mfgCapacity:35,exportInfra:95,supplierDensity:30,leadTimeReliability:95,sourcing:{technology:50,textiles:2,generalMfg:25,consumerGoods:15,automotive:5,pharma:40}},{name:'Malaysia',lat:4.2,lng:101.9,risk:28,shipping:7,labor:3,tariff:5,infra:7,costIndex:24,mfgCapacity:60,exportInfra:68,supplierDensity:55,leadTimeReliability:72,sourcing:{technology:60,textiles:15,generalMfg:50,consumerGoods:40,automotive:25,pharma:15}},{name:'Philippines',lat:12.9,lng:121.8,risk:40,shipping:7,labor:2,tariff:10,infra:5,costIndex:28,mfgCapacity:40,exportInfra:45,supplierDensity:35,leadTimeReliability:55,sourcing:{technology:35,textiles:15,generalMfg:30,consumerGoods:25,automotive:10,pharma:8}},{name:'France',lat:46.2,lng:2.2,risk:16,shipping:5,labor:8,tariff:3,infra:9,costIndex:45,mfgCapacity:65,exportInfra:78,supplierDensity:60,leadTimeReliability:82,sourcing:{technology:38,textiles:15,generalMfg:48,consumerGoods:42,automotive:55,pharma:50}},{name:'Italy',lat:41.9,lng:12.6,risk:18,shipping:5,labor:7,tariff:3,infra:8,costIndex:40,mfgCapacity:65,exportInfra:72,supplierDensity:62,leadTimeReliability:78,sourcing:{technology:25,textiles:55,generalMfg:55,consumerGoods:50,automotive:50,pharma:40}},{name:'Netherlands',lat:52.1,lng:5.3,risk:12,shipping:5,labor:8,tariff:3,infra:10,costIndex:45,mfgCapacity:40,exportInfra:90,supplierDensity:35,leadTimeReliability:90,sourcing:{technology:30,textiles:5,generalMfg:30,consumerGoods:25,automotive:15,pharma:35}},{name:'Poland',lat:51.9,lng:19.1,risk:18,shipping:5,labor:5,tariff:3,infra:8,costIndex:25,mfgCapacity:55,exportInfra:62,supplierDensity:48,leadTimeReliability:72,sourcing:{technology:22,textiles:18,generalMfg:45,consumerGoods:30,automotive:55,pharma:20}},{name:'Morocco',lat:31.8,lng:-7.1,risk:38,shipping:5,labor:2,tariff:8,infra:6,costIndex:22,mfgCapacity:35,exportInfra:45,supplierDensity:28,leadTimeReliability:55,sourcing:{technology:10,textiles:40,generalMfg:30,consumerGoods:20,automotive:35,pharma:8}},{name:'South Africa',lat:-30.6,lng:22.9,risk:45,shipping:7,labor:3,tariff:10,infra:6,costIndex:30,mfgCapacity:40,exportInfra:50,supplierDensity:32,leadTimeReliability:55,sourcing:{technology:10,textiles:12,generalMfg:25,consumerGoods:18,automotive:30,pharma:15}},{name:'Saudi Arabia',lat:23.9,lng:45.1,risk:32,shipping:6,labor:4,tariff:5,infra:8,costIndex:35,mfgCapacity:20,exportInfra:65,supplierDensity:12,leadTimeReliability:70,sourcing:{technology:8,textiles:3,generalMfg:15,consumerGoods:10,automotive:5,pharma:10}},{name:'Egypt',lat:26.8,lng:30.8,risk:52,shipping:5,labor:2,tariff:15,infra:5,costIndex:38,mfgCapacity:30,exportInfra:38,supplierDensity:22,leadTimeReliability:45,sourcing:{technology:5,textiles:30,generalMfg:20,consumerGoods:15,automotive:10,pharma:8}},{name:'Australia',lat:-25.3,lng:133.8,risk:16,shipping:8,labor:8,tariff:5,infra:9,costIndex:48,mfgCapacity:30,exportInfra:65,supplierDensity:25,leadTimeReliability:78,sourcing:{technology:15,textiles:5,generalMfg:20,consumerGoods:15,automotive:5,pharma:15}},{name:'Canada',lat:56.1,lng:-106.3,risk:14,shipping:5,labor:8,tariff:1,infra:9,costIndex:40,mfgCapacity:50,exportInfra:70,supplierDensity:45,leadTimeReliability:80,sourcing:{technology:30,textiles:5,generalMfg:40,consumerGoods:30,automotive:45,pharma:40}},{name:'United Kingdom',lat:55.4,lng:-3.4,risk:14,shipping:5,labor:8,tariff:5,infra:9,costIndex:42,mfgCapacity:55,exportInfra:72,supplierDensity:55,leadTimeReliability:82,sourcing:{technology:40,textiles:8,generalMfg:45,consumerGoods:40,automotive:45,pharma:60}},{name:'Hungary',lat:47.2,lng:19.5,risk:20,shipping:5,labor:5,tariff:3,infra:7,costIndex:26,mfgCapacity:45,exportInfra:55,supplierDensity:40,leadTimeReliability:70,sourcing:{technology:20,textiles:15,generalMfg:38,consumerGoods:25,automotive:65,pharma:30}},{name:'Switzerland',lat:46.8,lng:8.2,risk:10,shipping:5,labor:9,tariff:3,infra:10,costIndex:58,mfgCapacity:45,exportInfra:80,supplierDensity:35,leadTimeReliability:92,sourcing:{technology:30,textiles:8,generalMfg:35,consumerGoods:30,automotive:20,pharma:85}},{name:'Ireland',lat:53.1,lng:-7.7,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:48,mfgCapacity:30,exportInfra:68,supplierDensity:25,leadTimeReliability:85,sourcing:{technology:35,textiles:3,generalMfg:20,consumerGoods:15,automotive:8,pharma:88}},{name:'Belgium',lat:50.5,lng:4.5,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:42,mfgCapacity:40,exportInfra:72,supplierDensity:38,leadTimeReliability:80,sourcing:{technology:18,textiles:8,generalMfg:35,consumerGoods:28,automotive:35,pharma:55}},{name:'Portugal',lat:39.4,lng:-8.2,risk:15,shipping:5,labor:6,tariff:3,infra:8,costIndex:30,mfgCapacity:35,exportInfra:60,supplierDensity:28,leadTimeReliability:72,sourcing:{technology:12,textiles:25,generalMfg:28,consumerGoods:20,automotive:22,pharma:18}},{name:'Slovakia',lat:48.7,lng:19.7,risk:18,shipping:5,labor:5,tariff:3,infra:7,costIndex:24,mfgCapacity:40,exportInfra:55,supplierDensity:35,leadTimeReliability:70,sourcing:{technology:15,textiles:10,generalMfg:32,consumerGoods:20,automotive:68,pharma:15}},{name:'Austria',lat:47.5,lng:14.6,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:42,mfgCapacity:48,exportInfra:70,supplierDensity:42,leadTimeReliability:82,sourcing:{technology:25,textiles:8,generalMfg:40,consumerGoods:30,automotive:45,pharma:35}},{name:'Bulgaria',lat:42.7,lng:25.5,risk:22,shipping:5,labor:4,tariff:3,infra:6,costIndex:22,mfgCapacity:30,exportInfra:42,supplierDensity:25,leadTimeReliability:60,sourcing:{technology:12,textiles:22,generalMfg:28,consumerGoods:18,automotive:30,pharma:12}},{name:'Sri Lanka',lat:7.9,lng:80.8,risk:52,shipping:7,labor:2,tariff:10,infra:5,costIndex:35,mfgCapacity:25,exportInfra:30,supplierDensity:20,leadTimeReliability:45,sourcing:{technology:5,textiles:40,generalMfg:15,consumerGoods:12,automotive:3,pharma:5}},{name:'Ethiopia',lat:9.1,lng:40.5,risk:55,shipping:8,labor:1,tariff:15,infra:3,costIndex:42,mfgCapacity:15,exportInfra:12,supplierDensity:10,leadTimeReliability:30,sourcing:{technology:2,textiles:25,generalMfg:8,consumerGoods:5,automotive:1,pharma:2}},{name:'Honduras',lat:14.1,lng:-86.2,risk:62,shipping:5,labor:2,tariff:8,infra:5,costIndex:35,mfgCapacity:25,exportInfra:25,supplierDensity:20,leadTimeReliability:45,sourcing:{technology:5,textiles:35,generalMfg:20,consumerGoods:15,automotive:5,pharma:3}},{name:'Colombia',lat:4.6,lng:-74.1,risk:50,shipping:5,labor:3,tariff:15,infra:6,costIndex:40,mfgCapacity:30,exportInfra:40,supplierDensity:25,leadTimeReliability:50,sourcing:{technology:10,textiles:20,generalMfg:22,consumerGoods:18,automotive:8,pharma:12}},{name:'Peru',lat:-9.2,lng:-75,risk:46,shipping:6,labor:3,tariff:10,infra:6,costIndex:38,mfgCapacity:25,exportInfra:35,supplierDensity:18,leadTimeReliability:50,sourcing:{technology:5,textiles:25,generalMfg:18,consumerGoods:12,automotive:5,pharma:5}},{name:'Argentina',lat:-38.4,lng:-63.6,risk:55,shipping:6,labor:4,tariff:20,infra:6,costIndex:45,mfgCapacity:35,exportInfra:40,supplierDensity:28,leadTimeReliability:45,sourcing:{technology:10,textiles:12,generalMfg:25,consumerGoods:18,automotive:25,pharma:18}},{name:'Chile',lat:-35.7,lng:-71.5,risk:25,shipping:6,labor:5,tariff:5,infra:7,costIndex:32,mfgCapacity:25,exportInfra:55,supplierDensity:18,leadTimeReliability:65,sourcing:{technology:8,textiles:5,generalMfg:15,consumerGoods:10,automotive:5,pharma:10}}];
@@ -712,7 +809,7 @@ function buildCountryPopupHTML(c){var rc=getRiskColor(c.risk),rl=getRiskLabel(c.
 
 function initMap(){map=L.map('map',{center:[20,15],zoom:3,zoomControl:false,attributionControl:true,minZoom:3,maxZoom:8,scrollWheelZoom:true,worldCopyJump:true});L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OSM &copy; CARTO',subdomains:'abcd',maxZoom:19}).addTo(map);L.control.zoom({position:'bottomright'}).addTo(map);renderMarkers();buildLegend(currentLayer);setTimeout(function(){map.invalidateSize();},100);setTimeout(function(){map.invalidateSize();},200);setTimeout(function(){map.invalidateSize();},500);setTimeout(function(){map.invalidateSize();},1500);window.addEventListener('resize',function(){map.invalidateSize();});setTimeout(function(){var s=document.getElementById('mapSkeleton');if(s){s.style.transition='opacity 0.6s';s.style.opacity='0';setTimeout(function(){s.style.display='none';},600);}},1200);}
 
-function renderMarkers(){for(var k in countryMarkers)countryMarkers[k].remove();countryMarkers={};for(var i=0;i<COUNTRY_DATA.length;i++){(function(c){var score=getScoreForLayer(c,currentLayer),color=getColorForLayer(score,currentLayer),size=getCountryDotSize(c.name);var icon=L.divIcon({className:'',html:'<div class="map-marker" style="width:'+(size*2)+'px;height:'+(size*2)+'px;"><div class="marker-dot" style="width:'+(size*2)+'px;height:'+(size*2)+'px;background:'+color+';color:'+color+';"></div><div class="marker-pulse" style="width:'+(size*2)+'px;height:'+(size*2)+'px;border:2px solid '+color+';animation-duration:'+(1.8+(c.name.length%5)*0.2)+'s;"></div></div>',iconSize:[size*2,size*2],iconAnchor:[size,size]});var marker=L.marker([c.lat,c.lng],{icon:icon});marker.bindPopup(buildCountryPopupHTML(c),{maxWidth:300,minWidth:260});marker.addTo(map);countryMarkers[c.name]=marker;})(COUNTRY_DATA[i]);}}
+function renderMarkers(){for(var k in countryMarkers)countryMarkers[k].remove();countryMarkers={};for(var i=0;i<COUNTRY_DATA.length;i++){(function(c){var score=getScoreForLayer(c,currentLayer),color=getColorForLayer(score,currentLayer),size=getCountryDotSize(c.name);var isSourcing=selectedSourcingCountries.length&&selectedSourcingCountries.indexOf(c.name)!==-1;if(isSourcing)size=Math.max(size+3,10);var ringHtml=isSourcing?'<div style="position:absolute;top:-3px;left:-3px;width:'+(size*2+6)+'px;height:'+(size*2+6)+'px;border-radius:50%;border:2px solid rgba(125,249,194,0.7);box-shadow:0 0 10px rgba(125,249,194,0.4);pointer-events:none;animation:marker-pulse 2.2s ease-out infinite;"></div>':'';var icon=L.divIcon({className:'',html:'<div class="map-marker" style="width:'+(size*2)+'px;height:'+(size*2)+'px;">'+ringHtml+'<div class="marker-dot'+(isSourcing?' sourcing-region-dot':'')+'" style="width:'+(size*2)+'px;height:'+(size*2)+'px;background:'+color+';color:'+color+';'+(isSourcing?'box-shadow:0 0 12px '+color+',0 0 6px rgba(125,249,194,0.5);':'')+'"></div><div class="marker-pulse" style="width:'+(size*2)+'px;height:'+(size*2)+'px;border:2px solid '+color+';animation-duration:'+(1.8+(c.name.length%5)*0.2)+'s;"></div></div>',iconSize:[size*2,size*2],iconAnchor:[size,size]});var marker=L.marker([c.lat,c.lng],{icon:icon});marker.bindPopup(buildCountryPopupHTML(c),{maxWidth:300,minWidth:260});marker.addTo(map);countryMarkers[c.name]=marker;})(COUNTRY_DATA[i]);}}
 
 function buildLegend(layer){var cfg=LAYER_CONFIG[layer];if(!cfg)return;var t=document.getElementById('legendTitle'),items=document.getElementById('legendItems');if(!t||!items)return;t.textContent=cfg.legendTitle;items.innerHTML='';for(var i=0;i<cfg.items.length;i++){(function(item,idx){var d=document.createElement('div');d.className='legend-item';d.style.animationDelay=(idx*0.06)+'s';d.innerHTML='<div class="legend-swatch" style="background:'+item.color+';box-shadow:0 0 6px '+item.color+'88;"></div><span>'+item.label+'</span>';items.appendChild(d);})(cfg.items[i],i);}}
 
@@ -726,9 +823,10 @@ function handleOnboardSubmit(){
   var type=document.getElementById('companyType').value,country=document.getElementById('homeCountry').value,industry=document.getElementById('industry').value,revenue=document.getElementById('annualRevenue').value;
   if(industry)currentCategory=industry;
   userProfile={type:type,country:country,regions:selectedSourcingCountries.join(', '),industry:industry,revenue:revenue};
+  saveProfileToStorage();
   document.getElementById('onboardingPanel').style.display='none';
   renderMarkers();
-  // Refresh profile section if it's open
+  updateHeroStats();
   renderProfileContent();
   var g='Welcome! Profile set';if(type)g+=' as '+type;if(selectedSourcingCountries.length)g+=' sourcing from '+selectedSourcingCountries.join(', ');g+='. How can I help?';addAIMessage(g);
 }
@@ -758,6 +856,10 @@ function closeProfileSection() {
     if(card){ card.removeEventListener('mousemove',psTilt); card.removeEventListener('mouseleave',psUntilt); }
     var btn=document.getElementById('psReopenBtn');
     if(btn) btn.style.display='flex';
+    initAlertBanner();
+    updateHeroStats();
+    // Start hero float after profile closes
+    setTimeout(function(){ var h=document.getElementById('heroPanel'); if(h) h.style.animation='heroFloat 5s ease-in-out infinite'; }, 800);
   }, 560);
 }
 
@@ -868,12 +970,13 @@ function handlePSSubmit() {
   var revenue=(document.getElementById('ps-revenue')||{}).value||'';
   if(industry) currentCategory=industry;
   userProfile={type:type,country:'',regions:selectedSourcingCountries.join(', '),industry:industry,revenue:revenue};
-  // Sync main onboarding form values so they match
+  saveProfileToStorage();
   var mtype=document.getElementById('companyType'); if(mtype&&type) mtype.value=type;
   var mind=document.getElementById('industry'); if(mind&&industry) mind.value=industry;
   var mrev=document.getElementById('annualRevenue'); if(mrev&&revenue) mrev.value=revenue;
   renderMarkers();
-  renderProfileContent(); // Re-render as summary
+  updateHeroStats();
+  renderProfileContent();
 }
 
 function editPSProfile() {
@@ -891,9 +994,7 @@ function closeCompTool() {
 }
 
 function populateCompDropdowns() {
-  var countries=selectedSourcingCountries.length
-    ? selectedSourcingCountries.filter(function(n){return !!COUNTRY_MAP[n];})
-    : COUNTRY_DATA.map(function(c){return c.name;});
+  var countries=COUNTRY_DATA.map(function(c){return c.name;});
   ['ctCountryA','ctCountryB'].forEach(function(id){
     var sel=document.getElementById(id);
     if(!sel) return;
@@ -956,6 +1057,97 @@ function getNewsPlaceholder(c) {
   return items;
 }
 
+// ===== LOCALSTORAGE =====
+function saveProfileToStorage(){
+  try{ localStorage.setItem('risksim_profile',JSON.stringify({userProfile:userProfile,selectedSourcingCountries:selectedSourcingCountries,currentCategory:currentCategory})); }catch(e){}
+}
+
+// ===== HERO STATS (profile-driven) =====
+function updateHeroStats(){
+  var industryLabel=PS_IND_LABELS[userProfile.industry]||'Supply Chain';
+  var regCount=selectedSourcingCountries.length||73;
+  var statNums=document.querySelectorAll('.hero-stat-num');
+  var statLbls=document.querySelectorAll('.hero-stat-lbl');
+  if(statNums[0]&&statLbls[0]){
+    statNums[0].textContent=selectedSourcingCountries.length?selectedSourcingCountries.length:'73';
+    statLbls[0].textContent=selectedSourcingCountries.length?'Your Regions':'Countries';
+  }
+  if(statNums[2]&&statLbls[2]){
+    if(userProfile.industry){statNums[2].textContent='AI';statLbls[2].textContent=industryLabel;}
+  }
+  var desc=document.querySelector('.hero-desc');
+  if(desc&&userProfile.industry){
+    desc.textContent='RiskSim AI monitors global supply chains for '+industryLabel+' businesses, analyzing geopolitical, economic, and operational data to predict disruptions before they impact your operations.';
+  }
+}
+
+// ===== ALERT BANNER =====
+var _alertBannerInited=false;
+function initAlertBanner(){
+  if(_alertBannerInited)return;
+  _alertBannerInited=true;
+  var dismissed=[];
+  try{ dismissed=JSON.parse(localStorage.getItem('risksim_dismissed_alerts')||'[]'); }catch(e){}
+  var active=LIVE_ALERTS.filter(function(a){return dismissed.indexOf(a.id)===-1;});
+  if(!active.length)return;
+  var banner=document.getElementById('alertBanner');
+  if(!banner)return;
+  var html='<div class="alert-banner-header"><span class="alert-banner-title"><span class="alert-live-dot"></span>Live Alerts &mdash; '+active.length+' active</span><button class="alert-banner-close-all" onclick="dismissAllAlerts()">Dismiss All</button></div>';
+  active.forEach(function(a){
+    html+='<div class="alert-item severity-'+a.severity+'" id="ai-'+a.id+'"><div class="alert-dot"></div><span class="alert-text">'+a.text+'</span><button class="alert-dismiss" onclick="dismissAlert(\''+a.id+'\')" title="Dismiss">&#x2715;</button></div>';
+  });
+  banner.innerHTML=html;
+  banner.style.display='flex';
+  requestAnimationFrame(function(){requestAnimationFrame(function(){banner.classList.add('ab-visible');});});
+}
+function dismissAlert(id){
+  var el=document.getElementById('ai-'+id);
+  if(el){el.style.opacity='0';setTimeout(function(){el.remove();checkBannerEmpty();},300);}
+  var dismissed=[];try{dismissed=JSON.parse(localStorage.getItem('risksim_dismissed_alerts')||'[]');}catch(e){}
+  if(dismissed.indexOf(id)===-1)dismissed.push(id);
+  try{localStorage.setItem('risksim_dismissed_alerts',JSON.stringify(dismissed));}catch(e){}
+}
+function checkBannerEmpty(){
+  var banner=document.getElementById('alertBanner');
+  if(banner&&banner.querySelectorAll('.alert-item').length===0){banner.classList.remove('ab-visible');setTimeout(function(){banner.style.display='none';},500);}
+  else if(banner){var hdr=banner.querySelector('.alert-banner-title');if(hdr){var cnt=banner.querySelectorAll('.alert-item').length;hdr.innerHTML='<span class="alert-live-dot"></span>Live Alerts &mdash; '+cnt+' active';}}
+}
+function dismissAllAlerts(){
+  var ids=LIVE_ALERTS.map(function(a){return a.id;});
+  try{localStorage.setItem('risksim_dismissed_alerts',JSON.stringify(ids));}catch(e){}
+  var banner=document.getElementById('alertBanner');
+  if(banner){banner.classList.remove('ab-visible');setTimeout(function(){banner.style.display='none';},500);}
+}
+
+// ===== GLASS 3D TILT =====
+function initGlassTilt(){
+  var panels=document.querySelectorAll('.glass');
+  for(var i=0;i<panels.length;i++){
+    (function(p){
+      // Skip layer controls (small tab bar)
+      if(p.classList.contains('layer-controls'))return;
+      p.addEventListener('mousemove',function(e){
+        var r=this.getBoundingClientRect();
+        var x=(e.clientX-r.left-r.width/2)/r.width;
+        var y=(e.clientY-r.top-r.height/2)/r.height;
+        this.style.transform='perspective(1000px) rotateX('+(-y*3.5)+'deg) rotateY('+(x*3.5)+'deg) translateZ(4px)';
+      });
+      p.addEventListener('mouseleave',function(){this.style.transform='';});
+    })(panels[i]);
+  }
+}
+
+// ===== ONBOARDING SCROLL INDICATOR =====
+function initOnboardScrollIndicator(){
+  var panel=document.getElementById('onboardingPanel');
+  var indicator=document.getElementById('onboardScrollIndicator');
+  if(!panel||!indicator)return;
+  panel.addEventListener('scroll',function(){
+    var atBottom=panel.scrollHeight-panel.scrollTop<=panel.clientHeight+40;
+    indicator.classList.toggle('si-hidden',atBottom);
+  });
+}
+
 function sendQuickMsg(t){sendMessage(t);}
 function handleChatSend(){var input=document.getElementById('chatInput'),msg=input.value.trim();if(!msg)return;input.value='';sendMessage(msg);}
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('chatInput').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleChatSend();}});});
@@ -963,9 +1155,19 @@ function addUserMessage(t){var m=document.getElementById('chatMessages'),d=docum
 function addAIMessage(t){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.innerHTML='<span class="msg-label">RiskSim AI</span>'+t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function addTypingIndicator(){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.id='typing';d.innerHTML='<span class="msg-label">RiskSim AI</span><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function removeTypingIndicator(){var t=document.getElementById('typing');if(t)t.remove();}
-async function sendMessage(userText){addUserMessage(userText);addTypingIndicator();try{var cd=COUNTRY_DATA.slice(0,10).map(function(c){return c.name+':risk='+c.risk;}).join(';');var pc=userProfile.regions?'Sources:'+userProfile.regions+'. ':'';var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,context:pc+cd})});var d=await r.json();removeTypingIndicator();addAIMessage(d.response||'Unable to process.');}catch(e){removeTypingIndicator();addAIMessage('Connection error.');}}
+async function sendMessage(userText){addUserMessage(userText);addTypingIndicator();try{var cd=COUNTRY_DATA.slice(0,10).map(function(c){return c.name+':risk='+c.risk;}).join(';');var pc='';if(userProfile.industry)pc+='Industry:'+(PS_IND_LABELS[userProfile.industry]||userProfile.industry)+'. ';if(userProfile.type)pc+='CompanyType:'+(PS_TYPE_LABELS[userProfile.type]||userProfile.type)+'. ';if(userProfile.regions)pc+='SourcingRegions:'+userProfile.regions+'. ';if(userProfile.country)pc+='HomeCountry:'+userProfile.country+'. ';var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,context:pc+cd})});var d=await r.json();removeTypingIndicator();addAIMessage(d.response||'Unable to process.');}catch(e){removeTypingIndicator();addAIMessage('Connection error.');}}
 
-document.addEventListener('DOMContentLoaded',function(){initMap();});
+document.addEventListener('DOMContentLoaded',function(){
+  initMap();
+  initGlassTilt();
+  initOnboardScrollIndicator();
+  // Sync onboarding chips if profile was loaded from localStorage
+  if(selectedSourcingCountries.length){
+    var cg=document.getElementById('sourcingChips');
+    if(cg){var chips=cg.querySelectorAll('.chip-option');for(var i=0;i<chips.length;i++){if(selectedSourcingCountries.indexOf(chips[i].getAttribute('data-country'))!==-1)chips[i].classList.add('selected');}}
+  }
+  updateHeroStats();
+});
 </script>
 
 <!-- ===== D3 INTRO GLOBE ===== -->
