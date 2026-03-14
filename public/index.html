@@ -37,7 +37,8 @@
     }
 
     html, body {
-      height: 100%; width: 100%;
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
       min-height: 100vh;
       min-height: 100dvh;
       font-family: var(--font);
@@ -138,7 +139,7 @@
     @keyframes spin { to { transform:rotate(360deg); } }
 
     /* ===== FULLSCREEN MAP ===== */
-    #mapContainer { position: fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; height:100dvh; z-index:0; background:var(--bg); }
+    #mapContainer { position: absolute; top:0; left:0; width:100%; height:100%; z-index:0; background:var(--bg); }
     #map { width:100%!important; height:100%!important; background:var(--bg)!important; }
 
     /* ===== LEAFLET ===== */
@@ -514,7 +515,7 @@ function getCountryDotSize(n){if(['China','United States','Germany','Japan','Sou
 
 function buildCountryPopupHTML(c){var rc=getRiskColor(c.risk),rl=getRiskLabel(c.risk),ss=(c.sourcing&&c.sourcing[currentCategory])||0,sc=getSourcingColor(ss);return'<div class="popup-inner"><div class="popup-header"><span class="popup-country">'+c.name+'</span><span class="popup-risk-badge" style="background:'+rc+'22;color:'+rc+';border:1px solid '+rc+'44;">'+rl+'</span></div><div class="popup-divider"></div><div class="popup-row"><span class="popup-label">Risk Score</span><span class="popup-value" style="color:'+rc+'">'+c.risk+'/100</span></div><div class="popup-row"><span class="popup-label">Shipping</span><span class="popup-value">'+c.shipping+'/10</span></div><div class="popup-row"><span class="popup-label">Labor</span><span class="popup-value">'+c.labor+'/10</span></div><div class="popup-row"><span class="popup-label">Tariff</span><span class="popup-value">'+c.tariff+'%</span></div><div class="popup-row"><span class="popup-label">Infra</span><span class="popup-value">'+c.infra+'/10</span></div><div class="popup-row"><span class="popup-label">Sourcing</span><span class="popup-value" style="color:'+sc+'">'+ss+'/100</span></div><div class="popup-score-bar"><span class="popup-bar-label" style="color:'+rc+'">Risk</span><div class="popup-bar-track"><div class="popup-bar-fill" style="width:'+c.risk+'%;background:'+rc+'"></div></div></div><div class="popup-score-bar"><span class="popup-bar-label" style="color:'+sc+'">Src</span><div class="popup-bar-track"><div class="popup-bar-fill" style="width:'+ss+'%;background:'+sc+'"></div></div></div><p class="popup-insight">Mfg:'+c.mfgCapacity+' · Export:'+c.exportInfra+' · Lead:'+c.leadTimeReliability+'</p><button class="popup-deepdive-btn" onclick="deepDive(\''+c.name+'\')">Deep Dive →</button></div>';}
 
-function initMap(){map=L.map('map',{center:[20,15],zoom:2,zoomControl:false,attributionControl:true,minZoom:2,maxZoom:8,scrollWheelZoom:true,maxBounds:[[-90,-180],[90,180]],maxBoundsViscosity:1});L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OSM &copy; CARTO',subdomains:'abcd',maxZoom:19,noWrap:true}).addTo(map);L.control.zoom({position:'bottomright'}).addTo(map);renderMarkers();buildLegend(currentLayer);setTimeout(function(){map.invalidateSize();},100);setTimeout(function(){map.invalidateSize();},500);setTimeout(function(){map.invalidateSize();},1500);setTimeout(function(){var s=document.getElementById('mapSkeleton');if(s){s.style.transition='opacity 0.6s';s.style.opacity='0';setTimeout(function(){s.style.display='none';},600);}},1200);}
+function initMap(){map=L.map('map',{center:[20,15],zoom:2,zoomControl:false,attributionControl:true,minZoom:2,maxZoom:8,scrollWheelZoom:true,maxBounds:[[-90,-180],[90,180]],maxBoundsViscosity:1});L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OSM &copy; CARTO',subdomains:'abcd',maxZoom:19,noWrap:true}).addTo(map);L.control.zoom({position:'bottomright'}).addTo(map);renderMarkers();buildLegend(currentLayer);setTimeout(function(){map.invalidateSize();},100);setTimeout(function(){map.invalidateSize();},200);setTimeout(function(){map.invalidateSize();},500);setTimeout(function(){map.invalidateSize();},1500);window.addEventListener('resize',function(){map.invalidateSize();});setTimeout(function(){var s=document.getElementById('mapSkeleton');if(s){s.style.transition='opacity 0.6s';s.style.opacity='0';setTimeout(function(){s.style.display='none';},600);}},1200);}
 
 function renderMarkers(){for(var k in countryMarkers)countryMarkers[k].remove();countryMarkers={};for(var i=0;i<COUNTRY_DATA.length;i++){(function(c){var score=getScoreForLayer(c,currentLayer),color=getColorForLayer(score,currentLayer),size=getCountryDotSize(c.name);var icon=L.divIcon({className:'',html:'<div class="map-marker" style="width:'+(size*2)+'px;height:'+(size*2)+'px;"><div class="marker-dot" style="width:'+(size*2)+'px;height:'+(size*2)+'px;background:'+color+';color:'+color+';"></div><div class="marker-pulse" style="width:'+(size*2)+'px;height:'+(size*2)+'px;border:2px solid '+color+';animation-duration:'+(1.8+(c.name.length%5)*0.2)+'s;"></div></div>',iconSize:[size*2,size*2],iconAnchor:[size,size]});var marker=L.marker([c.lat,c.lng],{icon:icon});marker.bindPopup(buildCountryPopupHTML(c),{maxWidth:300,minWidth:260});marker.addTo(map);countryMarkers[c.name]=marker;})(COUNTRY_DATA[i]);}}
 
