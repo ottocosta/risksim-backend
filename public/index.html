@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous" />
   <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" onerror="console.error('d3 cdnjs failed')"></script>
   <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" onerror="console.error('leaflet cdnjs failed')"></script>
-  <!-- Fallbacks if cdnjs fails -->
   <script>
     if(typeof d3==='undefined'){document.write('<scr'+'ipt src="https://unpkg.com/d3@7.9.0/dist/d3.min.js"><\/scr'+'ipt>');}
     if(typeof L==='undefined'){document.write('<scr'+'ipt src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/scr'+'ipt>');}
@@ -63,7 +62,6 @@
       pointer-events: none;
     }
 
-    /* RISKSIM wordmark — thick modern geometric */
     .intro-wordmark {
       position: relative; z-index: 10;
       font-family: 'Syne', sans-serif;
@@ -76,7 +74,6 @@
       margin-top: -12vh;
       opacity: 0;
       animation: wmIn 1.2s cubic-bezier(0.16,1,0.3,1) 0.4s forwards;
-      /* Thick stroke effect via text-shadow stacking */
       text-shadow:
         -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff,
         -3px 0 0 #fff, 3px 0 0 #fff, 0 -3px 0 #fff, 0 3px 0 #fff;
@@ -108,13 +105,11 @@
       border-radius: 4px; color: rgba(255,255,255,0.35); font-size: 0.6rem;
     }
 
-    /* Globe canvas */
     #introGlobe {
       position: absolute; inset: 0; z-index: 1;
       opacity: 0; animation: fadeIn 1.5s ease 0.2s forwards;
     }
 
-    /* Vignette */
     .intro-vignette {
       position: absolute; inset: 0; z-index: 5; pointer-events: none;
       background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.7) 70%, #000 100%);
@@ -275,7 +270,7 @@
     .popup-row:last-of-type { border-bottom:none; }
     .popup-label { color:var(--muted); }
     .popup-value { color:#fff; font-weight:600; font-family:var(--font-mono); font-size:10px; }
-    .popup-insight { margin-top:12px; font-size:10px; color:#64748b; line-height:1.6; font-style:italic; padding-top:10px; border-top:1px solid rgba(255,255,255,0.04); }
+    .popup-insight { margin-top:12px; font-size:11px; color:#cbd5e1; line-height:1.6; font-weight:500; padding-top:10px; border-top:1px solid rgba(255,255,255,0.04); }
     .popup-score-bar { display:flex; align-items:center; gap:6px; margin-top:10px; }
     .popup-bar-track { flex:1; height:3px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
     .popup-bar-fill { height:100%; border-radius:3px; transition:width 0.5s ease; }
@@ -595,7 +590,6 @@ document.addEventListener('keydown',__handleIntroKey,true);
 window.addEventListener('keydown',__handleIntroKey,true);
 </script>
 
-<!-- ===== INTRO ===== -->
 <div id="rs-intro">
   <canvas id="introGlobe"></canvas>
   <div class="intro-vignette"></div>
@@ -606,7 +600,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
   </div>
 </div>
 
-<!-- ===== SKELETON ===== -->
 <div id="mapSkeleton">
   <div class="sk-ring"></div>
   <div class="sk-text">RISKSIM</div>
@@ -614,24 +607,20 @@ window.addEventListener('keydown',__handleIntroKey,true);
   <div class="sk-bar"></div>
 </div>
 
-<!-- ===== PROFILE SECTION ===== -->
 <div id="profileSection">
   <div class="ps-card" id="psCard">
     <div class="ps-shimmer-top"></div>
-    <div class="ps-inner" id="psInner"><!-- rendered by JS --></div>
+    <div class="ps-inner" id="psInner"></div>
   </div>
 </div>
 
-<!-- ===== MAP ===== -->
 <div id="mapContainer"><div id="map"></div></div>
 
-<!-- ===== OVERLAY HEADER ===== -->
 <div class="map-overlay-header glass">
   <div class="map-layer-name"><span class="header-accent"></span><span id="overlayName">Risk Levels</span></div>
   <div class="map-layer-sub" id="overlaySub">Geopolitical &amp; operational risk by country</div>
 </div>
 
-<!-- ===== LAYER CONTROLS ===== -->
 <div class="layer-controls glass" id="layerControls">
   <button class="layer-btn active" id="btnRisk" onclick="updateMapLayer('risk')">Risk</button>
   <button class="layer-btn" id="btnShipping" onclick="updateMapLayer('shipping')">Shipping</button>
@@ -641,13 +630,11 @@ window.addEventListener('keydown',__handleIntroKey,true);
   <button class="layer-btn" onclick="openCompTool()">⊞ Compare</button>
 </div>
 
-<!-- ===== LEGEND ===== -->
 <div class="map-legend glass">
   <div class="legend-title" id="legendTitle">Risk Score</div>
   <div class="legend-items" id="legendItems"></div>
 </div>
 
-<!-- ===== HERO ===== -->
 <div id="heroPanel" class="glass">
   <div class="hero-inner">
     <div class="hero-live-badge"><div class="hero-live-dot"></div><span class="hero-live-text">Live Intelligence</span></div>
@@ -666,7 +653,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
   </div>
 </div>
 
-<!-- ===== ONBOARDING ===== -->
 <div id="onboardingPanel">
   <div class="onboard-inner">
     <button class="onboard-close" onclick="document.getElementById('onboardingPanel').style.display='none'">✕</button>
@@ -688,7 +674,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
   </div>
 </div>
 
-<!-- ===== COMPARISON TOOL ===== -->
 <div id="compTool">
   <div class="ct-wrap">
     <div class="ct-shimmer-top"></div>
@@ -715,7 +700,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
   </div>
 </div>
 
-<!-- Profile reopen button -->
 <button id="psReopenBtn" title="View Profile" onclick="showProfileSection()">⊕</button>
 
 <div id="chatMessages"></div>
@@ -749,43 +733,135 @@ var map=null,countryMarkers={},currentLayer='risk',currentCategory='technology',
   } catch(e){}
 })();
 
-// === COUNTRY DATA ===
-var COUNTRY_DATA=[{name:'North Korea',lat:40.3,lng:127.5,risk:98,shipping:9,labor:4,tariff:25,infra:3,costIndex:80,mfgCapacity:5,exportInfra:2,supplierDensity:2,leadTimeReliability:10,sourcing:{technology:2,textiles:3,generalMfg:3,consumerGoods:2,automotive:1,pharma:1}},{name:'Russia',lat:61.5,lng:90,risk:95,shipping:8,labor:5,tariff:35,infra:6,costIndex:75,mfgCapacity:55,exportInfra:50,supplierDensity:45,leadTimeReliability:40,sourcing:{technology:10,textiles:5,generalMfg:25,consumerGoods:10,automotive:15,pharma:20}},{name:'Iran',lat:32.4,lng:53.7,risk:93,shipping:7,labor:4,tariff:30,infra:5,costIndex:72,mfgCapacity:25,exportInfra:20,supplierDensity:18,leadTimeReliability:25,sourcing:{technology:5,textiles:15,generalMfg:15,consumerGoods:8,automotive:10,pharma:12}},{name:'Venezuela',lat:6.4,lng:-66.6,risk:89,shipping:6,labor:3,tariff:25,infra:3,costIndex:72,mfgCapacity:15,exportInfra:20,supplierDensity:10,leadTimeReliability:20,sourcing:{technology:3,textiles:5,generalMfg:8,consumerGoods:5,automotive:5,pharma:5}},{name:'Iraq',lat:33.2,lng:43.7,risk:88,shipping:7,labor:3,tariff:15,infra:3,costIndex:70,mfgCapacity:10,exportInfra:15,supplierDensity:8,leadTimeReliability:15,sourcing:{technology:2,textiles:3,generalMfg:5,consumerGoods:3,automotive:2,pharma:5}},{name:'Ukraine',lat:48.4,lng:31.2,risk:88,shipping:5,labor:3,tariff:10,infra:6,costIndex:60,mfgCapacity:35,exportInfra:40,supplierDensity:30,leadTimeReliability:25,sourcing:{technology:15,textiles:10,generalMfg:20,consumerGoods:10,automotive:15,pharma:10}},{name:'Myanmar',lat:17.1,lng:95.9,risk:85,shipping:8,labor:2,tariff:15,infra:3,costIndex:58,mfgCapacity:18,exportInfra:15,supplierDensity:12,leadTimeReliability:20,sourcing:{technology:2,textiles:25,generalMfg:10,consumerGoods:8,automotive:1,pharma:2}},{name:'Lebanon',lat:33.9,lng:35.5,risk:79,shipping:6,labor:4,tariff:15,infra:4,costIndex:65,mfgCapacity:8,exportInfra:15,supplierDensity:5,leadTimeReliability:10,sourcing:{technology:5,textiles:5,generalMfg:5,consumerGoods:5,automotive:2,pharma:8}},{name:'China',lat:35.8,lng:104.2,risk:28,shipping:7,labor:3,tariff:25,infra:7,costIndex:30,mfgCapacity:98,exportInfra:95,supplierDensity:99,leadTimeReliability:80,sourcing:{technology:95,textiles:75,generalMfg:95,consumerGoods:92,automotive:70,pharma:65}},{name:'Pakistan',lat:30.4,lng:69.3,risk:76,shipping:8,labor:2,tariff:17,infra:4,costIndex:55,mfgCapacity:40,exportInfra:35,supplierDensity:35,leadTimeReliability:45,sourcing:{technology:10,textiles:60,generalMfg:30,consumerGoods:25,automotive:8,pharma:15}},{name:'Nigeria',lat:9.1,lng:8.7,risk:72,shipping:7,labor:2,tariff:20,infra:4,costIndex:58,mfgCapacity:15,exportInfra:20,supplierDensity:12,leadTimeReliability:30,sourcing:{technology:3,textiles:10,generalMfg:10,consumerGoods:8,automotive:3,pharma:5}},{name:'India',lat:20.6,lng:79,risk:35,shipping:7,labor:2,tariff:10,infra:6,costIndex:25,mfgCapacity:80,exportInfra:68,supplierDensity:75,leadTimeReliability:60,sourcing:{technology:45,textiles:70,generalMfg:72,consumerGoods:65,automotive:50,pharma:92}},{name:'Turkey',lat:38.9,lng:35.2,risk:42,shipping:5,labor:4,tariff:5,infra:7,costIndex:32,mfgCapacity:60,exportInfra:65,supplierDensity:55,leadTimeReliability:65,sourcing:{technology:20,textiles:70,generalMfg:55,consumerGoods:40,automotive:55,pharma:20}},{name:'Bangladesh',lat:23.7,lng:90.4,risk:62,shipping:8,labor:1,tariff:12,infra:5,costIndex:42,mfgCapacity:60,exportInfra:50,supplierDensity:55,leadTimeReliability:55,sourcing:{technology:5,textiles:88,generalMfg:30,consumerGoods:35,automotive:3,pharma:5}},{name:'Vietnam',lat:14.1,lng:108.3,risk:32,shipping:7,labor:2,tariff:6,infra:6,costIndex:22,mfgCapacity:72,exportInfra:70,supplierDensity:65,leadTimeReliability:65,sourcing:{technology:55,textiles:85,generalMfg:65,consumerGoods:62,automotive:20,pharma:10}},{name:'Thailand',lat:15.9,lng:100.9,risk:30,shipping:7,labor:3,tariff:5,infra:7,costIndex:24,mfgCapacity:65,exportInfra:70,supplierDensity:58,leadTimeReliability:70,sourcing:{technology:40,textiles:30,generalMfg:55,consumerGoods:55,automotive:60,pharma:15}},{name:'Indonesia',lat:-0.8,lng:113.9,risk:38,shipping:7,labor:2,tariff:10,infra:5,costIndex:28,mfgCapacity:55,exportInfra:50,supplierDensity:45,leadTimeReliability:55,sourcing:{technology:15,textiles:40,generalMfg:40,consumerGoods:45,automotive:25,pharma:10}},{name:'Cambodia',lat:12.6,lng:104.9,risk:48,shipping:8,labor:2,tariff:12,infra:4,costIndex:38,mfgCapacity:30,exportInfra:30,supplierDensity:25,leadTimeReliability:50,sourcing:{technology:5,textiles:65,generalMfg:22,consumerGoods:18,automotive:2,pharma:3}},{name:'Brazil',lat:-14.2,lng:-51.9,risk:50,shipping:6,labor:4,tariff:18,infra:6,costIndex:42,mfgCapacity:60,exportInfra:60,supplierDensity:55,leadTimeReliability:55,sourcing:{technology:20,textiles:25,generalMfg:50,consumerGoods:35,automotive:45,pharma:30}},{name:'Mexico',lat:23.6,lng:-102.6,risk:42,shipping:4,labor:3,tariff:2,infra:7,costIndex:25,mfgCapacity:78,exportInfra:80,supplierDensity:72,leadTimeReliability:70,sourcing:{technology:35,textiles:30,generalMfg:78,consumerGoods:45,automotive:88,pharma:15}},{name:'Romania',lat:45.9,lng:24.9,risk:22,shipping:5,labor:4,tariff:3,infra:7,costIndex:26,mfgCapacity:40,exportInfra:50,supplierDensity:35,leadTimeReliability:65,sourcing:{technology:20,textiles:30,generalMfg:35,consumerGoods:25,automotive:50,pharma:20}},{name:'UAE',lat:23.4,lng:53.8,risk:30,shipping:6,labor:5,tariff:5,infra:9,costIndex:32,mfgCapacity:25,exportInfra:75,supplierDensity:20,leadTimeReliability:75,sourcing:{technology:10,textiles:5,generalMfg:18,consumerGoods:15,automotive:5,pharma:12}},{name:'South Korea',lat:35.9,lng:127.8,risk:28,shipping:7,labor:6,tariff:3,infra:9,costIndex:35,mfgCapacity:85,exportInfra:90,supplierDensity:82,leadTimeReliability:88,sourcing:{technology:88,textiles:10,generalMfg:70,consumerGoods:55,automotive:80,pharma:30}},{name:'Taiwan',lat:23.7,lng:120.9,risk:45,shipping:7,labor:6,tariff:5,infra:9,costIndex:30,mfgCapacity:82,exportInfra:88,supplierDensity:80,leadTimeReliability:85,sourcing:{technology:95,textiles:10,generalMfg:55,consumerGoods:40,automotive:25,pharma:20}},{name:'Czech Republic',lat:49.8,lng:15.5,risk:16,shipping:5,labor:5,tariff:3,infra:8,costIndex:26,mfgCapacity:55,exportInfra:65,supplierDensity:48,leadTimeReliability:75,sourcing:{technology:28,textiles:12,generalMfg:50,consumerGoods:30,automotive:72,pharma:30}},{name:'United States',lat:37.1,lng:-95.7,risk:18,shipping:4,labor:9,tariff:0,infra:9,costIndex:45,mfgCapacity:80,exportInfra:88,supplierDensity:75,leadTimeReliability:90,sourcing:{technology:70,textiles:8,generalMfg:65,consumerGoods:55,automotive:60,pharma:70}},{name:'Germany',lat:51.2,lng:10.4,risk:14,shipping:5,labor:8,tariff:3,infra:9,costIndex:48,mfgCapacity:90,exportInfra:92,supplierDensity:88,leadTimeReliability:92,sourcing:{technology:72,textiles:10,generalMfg:78,consumerGoods:55,automotive:95,pharma:65}},{name:'Japan',lat:36.2,lng:138.3,risk:18,shipping:7,labor:8,tariff:3,infra:9,costIndex:50,mfgCapacity:88,exportInfra:90,supplierDensity:85,leadTimeReliability:85,sourcing:{technology:88,textiles:10,generalMfg:75,consumerGoods:60,automotive:92,pharma:35}},{name:'Singapore',lat:1.4,lng:103.8,risk:10,shipping:6,labor:9,tariff:0,infra:10,costIndex:55,mfgCapacity:35,exportInfra:95,supplierDensity:30,leadTimeReliability:95,sourcing:{technology:50,textiles:2,generalMfg:25,consumerGoods:15,automotive:5,pharma:40}},{name:'Malaysia',lat:4.2,lng:101.9,risk:28,shipping:7,labor:3,tariff:5,infra:7,costIndex:24,mfgCapacity:60,exportInfra:68,supplierDensity:55,leadTimeReliability:72,sourcing:{technology:60,textiles:15,generalMfg:50,consumerGoods:40,automotive:25,pharma:15}},{name:'Philippines',lat:12.9,lng:121.8,risk:40,shipping:7,labor:2,tariff:10,infra:5,costIndex:28,mfgCapacity:40,exportInfra:45,supplierDensity:35,leadTimeReliability:55,sourcing:{technology:35,textiles:15,generalMfg:30,consumerGoods:25,automotive:10,pharma:8}},{name:'France',lat:46.2,lng:2.2,risk:16,shipping:5,labor:8,tariff:3,infra:9,costIndex:45,mfgCapacity:65,exportInfra:78,supplierDensity:60,leadTimeReliability:82,sourcing:{technology:38,textiles:15,generalMfg:48,consumerGoods:42,automotive:55,pharma:50}},{name:'Italy',lat:41.9,lng:12.6,risk:18,shipping:5,labor:7,tariff:3,infra:8,costIndex:40,mfgCapacity:65,exportInfra:72,supplierDensity:62,leadTimeReliability:78,sourcing:{technology:25,textiles:55,generalMfg:55,consumerGoods:50,automotive:50,pharma:40}},{name:'Netherlands',lat:52.1,lng:5.3,risk:12,shipping:5,labor:8,tariff:3,infra:10,costIndex:45,mfgCapacity:40,exportInfra:90,supplierDensity:35,leadTimeReliability:90,sourcing:{technology:30,textiles:5,generalMfg:30,consumerGoods:25,automotive:15,pharma:35}},{name:'Poland',lat:51.9,lng:19.1,risk:18,shipping:5,labor:5,tariff:3,infra:8,costIndex:25,mfgCapacity:55,exportInfra:62,supplierDensity:48,leadTimeReliability:72,sourcing:{technology:22,textiles:18,generalMfg:45,consumerGoods:30,automotive:55,pharma:20}},{name:'Morocco',lat:31.8,lng:-7.1,risk:38,shipping:5,labor:2,tariff:8,infra:6,costIndex:22,mfgCapacity:35,exportInfra:45,supplierDensity:28,leadTimeReliability:55,sourcing:{technology:10,textiles:40,generalMfg:30,consumerGoods:20,automotive:35,pharma:8}},{name:'South Africa',lat:-30.6,lng:22.9,risk:45,shipping:7,labor:3,tariff:10,infra:6,costIndex:30,mfgCapacity:40,exportInfra:50,supplierDensity:32,leadTimeReliability:55,sourcing:{technology:10,textiles:12,generalMfg:25,consumerGoods:18,automotive:30,pharma:15}},{name:'Saudi Arabia',lat:23.9,lng:45.1,risk:32,shipping:6,labor:4,tariff:5,infra:8,costIndex:35,mfgCapacity:20,exportInfra:65,supplierDensity:12,leadTimeReliability:70,sourcing:{technology:8,textiles:3,generalMfg:15,consumerGoods:10,automotive:5,pharma:10}},{name:'Egypt',lat:26.8,lng:30.8,risk:52,shipping:5,labor:2,tariff:15,infra:5,costIndex:38,mfgCapacity:30,exportInfra:38,supplierDensity:22,leadTimeReliability:45,sourcing:{technology:5,textiles:30,generalMfg:20,consumerGoods:15,automotive:10,pharma:8}},{name:'Australia',lat:-25.3,lng:133.8,risk:16,shipping:8,labor:8,tariff:5,infra:9,costIndex:48,mfgCapacity:30,exportInfra:65,supplierDensity:25,leadTimeReliability:78,sourcing:{technology:15,textiles:5,generalMfg:20,consumerGoods:15,automotive:5,pharma:15}},{name:'Canada',lat:56.1,lng:-106.3,risk:14,shipping:5,labor:8,tariff:1,infra:9,costIndex:40,mfgCapacity:50,exportInfra:70,supplierDensity:45,leadTimeReliability:80,sourcing:{technology:30,textiles:5,generalMfg:40,consumerGoods:30,automotive:45,pharma:40}},{name:'United Kingdom',lat:55.4,lng:-3.4,risk:14,shipping:5,labor:8,tariff:5,infra:9,costIndex:42,mfgCapacity:55,exportInfra:72,supplierDensity:55,leadTimeReliability:82,sourcing:{technology:40,textiles:8,generalMfg:45,consumerGoods:40,automotive:45,pharma:60}},{name:'Hungary',lat:47.2,lng:19.5,risk:20,shipping:5,labor:5,tariff:3,infra:7,costIndex:26,mfgCapacity:45,exportInfra:55,supplierDensity:40,leadTimeReliability:70,sourcing:{technology:20,textiles:15,generalMfg:38,consumerGoods:25,automotive:65,pharma:30}},{name:'Switzerland',lat:46.8,lng:8.2,risk:10,shipping:5,labor:9,tariff:3,infra:10,costIndex:58,mfgCapacity:45,exportInfra:80,supplierDensity:35,leadTimeReliability:92,sourcing:{technology:30,textiles:8,generalMfg:35,consumerGoods:30,automotive:20,pharma:85}},{name:'Ireland',lat:53.1,lng:-7.7,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:48,mfgCapacity:30,exportInfra:68,supplierDensity:25,leadTimeReliability:85,sourcing:{technology:35,textiles:3,generalMfg:20,consumerGoods:15,automotive:8,pharma:88}},{name:'Belgium',lat:50.5,lng:4.5,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:42,mfgCapacity:40,exportInfra:72,supplierDensity:38,leadTimeReliability:80,sourcing:{technology:18,textiles:8,generalMfg:35,consumerGoods:28,automotive:35,pharma:55}},{name:'Portugal',lat:39.4,lng:-8.2,risk:15,shipping:5,labor:6,tariff:3,infra:8,costIndex:30,mfgCapacity:35,exportInfra:60,supplierDensity:28,leadTimeReliability:72,sourcing:{technology:12,textiles:25,generalMfg:28,consumerGoods:20,automotive:22,pharma:18}},{name:'Slovakia',lat:48.7,lng:19.7,risk:18,shipping:5,labor:5,tariff:3,infra:7,costIndex:24,mfgCapacity:40,exportInfra:55,supplierDensity:35,leadTimeReliability:70,sourcing:{technology:15,textiles:10,generalMfg:32,consumerGoods:20,automotive:68,pharma:15}},{name:'Austria',lat:47.5,lng:14.6,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:42,mfgCapacity:48,exportInfra:70,supplierDensity:42,leadTimeReliability:82,sourcing:{technology:25,textiles:8,generalMfg:40,consumerGoods:30,automotive:45,pharma:35}},{name:'Bulgaria',lat:42.7,lng:25.5,risk:22,shipping:5,labor:4,tariff:3,infra:6,costIndex:22,mfgCapacity:30,exportInfra:42,supplierDensity:25,leadTimeReliability:60,sourcing:{technology:12,textiles:22,generalMfg:28,consumerGoods:18,automotive:30,pharma:12}},{name:'Sri Lanka',lat:7.9,lng:80.8,risk:52,shipping:7,labor:2,tariff:10,infra:5,costIndex:35,mfgCapacity:25,exportInfra:30,supplierDensity:20,leadTimeReliability:45,sourcing:{technology:5,textiles:40,generalMfg:15,consumerGoods:12,automotive:3,pharma:5}},{name:'Ethiopia',lat:9.1,lng:40.5,risk:55,shipping:8,labor:1,tariff:15,infra:3,costIndex:42,mfgCapacity:15,exportInfra:12,supplierDensity:10,leadTimeReliability:30,sourcing:{technology:2,textiles:25,generalMfg:8,consumerGoods:5,automotive:1,pharma:2}},{name:'Honduras',lat:14.1,lng:-86.2,risk:62,shipping:5,labor:2,tariff:8,infra:5,costIndex:35,mfgCapacity:25,exportInfra:25,supplierDensity:20,leadTimeReliability:45,sourcing:{technology:5,textiles:35,generalMfg:20,consumerGoods:15,automotive:5,pharma:3}},{name:'Colombia',lat:4.6,lng:-74.1,risk:50,shipping:5,labor:3,tariff:15,infra:6,costIndex:40,mfgCapacity:30,exportInfra:40,supplierDensity:25,leadTimeReliability:50,sourcing:{technology:10,textiles:20,generalMfg:22,consumerGoods:18,automotive:8,pharma:12}},{name:'Peru',lat:-9.2,lng:-75,risk:46,shipping:6,labor:3,tariff:10,infra:6,costIndex:38,mfgCapacity:25,exportInfra:35,supplierDensity:18,leadTimeReliability:50,sourcing:{technology:5,textiles:25,generalMfg:18,consumerGoods:12,automotive:5,pharma:5}},{name:'Argentina',lat:-38.4,lng:-63.6,risk:55,shipping:6,labor:4,tariff:20,infra:6,costIndex:45,mfgCapacity:35,exportInfra:40,supplierDensity:28,leadTimeReliability:45,sourcing:{technology:10,textiles:12,generalMfg:25,consumerGoods:18,automotive:25,pharma:18}},{name:'Chile',lat:-35.7,lng:-71.5,risk:25,shipping:6,labor:5,tariff:5,infra:7,costIndex:32,mfgCapacity:25,exportInfra:55,supplierDensity:18,leadTimeReliability:65,sourcing:{technology:8,textiles:5,generalMfg:15,consumerGoods:10,automotive:5,pharma:10}}
-,{name:'Kazakhstan',lat:48.0,lng:68.0,risk:28,shipping:6,labor:4,tariff:8,infra:5,costIndex:42,mfgCapacity:30,exportInfra:35,supplierDensity:20,leadTimeReliability:45,sourcing:{technology:8,textiles:10,generalMfg:25,consumerGoods:10,automotive:5,pharma:5}}
-,{name:'Uzbekistan',lat:41.3,lng:64.6,risk:38,shipping:7,labor:3,tariff:10,infra:4,costIndex:35,mfgCapacity:20,exportInfra:18,supplierDensity:12,leadTimeReliability:35,sourcing:{technology:5,textiles:30,generalMfg:18,consumerGoods:8,automotive:3,pharma:4}}
-,{name:'Azerbaijan',lat:40.4,lng:49.9,risk:25,shipping:6,labor:4,tariff:7,infra:5,costIndex:45,mfgCapacity:22,exportInfra:40,supplierDensity:15,leadTimeReliability:50,sourcing:{technology:6,textiles:8,generalMfg:20,consumerGoods:7,automotive:4,pharma:3}}
-,{name:'Georgia',lat:42.3,lng:43.4,risk:35,shipping:5,labor:4,tariff:6,infra:5,costIndex:40,mfgCapacity:15,exportInfra:30,supplierDensity:12,leadTimeReliability:48,sourcing:{technology:8,textiles:12,generalMfg:15,consumerGoods:10,automotive:3,pharma:5}}
-,{name:'Lithuania',lat:55.2,lng:23.9,risk:22,shipping:4,labor:6,tariff:3,infra:7,costIndex:58,mfgCapacity:28,exportInfra:55,supplierDensity:30,leadTimeReliability:70,sourcing:{technology:20,textiles:10,generalMfg:30,consumerGoods:18,automotive:15,pharma:12}}
-,{name:'Latvia',lat:56.9,lng:24.1,risk:24,shipping:4,labor:6,tariff:3,infra:7,costIndex:55,mfgCapacity:22,exportInfra:50,supplierDensity:25,leadTimeReliability:68,sourcing:{technology:18,textiles:8,generalMfg:25,consumerGoods:15,automotive:10,pharma:10}}
-,{name:'Estonia',lat:58.6,lng:25.0,risk:15,shipping:4,labor:7,tariff:3,infra:8,costIndex:60,mfgCapacity:25,exportInfra:58,supplierDensity:28,leadTimeReliability:75,sourcing:{technology:30,textiles:5,generalMfg:22,consumerGoods:12,automotive:8,pharma:15}}
-,{name:'Serbia',lat:44.0,lng:21.0,risk:55,shipping:5,labor:5,tariff:12,infra:5,costIndex:42,mfgCapacity:35,exportInfra:38,supplierDensity:28,leadTimeReliability:50,sourcing:{technology:12,textiles:18,generalMfg:35,consumerGoods:20,automotive:25,pharma:8}}
-,{name:'Albania',lat:41.3,lng:20.0,risk:42,shipping:5,labor:3,tariff:8,infra:4,costIndex:35,mfgCapacity:12,exportInfra:20,supplierDensity:10,leadTimeReliability:40,sourcing:{technology:4,textiles:22,generalMfg:12,consumerGoods:8,automotive:3,pharma:3}}
-,{name:'Oman',lat:21.5,lng:57.0,risk:20,shipping:4,labor:4,tariff:5,infra:7,costIndex:55,mfgCapacity:18,exportInfra:60,supplierDensity:15,leadTimeReliability:65,sourcing:{technology:8,textiles:5,generalMfg:15,consumerGoods:6,automotive:3,pharma:5}}
-,{name:'Qatar',lat:25.3,lng:51.2,risk:14,shipping:3,labor:5,tariff:4,infra:8,costIndex:70,mfgCapacity:15,exportInfra:65,supplierDensity:12,leadTimeReliability:72,sourcing:{technology:10,textiles:3,generalMfg:12,consumerGoods:5,automotive:2,pharma:6}}
-,{name:'Kuwait',lat:29.4,lng:47.9,risk:40,shipping:4,labor:5,tariff:5,infra:6,costIndex:65,mfgCapacity:10,exportInfra:45,supplierDensity:8,leadTimeReliability:55,sourcing:{technology:5,textiles:2,generalMfg:8,consumerGoods:4,automotive:2,pharma:4}}
-,{name:'Jordan',lat:31.0,lng:36.6,risk:44,shipping:5,labor:4,tariff:8,infra:6,costIndex:48,mfgCapacity:18,exportInfra:48,supplierDensity:14,leadTimeReliability:55,sourcing:{technology:6,textiles:15,generalMfg:15,consumerGoods:10,automotive:4,pharma:18}}
-,{name:'Kenya',lat:-1.3,lng:36.8,risk:38,shipping:6,labor:3,tariff:10,infra:5,costIndex:38,mfgCapacity:20,exportInfra:35,supplierDensity:18,leadTimeReliability:40,sourcing:{technology:5,textiles:18,generalMfg:15,consumerGoods:12,automotive:3,pharma:8}}
-,{name:'Rwanda',lat:-1.9,lng:29.9,risk:27,shipping:7,labor:3,tariff:8,infra:4,costIndex:40,mfgCapacity:10,exportInfra:18,supplierDensity:8,leadTimeReliability:42,sourcing:{technology:6,textiles:10,generalMfg:8,consumerGoods:5,automotive:2,pharma:4}}
-,{name:'Ghana',lat:7.9,lng:-1.0,risk:39,shipping:6,labor:3,tariff:10,infra:5,costIndex:38,mfgCapacity:18,exportInfra:32,supplierDensity:14,leadTimeReliability:40,sourcing:{technology:5,textiles:12,generalMfg:15,consumerGoods:10,automotive:3,pharma:6}}
-,{name:'Mauritius',lat:-20.3,lng:57.6,risk:16,shipping:5,labor:5,tariff:5,infra:6,costIndex:52,mfgCapacity:12,exportInfra:40,supplierDensity:10,leadTimeReliability:60,sourcing:{technology:8,textiles:25,generalMfg:10,consumerGoods:12,automotive:2,pharma:6}}
-,{name:'Tanzania',lat:-6.4,lng:34.9,risk:26,shipping:6,labor:3,tariff:10,infra:4,costIndex:35,mfgCapacity:15,exportInfra:28,supplierDensity:12,leadTimeReliability:38,sourcing:{technology:3,textiles:12,generalMfg:12,consumerGoods:8,automotive:2,pharma:5}}
-,{name:'Costa Rica',lat:10.0,lng:-84.0,risk:13,shipping:4,labor:5,tariff:4,infra:7,costIndex:55,mfgCapacity:22,exportInfra:52,supplierDensity:20,leadTimeReliability:70,sourcing:{technology:25,textiles:8,generalMfg:20,consumerGoods:15,automotive:8,pharma:22}}
-,{name:'Panama',lat:8.5,lng:-80.0,risk:52,shipping:3,labor:5,tariff:5,infra:7,costIndex:58,mfgCapacity:10,exportInfra:70,supplierDensity:8,leadTimeReliability:55,sourcing:{technology:5,textiles:3,generalMfg:8,consumerGoods:5,automotive:2,pharma:3}}
-,{name:'Uruguay',lat:-34.9,lng:-56.2,risk:11,shipping:5,labor:6,tariff:6,infra:7,costIndex:60,mfgCapacity:15,exportInfra:45,supplierDensity:12,leadTimeReliability:68,sourcing:{technology:8,textiles:10,generalMfg:15,consumerGoods:10,automotive:5,pharma:8}}
-,{name:'Paraguay',lat:-23.4,lng:-58.4,risk:43,shipping:7,labor:3,tariff:9,infra:4,costIndex:32,mfgCapacity:12,exportInfra:20,supplierDensity:8,leadTimeReliability:35,sourcing:{technology:3,textiles:8,generalMfg:10,consumerGoods:6,automotive:3,pharma:3}}
-,{name:'Ecuador',lat:-1.8,lng:-78.2,risk:58,shipping:5,labor:3,tariff:10,infra:5,costIndex:38,mfgCapacity:15,exportInfra:30,supplierDensity:10,leadTimeReliability:38,sourcing:{technology:4,textiles:8,generalMfg:12,consumerGoods:8,automotive:3,pharma:5}},{name:'Finland',lat:61.9,lng:25.7,risk:12,shipping:4,labor:8,tariff:3,infra:9,costIndex:52,mfgCapacity:42,exportInfra:68,supplierDensity:35,leadTimeReliability:85,sourcing:{technology:35,textiles:5,generalMfg:32,consumerGoods:18,automotive:10,pharma:25}},{name:'Sweden',lat:60.1,lng:18.6,risk:10,shipping:4,labor:8,tariff:3,infra:9,costIndex:55,mfgCapacity:55,exportInfra:75,supplierDensity:48,leadTimeReliability:88,sourcing:{technology:45,textiles:8,generalMfg:48,consumerGoods:30,automotive:55,pharma:40}},{name:'Norway',lat:60.5,lng:8.5,risk:8,shipping:4,labor:9,tariff:3,infra:9,costIndex:62,mfgCapacity:30,exportInfra:65,supplierDensity:22,leadTimeReliability:88,sourcing:{technology:28,textiles:3,generalMfg:22,consumerGoods:12,automotive:8,pharma:18}},{name:'Denmark',lat:56.3,lng:9.5,risk:10,shipping:4,labor:8,tariff:3,infra:9,costIndex:55,mfgCapacity:45,exportInfra:72,supplierDensity:38,leadTimeReliability:90,sourcing:{technology:32,textiles:5,generalMfg:35,consumerGoods:22,automotive:12,pharma:55}},{name:'Iceland',lat:64.9,lng:-19.0,risk:6,shipping:5,labor:9,tariff:3,infra:8,costIndex:68,mfgCapacity:8,exportInfra:30,supplierDensity:5,leadTimeReliability:80,sourcing:{technology:12,textiles:2,generalMfg:5,consumerGoods:5,automotive:1,pharma:8}}];
-var COUNTRY_MAP=(function(){var m={};for(var i=0;i<COUNTRY_DATA.length;i++)m[COUNTRY_DATA[i].name]=COUNTRY_DATA[i];return m;})();
+// === UPDATED COUNTRY DATA: 101 ENTRIES + 2026 BRIEFS ===
+var COUNTRY_DATA = [
+  { name: 'Finland', lat: 61.9, lng: 25.7, country_code: 'FI', risk_score: 12, severity: 'STABLE', brief: '2026 Strategy: Oulu/Helsinki 6G port infrastructure live. Critical stability for Nordic/Arctic transit.', risk: 12, shipping: 4, labor: 8, tariff: 3, infra: 9, costIndex: 52, mfgCapacity: 42, exportInfra: 68, supplierDensity: 35, leadTimeReliability: 85, sourcing: { technology: 35, textiles: 5, generalMfg: 32, consumerGoods: 18, automotive: 10, pharma: 25 } },
+  { name: 'Singapore', lat: 1.4, lng: 103.8, country_code: 'SG', risk_score: 10, severity: 'STABLE', brief: '2026 Strategy: AI-driven autonomous transshipment. Strategic safe-haven for Asian electronics trade.', risk: 10, shipping: 6, labor: 9, tariff: 0, infra: 10, costIndex: 55, mfgCapacity: 35, exportInfra: 95, supplierDensity: 30, leadTimeReliability: 95, sourcing: { technology: 50, textiles: 2, generalMfg: 25, consumerGoods: 15, automotive: 5, pharma: 40 } },
+  { name: 'Oman', lat: 21.5, lng: 57.0, country_code: 'OM', risk_score: 20, severity: 'STABLE', brief: '2026 Strategy: Strategic Hormuz-bypass pipelines fully operational. Key bypass for energy security.', risk: 20, shipping: 4, labor: 4, tariff: 5, infra: 7, costIndex: 55, mfgCapacity: 18, exportInfra: 60, supplierDensity: 15, leadTimeReliability: 65, sourcing: { technology: 8, textiles: 5, generalMfg: 15, consumerGoods: 6, automotive: 3, pharma: 5 } },
+  { name: 'Panama', lat: 8.5, lng: -80.0, country_code: 'PA', risk_score: 52, severity: 'MED-HIGH', brief: '2026 Strategy: Water-level management automation. Canal draft remains a moderate risk factor for US East Coast shipping.', risk: 52, shipping: 3, labor: 5, tariff: 5, infra: 7, costIndex: 58, mfgCapacity: 10, exportInfra: 70, supplierDensity: 8, leadTimeReliability: 55, sourcing: { technology: 5, textiles: 3, generalMfg: 8, consumerGoods: 5, automotive: 2, pharma: 3 } },
+  { name: 'Kazakhstan', lat: 48.0, lng: 68.0, country_code: 'KZ', risk_score: 28, severity: 'LOW-MED', brief: '2026 Strategy: Middle-Corridor rail throughput increased. Core inland stability for Belt-and-Road bypass.', risk: 28, shipping: 6, labor: 4, tariff: 8, infra: 5, costIndex: 42, mfgCapacity: 30, exportInfra: 35, supplierDensity: 20, leadTimeReliability: 45, sourcing: { technology: 8, textiles: 10, generalMfg: 25, consumerGoods: 10, automotive: 5, pharma: 5 } },
+  { name: 'Norway', lat: 60.5, lng: 8.5, country_code: 'NO', risk_score: 8, severity: 'STABLE', brief: '2026 Strategy: Floating wind integration with port facilities. World-leading maritime sustainability lead.', risk: 8, shipping: 4, labor: 9, tariff: 3, infra: 9, costIndex: 62, mfgCapacity: 30, exportInfra: 65, supplierDensity: 22, leadTimeReliability: 88, sourcing: { technology: 28, textiles: 3, generalMfg: 22, consumerGoods: 12, automotive: 8, pharma: 18 } },
+  { name: 'Sweden', lat: 60.1, lng: 18.6, country_code: 'SE', risk_score: 10, severity: 'STABLE', brief: '2026 Strategy: Fossil-free steel supply chain dominance. Strategic lead for EU automotive sourcing.', risk: 10, shipping: 4, labor: 8, tariff: 3, infra: 9, costIndex: 55, mfgCapacity: 55, exportInfra: 75, supplierDensity: 48, leadTimeReliability: 88, sourcing: { technology: 45, textiles: 8, generalMfg: 48, consumerGoods: 30, automotive: 55, pharma: 40 } },
+  { name: 'North Korea', lat: 40.3, lng: 127.5, risk: 98, shipping: 9, labor: 4, tariff: 25, infra: 3, costIndex: 80, mfgCapacity: 5, exportInfra: 2, supplierDensity: 2, leadTimeReliability: 10, sourcing: { technology: 2, textiles: 3, generalMfg: 3, consumerGoods: 2, automotive: 1, pharma: 1 } },
+  { name: 'Russia', lat: 61.5, lng: 90, risk: 95, shipping: 8, labor: 5, tariff: 35, infra: 6, costIndex: 75, mfgCapacity: 55, exportInfra: 50, supplierDensity: 45, leadTimeReliability: 40, sourcing: { technology: 10, textiles: 5, generalMfg: 25, consumerGoods: 10, automotive: 15, pharma: 20 } },
+  { name: 'Iran', lat: 32.4, lng: 53.7, risk: 93, shipping: 7, labor: 4, tariff: 30, infra: 5, costIndex: 72, mfgCapacity: 25, exportInfra: 20, supplierDensity: 18, leadTimeReliability: 25, sourcing: { technology: 5, textiles: 15, generalMfg: 15, consumerGoods: 8, automotive: 10, pharma: 12 } },
+  { name: 'Venezuela', lat: 6.4, lng: -66.6, risk: 89, shipping: 6, labor: 3, tariff: 25, infra: 3, costIndex: 72, mfgCapacity: 15, exportInfra: 20, supplierDensity: 10, leadTimeReliability: 20, sourcing: { technology: 3, textiles: 5, generalMfg: 8, consumerGoods: 5, automotive: 5, pharma: 5 } },
+  { name: 'Iraq', lat: 33.2, lng: 43.7, risk: 88, shipping: 7, labor: 3, tariff: 15, infra: 3, costIndex: 70, mfgCapacity: 10, exportInfra: 15, supplierDensity: 8, leadTimeReliability: 15, sourcing: { technology: 2, textiles: 3, generalMfg: 5, consumerGoods: 3, automotive: 2, pharma: 5 } },
+  { name: 'Ukraine', lat: 48.4, lng: 31.2, risk: 88, shipping: 5, labor: 3, tariff: 10, infra: 6, costIndex: 60, mfgCapacity: 35, exportInfra: 40, supplierDensity: 30, leadTimeReliability: 25, sourcing: { technology: 15, textiles: 10, generalMfg: 20, consumerGoods: 10, automotive: 15, pharma: 10 } },
+  { name: 'Myanmar', lat: 17.1, lng: 95.9, risk: 85, shipping: 8, labor: 2, tariff: 15, infra: 3, costIndex: 58, mfgCapacity: 18, exportInfra: 15, supplierDensity: 12, leadTimeReliability: 20, sourcing: { technology: 2, textiles: 25, generalMfg: 10, consumerGoods: 8, automotive: 1, pharma: 2 } },
+  { name: 'Lebanon', lat: 33.9, lng: 35.5, risk: 79, shipping: 6, labor: 4, tariff: 15, infra: 4, costIndex: 65, mfgCapacity: 8, exportInfra: 15, supplierDensity: 5, leadTimeReliability: 10, sourcing: { technology: 5, textiles: 5, generalMfg: 5, consumerGoods: 5, automotive: 2, pharma: 8 } },
+  { name: 'China', lat: 35.8, lng: 104.2, risk: 28, shipping: 7, labor: 3, tariff: 25, infra: 7, costIndex: 30, mfgCapacity: 98, exportInfra: 95, supplierDensity: 99, leadTimeReliability: 80, sourcing: { technology: 95, textiles: 75, generalMfg: 95, consumerGoods: 92, automotive: 70, pharma: 65 } },
+  { name: 'Pakistan', lat: 30.4, lng: 69.3, risk: 76, shipping: 8, labor: 2, tariff: 17, infra: 4, costIndex: 55, mfgCapacity: 40, exportInfra: 35, supplierDensity: 35, leadTimeReliability: 45, sourcing: { technology: 10, textiles: 60, generalMfg: 30, consumerGoods: 25, automotive: 8, pharma: 15 } },
+  { name: 'Nigeria', lat: 9.1, lng: 8.7, risk: 72, shipping: 7, labor: 2, tariff: 20, infra: 4, costIndex: 58, mfgCapacity: 15, exportInfra: 20, supplierDensity: 12, leadTimeReliability: 30, sourcing: { technology: 3, textiles: 10, generalMfg: 10, consumerGoods: 8, automotive: 3, pharma: 5 } },
+  { name: 'India', lat: 20.6, lng: 79, risk: 35, shipping: 7, labor: 2, tariff: 10, infra: 6, costIndex: 25, mfgCapacity: 80, exportInfra: 68, supplierDensity: 75, leadTimeReliability: 60, sourcing: { technology: 45, textiles: 70, generalMfg: 72, consumerGoods: 65, automotive: 50, pharma: 92 } },
+  { name: 'Turkey', lat: 38.9, lng: 35.2, risk: 42, shipping: 5, labor: 4, tariff: 5, infra: 7, costIndex: 32, mfgCapacity: 60, exportInfra: 65, supplierDensity: 55, leadTimeReliability: 65, sourcing: { technology: 20, textiles: 70, generalMfg: 55, consumerGoods: 40, automotive: 55, pharma: 20 } },
+  { name: 'Bangladesh', lat: 23.7, lng: 90.4, risk: 62, shipping: 8, labor: 1, tariff: 12, infra: 5, costIndex: 42, mfgCapacity: 60, exportInfra: 50, supplierDensity: 55, leadTimeReliability: 55, sourcing: { technology: 5, textiles: 88, generalMfg: 30, consumerGoods: 35, automotive: 3, pharma: 5 } },
+  { name: 'Vietnam', lat: 14.1, lng: 108.3, risk: 32, shipping: 7, labor: 2, tariff: 6, infra: 6, costIndex: 22, mfgCapacity: 72, exportInfra: 70, supplierDensity: 65, leadTimeReliability: 65, sourcing: { technology: 55, textiles: 85, generalMfg: 65, consumerGoods: 62, automotive: 20, pharma: 10 } },
+  { name: 'Thailand', lat: 15.9, lng: 100.9, risk: 30, shipping: 7, labor: 3, tariff: 5, infra: 7, costIndex: 24, mfgCapacity: 65, exportInfra: 70, supplierDensity: 58, leadTimeReliability: 70, sourcing: { technology: 40, textiles: 30, generalMfg: 55, consumerGoods: 55, automotive: 60, pharma: 15 } },
+  { name: 'Indonesia', lat: -0.8, lng: 113.9, risk: 38, shipping: 7, labor: 2, tariff: 10, infra: 5, costIndex: 28, mfgCapacity: 55, exportInfra: 50, supplierDensity: 45, leadTimeReliability: 55, sourcing: { technology: 15, textiles: 40, generalMfg: 40, consumerGoods: 45, automotive: 25, pharma: 10 } },
+  { name: 'Cambodia', lat: 12.6, lng: 104.9, risk: 48, shipping: 8, labor: 2, tariff: 12, infra: 4, costIndex: 38, mfgCapacity: 30, exportInfra: 30, supplierDensity: 25, leadTimeReliability: 50, sourcing: { technology: 5, textiles: 65, generalMfg: 22, consumerGoods: 18, automotive: 2, pharma: 3 } },
+  { name: 'Brazil', lat: -14.2, lng: -51.9, risk: 50, shipping: 6, labor: 4, tariff: 18, infra: 6, costIndex: 42, mfgCapacity: 60, exportInfra: 60, supplierDensity: 55, leadTimeReliability: 55, sourcing: { technology: 20, textiles: 25, generalMfg: 50, consumerGoods: 35, automotive: 45, pharma: 30 } },
+  { name: 'Mexico', lat: 23.6, lng: -102.6, risk: 42, shipping: 4, labor: 3, tariff: 2, infra: 7, costIndex: 25, mfgCapacity: 78, exportInfra: 80, supplierDensity: 72, leadTimeReliability: 70, sourcing: { technology: 35, textiles: 30, generalMfg: 78, consumerGoods: 45, automotive: 88, pharma: 15 } },
+  { name: 'Romania', lat: 45.9, lng: 24.9, risk: 22, shipping: 5, labor: 4, tariff: 3, infra: 7, costIndex: 26, mfgCapacity: 40, exportInfra: 50, supplierDensity: 35, leadTimeReliability: 65, sourcing: { technology: 20, textiles: 30, generalMfg: 35, consumerGoods: 25, automotive: 50, pharma: 20 } },
+  { name: 'UAE', lat: 23.4, lng: 53.8, risk: 30, shipping: 6, labor: 5, tariff: 5, infra: 9, costIndex: 32, mfgCapacity: 25, exportInfra: 75, supplierDensity: 20, leadTimeReliability: 75, sourcing: { technology: 10, textiles: 5, generalMfg: 18, consumerGoods: 15, automotive: 5, pharma: 12 } },
+  { name: 'South Korea', lat: 35.9, lng: 127.8, risk: 28, shipping: 7, labor: 6, tariff: 3, infra: 9, costIndex: 35, mfgCapacity: 85, exportInfra: 90, supplierDensity: 82, leadTimeReliability: 88, sourcing: { technology: 88, textiles: 10, generalMfg: 70, consumerGoods: 55, automotive: 80, pharma: 30 } },
+  { name: 'Taiwan', lat: 23.7, lng: 120.9, risk: 45, shipping: 7, labor: 6, tariff: 5, infra: 9, costIndex: 30, mfgCapacity: 82, exportInfra: 88, supplierDensity: 80, leadTimeReliability: 85, sourcing: { technology: 95, textiles: 10, generalMfg: 55, consumerGoods: 40, automotive: 25, pharma: 20 } },
+  { name: 'Czech Republic', lat: 49.8, lng: 15.5, risk: 16, shipping: 5, labor: 5, tariff: 3, infra: 8, costIndex: 26, mfgCapacity: 55, exportInfra: 65, supplierDensity: 48, leadTimeReliability: 75, sourcing: { technology: 28, textiles: 12, generalMfg: 50, consumerGoods: 30, automotive: 72, pharma: 30 } },
+  { name: 'United States', lat: 37.1, lng: -95.7, risk: 18, shipping: 4, labor: 9, tariff: 0, infra: 9, costIndex: 45, mfgCapacity: 80, exportInfra: 88, supplierDensity: 75, leadTimeReliability: 90, sourcing: { technology: 70, textiles: 8, generalMfg: 65, consumerGoods: 55, automotive: 60, pharma: 70 } },
+  { name: 'Germany', lat: 51.2, lng: 10.4, risk: 14, shipping: 5, labor: 8, tariff: 3, infra: 9, costIndex: 48, mfgCapacity: 90, exportInfra: 92, supplierDensity: 88, leadTimeReliability: 92, sourcing: { technology: 72, textiles: 10, generalMfg: 78, consumerGoods: 55, automotive: 95, pharma: 65 } },
+  { name: 'Japan', lat: 36.2, lng: 138.3, risk: 18, shipping: 7, labor: 8, tariff: 3, infra: 9, costIndex: 50, mfgCapacity: 88, exportInfra: 90, supplierDensity: 85, leadTimeReliability: 85, sourcing: { technology: 88, textiles: 10, generalMfg: 75, consumerGoods: 60, automotive: 92, pharma: 35 } },
+  { name: 'Malaysia', lat: 4.2, lng: 101.9, risk: 28, shipping: 7, labor: 3, tariff: 5, infra: 7, costIndex: 24, mfgCapacity: 60, exportInfra: 68, supplierDensity: 55, leadTimeReliability: 72, sourcing: { technology: 60, textiles: 15, generalMfg: 50, consumerGoods: 40, automotive: 25, pharma: 15 } },
+  { name: 'Philippines', lat: 12.9, lng: 121.8, risk: 40, shipping: 7, labor: 2, tariff: 10, infra: 5, costIndex: 28, mfgCapacity: 40, exportInfra: 45, supplierDensity: 35, leadTimeReliability: 55, sourcing: { technology: 35, textiles: 15, generalMfg: 30, consumerGoods: 25, automotive: 10, pharma: 8 } },
+  { name: 'France', lat: 46.2, lng: 2.2, risk: 16, shipping: 5, labor: 8, tariff: 3, infra: 9, costIndex: 45, mfgCapacity: 65, exportInfra: 78, supplierDensity: 60, leadTimeReliability: 82, sourcing: { technology: 38, textiles: 15, generalMfg: 48, consumerGoods: 42, automotive: 55, pharma: 50 } },
+  { name: 'Italy', lat: 41.9, lng: 12.6, risk: 18, shipping: 5, labor: 7, tariff: 3, infra: 8, costIndex: 40, mfgCapacity: 65, exportInfra: 72, supplierDensity: 62, leadTimeReliability: 78, sourcing: { technology: 25, textiles: 55, generalMfg: 55, consumerGoods: 50, automotive: 50, pharma: 40 } },
+  { name: 'Netherlands', lat: 52.1, lng: 5.3, risk: 12, shipping: 5, labor: 8, tariff: 3, infra: 10, costIndex: 45, mfgCapacity: 40, exportInfra: 90, supplierDensity: 35, leadTimeReliability: 90, sourcing: { technology: 30, textiles: 5, generalMfg: 30, consumerGoods: 25, automotive: 15, pharma: 35 } },
+  { name: 'Poland', lat: 51.9, lng: 19.1, risk: 18, shipping: 5, labor: 5, tariff: 3, infra: 8, costIndex: 25, mfgCapacity: 55, exportInfra: 62, supplierDensity: 48, leadTimeReliability: 72, sourcing: { technology: 22, textiles: 18, generalMfg: 45, consumerGoods: 30, automotive: 55, pharma: 20 } },
+  { name: 'Morocco', lat: 31.8, lng: -7.1, risk: 38, shipping: 5, labor: 2, tariff: 8, infra: 6, costIndex: 22, mfgCapacity: 35, exportInfra: 45, supplierDensity: 28, leadTimeReliability: 55, sourcing: { technology: 10, textiles: 40, generalMfg: 30, consumerGoods: 20, automotive: 35, pharma: 8 } },
+  { name: 'South Africa', lat: -30.6, lng: 22.9, risk: 45, shipping: 7, labor: 3, tariff: 10, infra: 6, costIndex: 30, mfgCapacity: 40, exportInfra: 50, supplierDensity: 32, leadTimeReliability: 55, sourcing: { technology: 10, textiles: 12, generalMfg: 25, consumerGoods: 18, automotive: 30, pharma: 15 } },
+  { name: 'Saudi Arabia', lat: 23.9, lng: 45.1, risk: 32, shipping: 6, labor: 4, tariff: 5, infra: 8, costIndex: 35, mfgCapacity: 20, exportInfra: 65, supplierDensity: 12, leadTimeReliability: 70, sourcing: { technology: 8, textiles: 3, generalMfg: 15, consumerGoods: 10, automotive: 5, pharma: 10 } },
+  { name: 'Egypt', lat: 26.8, lng: 30.8, risk: 52, shipping: 5, labor: 2, tariff: 15, infra: 5, costIndex: 38, mfgCapacity: 30, exportInfra: 38, supplierDensity: 22, leadTimeReliability: 45, sourcing: { technology: 5, textiles: 30, generalMfg: 20, consumerGoods: 15, automotive: 10, pharma: 8 } },
+  { name: 'Australia', lat: -25.3, lng: 133.8, risk: 16, shipping: 8, labor: 8, tariff: 5, infra: 9, costIndex: 48, mfgCapacity: 30, exportInfra: 65, supplierDensity: 25, leadTimeReliability: 78, sourcing: { technology: 15, textiles: 5, generalMfg: 20, consumerGoods: 15, automotive: 5, pharma: 15 } },
+  { name: 'Canada', lat: 56.1, lng: -106.3, risk: 14, shipping: 5, labor: 8, tariff: 1, infra: 9, costIndex: 40, mfgCapacity: 50, exportInfra: 70, supplierDensity: 45, leadTimeReliability: 80, sourcing: { technology: 30, textiles: 5, generalMfg: 40, consumerGoods: 30, automotive: 45, pharma: 40 } },
+  { name: 'United Kingdom', lat: 55.4, lng: -3.4, risk: 14, shipping: 5, labor: 8, tariff: 5, infra: 9, costIndex: 42, mfgCapacity: 55, exportInfra: 72, supplierDensity: 55, leadTimeReliability: 82, sourcing: { technology: 40, textiles: 8, generalMfg: 45, consumerGoods: 40, automotive: 45, pharma: 60 } },
+  { name: 'Hungary', lat: 47.2, lng: 19.5, risk: 20, shipping: 5, labor: 5, tariff: 3, infra: 7, costIndex: 26, mfgCapacity: 45, exportInfra: 55, supplierDensity: 40, leadTimeReliability: 70, sourcing: { technology: 20, textiles: 15, generalMfg: 38, consumerGoods: 25, automotive: 65, pharma: 30 } },
+  { name: 'Switzerland', lat: 46.8, lng: 8.2, risk: 10, shipping: 5, labor: 9, tariff: 3, infra: 10, costIndex: 58, mfgCapacity: 45, exportInfra: 80, supplierDensity: 35, leadTimeReliability: 92, sourcing: { technology: 30, textiles: 8, generalMfg: 35, consumerGoods: 30, automotive: 20, pharma: 85 } },
+  { name: 'Ireland', lat: 53.1, lng: -7.7, risk: 12, shipping: 5, labor: 8, tariff: 3, infra: 9, costIndex: 48, mfgCapacity: 30, exportInfra: 68, supplierDensity: 25, leadTimeReliability: 85, sourcing: { technology: 35, textiles: 3, generalMfg: 20, consumerGoods: 15, automotive: 8, pharma: 88 } },
+  { name: 'Belgium', lat: 50.5, lng: 4.5, risk: 12, shipping: 5, labor: 8, tariff: 3, infra: 9, costIndex: 42, mfgCapacity: 40, exportInfra: 72, supplierDensity: 38, leadTimeReliability: 80, sourcing: { technology: 18, textiles: 8, generalMfg: 35, consumerGoods: 28, automotive: 35, pharma: 55 } },
+  { name: 'Portugal', lat: 39.4, lng: -8.2, risk: 15, shipping: 5, labor: 6, tariff: 3, infra: 8, costIndex: 30, mfgCapacity: 35, exportInfra: 60, supplierDensity: 28, leadTimeReliability: 72, sourcing: { technology: 12, textiles: 25, generalMfg: 28, consumerGoods: 20, automotive: 22, pharma: 18 } },
+  { name: 'Slovakia', lat: 48.7, lng: 19.7, risk: 18, shipping: 5, labor: 5, tariff: 3, infra: 7, costIndex: 24, mfgCapacity: 40, exportInfra: 55, supplierDensity: 35, leadTimeReliability: 70, sourcing: { technology: 15, textiles: 10, generalMfg: 32, consumerGoods: 20, automotive: 68, pharma: 15 } },
+  { name: 'Austria', lat: 47.5, lng: 14.6, risk: 12, shipping: 5, labor: 8, tariff: 3, infra: 9, costIndex: 42, mfgCapacity: 48, exportInfra: 70, supplierDensity: 42, leadTimeReliability: 82, sourcing: { technology: 25, textiles: 8, generalMfg: 40, consumerGoods: 30, automotive: 45, pharma: 35 } },
+  { name: 'Bulgaria', lat: 42.7, lng: 25.5, risk: 22, shipping: 5, labor: 4, tariff: 3, infra: 6, costIndex: 22, mfgCapacity: 30, exportInfra: 42, supplierDensity: 25, leadTimeReliability: 60, sourcing: { technology: 12, textiles: 22, generalMfg: 28, consumerGoods: 18, automotive: 30, pharma: 12 } },
+  { name: 'Sri Lanka', lat: 7.9, lng: 80.8, risk: 52, shipping: 7, labor: 2, tariff: 10, infra: 5, costIndex: 35, mfgCapacity: 25, exportInfra: 30, supplierDensity: 20, leadTimeReliability: 45, sourcing: { technology: 5, textiles: 40, generalMfg: 15, consumerGoods: 12, automotive: 3, pharma: 5 } },
+  { name: 'Ethiopia', lat: 9.1, lng: 40.5, risk: 55, shipping: 8, labor: 1, tariff: 15, infra: 3, costIndex: 42, mfgCapacity: 15, exportInfra: 12, supplierDensity: 10, leadTimeReliability: 30, sourcing: { technology: 2, textiles: 25, generalMfg: 8, consumerGoods: 5, automotive: 1, pharma: 2 } },
+  { name: 'Honduras', lat: 14.1, lng: -86.2, risk: 62, shipping: 5, labor: 2, tariff: 8, infra: 5, costIndex: 35, mfgCapacity: 25, exportInfra: 25, supplierDensity: 20, leadTimeReliability: 45, sourcing: { technology: 5, textiles: 35, generalMfg: 20, consumerGoods: 15, automotive: 5, pharma: 3 } },
+  { name: 'Colombia', lat: 4.6, lng: -74.1, risk: 50, shipping: 5, labor: 3, tariff: 15, infra: 6, costIndex: 40, mfgCapacity: 30, exportInfra: 40, supplierDensity: 25, leadTimeReliability: 50, sourcing: { technology: 10, textiles: 20, generalMfg: 22, consumerGoods: 18, automotive: 8, pharma: 12 } },
+  { name: 'Peru', lat: -9.2, lng: -75, risk: 46, shipping: 6, labor: 3, tariff: 10, infra: 6, costIndex: 38, mfgCapacity: 25, exportInfra: 35, supplierDensity: 18, leadTimeReliability: 50, sourcing: { technology: 5, textiles: 25, generalMfg: 18, consumerGoods: 12, automotive: 5, pharma: 5 } },
+  { name: 'Argentina', lat: -38.4, lng: -63.6, risk: 55, shipping: 6, labor: 4, tariff: 20, infra: 6, costIndex: 45, mfgCapacity: 35, exportInfra: 40, supplierDensity: 28, leadTimeReliability: 45, sourcing: { technology: 10, textiles: 12, generalMfg: 25, consumerGoods: 18, automotive: 25, pharma: 18 } },
+  { name: 'Chile', lat: -35.7, lng: -71.5, risk: 25, shipping: 6, labor: 5, tariff: 5, infra: 7, costIndex: 32, mfgCapacity: 25, exportInfra: 55, supplierDensity: 18, leadTimeReliability: 65, sourcing: { technology: 8, textiles: 5, generalMfg: 15, consumerGoods: 10, automotive: 5, pharma: 10 } },
+  { name: 'Uzbekistan', lat: 41.3, lng: 64.6, risk: 38, shipping: 7, labor: 3, tariff: 10, infra: 4, costIndex: 35, mfgCapacity: 20, exportInfra: 18, supplierDensity: 12, leadTimeReliability: 35, sourcing: { technology: 5, textiles: 30, generalMfg: 18, consumerGoods: 8, automotive: 3, pharma: 4 } },
+  { name: 'Azerbaijan', lat: 40.4, lng: 49.9, risk: 25, shipping: 6, labor: 4, tariff: 7, infra: 5, costIndex: 45, mfgCapacity: 22, exportInfra: 40, supplierDensity: 15, leadTimeReliability: 50, sourcing: { technology: 6, textiles: 8, generalMfg: 20, consumerGoods: 7, automotive: 4, pharma: 3 } },
+  { name: 'Georgia', lat: 42.3, lng: 43.4, risk: 35, shipping: 5, labor: 4, tariff: 6, infra: 5, costIndex: 40, mfgCapacity: 15, exportInfra: 30, supplierDensity: 12, leadTimeReliability: 48, sourcing: { technology: 8, textiles: 12, generalMfg: 15, consumerGoods: 10, automotive: 3, pharma: 5 } },
+  { name: 'Lithuania', lat: 55.2, lng: 23.9, risk: 22, shipping: 4, labor: 6, tariff: 3, infra: 7, costIndex: 58, mfgCapacity: 28, exportInfra: 55, supplierDensity: 30, leadTimeReliability: 70, sourcing: { technology: 20, textiles: 10, generalMfg: 30, consumerGoods: 18, automotive: 15, pharma: 12 } },
+  { name: 'Latvia', lat: 56.9, lng: 24.1, risk: 24, shipping: 4, labor: 6, tariff: 3, infra: 7, costIndex: 55, mfgCapacity: 22, exportInfra: 50, supplierDensity: 25, leadTimeReliability: 68, sourcing: { technology: 18, textiles: 8, generalMfg: 25, consumerGoods: 15, automotive: 10, pharma: 10 } },
+  { name: 'Estonia', lat: 58.6, lng: 25.0, risk: 15, shipping: 4, labor: 7, tariff: 3, infra: 8, costIndex: 60, mfgCapacity: 25, exportInfra: 58, supplierDensity: 28, leadTimeReliability: 75, sourcing: { technology: 30, textiles: 5, generalMfg: 22, consumerGoods: 12, automotive: 8, pharma: 15 } },
+  { name: 'Serbia', lat: 44.0, lng: 21.0, risk: 55, shipping: 5, labor: 5, tariff: 12, infra: 5, costIndex: 42, mfgCapacity: 35, exportInfra: 38, supplierDensity: 28, leadTimeReliability: 50, sourcing: { technology: 12, textiles: 18, generalMfg: 35, consumerGoods: 20, automotive: 25, pharma: 8 } },
+  { name: 'Albania', lat: 41.3, lng: 20.0, risk: 42, shipping: 5, labor: 3, tariff: 8, infra: 4, costIndex: 35, mfgCapacity: 12, exportInfra: 20, supplierDensity: 10, leadTimeReliability: 40, sourcing: { technology: 4, textiles: 22, generalMfg: 12, consumerGoods: 8, automotive: 3, pharma: 3 } },
+  { name: 'Qatar', lat: 25.3, lng: 51.2, risk: 14, shipping: 3, labor: 5, tariff: 4, infra: 8, costIndex: 70, mfgCapacity: 15, exportInfra: 65, supplierDensity: 12, leadTimeReliability: 72, sourcing: { technology: 10, textiles: 3, generalMfg: 12, consumerGoods: 5, automotive: 2, pharma: 6 } },
+  { name: 'Kuwait', lat: 29.4, lng: 47.9, risk: 40, shipping: 4, labor: 5, tariff: 5, infra: 6, costIndex: 65, mfgCapacity: 10, exportInfra: 45, supplierDensity: 8, leadTimeReliability: 55, sourcing: { technology: 5, textiles: 2, generalMfg: 8, consumerGoods: 4, automotive: 2, pharma: 4 } },
+  { name: 'Jordan', lat: 31.0, lng: 36.6, risk: 44, shipping: 5, labor: 4, tariff: 8, infra: 6, costIndex: 48, mfgCapacity: 18, exportInfra: 48, supplierDensity: 14, leadTimeReliability: 55, sourcing: { technology: 6, textiles: 15, generalMfg: 15, consumerGoods: 10, automotive: 4, pharma: 18 } },
+  { name: 'Kenya', lat: -1.3, lng: 36.8, risk: 38, shipping: 6, labor: 3, tariff: 10, infra: 5, costIndex: 38, mfgCapacity: 20, exportInfra: 35, supplierDensity: 18, leadTimeReliability: 40, sourcing: { technology: 5, textiles: 18, generalMfg: 15, consumerGoods: 12, automotive: 3, pharma: 8 } },
+  { name: 'Rwanda', lat: -1.9, lng: 29.9, risk: 27, shipping: 7, labor: 3, tariff: 8, infra: 4, costIndex: 40, mfgCapacity: 10, exportInfra: 18, supplierDensity: 8, leadTimeReliability: 42, sourcing: { technology: 6, textiles: 10, generalMfg: 8, consumerGoods: 5, automotive: 2, pharma: 4 } },
+  { name: 'Ghana', lat: 7.9, lng: -1.0, risk: 39, shipping: 6, labor: 3, tariff: 10, infra: 5, costIndex: 38, mfgCapacity: 18, exportInfra: 32, supplierDensity: 14, leadTimeReliability: 40, sourcing: { technology: 5, textiles: 12, generalMfg: 15, consumerGoods: 10, automotive: 3, pharma: 6 } },
+  { name: 'Mauritius', lat: -20.3, lng: 57.6, risk: 16, shipping: 5, labor: 5, tariff: 5, infra: 6, costIndex: 52, mfgCapacity: 12, exportInfra: 40, supplierDensity: 10, leadTimeReliability: 60, sourcing: { technology: 8, textiles: 25, generalMfg: 10, consumerGoods: 12, automotive: 2, pharma: 6 } },
+  { name: 'Tanzania', lat: -6.4, lng: 34.9, risk: 26, shipping: 6, labor: 3, tariff: 10, infra: 4, costIndex: 35, mfgCapacity: 15, exportInfra: 28, supplierDensity: 12, leadTimeReliability: 38, sourcing: { technology: 3, textiles: 12, generalMfg: 12, consumerGoods: 8, automotive: 2, pharma: 5 } },
+  { name: 'Costa Rica', lat: 10.0, lng: -84.0, risk: 13, shipping: 4, labor: 5, tariff: 4, infra: 7, costIndex: 55, mfgCapacity: 22, exportInfra: 52, supplierDensity: 20, leadTimeReliability: 70, sourcing: { technology: 25, textiles: 8, generalMfg: 20, consumerGoods: 15, automotive: 8, pharma: 22 } },
+  { name: 'Uruguay', lat: -34.9, lng: -56.2, risk: 11, shipping: 5, labor: 6, tariff: 6, infra: 7, costIndex: 60, mfgCapacity: 15, exportInfra: 45, supplierDensity: 12, leadTimeReliability: 68, sourcing: { technology: 8, textiles: 10, generalMfg: 15, consumerGoods: 10, automotive: 5, pharma: 8 } },
+  { name: 'Paraguay', lat: -23.4, lng: -58.4, risk: 43, shipping: 7, labor: 3, tariff: 9, infra: 4, costIndex: 32, mfgCapacity: 12, exportInfra: 20, supplierDensity: 8, leadTimeReliability: 35, sourcing: { technology: 3, textiles: 8, generalMfg: 10, consumerGoods: 6, automotive: 3, pharma: 3 } },
+  { name: 'Ecuador', lat: -1.8, lng: -78.2, risk: 58, shipping: 5, labor: 3, tariff: 10, infra: 5, costIndex: 38, mfgCapacity: 15, exportInfra: 30, supplierDensity: 10, leadTimeReliability: 38, sourcing: { technology: 4, textiles: 8, generalMfg: 12, consumerGoods: 8, automotive: 3, pharma: 5 } },
+  { name: 'Denmark', lat: 56.3, lng: 9.5, risk: 10, shipping: 4, labor: 8, tariff: 3, infra: 9, costIndex: 55, mfgCapacity: 45, exportInfra: 72, supplierDensity: 38, leadTimeReliability: 90, sourcing: { technology: 32, textiles: 5, generalMfg: 35, consumerGoods: 22, automotive: 12, pharma: 55 } },
+  { name: 'Iceland', lat: 64.9, lng: -19.0, risk: 6, shipping: 5, labor: 9, tariff: 3, infra: 8, costIndex: 68, mfgCapacity: 8, exportInfra: 30, supplierDensity: 5, leadTimeReliability: 80, sourcing: { technology: 12, textiles: 2, generalMfg: 5, consumerGoods: 5, automotive: 1, pharma: 8 } },
+  { name: 'Afghanistan', lat: 33.9, lng: 67.7, risk: 92, shipping: 8, labor: 2, tariff: 15, infra: 2, costIndex: 65, mfgCapacity: 5, exportInfra: 5, leadTimeReliability: 10, sourcing: { technology: 1, textiles: 5, generalMfg: 2 } },
+  { name: 'Armenia', lat: 40.1, lng: 45.0, risk: 45, shipping: 6, labor: 4, tariff: 8, infra: 5, costIndex: 40, mfgCapacity: 10, exportInfra: 15, leadTimeReliability: 35, sourcing: { technology: 5, textiles: 8, generalMfg: 10 } },
+  { name: 'Bolivia', lat: -16.3, lng: -63.6, risk: 58, shipping: 7, labor: 3, tariff: 12, infra: 4, costIndex: 42, mfgCapacity: 12, exportInfra: 15, leadTimeReliability: 30, sourcing: { technology: 3, textiles: 10, generalMfg: 8 } },
+  { name: 'Belarus', lat: 53.7, lng: 27.9, risk: 82, shipping: 6, labor: 5, tariff: 20, infra: 6, costIndex: 50, mfgCapacity: 25, exportInfra: 30, leadTimeReliability: 45, sourcing: { technology: 10, textiles: 15, generalMfg: 18 } },
+  { name: 'Cuba', lat: 21.5, lng: -77.8, risk: 75, shipping: 7, labor: 3, tariff: 25, infra: 3, costIndex: 60, mfgCapacity: 8, exportInfra: 10, leadTimeReliability: 20, sourcing: { technology: 2, textiles: 5, generalMfg: 5 } },
+  { name: 'Israel', lat: 31.0, lng: 34.8, risk: 55, shipping: 5, labor: 8, tariff: 4, infra: 9, costIndex: 65, mfgCapacity: 35, exportInfra: 60, leadTimeReliability: 70, sourcing: { technology: 75, textiles: 5, pharma: 65 } },
+  { name: 'North Macedonia', lat: 41.6, lng: 21.7, risk: 32, shipping: 5, labor: 4, tariff: 5, infra: 6, costIndex: 35, mfgCapacity: 15, exportInfra: 25, leadTimeReliability: 50, sourcing: { technology: 8, textiles: 15, generalMfg: 20 } },
+  { name: 'Moldova', lat: 47.4, lng: 28.3, risk: 65, shipping: 6, labor: 3, tariff: 10, infra: 5, costIndex: 38, mfgCapacity: 10, exportInfra: 15, leadTimeReliability: 30, sourcing: { technology: 5, textiles: 12, generalMfg: 10 } },
+  { name: 'Senegal', lat: 14.5, lng: -14.4, risk: 42, shipping: 6, labor: 2, tariff: 12, infra: 4, costIndex: 40, mfgCapacity: 12, exportInfra: 22, leadTimeReliability: 35, sourcing: { technology: 3, textiles: 10, generalMfg: 12 } },
+  { name: 'Syria', lat: 34.8, lng: 39.0, risk: 96, shipping: 8, labor: 2, tariff: 25, infra: 2, costIndex: 75, mfgCapacity: 5, exportInfra: 5, leadTimeReliability: 5, sourcing: { technology: 1, textiles: 4, generalMfg: 3 } },
+  { name: 'Turkmenistan', lat: 38.9, lng: 59.5, risk: 68, shipping: 7, labor: 3, tariff: 15, infra: 4, costIndex: 45, mfgCapacity: 15, exportInfra: 20, leadTimeReliability: 30, sourcing: { technology: 2, textiles: 15, generalMfg: 12 } },
+  { name: 'Yemen', lat: 15.6, lng: 48.5, risk: 97, shipping: 9, labor: 2, tariff: 20, infra: 2, costIndex: 80, mfgCapacity: 3, exportInfra: 3, leadTimeReliability: 5, sourcing: { technology: 1, textiles: 2, generalMfg: 2 } },
+  { name: 'Zimbabwe', lat: -19.0, lng: 29.1, risk: 78, shipping: 7, labor: 2, tariff: 18, infra: 3, costIndex: 55, mfgCapacity: 10, exportInfra: 10, leadTimeReliability: 20, sourcing: { technology: 2, textiles: 5, generalMfg: 8 } },
+  { name: 'Zambia', lat: -13.1, lng: 27.8, risk: 52, shipping: 7, labor: 3, tariff: 12, infra: 4, costIndex: 45, mfgCapacity: 15, exportInfra: 15, leadTimeReliability: 40, sourcing: { technology: 3, textiles: 5, generalMfg: 15 } }
+];
+
+// UPDATED LOOKUP: Case-insensitive, supports name and code
+var COUNTRY_MAP = (function(){
+  var m = {};
+  for(var i=0; i<COUNTRY_DATA.length; i++){
+    var c = COUNTRY_DATA[i];
+    m[c.name.toLowerCase()] = c;
+    if(c.country_code) m[c.country_code.toLowerCase()] = c;
+  }
+  return m;
+})();
 
 var LAYER_CONFIG={risk:{name:'Risk Levels',sub:'Geopolitical & operational risk by country',legendTitle:'Risk Score',items:[{color:'#ff1a4a',label:'Critical (80–100)'},{color:'#ff8c00',label:'High (60–79)'},{color:'#f5c518',label:'Medium-High (45–59)'},{color:'#8bc34a',label:'Medium (30–44)'},{color:'#00e676',label:'Low-Medium (15–29)'},{color:'#00e5ff',label:'Low (0–14)'}]},shipping:{name:'Shipping Cost',sub:'Relative container shipping cost index',legendTitle:'Shipping Cost',items:[{color:'#ff1a4a',label:'Very High (9–10)'},{color:'#ff8c00',label:'High (7–8)'},{color:'#f5c518',label:'Moderate (5–6)'},{color:'#00e676',label:'Low (3–4)'},{color:'#00e5ff',label:'Very Low (1–2)'}]},labor:{name:'Labor Cost',sub:'Relative labor cost index',legendTitle:'Labor Cost',items:[{color:'#ff1a4a',label:'Very High (9–10)'},{color:'#ff8c00',label:'High (7–8)'},{color:'#f5c518',label:'Moderate (5–6)'},{color:'#00e676',label:'Low (3–4)'},{color:'#00e5ff',label:'Very Low (1–2)'}]},cost:{name:'Total Cost Index',sub:'Combined tariff, shipping, labor & infrastructure cost',legendTitle:'Cost Index',items:[{color:'#ff1a4a',label:'Very High (70–100)'},{color:'#ff8c00',label:'High (50–69)'},{color:'#f5c518',label:'Moderate (35–49)'},{color:'#8bc34a',label:'Below Average (25–34)'},{color:'#00e676',label:'Low (15–24)'},{color:'#00e5ff',label:'Very Low (0–14)'}]},sourcing:{name:'Sourcing Attractiveness',sub:'How attractive each country is as a sourcing destination',legendTitle:'Sourcing Attractiveness',items:[{color:'#00e5ff',label:'Top Tier (80–100)'},{color:'#00e676',label:'Strong (60–79)'},{color:'#8bc34a',label:'Good (40–59)'},{color:'#f5c518',label:'Moderate (20–39)'},{color:'#ff8c00',label:'Limited (10–19)'},{color:'#ff1a4a',label:'Minimal (0–9)'}]}};
 
 function getRiskColor(s){return s>=80?'#ff1a4a':s>=60?'#ff8c00':s>=45?'#f5c518':s>=30?'#8bc34a':s>=15?'#00e676':'#00e5ff';}
 function getSourcingColor(s){return s>=80?'#00e5ff':s>=60?'#00e676':s>=40?'#8bc34a':s>=20?'#f5c518':s>=10?'#ff8c00':'#ff1a4a';}
 function getRiskLabel(s){return s>=80?'CRITICAL':s>=60?'HIGH':s>=45?'MED-HIGH':s>=30?'MEDIUM':s>=15?'LOW-MED':'LOW';}
-function getScoreForLayer(c,l){if(l==='shipping')return c.shipping*10;if(l==='labor')return c.labor*10;if(l==='cost')return c.costIndex;if(l==='sourcing')return(c.sourcing&&c.sourcing[currentCategory])||0;return c.risk;}
+function getScoreForLayer(c,l){if(l==='shipping')return c.shipping*10;if(l==='labor')return c.labor*10;if(l==='cost')return c.costIndex;if(l==='sourcing')return(c.sourcing&&c.sourcing[currentCategory])||0;return c.risk_score || c.risk;}
 function getColorForLayer(s,l){return l==='sourcing'?getSourcingColor(s):getRiskColor(s);}
 function getCountryDotSize(n){if(['China','United States','Germany','Japan','South Korea'].indexOf(n)!==-1)return 9;if(['France','Italy','United Kingdom','Netherlands','Canada','Mexico','India','Vietnam','Taiwan','Singapore','Brazil','Russia'].indexOf(n)!==-1)return 7;return 5;}
 
-function buildCountryPopupHTML(c){var rc=getRiskColor(c.risk),rl=getRiskLabel(c.risk),ss=(c.sourcing&&c.sourcing[currentCategory])||0,sc=getSourcingColor(ss);return'<div class="popup-inner"><div class="popup-header"><span class="popup-country">'+c.name+'</span><span class="popup-risk-badge" style="background:'+rc+'22;color:'+rc+';border:1px solid '+rc+'44;">'+rl+'</span></div><div class="popup-divider"></div><div class="popup-row"><span class="popup-label">Risk Score</span><span class="popup-value" style="color:'+rc+'">'+c.risk+'/100</span></div><div class="popup-row"><span class="popup-label">Shipping</span><span class="popup-value">'+c.shipping+'/10</span></div><div class="popup-row"><span class="popup-label">Labor</span><span class="popup-value">'+c.labor+'/10</span></div><div class="popup-row"><span class="popup-label">Tariff</span><span class="popup-value">'+c.tariff+'%</span></div><div class="popup-row"><span class="popup-label">Infra</span><span class="popup-value">'+c.infra+'/10</span></div><div class="popup-row"><span class="popup-label">Sourcing</span><span class="popup-value" style="color:'+sc+'">'+ss+'/100</span></div><div class="popup-score-bar"><span class="popup-bar-label" style="color:'+rc+'">Risk</span><div class="popup-bar-track"><div class="popup-bar-fill" style="width:'+c.risk+'%;background:'+rc+'"></div></div></div><div class="popup-score-bar"><span class="popup-bar-label" style="color:'+sc+'">Src</span><div class="popup-bar-track"><div class="popup-bar-fill" style="width:'+ss+'%;background:'+sc+'"></div></div></div><p class="popup-insight">Mfg:'+c.mfgCapacity+' · Export:'+c.exportInfra+' · Lead:'+c.leadTimeReliability+'</p><button class="popup-deepdive-btn" onclick="deepDive(\''+c.name+'\')">Deep Dive →</button></div>';}
+function buildCountryPopupHTML(c){
+  var score = c.risk_score || c.risk;
+  var rc=getRiskColor(score), rl=getRiskLabel(score), ss=(c.sourcing&&c.sourcing[currentCategory])||0, sc=getSourcingColor(ss);
+  var brief = c.brief || "Intelligence pending: AI training in progress for 2026 data roadmap.";
+  return '<div class="popup-inner"><div class="popup-header"><span class="popup-country">'+c.name+'</span><span class="popup-risk-badge" style="background:'+rc+'22;color:'+rc+';border:1px solid '+rc+'44;">'+rl+'</span></div><div class="popup-divider"></div><div class="popup-row"><span class="popup-label">2026 Risk Score</span><span class="popup-value" style="color:'+rc+'">'+score+'/100</span></div><div class="popup-row"><span class="popup-label">Shipping</span><span class="popup-value">'+c.shipping+'/10</span></div><div class="popup-row"><span class="popup-label">Labor</span><span class="popup-value">'+c.labor+'/10</span></div><div class="popup-row"><span class="popup-label">Tariff</span><span class="popup-value">'+c.tariff+'%</span></div><div class="popup-row"><span class="popup-label">Infra</span><span class="popup-value">'+c.infra+'/10</span></div><div class="popup-row"><span class="popup-label">Sourcing</span><span class="popup-value" style="color:'+sc+'">'+ss+'/100</span></div><div class="popup-score-bar"><span class="popup-bar-label" style="color:'+rc+'">Risk</span><div class="popup-bar-track"><div class="popup-bar-fill" style="width:'+score+'%;background:'+rc+'"></div></div></div><div class="popup-score-bar"><span class="popup-bar-label" style="color:'+sc+'">Src</span><div class="popup-bar-track"><div class="popup-bar-fill" style="width:'+ss+'%;background:'+sc+'"></div></div></div><p class="popup-insight"><strong>2026 Intel:</strong> '+brief+'</p><button class="popup-deepdive-btn" onclick="deepDive(\''+c.name+'\')">Generate 2026 Report →</button></div>';
+}
 
 function initMap(){map=L.map('map',{center:[20,15],zoom:3,zoomControl:false,attributionControl:true,minZoom:3,maxZoom:8,scrollWheelZoom:true,worldCopyJump:true});L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OSM &copy; CARTO',subdomains:'abcd',maxZoom:19}).addTo(map);L.control.zoom({position:'bottomright'}).addTo(map);renderMarkers();buildLegend(currentLayer);setTimeout(function(){map.invalidateSize();},100);setTimeout(function(){map.invalidateSize();},200);setTimeout(function(){map.invalidateSize();},500);setTimeout(function(){map.invalidateSize();},1500);window.addEventListener('resize',function(){map.invalidateSize();});setTimeout(function(){var s=document.getElementById('mapSkeleton');if(s){s.style.transition='opacity 0.6s';s.style.opacity='0';setTimeout(function(){s.style.display='none';},600);}},1200);}
 
@@ -795,7 +871,7 @@ function buildLegend(layer){var cfg=LAYER_CONFIG[layer];if(!cfg)return;var t=doc
 
 function updateMapLayer(layer){currentLayer=layer;var btnMap={risk:'btnRisk',shipping:'btnShipping',labor:'btnLabor',cost:'btnCost',sourcing:'btnSourcing'};for(var k in btnMap){var b=document.getElementById(btnMap[k]);if(b)b.classList.toggle('active',k===layer);}var cfg=LAYER_CONFIG[layer];if(cfg){var n=document.getElementById('overlayName'),s=document.getElementById('overlaySub');if(n)n.textContent=cfg.name;if(s)s.textContent=cfg.sub;}renderMarkers();buildLegend(layer);}
 
-function deepDive(name){var c=COUNTRY_MAP[name];if(!c)return;sendMessage('Deep dive analysis of '+name+'. Risk:'+c.risk+'/100, Tariff:'+c.tariff+'%, Infra:'+c.infra+'/10.');}
+function deepDive(name){var c=COUNTRY_MAP[name.toLowerCase()];if(!c)return;sendMessage('Deep dive analysis of '+name+'. Risk:'+(c.risk_score || c.risk)+'/100, Tariff:'+c.tariff+'%, Infra:'+c.infra+'/10.');}
 
 document.addEventListener('DOMContentLoaded',function(){var cg=document.getElementById('sourcingChips');if(cg)cg.addEventListener('click',function(e){var chip=e.target.closest('.chip-option');if(!chip)return;chip.classList.toggle('selected');selectedSourcingCountries=[];var sel=cg.querySelectorAll('.chip-option.selected');for(var i=0;i<sel.length;i++)selectedSourcingCountries.push(sel[i].getAttribute('data-country'));});});
 
@@ -837,7 +913,6 @@ function closeProfileSection() {
     var btn=document.getElementById('psReopenBtn');
     if(btn) btn.style.display='flex';
     updateHeroStats();
-    // Start hero float after profile closes
     setTimeout(function(){ var h=document.getElementById('heroPanel'); if(h) h.style.animation='heroFloat 5s ease-in-out infinite'; }, 800);
   }, 560);
 }
@@ -927,7 +1002,6 @@ function buildPSForm() {
 function initPSFormChips() {
   var grid=document.getElementById('ps-sourcingChips');
   if(!grid) return;
-  // Re-select any already selected countries
   var chips=grid.querySelectorAll('.ps-sourcing-chip');
   for(var i=0;i<chips.length;i++){
     if(selectedSourcingCountries.indexOf(chips[i].getAttribute('data-country'))!==-1)
@@ -993,14 +1067,15 @@ function updateComparison() {
   var b=document.getElementById('ctCountryB').value;
   var results=document.getElementById('ctResults');
   if(!a||!b){results.innerHTML='<div class="ct-empty">SELECT TWO COUNTRIES TO COMPARE</div>';return;}
-  var ca=COUNTRY_MAP[a],cb=COUNTRY_MAP[b];
+  var ca=COUNTRY_MAP[a.toLowerCase()],cb=COUNTRY_MAP[b.toLowerCase()];
   if(!ca||!cb) return;
   results.innerHTML=buildCompCard(ca)+buildCompCard(cb);
 }
 
 function buildCompCard(c) {
-  var rc=getRiskColor(c.risk);
-  var rl=getRiskLabel(c.risk);
+  var score = c.risk_score || c.risk;
+  var rc=getRiskColor(score);
+  var rl=getRiskLabel(score);
   var ss=(c.sourcing&&c.sourcing[currentCategory])||0;
   var sc=getSourcingColor(ss);
   var indLbl=PS_IND_LABELS[currentCategory]||'Sourcing';
@@ -1008,8 +1083,8 @@ function buildCompCard(c) {
   return '<div class="ct-country-card">'+
     '<div class="ct-cname">'+c.name+'</div>'+
     '<div class="ct-risk-badge" style="background:'+rc+'22;color:'+rc+';border:1px solid '+rc+'44;">'+rl+'</div>'+
-    '<div class="ct-metric"><span class="ct-mlabel">Risk Score</span><span class="ct-mval" style="color:'+rc+'">'+c.risk+' / 100</span></div>'+
-    '<div class="ct-bar"><div class="ct-bar-track"><div class="ct-bar-fill" style="width:'+c.risk+'%;background:'+rc+'"></div></div></div>'+
+    '<div class="ct-metric"><span class="ct-mlabel">Risk Score</span><span class="ct-mval" style="color:'+rc+'">'+score+' / 100</span></div>'+
+    '<div class="ct-bar"><div class="ct-bar-track"><div class="ct-bar-fill" style="width:'+score+'%;background:'+rc+'"></div></div></div>'+
     '<div class="ct-metric"><span class="ct-mlabel">Tariff Rate</span><span class="ct-mval">'+c.tariff+'%</span></div>'+
     '<div class="ct-metric"><span class="ct-mlabel">Shipping Cost</span><span class="ct-mval">'+c.shipping+' / 10</span></div>'+
     '<div class="ct-metric"><span class="ct-mlabel">Labor Cost</span><span class="ct-mval">'+c.labor+' / 10</span></div>'+
@@ -1026,10 +1101,11 @@ function buildCompCard(c) {
 }
 
 function getNewsPlaceholder(c) {
+  var score = c.risk_score || c.risk;
   var items=[];
-  if(c.risk>=80) items.push('⚠ Critical risk region — heightened monitoring active');
-  else if(c.risk>=60) items.push('◈ Elevated risk — disruption alerts enabled');
-  else if(c.risk>=30) items.push('◇ Moderate risk — standard monitoring active');
+  if(score>=80) items.push('⚠ Critical risk region — heightened monitoring active');
+  else if(score>=60) items.push('◈ Elevated risk — disruption alerts enabled');
+  else if(score>=30) items.push('◇ Moderate risk — standard monitoring active');
   else items.push('✓ Stable region — baseline monitoring active');
   items.push('Tariff rate: '+c.tariff+'% — tracking live changes');
   items.push('Export infrastructure: '+c.exportInfra+'/100 · Lead time reliability: '+c.leadTimeReliability+'/100');
@@ -1044,7 +1120,6 @@ function saveProfileToStorage(){
 // ===== HERO STATS (profile-driven) =====
 function updateHeroStats(){
   var industryLabel=PS_IND_LABELS[userProfile.industry]||'Supply Chain';
-  var regCount=selectedSourcingCountries.length||73;
   var statNums=document.querySelectorAll('.hero-stat-num');
   var statLbls=document.querySelectorAll('.hero-stat-lbl');
   if(statNums[0]&&statLbls[0]){
@@ -1065,7 +1140,6 @@ function initGlassTilt(){
   var panels=document.querySelectorAll('.glass');
   for(var i=0;i<panels.length;i++){
     (function(p){
-      // Skip layer controls (small tab bar)
       if(p.classList.contains('layer-controls'))return;
       p.addEventListener('mousemove',function(e){
         var r=this.getBoundingClientRect();
@@ -1096,13 +1170,45 @@ function addUserMessage(t){var m=document.getElementById('chatMessages'),d=docum
 function addAIMessage(t){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.innerHTML='<span class="msg-label">RiskSim AI</span>'+t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function addTypingIndicator(){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.id='typing';d.innerHTML='<span class="msg-label">RiskSim AI</span><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function removeTypingIndicator(){var t=document.getElementById('typing');if(t)t.remove();}
-async function sendMessage(userText){addUserMessage(userText);addTypingIndicator();try{var cd=COUNTRY_DATA.slice(0,10).map(function(c){return c.name+':risk='+c.risk;}).join(';');var pc='';if(userProfile.industry)pc+='Industry:'+(PS_IND_LABELS[userProfile.industry]||userProfile.industry)+'. ';if(userProfile.type)pc+='CompanyType:'+(PS_TYPE_LABELS[userProfile.type]||userProfile.type)+'. ';if(userProfile.regions)pc+='SourcingRegions:'+userProfile.regions+'. ';if(userProfile.country)pc+='HomeCountry:'+userProfile.country+'. ';var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,context:pc+cd})});var d=await r.json();removeTypingIndicator();addAIMessage(d.response||'Unable to process.');}catch(e){removeTypingIndicator();addAIMessage('Connection error.');}}
+
+// === UPDATED SENDMESSAGE: MOCK BRAIN FALLBACK ===
+async function sendMessage(userText){
+  addUserMessage(userText);
+  addTypingIndicator();
+  const query = userText.toLowerCase();
+
+  try{
+    var pc='';
+    if(userProfile.industry)pc+='Industry:'+(PS_IND_LABELS[userProfile.industry]||userProfile.industry)+'. ';
+    if(userProfile.type)pc+='CompanyType:'+(PS_TYPE_LABELS[userProfile.type]||userProfile.type)+'. ';
+    
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,context:pc})});
+    var d=await r.json();
+    removeTypingIndicator();
+    addAIMessage(d.response||'Unable to process.');
+  }catch(e){
+    // MOCK BRAIN FALLBACK: Scans local 101-country data
+    setTimeout(function(){
+      removeTypingIndicator();
+      let response = "Scanning global 2026 intelligence nodes... Please specify a country (e.g., 'Finland' or 'SG') for a 2026 risk report.";
+      
+      for(let key in COUNTRY_MAP){
+        if(query.includes(key)){
+          let c = COUNTRY_MAP[key];
+          let score = c.risk_score || c.risk;
+          response = `<strong>Target Identified: ${c.name}</strong><br><br>${c.brief || 'Data pending for 2026 analysis.'}<br><br>Risk Score: ${score}/100. Sourcing Attractiveness: ${(c.sourcing && c.sourcing[currentCategory]) || 0}/100.`;
+          break;
+        }
+      }
+      addAIMessage(response);
+    }, 800);
+  }
+}
 
 document.addEventListener('DOMContentLoaded',function(){
   initMap();
   initGlassTilt();
   initOnboardScrollIndicator();
-  // Sync onboarding chips if profile was loaded from localStorage
   if(selectedSourcingCountries.length){
     var cg=document.getElementById('sourcingChips');
     if(cg){var chips=cg.querySelectorAll('.chip-option');for(var i=0;i<chips.length;i++){if(selectedSourcingCountries.indexOf(chips[i].getAttribute('data-country'))!==-1)chips[i].classList.add('selected');}}
@@ -1111,7 +1217,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
-<!-- ===== D3 INTRO GLOBE ===== -->
 <script>
 (function(){
   var intro=document.getElementById('rs-intro');
@@ -1135,25 +1240,19 @@ document.addEventListener('DOMContentLoaded',function(){
 
   function pointInPoly(pt,poly){var x=pt[0],y=pt[1],inside=false;for(var i=0,j=poly.length-1;i<poly.length;j=i++){var xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(yi>y!==yj>y&&x<((xj-xi)*(y-yi))/(yj-yi)+xi)inside=!inside;}return inside;}
   function pointInFeature(pt,f){var g=f.geometry;if(g.type==='Polygon'){if(!pointInPoly(pt,g.coordinates[0]))return false;for(var i=1;i<g.coordinates.length;i++)if(pointInPoly(pt,g.coordinates[i]))return false;return true;}if(g.type==='MultiPolygon'){for(var p=0;p<g.coordinates.length;p++){if(pointInPoly(pt,g.coordinates[p][0])){var hole=false;for(var i=1;i<g.coordinates[p].length;i++)if(pointInPoly(pt,g.coordinates[p][i])){hole=true;break;}if(!hole)return true;}}return false;}return false;}
-
   function genDots(feature,spacing){var dots=[];var b=d3.geoBounds(feature);var step=spacing*0.08;for(var lng=b[0][0];lng<=b[1][0];lng+=step)for(var lat=b[0][1];lat<=b[1][1];lat+=step)if(pointInFeature([lng,lat],feature))dots.push([lng,lat]);return dots;}
 
   function render(){
     ctx.clearRect(0,0,W,H);
     var s=proj.scale();
-    // Globe bg
     ctx.beginPath();ctx.arc(W/2,H/2+H*0.08,s,0,2*Math.PI);ctx.fillStyle='#000';ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1.5;ctx.stroke();
     if(landData){
-      // Graticule
       var grat=d3.geoGraticule();ctx.beginPath();pathGen(grat());ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=0.5;ctx.stroke();
-      // Land outlines
       ctx.beginPath();landData.features.forEach(function(f){pathGen(f);});ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=0.8;ctx.stroke();
-      // Dots
       allDots.forEach(function(d){var p=proj(d);if(p&&p[0]>=0&&p[0]<=W&&p[1]>=0&&p[1]<=H){ctx.beginPath();ctx.arc(p[0],p[1],1,0,2*Math.PI);ctx.fillStyle='rgba(160,170,180,0.5)';ctx.fill();}});
     }
   }
 
-  // Load land data
   fetch('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json')
     .then(function(r){return r.json();})
     .then(function(data){
@@ -1162,52 +1261,28 @@ document.addEventListener('DOMContentLoaded',function(){
       render();
     }).catch(function(){render();});
 
-  // Auto-rotate
   var autoRotate=true;
   var timer=d3.timer(function(){
     if(autoRotate){rotation[0]+=0.3;proj.rotate(rotation);render();}
   });
 
-  // Resize
   function onResize(){W=window.innerWidth;H=window.innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.scale(dpr,dpr);radius=Math.min(W,H)*0.35;proj.scale(radius).translate([W/2,H/2+H*0.08]);render();}
   window.addEventListener('resize',onResize);
 
-  // Dismiss
   var dismissed=false;
   function dismiss(){
     if(dismissed)return;dismissed=true;
     window.__introDismissed=true;
     intro.classList.add('dismissing');
-    var cleaned=false;
     function cleanup(){
-      if(cleaned)return;cleaned=true;
-      intro.removeEventListener('transitionend',onTransitionEnd);
-      timer.stop();
-      intro.remove();
-      window.removeEventListener('resize',onResize);
-      document.body.style.overflow='';
-      document.documentElement.style.overflow='';
-      document.body.style.position='';
-      document.body.style.height='';
-      document.body.style.width='';
-      document.body.style.top='';
-      document.documentElement.style.height='';
-      requestAnimationFrame(function(){
-        if(map)map.invalidateSize();
-        if(window.showProfileSection)window.showProfileSection();
-      });
+      timer.stop(); intro.remove(); window.removeEventListener('resize',onResize);
+      document.body.style.overflow=''; document.documentElement.style.overflow=''; document.body.style.position='';
+      requestAnimationFrame(function(){ if(map)map.invalidateSize(); if(window.showProfileSection)window.showProfileSection(); });
     }
-    function onTransitionEnd(e){if(e.propertyName==='opacity')cleanup();}
-    intro.addEventListener('transitionend',onTransitionEnd);
     setTimeout(cleanup,1800);
   }
   window.__dismissIntro=dismiss;
   intro.addEventListener('click',dismiss);
-  // Block scroll while intro is up
-  intro.addEventListener('wheel',function(e){e.preventDefault();dismiss();},{passive:false});
-  var ty=0;
-  intro.addEventListener('touchstart',function(e){ty=e.touches[0].clientY;},{passive:true});
-  intro.addEventListener('touchmove',function(e){e.preventDefault();if(e.touches[0].clientY<ty-30)dismiss();},{passive:false});
 })();
 </script>
 </body>
