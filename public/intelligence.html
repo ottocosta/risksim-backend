@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERMINAL_ALPHA — RiskSim Intelligence</title>
+    <meta name="description"
+        content="RiskSim AI Strategic Command Center — Live supply chain intelligence and geopolitical risk analysis.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ============================================
+       TERMINAL_ALPHA — Apple-at-Midnight Aesthetic
+       ============================================ */
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+            --black: #000000;
+            --white: #ffffff;
+            --grey-100: rgba(255, 255, 255, 0.03);
+            --grey-200: rgba(255, 255, 255, 0.05);
+            --grey-300: rgba(255, 255, 255, 0.08);
+            --grey-400: rgba(255, 255, 255, 0.1);
+            --grey-500: rgba(255, 255, 255, 0.2);
+            --grey-600: rgba(255, 255, 255, 0.3);
+            --grey-700: rgba(255, 255, 255, 0.5);
+            --grey-800: rgba(255, 255, 255, 0.7);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-tertiary: rgba(255, 255, 255, 0.35);
+            --text-muted: rgba(255, 255, 255, 0.2);
+            --border-default: rgba(255, 255, 255, 0.1);
+            --border-hover: rgba(255, 255, 255, 0.3);
+            --red-critical: #FF3B30;
+            --red-glow: rgba(255, 59, 48, 0.15);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-blur: blur(40px) saturate(180%);
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        body {
+            background: var(--black);
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== SCAN LINE OVERLAY ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            pointer-events: none;
+            background: repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.008) 2px,
+                    rgba(255, 255, 255, 0.008) 4px);
+        }
+
+        /* ===== PAGE CONTAINER ===== */
+        .terminal-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 48px 48px 80px;
+        }
+
+        /* ===== TOP BAR ===== */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-default);
+            margin-bottom: 12px;
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .system-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+        }
+
+        .system-version {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-primary);
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        .status-dot--critical {
+            background: var(--red-critical);
+            box-shadow: 0 0 8px var(--red-critical);
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .live-clock {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            letter-spacing: 0.08em;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        /* ===== HEADER ===== */
+        .terminal-header {
+            padding: 60px 0 24px;
+        }
+
+        .terminal-title {
+            font-family: var(--font-display);
+            font-size: clamp(56px, 8vw, 96px);
+            font-weight: 200;
+            letter-spacing: -0.05em;
+            line-height: 0.95;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .terminal-title span {
+            color: var(--text-tertiary);
+            font-weight: 200;
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--grey-300);
+        }
+
+        .header-meta-item {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+        }
+
+        .header-meta-item strong {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .header-divider {
+            width: 1px;
+            height: 12px;
+            background: var(--grey-400);
+        }
+
+        /* ===== INTEL GRID ===== */
+        .intel-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            margin-top: 48px;
+            background: var(--border-default);
+        }
+
+        /* ===== INTEL CARD ===== */
+        .intel-card {
+            position: relative;
+            background: var(--card-bg);
+            backdrop-filter: var(--card-blur);
+            -webkit-backdrop-filter: var(--card-blur);
+            border: 1px solid var(--border-default);
+            padding: 32px 28px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+            cursor: default;
+        }
+
+        .intel-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--border-hover);
+        }
+
+        /* Severity bar — left edge */
+        .intel-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--white);
+            opacity: 0.4;
+            transition: opacity 0.4s ease;
+        }
+
+        .intel-card:hover::before {
+            opacity: 0.8;
+        }
+
+        .intel-card--critical::before {
+            background: var(--red-critical);
+            opacity: 0.9;
+            box-shadow: 0 0 12px var(--red-glow);
+        }
+
+        .intel-card--critical:hover::before {
+            opacity: 1;
+            box-shadow: 0 0 20px var(--red-glow);
+        }
+
+        /* Span 2 columns for critical card */
+        .intel-card--wide {
+            grid-column: span 2;
+        }
+
+        /* Card header row */
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .card-classification {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            padding: 4px 0;
+        }
+
+        .card-classification--critical {
+            color: var(--red-critical);
+        }
+
+        .classification-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .card-id {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+        }
+
+        /* Card timestamp */
+        .card-timestamp {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+        }
+
+        /* Card headline */
+        .card-headline {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: -0.03em;
+            line-height: 1.3;
+            color: var(--text-primary);
+        }
+
+        .intel-card--critical .card-headline {
+            font-size: 24px;
+        }
+
+        /* Card body / analysis */
+        .card-analysis {
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 300;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            letter-spacing: 0.01em;
+        }
+
+        /* Card metadata tags */
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid var(--grey-300);
+        }
+
+        .card-tag {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            padding: 4px 10px;
+            border: 1px solid var(--grey-300);
+            background: var(--grey-100);
+            transition: border-color 0.3s ease, color 0.3s ease;
+        }
+
+        .intel-card:hover .card-tag {
+            border-color: var(--grey-500);
+            color: var(--text-secondary);
+        }
+
+        .card-tag--impact {
+            border-color: var(--grey-400);
+        }
+
+        .intel-card--critical .card-tag--impact {
+            border-color: rgba(255, 59, 48, 0.3);
+            color: var(--red-critical);
+        }
+
+        /* ===== STATUS BAR (FOOTER) ===== */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 48px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-default);
+        }
+
+        .status-bar-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-bar-item {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .status-bar-item strong {
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .status-bar-divider {
+            width: 1px;
+            height: 10px;
+            background: var(--grey-300);
+        }
+
+        /* ===== CLASSIFICATION BANNER ===== */
+        .classification-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid var(--grey-300);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .classification-text {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 0.3em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* ===== ENTRY ANIMATION ===== */
+        @keyframes fade-up {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            opacity: 0;
+            animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-in:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .animate-in:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .animate-in:nth-child(3) {
+            animation-delay: 0.35s;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .terminal-container {
+                padding: 32px 24px 60px;
+            }
+
+            .intel-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .intel-card--wide {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .terminal-container {
+                padding: 24px 16px 60px;
+            }
+
+            .terminal-title {
+                font-size: 40px;
+            }
+
+            .intel-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .intel-card--wide {
+                grid-column: span 1;
+            }
+
+            .header-meta {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .top-bar-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
+
+        /* ===== SELECTION ===== */
+        ::selection {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--grey-400);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--grey-500);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="terminal-container">
+
+        <!-- ===== TOP BAR ===== -->
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <span class="system-label">RiskSim AI</span>
+                <span class="system-version">v4.2.1</span>
+            </div>
+            <div class="top-bar-right">
+                <div class="status-indicator">
+                    <div class="status-dot status-dot--critical"></div>
+                    <span>1 Critical Alert</span>
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>System Online</span>
+                </div>
+                <div class="live-clock" id="liveClock">--:--:--</div>
+            </div>
+        </div>
+
+        <!-- ===== HEADER ===== -->
+        <header class="terminal-header">
+            <h1 class="terminal-title">TERMINAL<span>_ALPHA</span></h1>
+            <div class="header-meta">
+                <div class="header-meta-item">
+                    Classification: <strong>Internal</strong>
+                </div>
+                <div class="header-divider"></div>
+                <div class="header-meta-item">
+                    Feed: <strong>Live</strong>
+                </div>
+                <div class="header-divider"></div>
+                <div class="header-meta-item">
+                    Sector Coverage: <strong>Global</strong>
+                </div>
+                <div class="header-divider"></div>
+                <div class="header-meta-item">
+                    Last Sync: <strong id="lastSync">—</strong>
+                </div>
+            </div>
+        </header>
+
+        <!-- ===== INTEL GRID ===== -->
+        <div class="intel-grid">
+
+            <!-- CARD 1: CRITICAL — Suez/Hormuz -->
+            <article class="intel-card intel-card--critical intel-card--wide animate-in" id="card-risk-9904">
+                <div class="card-header">
+                    <div class="card-classification card-classification--critical">
+                        <span class="classification-dot"></span>
+                        Critical
+                    </div>
+                    <span class="card-id">RISK-9904</span>
+                </div>
+                <div class="card-timestamp">2026-03-15T10:34:07Z · Automated Signal Detection</div>
+                <h2 class="card-headline">Suez / Hormuz Dual-Chokepoint Closure</h2>
+                <p class="card-analysis">
+                    Satellite imagery and AIS transponder data confirm simultaneous navigational restrictions across the
+                    Suez Canal and Strait of Hormuz corridors. Approximately 21% of global maritime trade volume is
+                    directly exposed. Container rerouting via the Cape of Good Hope adds 12–14 days to Asia–Europe
+                    transit times, with freight rate indices surging 340% above baseline within the first 72 hours.
+                    Downstream effects on refined petroleum, LNG spot pricing, and just-in-time automotive supply chains
+                    are already materializing.
+                </p>
+                <div class="card-tags">
+                    <span class="card-tag">Lane: Asia–Europe</span>
+                    <span class="card-tag">Lane: ME–Global</span>
+                    <span class="card-tag">Sector: Maritime / Energy</span>
+                    <span class="card-tag card-tag--impact">Impact: Severe</span>
+                </div>
+            </article>
+
+            <!-- CARD 2: REGULATORY — CBAM -->
+            <article class="intel-card animate-in" id="card-risk-7781">
+                <div class="card-header">
+                    <div class="card-classification">
+                        <span class="classification-dot"></span>
+                        Regulatory
+                    </div>
+                    <span class="card-id">RISK-7781</span>
+                </div>
+                <div class="card-timestamp">2026-03-14T16:12:00Z · Policy Monitor</div>
+                <h2 class="card-headline">CBAM Final Enforcement Phase: Mar 31 Deadline</h2>
+                <p class="card-analysis">
+                    The EU Carbon Border Adjustment Mechanism enters its definitive enforcement phase on March 31.
+                    Importers of steel, aluminum, cement, fertilizers, electricity, and hydrogen must now surrender CBAM
+                    certificates corresponding to embedded carbon emissions. Non-compliant shipments face border holds
+                    and financial penalties of €100/tonne CO₂ equivalent. Estimated cost uplift of 8–14% on affected
+                    product categories for non-EU origin goods.
+                </p>
+                <div class="card-tags">
+                    <span class="card-tag">Lane: Global–EU</span>
+                    <span class="card-tag">Sector: Industrial / Energy</span>
+                    <span class="card-tag card-tag--impact">Impact: High</span>
+                </div>
+            </article>
+
+            <!-- CARD 3: TRADE — Section 122 -->
+            <article class="intel-card animate-in" id="card-risk-6102">
+                <div class="card-header">
+                    <div class="card-classification">
+                        <span class="classification-dot"></span>
+                        Trade
+                    </div>
+                    <span class="card-id">RISK-6102</span>
+                </div>
+                <div class="card-timestamp">2026-03-13T08:45:33Z · Tariff Watch</div>
+                <h2 class="card-headline">US Section 122 Tariff Adjustment — 13.7% Average</h2>
+                <p class="card-analysis">
+                    The United States Trade Representative has announced a broad Section 122 tariff recalibration
+                    effective April 1, imposing a weighted average duty of 13.7% across 847 HTS subheadings. Consumer
+                    electronics, industrial machinery, and intermediate chemical inputs are disproportionately affected.
+                    Early modeling indicates landed cost increases of $2.1–3.8B annually for top-20 US importers.
+                    Nearshoring to Mexico and reshoring incentives under IRA provisions are accelerating as
+                    countermeasures.
+                </p>
+                <div class="card-tags">
+                    <span class="card-tag">Lane: Asia–US</span>
+                    <span class="card-tag">Sector: Multi-Sector</span>
+                    <span class="card-tag card-tag--impact">Impact: Elevated</span>
+                </div>
+            </article>
+
+        </div>
+
+        <!-- ===== STATUS BAR ===== -->
+        <div class="status-bar">
+            <div class="status-bar-group">
+                <span class="status-bar-item">Sources: <strong>3 Active Feeds</strong></span>
+                <div class="status-bar-divider"></div>
+                <span class="status-bar-item">Intel Items: <strong>3 / 3 Displayed</strong></span>
+                <div class="status-bar-divider"></div>
+                <span class="status-bar-item">Refresh Rate: <strong>Real-Time</strong></span>
+            </div>
+            <div class="status-bar-group">
+                <span class="status-bar-item">Node: <strong>US-EAST-1</strong></span>
+                <div class="status-bar-divider"></div>
+                <span class="status-bar-item">Session: <strong id="sessionId">—</strong></span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== CLASSIFICATION BANNER ===== -->
+    <div class="classification-banner">
+        <span class="classification-text">RiskSim AI — Internal Use Only — Terminal Alpha</span>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        // Live clock
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('liveClock').textContent = `${h}:${m}:${s}`;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Last sync timestamp
+        (function setLastSync() {
+            const now = new Date();
+            const iso = now.toISOString().slice(0, 19) + 'Z';
+            document.getElementById('lastSync').textContent = iso;
+        })();
+
+        // Session ID
+        (function setSessionId() {
+            const hex = () => Math.floor(Math.random() * 0xFFFF).toString(16).padStart(4, '0');
+            document.getElementById('sessionId').textContent = `${hex()}-${hex()}`;
+        })();
+    </script>
+
+</body>
+
+</html>
