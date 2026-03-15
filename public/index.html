@@ -212,39 +212,6 @@
     .map-marker:hover .marker-dot { transform: scale(1.5) !important; filter: brightness(1.4) drop-shadow(0 0 8px currentColor); cursor: pointer; }
     .sourcing-region-dot { outline: 2px solid rgba(125,249,194,0.6); outline-offset: 2px; border-radius: 50%; }
 
-    /* ===== ALERT BANNER ===== */
-    #alertBanner {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
-      display: none; flex-direction: column;
-      transform: translateY(-100%); transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
-    }
-    #alertBanner.ab-visible { display: flex; transform: translateY(0); }
-    .alert-banner-header {
-      display: flex; align-items: center; justify-content: space-between; padding: 7px 16px;
-      background: rgba(5,6,8,0.97); border-bottom: 1px solid rgba(125,249,194,0.12);
-      backdrop-filter: blur(20px);
-    }
-    .alert-banner-title { font-family:var(--font-mono); font-size:8px; letter-spacing:0.2em; color:rgba(125,249,194,0.8); text-transform:uppercase; display:flex; align-items:center; gap:7px; }
-    .alert-live-dot { width:6px; height:6px; border-radius:50%; background:rgba(125,249,194,0.9); box-shadow:0 0 6px rgba(125,249,194,0.6); animation:rsBlink 1.8s infinite; display:inline-block; }
-    .alert-banner-close-all { font-family:var(--font-mono); font-size:9px; color:var(--muted); cursor:pointer; background:none; border:1px solid rgba(255,255,255,0.06); border-radius:4px; padding:3px 8px; transition:all 0.2s; }
-    .alert-banner-close-all:hover { color:#fff; border-color:rgba(255,255,255,0.15); }
-    .alert-item {
-      display: flex; align-items: center; gap: 10px; padding: 8px 16px;
-      background: rgba(8,10,20,0.93); backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255,255,255,0.04); font-size:11px; font-family:var(--font-mono);
-      transition: opacity 0.3s, max-height 0.3s;
-    }
-    .alert-item.severity-high { border-left: 3px solid #ff4466; }
-    .alert-item.severity-medium { border-left: 3px solid #f5c518; }
-    .alert-item.severity-low { border-left: 3px solid rgba(125,249,194,0.6); }
-    .alert-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; animation:rsBlink 2s infinite; }
-    .severity-high .alert-dot { background:#ff4466; box-shadow:0 0 6px #ff4466; }
-    .severity-medium .alert-dot { background:#f5c518; box-shadow:0 0 6px #f5c518; }
-    .severity-low .alert-dot { background:rgba(125,249,194,0.8); box-shadow:0 0 5px rgba(125,249,194,0.4); }
-    .alert-text { flex:1; color:#94a3b8; letter-spacing:0.02em; line-height:1.4; }
-    .alert-dismiss { width:20px; height:20px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); color:var(--muted); font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; padding:0; }
-    .alert-dismiss:hover { background:rgba(255,255,255,0.12); color:#fff; }
-
     /* ===== SKELETON ===== */
     #mapSkeleton {
       position:fixed; inset:0; z-index:1; background:var(--bg);
@@ -748,9 +715,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
   </div>
 </div>
 
-<!-- ===== ALERT BANNER ===== -->
-<div id="alertBanner"></div>
-
 <!-- Profile reopen button -->
 <button id="psReopenBtn" title="View Profile" onclick="showProfileSection()">⊕</button>
 
@@ -770,15 +734,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
 </div>
 
 <script>
-// ===== LIVE ALERTS (replace array content for live API feed from n8n without changing display code) =====
-var LIVE_ALERTS = [
-  { id: 'la1', text: 'US tariffs on Chinese electronics increased to 30% — affects technology sourcing chains globally', severity: 'high' },
-  { id: 'la2', text: 'Red Sea disruptions continuing — container rates up 18% on Asia-Europe routes, expect 5-9 day delays', severity: 'high' },
-  { id: 'la3', text: 'India export restrictions on select pharmaceutical APIs — monitor pharma supply chains closely', severity: 'medium' },
-  { id: 'la4', text: 'Vietnam labor disputes in Ho Chi Minh City industrial zones — possible 2-week production delays', severity: 'medium' },
-  { id: 'la5', text: 'EU CBAM carbon tariffs effective Q2 2026 — impacts steel, aluminum and cement imports from non-EU countries', severity: 'low' }
-];
-
 var map=null,countryMarkers={},currentLayer='risk',currentCategory='technology',userProfile={},selectedSourcingCountries=[];
 
 // ===== LOAD PROFILE FROM LOCALSTORAGE =====
@@ -881,7 +836,6 @@ function closeProfileSection() {
     if(card){ card.removeEventListener('mousemove',psTilt); card.removeEventListener('mouseleave',psUntilt); }
     var btn=document.getElementById('psReopenBtn');
     if(btn) btn.style.display='flex';
-    initAlertBanner();
     updateHeroStats();
     // Start hero float after profile closes
     setTimeout(function(){ var h=document.getElementById('heroPanel'); if(h) h.style.animation='heroFloat 5s ease-in-out infinite'; }, 800);
@@ -1104,44 +1058,6 @@ function updateHeroStats(){
   if(desc&&userProfile.industry){
     desc.textContent='RiskSim AI monitors global supply chains for '+industryLabel+' businesses, analyzing geopolitical, economic, and operational data to predict disruptions before they impact your operations.';
   }
-}
-
-// ===== ALERT BANNER =====
-var _alertBannerInited=false;
-function initAlertBanner(){
-  if(_alertBannerInited)return;
-  _alertBannerInited=true;
-  var dismissed=[];
-  try{ dismissed=JSON.parse(localStorage.getItem('risksim_dismissed_alerts')||'[]'); }catch(e){}
-  var active=LIVE_ALERTS.filter(function(a){return dismissed.indexOf(a.id)===-1;});
-  if(!active.length)return;
-  var banner=document.getElementById('alertBanner');
-  if(!banner)return;
-  var html='<div class="alert-banner-header"><span class="alert-banner-title"><span class="alert-live-dot"></span>Live Alerts &mdash; '+active.length+' active</span><button class="alert-banner-close-all" onclick="dismissAllAlerts()">Dismiss All</button></div>';
-  active.forEach(function(a){
-    html+='<div class="alert-item severity-'+a.severity+'" id="ai-'+a.id+'"><div class="alert-dot"></div><span class="alert-text">'+a.text+'</span><button class="alert-dismiss" onclick="dismissAlert(\''+a.id+'\')" title="Dismiss">&#x2715;</button></div>';
-  });
-  banner.innerHTML=html;
-  banner.style.display='flex';
-  requestAnimationFrame(function(){requestAnimationFrame(function(){banner.classList.add('ab-visible');});});
-}
-function dismissAlert(id){
-  var el=document.getElementById('ai-'+id);
-  if(el){el.style.opacity='0';setTimeout(function(){el.remove();checkBannerEmpty();},300);}
-  var dismissed=[];try{dismissed=JSON.parse(localStorage.getItem('risksim_dismissed_alerts')||'[]');}catch(e){}
-  if(dismissed.indexOf(id)===-1)dismissed.push(id);
-  try{localStorage.setItem('risksim_dismissed_alerts',JSON.stringify(dismissed));}catch(e){}
-}
-function checkBannerEmpty(){
-  var banner=document.getElementById('alertBanner');
-  if(banner&&banner.querySelectorAll('.alert-item').length===0){banner.classList.remove('ab-visible');setTimeout(function(){banner.style.display='none';},500);}
-  else if(banner){var hdr=banner.querySelector('.alert-banner-title');if(hdr){var cnt=banner.querySelectorAll('.alert-item').length;hdr.innerHTML='<span class="alert-live-dot"></span>Live Alerts &mdash; '+cnt+' active';}}
-}
-function dismissAllAlerts(){
-  var ids=LIVE_ALERTS.map(function(a){return a.id;});
-  try{localStorage.setItem('risksim_dismissed_alerts',JSON.stringify(ids));}catch(e){}
-  var banner=document.getElementById('alertBanner');
-  if(banner){banner.classList.remove('ab-visible');setTimeout(function(){banner.style.display='none';},500);}
 }
 
 // ===== GLASS 3D TILT =====
