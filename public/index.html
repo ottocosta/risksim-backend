@@ -1084,6 +1084,52 @@ async function sendMessage(userText){
 
   // 🛡️ 1. HIJACK QUICK ACTIONS (Instant Demo Mode)
   let response = "";
+  if(query.includes('optimization')) response = "<strong>Optimization Hub:</strong> Analyzing 101 nodes... Suggest diversifying 15% sourcing to <strong>Vietnam</strong> to mitigate tariff spikes while leveraging <strong>Oulu (Finland)</strong> for Nordic distribution.";
+  if(query.includes('audit')) response = "<strong>Full Network Audit:</strong> 101 nodes active. Identified bottleneck in <strong>Panama</strong> due to water-automation lag. <strong>Singapore</strong> remains the highest-efficiency transshipment node.";
+  if(query.includes('alert')) response = "<strong>Live Intelligence:</strong> [CRITICAL] Suez transit fees revised +4% for 2026. [STABLE] Baltic logistics reporting 100% throughput.";
+
+  // IMPORTANT: This part was missing in your screenshot! 
+  // It checks if we found a demo answer and stops the code from hitting the error.
+  if(response) {
+    setTimeout(() => { 
+      removeTypingIndicator(); 
+      addAIMessage(response); 
+    }, 800);
+    return; // This stops the function here so it doesn't fail later
+  }
+
+  // 🛡️ 2. SCAN LOCAL COUNTRY DATA (Instant Answer)
+  for(let key in COUNTRY_MAP) {
+    if(query.includes(key.toLowerCase())) {
+      let c = COUNTRY_MAP[key];
+      let msg = `<strong>Target Identified: ${c.name}</strong><br><br>${c.brief || '2026 localized risk report pending AI training.'}<br><br><strong>Risk Score:</strong> ${c.risk_score || c.risk}/100. <br><strong>Status:</strong> ${c.severity || 'STABLE'}.`;
+      setTimeout(() => { removeTypingIndicator(); addAIMessage(msg); }, 800);
+      return;
+    }
+  }
+
+  // 🌐 3. BACKEND FALLBACK (Only if Step 1 & 2 fail)
+  try {
+    var r = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userText, context: JSON.stringify(userProfile) })
+    });
+    if (!r.ok) throw new Error();
+    var d = await r.json();
+    removeTypingIndicator();
+    addAIMessage(d.response || 'Analysis complete.');
+  } catch (e) {
+    // 🆘 4. EMERGENCY FALLBACK
+    setTimeout(() => {
+      removeTypingIndicator();
+      addAIMessage("Analyzing global intelligence nodes... Please specify a country (e.g. 'Finland' or 'Oman') for a 2026 deep-dive report.");
+    }, 800);
+  }
+}
+
+  // 🛡️ 1. HIJACK QUICK ACTIONS (Instant Demo Mode)
+  let response = "";
   if(query.includes('optimization')) response = "<strong>Optimization Hub:</strong> Analyzing 101 nodes... Suggest diversifying 15% sourcing to <strong>Vietnam</strong> to reduce tariff spikes while leveraging <strong>Oulu (Finland)</strong> for Nordic distribution.";
   if(query.includes('audit')) response = "<strong>Full Network Audit:</strong> 101 nodes active. Identified bottleneck in <strong>Panama</strong> due to water-automation lag. <strong>Singapore</strong> remains the highest-efficiency transshipment node.";
   if(query.includes('alert')) response = "<strong>Live Intelligence:</strong> [CRITICAL] Suez transit fees revised +4% for 2026. [STABLE] Baltic logistics reporting 100% throughput.";
