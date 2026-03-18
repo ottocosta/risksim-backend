@@ -47,6 +47,67 @@
       overflow: hidden;
     }
 
+    /* ===== CENTERED NAV — rsNav ===== */
+    #rsNav {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999999;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: rgba(10, 10, 10, 0.65);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50px;
+      padding: 4px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      opacity: 0;
+      transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #rsNav a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      padding: 10px 22px;
+      color: #ffffff;
+      opacity: 0.35;
+      border-radius: 44px;
+      border-bottom: 2px solid transparent;
+      transition: opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+      position: relative;
+    }
+    #rsNav a:hover {
+      opacity: 0.8;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    #rsNav a.active {
+      opacity: 1;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.07);
+      border-bottom-color: #ffffff;
+    }
+    #rsNav .nav-meta {
+      font-size: 6px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.25);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+      line-height: 1;
+    }
+    #rsNav .nav-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
     /* ===== CINEMATIC INTRO ===== */
     #rs-intro {
       position: fixed; inset: 0; z-index: 99999; background: #000;
@@ -594,6 +655,38 @@ function __handleIntroKey(e){
 }
 document.addEventListener('keydown',__handleIntroKey,true);
 window.addEventListener('keydown',__handleIntroKey,true);
+</script>
+
+<!-- ===== RISKSIM NAVIGATION — Single Source of Truth ===== -->
+<nav id="rsNav" role="navigation" aria-label="RiskSim Navigation">
+  <a href="/">
+    <span class="nav-meta">SYS_01</span>
+    <span class="nav-label">Map</span>
+  </a>
+  <a href="/pages/supplier-audit">
+    <span class="nav-meta">SYS_02</span>
+    <span class="nav-label">Audit</span>
+  </a>
+  <a href="/pages/enterprise">
+    <span class="nav-meta">SYS_03</span>
+    <span class="nav-label">War-Room</span>
+  </a>
+</nav>
+<script>
+(function(){
+  var path = window.location.pathname;
+  var links = document.querySelectorAll('#rsNav a');
+  for (var i = 0; i < links.length; i++) {
+    var href = links[i].getAttribute('href');
+    if (href === '/' ? path === '/' : path === href || path.indexOf(href + '/') === 0) {
+      links[i].classList.add('active');
+    }
+  }
+  setTimeout(function(){
+    var nav = document.getElementById('rsNav');
+    if (nav) nav.style.opacity = '1';
+  }, 3500);
+})();
 </script>
 
 <!-- ===== INTRO ===== -->
