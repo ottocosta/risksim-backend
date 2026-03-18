@@ -13,8 +13,8 @@
 
     <style>
       /* ═══════════════════════════════════════
-         RISKSIM — ANTIGRAVITY THEME
-         Full System Wipe · Zero Snippets
+         RISKSIM — UI PURGE
+         No Ghosts. No Duplicates. One Nav.
          ═══════════════════════════════════════ */
 
       /* ─── Reset ─── */
@@ -43,21 +43,23 @@
       ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
       html { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) #000; }
 
-      /* ─── NUKE: Default Shopify Elements ─── */
-      #shopify-section-header,
-      #header-group,
-      #shopify-section-footer,
-      footer,
-      .shopify-section-group-header-group,
-      .shopify-section-group-footer-group,
-      .shopify-section-group-header-group *,
-      .shopify-section-group-footer-group *,
-      .announcement-bar,
-      #shopify-section-announcement-bar,
-      .header-wrapper,
-      header.header,
-      .footer-block,
-      .footer__content-bottom {
+      /* ═══════════════════════════════════════
+         NUCLEAR CSS — Ghost Exorcism
+         Wildcard selectors kill anything
+         Shopify tries to inject.
+         ═══════════════════════════════════════ */
+
+      /* Wildcard nav/header/footer killers */
+      body > header:not(#rsNav),
+      body > footer,
+      body > nav:not(#rsNav),
+      [id*="header":not(#rsNav),
+      [id*="footer",
+      [id*="announcement",
+      [class*="header-wrapper",
+      [class*="announcement",
+      [class*="footer-block",
+      [class*="footer__content"] {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
@@ -72,16 +74,45 @@
         clip: rect(0,0,0,0) !important;
       }
 
-      /* ─── Navigation — Antigravity Pill ─── */
+      /* Named Shopify element killers */
+      #shopify-section-header,
+      #header-group,
+      #shopify-section-footer,
+      .shopify-section-group-header-group,
+      .shopify-section-group-footer-group,
+      .shopify-section-group-header-group *,
+      .shopify-section-group-footer-group *,
+      #shopify-section-announcement-bar,
+      header.header,
+      .header-wrapper {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        clip: rect(0,0,0,0) !important;
+      }
+
+      /* ═══════════════════════════════════════
+         THE SINGLE SOURCE OF TRUTH
+         One nav. Centered. Pill-shaped.
+         ═══════════════════════════════════════ */
+
       #rsNav {
         position: fixed;
         top: 30px;
         left: 50%;
         transform: translateX(-50%);
         z-index: 9999999;
-        display: flex;
+        display: flex !important;
+        visibility: visible !important;
         align-items: center;
-        gap: 0;
         background: rgba(10, 10, 10, 0.65);
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -90,6 +121,12 @@
         padding: 4px 6px;
         opacity: 0;
         transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+        clip: auto !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        pointer-events: all !important;
+        position: fixed !important;
       }
 
       /* ─── Nav Link ─── */
@@ -153,19 +190,19 @@
 
   <body>
 
-    <!-- ═══ RISKSIM NAVIGATION — Single Source of Truth ═══ -->
+    <!-- ═══ RISKSIM NAV — Single Source of Truth. No ghosts. ═══ -->
     <nav id="rsNav" role="navigation" aria-label="RiskSim Navigation">
       <a href="{{ routes.root_url }}" {% if request.path == '/' %}class="active"{% endif %}>
         <span class="nav-meta">SYS_01</span>
-        <span class="nav-label">Map</span>
+        <span class="nav-label">MAP</span>
       </a>
       <a href="/pages/supplier-audit" {% if request.path contains 'supplier-audit' %}class="active"{% endif %}>
         <span class="nav-meta">SYS_02</span>
-        <span class="nav-label">Audit</span>
+        <span class="nav-label">AUDIT</span>
       </a>
       <a href="/pages/enterprise" {% if request.path contains 'enterprise' %}class="active"{% endif %}>
         <span class="nav-meta">SYS_03</span>
-        <span class="nav-label">War-Room</span>
+        <span class="nav-label">WAR-ROOM</span>
       </a>
     </nav>
 
