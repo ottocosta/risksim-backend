@@ -225,7 +225,7 @@
 
     /* ===== LAYER CONTROLS ===== */
     .layer-controls {
-      position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:100;
+      position:fixed; top:16px; right:20px; z-index:100;
       display:flex; gap:2px; padding:4px;
       animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.3s both;
     }
@@ -564,15 +564,18 @@
     #rs-nav-hud {
       position: fixed;
       top: 20px;
-      right: 25px;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 99999;
       display: flex;
       flex-direction: row;
       align-items: stretch;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
+      background: rgba(15,15,18,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 4px;
       font-family: 'JetBrains Mono', monospace;
       overflow: hidden;
       opacity: 0;
@@ -584,15 +587,17 @@
       align-items: center;
       justify-content: center;
       text-decoration: none;
-      padding: 8px 18px;
+      padding: 8px 16px;
       border-right: 1px solid rgba(255,255,255,0.1);
       cursor: pointer;
-      transition: background 0.25s, box-shadow 0.25s;
+      opacity: 0.5;
+      transition: background 0.25s, box-shadow 0.25s, opacity 0.25s;
     }
     .rs-nav-section:last-child {
       border-right: none;
     }
     .rs-nav-section:hover {
+      opacity: 1;
       background: rgba(255,255,255,0.05);
       box-shadow: inset 0 0 20px rgba(255,255,255,0.03);
     }
@@ -607,7 +612,13 @@
       background: rgba(255,255,255,0.05);
     }
     .rs-nav-section.active {
-      background: rgba(255,255,255,0.08);
+      opacity: 1;
+      background: rgba(0,255,65,0.08);
+      border-radius: 12px;
+    }
+    .rs-nav-section.active .rs-nav-module-label,
+    .rs-nav-section.active .rs-nav-main-label {
+      color: #00ff41;
     }
     .rs-nav-module-label {
       font-size: 6px;
