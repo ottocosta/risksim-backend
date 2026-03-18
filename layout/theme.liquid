@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} — RiskSim</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    {{ content_for_header }}
+
+    <style>
+      /* ─── Global Reset ─── */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ─── Body ─── */
+      body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        color: #e2e8f0;
+        font-family: 'JetBrains Mono', monospace;
+        overflow-x: hidden;
+      }
+
+      /* ─── Scrollbar ─── */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0a0a0c;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      /* ─── Nuke Default Shopify Elements ─── */
+      #shopify-section-header,
+      #header-group,
+      #shopify-section-footer,
+      footer,
+      .shopify-section-group-header-group,
+      .shopify-section-group-footer-group,
+      .announcement-bar,
+      #shopify-section-announcement-bar,
+      .header-wrapper,
+      header.header {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* ─── Tactical Navigation Hub ─── */
+      #tactical-nav-hub {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999999;
+        display: flex;
+        align-items: stretch;
+        background: rgba(10, 10, 12, 0.5);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 4px;
+        font-family: 'JetBrains Mono', monospace;
+        opacity: 0;
+        transition: opacity 1.5s ease;
+      }
+
+      /* ─── Nav Links ─── */
+      #tactical-nav-hub a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        padding: 8px 16px;
+        color: #ffffff;
+        opacity: 0.4;
+        border-bottom: 2px solid transparent;
+        transition: opacity 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      #tactical-nav-hub a:last-child {
+        border-right: none;
+      }
+
+      #tactical-nav-hub a:hover {
+        opacity: 1;
+        color: #ffffff;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+      }
+
+      #tactical-nav-hub a.active {
+        opacity: 1;
+        color: #ffffff;
+        border-bottom: 2px solid #ffffff;
+      }
+
+      /* ─── Nav Meta Label (MOD_01, etc.) ─── */
+      #tactical-nav-hub .meta {
+        font-size: 6px;
+        color: rgba(255, 255, 255, 0.35);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+      }
+
+      /* ─── Nav Main Label ─── */
+      #tactical-nav-hub .label {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <!-- ─── Tactical Navigation Hub ─── -->
+    <nav id="tactical-nav-hub" role="navigation" aria-label="Tactical Navigation">
+      <a href="{{ routes.root_url }}" {% if request.path == '/' %}class="active"{% endif %}>
+        <span class="meta">MOD_01</span>
+        <span class="label">GLOBAL MAP</span>
+      </a>
+      <a href="/pages/supplier-audit" {% if request.path contains 'supplier-audit' %}class="active"{% endif %}>
+        <span class="meta">MOD_02</span>
+        <span class="label">AUDIT</span>
+      </a>
+      <a href="/pages/enterprise" {% if request.path contains 'enterprise' %}class="active"{% endif %}>
+        <span class="meta">MOD_03</span>
+        <span class="label">WAR-ROOM</span>
+      </a>
+    </nav>
+
+    <!-- ─── Shopify Page Content ─── -->
+    <main role="main">
+      {{ content_for_layout }}
+    </main>
+
+    <!-- ─── Delayed Fade-In for Navigation ─── -->
+    <script>
+      setTimeout(() => {
+        const nav = document.getElementById('tactical-nav-hub');
+        if (nav) {
+          nav.style.opacity = '1';
+        }
+      }, 3500);
+    </script>
+
+  </body>
+</html>
