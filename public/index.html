@@ -559,6 +559,61 @@
       #onboardingPanel { right:8px; left:8px; width:auto; }
       #chatInputWrap { max-width:calc(100% - 32px); }
     }
+
+    /* ===== TACTICAL NAV HUD ===== */
+    #rs-nav-hud {
+      position: fixed;
+      top: 20px;
+      right: 25px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid #00ff41;
+      font-family: 'JetBrains Mono', monospace;
+      overflow: hidden;
+    }
+    .rs-nav-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      padding: 8px 18px;
+      border-right: 1px solid #00ff41;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .rs-nav-section:last-child {
+      border-right: none;
+    }
+    .rs-nav-section:hover {
+      background: rgba(0,255,65,0.08);
+    }
+    .rs-nav-section:focus-visible {
+      outline: 2px solid #00ff41;
+      outline-offset: -2px;
+      background: rgba(0,255,65,0.08);
+    }
+    .rs-nav-module-label {
+      font-size: 6px;
+      color: #00ff41;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+    .rs-nav-main-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(0,255,65,0.85);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
   </style>
 </head>
 <body>
@@ -594,6 +649,22 @@ function __handleIntroKey(e){
 document.addEventListener('keydown',__handleIntroKey,true);
 window.addEventListener('keydown',__handleIntroKey,true);
 </script>
+
+<!-- ===== TACTICAL NAV HUD ===== -->
+<nav id="rs-nav-hud" aria-label="RiskSim Navigation">
+  <a href="/" class="rs-nav-section">
+    <span class="rs-nav-module-label">Module_01</span>
+    <span class="rs-nav-main-label">MAP</span>
+  </a>
+  <a href="/audit" class="rs-nav-section">
+    <span class="rs-nav-module-label">Module_02</span>
+    <span class="rs-nav-main-label">AUDIT</span>
+  </a>
+  <a href="/enterprise" class="rs-nav-section">
+    <span class="rs-nav-module-label">Module_03</span>
+    <span class="rs-nav-main-label">WAR-ROOM</span>
+  </a>
+</nav>
 
 <!-- ===== INTRO ===== -->
 <div id="rs-intro">
