@@ -12,10 +12,11 @@
     {{ content_for_header }}
 
     <style>
-      /* ═══════════════════════════════════════
-         RISKSIM — UI PURGE
-         No Ghosts. No Duplicates. One Nav.
-         ═══════════════════════════════════════ */
+      /* ═══════════════════════════════════════════════
+         RISKSIM — TOTAL REWRITE
+         Zero ghosts. Zero duplicates. One nav.
+         ID: rs-tactical-nav
+         ═══════════════════════════════════════════════ */
 
       /* ─── Reset ─── */
       *, *::before, *::after {
@@ -43,23 +44,17 @@
       ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
       html { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) #000; }
 
-      /* ═══════════════════════════════════════
+      /* ═══════════════════════════════════════════════
          NUCLEAR CSS — Ghost Exorcism
-         Wildcard selectors kill anything
-         Shopify tries to inject.
-         ═══════════════════════════════════════ */
+         Kill every Shopify-injected header, footer,
+         nav, and announcement element.
+         EXCEPTION: #rs-tactical-nav is protected.
+         ═══════════════════════════════════════════════ */
 
-      /* Wildcard nav/header/footer killers */
-      body > header:not(#rsNav),
-      body > footer,
-      body > nav:not(#rsNav),
-      [id*="header":not(#rsNav),
-      [id*="footer",
-      [id*="announcement",
-      [class*="header-wrapper",
-      [class*="announcement",
-      [class*="footer-block",
-      [class*="footer__content"] {
+      /* --- Tag-level kills --- */
+      header:not(#rs-tactical-nav),
+      footer,
+      .announcement-bar {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
@@ -74,17 +69,53 @@
         clip: rect(0,0,0,0) !important;
       }
 
-      /* Named Shopify element killers */
+      /* --- Wildcard ID kills (with nav exception) --- */
+      [id*="header"]:not(#rs-tactical-nav),
+      [id*="footer"]:not(#rs-tactical-nav),
+      [id*="announcement"]:not(#rs-tactical-nav),
+      [id*="nav"]:not(#rs-tactical-nav) {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        clip: rect(0,0,0,0) !important;
+      }
+
+      /* --- Wildcard class kills (with nav exception) --- */
+      [class*="header"]:not(#rs-tactical-nav),
+      [class*="footer"]:not(#rs-tactical-nav),
+      [class*="announcement"]:not(#rs-tactical-nav),
+      [class*="nav"]:not(#rs-tactical-nav) {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        clip: rect(0,0,0,0) !important;
+      }
+
+      /* --- Named Shopify section kills --- */
       #shopify-section-header,
       #header-group,
       #shopify-section-footer,
+      #shopify-section-announcement-bar,
       .shopify-section-group-header-group,
       .shopify-section-group-footer-group,
       .shopify-section-group-header-group *,
-      .shopify-section-group-footer-group *,
-      #shopify-section-announcement-bar,
-      header.header,
-      .header-wrapper {
+      .shopify-section-group-footer-group * {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
@@ -99,13 +130,13 @@
         clip: rect(0,0,0,0) !important;
       }
 
-      /* ═══════════════════════════════════════
-         THE SINGLE SOURCE OF TRUTH
-         One nav. Centered. Pill-shaped.
-         ═══════════════════════════════════════ */
+      /* ═══════════════════════════════════════════════
+         THE ONE TRUE NAV — #rs-tactical-nav
+         Centered pill. No ghosts can override this.
+         ═══════════════════════════════════════════════ */
 
-      #rsNav {
-        position: fixed;
+      #rs-tactical-nav {
+        position: fixed !important;
         top: 30px;
         left: 50%;
         transform: translateX(-50%);
@@ -113,6 +144,7 @@
         display: flex !important;
         visibility: visible !important;
         align-items: center;
+        gap: 0;
         background: rgba(10, 10, 10, 0.65);
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -121,16 +153,15 @@
         padding: 4px 6px;
         opacity: 0;
         transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1);
-        clip: auto !important;
         height: auto !important;
         max-height: none !important;
         overflow: visible !important;
         pointer-events: all !important;
-        position: fixed !important;
+        clip: auto !important;
       }
 
       /* ─── Nav Link ─── */
-      #rsNav a {
+      #rs-tactical-nav a {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -146,21 +177,21 @@
       }
 
       /* Hover */
-      #rsNav a:hover {
+      #rs-tactical-nav a:hover {
         opacity: 0.8;
         background: rgba(255, 255, 255, 0.04);
       }
 
       /* Active */
-      #rsNav a.active {
+      #rs-tactical-nav a.active {
         opacity: 1;
         color: #ffffff;
         background: rgba(255, 255, 255, 0.07);
         border-bottom-color: #ffffff;
       }
 
-      /* Meta label */
-      #rsNav .nav-meta {
+      /* Meta label (SYS_01, etc.) */
+      #rs-tactical-nav .tn-meta {
         font-size: 6px;
         font-weight: 300;
         color: rgba(255, 255, 255, 0.25);
@@ -170,8 +201,8 @@
         line-height: 1;
       }
 
-      /* Main label */
-      #rsNav .nav-label {
+      /* Main label (MAP, AUDIT, WAR-ROOM) */
+      #rs-tactical-nav .tn-label {
         font-size: 11px;
         font-weight: 500;
         letter-spacing: 0.16em;
@@ -190,19 +221,19 @@
 
   <body>
 
-    <!-- ═══ RISKSIM NAV — Single Source of Truth. No ghosts. ═══ -->
-    <nav id="rsNav" role="navigation" aria-label="RiskSim Navigation">
+    <!-- ═══ THE ONE TRUE NAV ═══ -->
+    <nav id="rs-tactical-nav" role="navigation" aria-label="RiskSim Navigation">
       <a href="{{ routes.root_url }}" {% if request.path == '/' %}class="active"{% endif %}>
-        <span class="nav-meta">SYS_01</span>
-        <span class="nav-label">MAP</span>
+        <span class="tn-meta">SYS_01</span>
+        <span class="tn-label">MAP</span>
       </a>
       <a href="/pages/supplier-audit" {% if request.path contains 'supplier-audit' %}class="active"{% endif %}>
-        <span class="nav-meta">SYS_02</span>
-        <span class="nav-label">AUDIT</span>
+        <span class="tn-meta">SYS_02</span>
+        <span class="tn-label">AUDIT</span>
       </a>
       <a href="/pages/enterprise" {% if request.path contains 'enterprise' %}class="active"{% endif %}>
-        <span class="nav-meta">SYS_03</span>
-        <span class="nav-label">WAR-ROOM</span>
+        <span class="tn-meta">SYS_03</span>
+        <span class="tn-label">WAR-ROOM</span>
       </a>
     </nav>
 
@@ -211,10 +242,10 @@
       {{ content_for_layout }}
     </main>
 
-    <!-- ═══ Cinematic Fade-In — 3.5s delay synced to logo intro ═══ -->
+    <!-- ═══ Fade-In — exactly 3500ms ═══ -->
     <script>
       (function() {
-        var nav = document.getElementById('rsNav');
+        var nav = document.getElementById('rs-tactical-nav');
         if (!nav) return;
         setTimeout(function() {
           nav.style.opacity = '1';
