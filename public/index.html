@@ -937,6 +937,18 @@ function __handleIntroKey(e){
 document.addEventListener('keydown',__handleIntroKey,true);
 window.addEventListener('keydown',__handleIntroKey,true);
 </script>
+  <!-- ===== RS NAV ===== -->
+<nav id="rsNav" style="opacity:0">
+  <button class="rs-nav-btn active" onclick="switchModule('map')">
+    <span class="rs-nav-mod">SYS_01</span>Map
+  </button>
+  <button class="rs-nav-btn" onclick="switchModule('audit')">
+    <span class="rs-nav-mod">SYS_02</span>Audit
+  </button>
+  <button class="rs-nav-btn" onclick="switchModule('warroom')">
+    <span class="rs-nav-mod">SYS_03</span>War-Room
+  </button>
+</nav>
 
 <!-- ===== INTRO ===== -->
 <div id="rs-intro">
