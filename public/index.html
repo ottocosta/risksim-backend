@@ -106,7 +106,16 @@
       text-transform: uppercase;
       line-height: 1;
     }
-
+.rs-nav-btn {
+      padding: 7px 14px; border-radius: 9px; border: none; cursor: pointer;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      background: transparent; color: rgba(255,255,255,0.4);
+      transition: all 0.25s; white-space: nowrap; line-height: 1;
+    }
+    .rs-nav-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+    .rs-nav-btn.active { background: rgba(255,255,255,0.09); color: #fff; }
+    .rs-nav-mod { display: block; font-size: 7px; opacity: 0.4; letter-spacing: 0.18em; margin-bottom: 3px; }
     /* ===== CINEMATIC INTRO ===== */
     #rs-intro {
       position: fixed; inset: 0; z-index: 99999; background: #000;
