@@ -1628,8 +1628,14 @@ function switchModule(mod){
   mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='none';
   document.getElementById('auditModule').style.display='none';
+  
+  // Update nav buttons
+  var btns=document.querySelectorAll('#rsNav .rs-nav-btn');
+  btns.forEach(function(b){b.classList.remove('active');});
+
   if(mod==='audit'){
     var am=document.getElementById('auditModule');
+    if(!am){console.error('auditModule not found');return;}
     am.style.display='flex';am.style.flexDirection='column';
     if(!localStorage.getItem('am_paywall_bypassed')){
       document.getElementById('amPaywall').style.display='flex';
@@ -1638,15 +1644,18 @@ function switchModule(mod){
       document.getElementById('amMain').classList.add('am-loaded');
       renderAMSupplierList();
     }
+    if(btns[1])btns[1].classList.add('active');
   }else if(mod==='warroom'){
     mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});
     for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='';
     if(map)map.invalidateSize();
+    if(btns[2])btns[2].classList.add('active');
     alert('War-Room module coming soon.');
   }else{
     mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});
     for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='';
     if(map)map.invalidateSize();
+    if(btns[0])btns[0].classList.add('active');
   }
 }
 function bypassPaywall(){
