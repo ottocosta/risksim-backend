@@ -902,7 +902,6 @@
 </head>
 <body>
 <script>
-if (window.self !== window.top) { window.top.location.href = window.self.location.href; }
   window.addEventListener('message', function(e) {
   if (e.data && e.data.action === 'switchModule') {
     switchModule(e.data.mod);
