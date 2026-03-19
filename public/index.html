@@ -496,20 +496,19 @@
     }
     #profileSection.ps-visible { opacity: 1; pointer-events: all; }
     #profileSection.ps-exiting { opacity: 0; pointer-events: none; }
-
-    .ps-card {
+.ps-card {
       width: 100%; max-width: 880px; max-height: 92vh; overflow-y: auto;
-      background: rgba(8,12,20,0.72);
-      backdrop-filter: blur(32px) saturate(1.5); -webkit-backdrop-filter: blur(32px) saturate(1.5);
-      border: 1px solid rgba(45,212,191,0.22);
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(60px) saturate(200%); -webkit-backdrop-filter: blur(60px) saturate(200%);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 24px;
-      box-shadow: 0 0 0 1px rgba(45,212,191,0.06), 0 32px 100px rgba(0,0,0,0.85), 0 0 140px rgba(45,212,191,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 32px 100px rgba(0,0,0,0.85);
       position: relative; transform-style: preserve-3d;
       animation: psCardIn 0.65s cubic-bezier(0.16,1,0.3,1) forwards;
       transition: transform 0.15s ease, box-shadow 0.3s ease;
     }
     .ps-card::-webkit-scrollbar { width: 4px; }
-    .ps-card::-webkit-scrollbar-thumb { background: rgba(45,212,191,0.12); border-radius: 4px; }
+    .ps-card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
     @keyframes psCardIn {
       from { opacity: 0; transform: translateY(28px) scale(0.97); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
