@@ -284,12 +284,44 @@
     .sk-bar { width:140px; height:2px; background:rgba(45,212,191,0.1); border-radius:2px; overflow:hidden; }
     .sk-bar::after { content:''; display:block; height:100%; width:50%; background:linear-gradient(90deg,transparent,var(--accent),transparent); animation:shimmer 1.2s ease-in-out infinite; }
 
+
+    /* ===== COUNTRY SEARCH ===== */
+    #countrySearch {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 101; /* Above layer controls */
+      padding: 0;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: var(--glass-shadow);
+      animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.2s both;
+    }
+    #countrySearchInput {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 13px;
+      font-family: var(--font);
+      padding: 12px 18px;
+      width: 250px;
+    }
+    #countrySearchInput::placeholder {
+      color: var(--muted);
+    }
+
     /* ===== LAYER CONTROLS ===== */
     .layer-controls {
       position:fixed; top:16px; right:20px; z-index:100;
       display:flex; gap:2px; padding:4px;
       animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.3s both;
     }
+
     .layer-btn {
       position:relative; font-family:var(--font); font-size:11px; font-weight:500;
       color:var(--muted); background:transparent; border:none; padding:8px 16px;
@@ -621,6 +653,251 @@
       #chatInputWrap { max-width:calc(100% - 32px); }
     }
 
+    /* ===== RS NAV ===== */
+    #rsNav {
+      position: fixed; top: 16px; right: 16px; z-index: 1000;
+      display: flex; gap: 4px; padding: 5px;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(60px) saturate(200%); -webkit-backdrop-filter: blur(60px) saturate(200%);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 13px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.6);
+    }
+    .rs-nav-btn {
+      padding: 7px 14px; border-radius: 9px; border: none; cursor: pointer;
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      background: transparent; color: rgba(255,255,255,0.4);
+      transition: all 0.25s; white-space: nowrap; line-height: 1;
+    }
+    .rs-nav-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+    .rs-nav-btn.active { background: rgba(255,255,255,0.09); color: #fff; }
+    .rs-nav-mod { display: block; font-size: 7px; opacity: 0.4; letter-spacing: 0.18em; margin-bottom: 3px; }
+
+    /* ===== AUDIT MODULE ===== */
+    #auditModule {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      width: 100vw; height: 100vh; background: #000; overflow: hidden;
+    }
+    .am-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse at 15% 50%, rgba(255,255,255,0.018) 0%, transparent 55%),
+                  radial-gradient(ellipse at 85% 15%, rgba(255,255,255,0.012) 0%, transparent 50%), #000;
+    }
+    .am-scanline {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.01) 2px, rgba(255,255,255,0.01) 4px);
+    }
+    /* Paywall */
+    #amPaywall {
+      position: absolute; inset: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.88); backdrop-filter: blur(20px);
+      transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+    #amPaywall.am-pw-hiding { opacity: 0; pointer-events: none; }
+    .am-pw-card {
+      width: 480px; max-width: calc(100vw - 40px);
+      background: rgba(255,255,255,0.04); backdrop-filter: blur(80px) saturate(200%);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 24px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 12px 48px rgba(0,0,0,0.8);
+      padding: 48px 40px; text-align: center; position: relative;
+      animation: amCardIn 0.7s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    @keyframes amCardIn { from { opacity:0; transform:translateY(24px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+    .am-pw-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+      border-radius:24px 24px 0 0; animation: amShimmerLine 3s ease-in-out infinite;
+    }
+    @keyframes amShimmerLine { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+    .am-pw-badge {
+      display:inline-flex; align-items:center; gap:8px; padding:5px 16px;
+      border-radius:999px; border:1px solid rgba(255,255,255,0.15);
+      background:rgba(255,255,255,0.04);
+      font-family:'JetBrains Mono',monospace; font-size:9px;
+      letter-spacing:0.2em; color:rgba(255,255,255,0.55);
+      text-transform:uppercase; margin-bottom:24px;
+    }
+    .am-pw-badge-dot { width:5px; height:5px; border-radius:50%; background:#fff; box-shadow:0 0 6px #fff; animation:rsBlink 2s infinite; }
+    .am-pw-title { font-family:'Syne',sans-serif; font-weight:800; font-size:26px; color:#fff; letter-spacing:-0.02em; margin-bottom:12px; line-height:1.2; }
+    .am-pw-sub { font-size:13px; color:rgba(255,255,255,0.42); line-height:1.65; margin-bottom:28px; }
+    .am-pw-features { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:28px; text-align:left; }
+    .am-pw-feature {
+      padding:11px 13px; background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.07); border-radius:10px;
+      font-size:11px; color:rgba(255,255,255,0.55);
+      font-family:'JetBrains Mono',monospace; line-height:1.5;
+    }
+    .am-pw-feature-icon { font-size:14px; display:block; margin-bottom:5px; }
+    .am-pw-actions { display:flex; gap:10px; }
+    .am-pw-subscribe {
+      flex:1; padding:13px; background:#fff; color:#000;
+      border:none; border-radius:10px; font-size:13px; font-weight:700;
+      cursor:pointer; transition:all 0.25s; letter-spacing:0.02em;
+    }
+    .am-pw-subscribe:hover { background:#e8e8e8; transform:translateY(-1px); box-shadow:0 6px 24px rgba(255,255,255,0.2); }
+    .am-pw-skip {
+      padding:13px 20px; background:transparent; color:rgba(255,255,255,0.3);
+      border:1px solid rgba(255,255,255,0.1); border-radius:10px;
+      font-size:12px; cursor:pointer; transition:all 0.25s; white-space:nowrap;
+    }
+    .am-pw-skip:hover { color:rgba(255,255,255,0.65); border-color:rgba(255,255,255,0.2); }
+    /* Main */
+    #amMain {
+      position:relative; z-index:10; display:flex; flex:1; overflow:hidden;
+      opacity:0; transition:opacity 0.6s ease; height:100vh;
+    }
+    #amMain.am-loaded { opacity:1; }
+    .am-topbar {
+      position:absolute; top:0; left:0; right:0; z-index:50;
+      display:flex; align-items:center; justify-content:space-between; padding:14px 24px;
+      background:rgba(0,0,0,0.5); backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .am-topbar-brand { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.25em; color:rgba(255,255,255,0.35); text-transform:uppercase; }
+    .am-topbar-brand span { color:#fff; }
+    .am-topbar-status { display:flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.12em; color:rgba(255,255,255,0.3); text-transform:uppercase; }
+    #amStatusDot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all 0.4s; flex-shrink:0; }
+    #amStatusDot.active { background:#fff; box-shadow:0 0 8px #fff; animation:rsBlink 1.5s infinite; }
+    /* Left panel */
+    .am-left {
+      width:272px; min-width:272px; padding:58px 0 20px;
+      display:flex; flex-direction:column;
+      border-right:1px solid rgba(255,255,255,0.06); overflow-y:auto;
+    }
+    .am-left::-webkit-scrollbar { width:3px; }
+    .am-left::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:3px; }
+    .am-search-wrap { padding:16px 14px 0; position:relative; }
+    .am-search-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.28); text-transform:uppercase; display:block; margin-bottom:8px; }
+    .am-search-input {
+      width:100%; padding:10px 13px; background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.1); border-radius:10px;
+      color:#fff; font-size:13px; font-family:'Inter',sans-serif; outline:none; transition:all 0.3s;
+    }
+    .am-search-input:focus { border-color:rgba(255,255,255,0.24); box-shadow:inset 0 0 20px rgba(255,255,255,0.04); }
+    .am-search-input::placeholder { color:rgba(255,255,255,0.22); }
+    .am-autocomplete {
+      position:absolute; top:calc(100% + 2px); left:14px; right:14px;
+      background:rgba(8,8,8,0.98); backdrop-filter:blur(40px);
+      border:1px solid rgba(255,255,255,0.1); border-radius:10px;
+      overflow:hidden; max-height:220px; overflow-y:auto; z-index:100; display:none;
+    }
+    .am-autocomplete.open { display:block; }
+    .am-ac-item {
+      padding:10px 13px; cursor:pointer; font-size:12px; color:rgba(255,255,255,0.65);
+      border-bottom:1px solid rgba(255,255,255,0.04); transition:all 0.15s;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .am-ac-item:hover { background:rgba(255,255,255,0.06); color:#fff; }
+    .am-ac-score { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.28); }
+    /* Supplier card */
+    .am-supplier-card {
+      margin:14px; padding:15px; background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08); border-radius:12px; display:none;
+    }
+    .am-supplier-card.visible { display:block; animation:amFadeUp 0.4s ease forwards; }
+    @keyframes amFadeUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+    .am-sup-logo {
+      width:38px; height:38px; border-radius:8px; background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center;
+      font-family:'Syne',sans-serif; font-weight:800; font-size:13px; color:rgba(255,255,255,0.65); margin-bottom:10px;
+    }
+    .am-sup-name { font-size:13px; font-weight:700; color:#fff; margin-bottom:3px; }
+    .am-sup-meta { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.32); letter-spacing:0.04em; }
+    .am-sup-divider { height:1px; background:rgba(255,255,255,0.06); margin:11px 0; }
+    .am-sup-row { display:flex; justify-content:space-between; margin-bottom:5px; }
+    .am-sup-row-lbl { color:rgba(255,255,255,0.35); font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.05em; text-transform:uppercase; }
+    .am-sup-row-val { color:#fff; font-size:11px; font-weight:500; }
+    /* Supplier list */
+    .am-sup-list { padding:0 14px; flex:1; }
+    .am-sup-list-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.2); text-transform:uppercase; display:block; margin-bottom:7px; margin-top:14px; }
+    .am-sup-list-item {
+      padding:8px 11px; border-radius:8px; cursor:pointer; border:1px solid transparent;
+      transition:all 0.2s; margin-bottom:2px; font-size:12px; color:rgba(255,255,255,0.5);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .am-sup-list-item:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.08); color:rgba(255,255,255,0.85); }
+    .am-sup-list-item.selected { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.13); color:#fff; }
+    .am-sli-score { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.25); }
+    /* Right panel */
+    .am-right { flex:1; display:flex; flex-direction:column; padding:58px 0 0; overflow:hidden; }
+    .am-analysis-wrap { flex:1; overflow-y:auto; padding:20px 26px 28px; }
+    .am-analysis-wrap::-webkit-scrollbar { width:3px; }
+    .am-analysis-wrap::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:3px; }
+    /* Empty state */
+    .am-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:40px; }
+    .am-empty-icon { width:72px; height:72px; border-radius:50%; border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 22px; background:rgba(255,255,255,0.02); }
+    .am-empty-title { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; color:#fff; margin-bottom:10px; }
+    .am-empty-sub { font-size:13px; color:rgba(255,255,255,0.28); line-height:1.65; max-width:320px; }
+    /* Progress */
+    .am-progress-panel { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:22px; margin-bottom:18px; display:none; }
+    .am-progress-panel.visible { display:block; }
+    .am-progress-title { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:16px; }
+    .am-progress-steps { display:flex; flex-direction:column; gap:10px; }
+    .am-step { display:flex; align-items:center; gap:11px; font-size:12px; color:rgba(255,255,255,0.22); transition:all 0.4s; }
+    .am-step.active { color:rgba(255,255,255,0.85); }
+    .am-step.done { color:rgba(255,255,255,0.4); }
+    .am-step-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.1); flex-shrink:0; transition:all 0.4s; }
+    .am-step.active .am-step-dot { background:#fff; box-shadow:0 0 8px rgba(255,255,255,0.8); animation:rsBlink 1s infinite; }
+    .am-step.done .am-step-dot { background:rgba(255,255,255,0.35); }
+    /* Result */
+    .am-result { display:none; }
+    .am-result.visible { display:block; }
+    .am-result-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:22px; gap:20px; }
+    .am-result-name { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:#fff; margin-bottom:5px; }
+    .am-result-meta { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.32); letter-spacing:0.06em; }
+    .am-score-circle { flex-shrink:0; position:relative; width:78px; height:78px; }
+    .am-score-svg { width:78px; height:78px; transform:rotate(-90deg); }
+    .am-score-bg { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:4; }
+    .am-score-fill { fill:none; stroke:#fff; stroke-width:4; stroke-linecap:round; transition:stroke-dasharray 1.5s cubic-bezier(0.34,1.56,0.64,1); }
+    .am-score-num { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; font-size:19px; color:#fff; }
+    .am-score-lbl { font-family:'JetBrains Mono',monospace; font-size:7px; color:rgba(255,255,255,0.35); letter-spacing:0.1em; text-transform:uppercase; margin-top:2px; }
+    /* Metrics */
+    .am-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px; }
+    .am-metric-card {
+      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+      border-radius:12px; padding:13px 12px; transition:all 0.3s;
+    }
+    .am-metric-card:hover { border-color:rgba(255,255,255,0.14); transform:perspective(1200px) rotateY(-5deg) rotateX(2deg); box-shadow:4px 4px 20px rgba(0,0,0,0.5); }
+    .am-metric-lbl { font-family:'JetBrains Mono',monospace; font-size:7px; letter-spacing:0.14em; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-bottom:7px; }
+    .am-metric-val { font-family:'Syne',sans-serif; font-size:21px; font-weight:800; color:#fff; margin-bottom:7px; }
+    .am-metric-val.warn { color:rgba(255,200,60,0.85); }
+    .am-metric-val.danger { color:rgba(255,100,100,0.9); }
+    .am-metric-bar { height:2px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
+    .am-metric-bar-fill { height:100%; background:#fff; border-radius:2px; width:0; transition:width 1.2s ease; }
+    .am-metric-bar-fill.warn { background:rgba(255,200,60,0.7); }
+    .am-metric-bar-fill.danger { background:rgba(255,100,100,0.8); }
+    /* Detail grid */
+    .am-detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+    .am-detail-panel { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:15px; }
+    .am-detail-panel-title { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.32); text-transform:uppercase; margin-bottom:12px; }
+    .am-detail-item { display:flex; align-items:flex-start; gap:8px; font-size:11px; color:rgba(255,255,255,0.58); margin-bottom:8px; line-height:1.5; }
+    .am-detail-dot { width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,0.28); flex-shrink:0; margin-top:5px; }
+    .am-detail-dot.red { background:rgba(255,80,80,0.8); }
+    .am-detail-dot.yellow { background:rgba(255,200,60,0.8); }
+    /* AI Summary */
+    .am-ai-summary { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:18px; margin-bottom:18px; }
+    .am-ai-summary-label { display:flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.32); text-transform:uppercase; margin-bottom:13px; }
+    .am-ai-dot { width:5px; height:5px; border-radius:50%; background:#fff; animation:rsBlink 1.5s infinite; }
+    #amSummaryText { font-size:13px; color:rgba(255,255,255,0.68); line-height:1.8; font-family:'Inter',sans-serif; }
+    @keyframes amTextReveal { from{opacity:0;filter:blur(4px);transform:translateY(3px);} to{opacity:1;filter:blur(0);transform:translateY(0);} }
+    .stream-word { display:inline; opacity:0; animation:amTextReveal 0.3s ease forwards; }
+    /* Alternatives */
+    .am-alternatives { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:15px; margin-bottom:20px; }
+    .am-alt-item { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer; transition:all 0.2s; }
+    .am-alt-item:last-child { border-bottom:none; }
+    .am-alt-item:hover { padding-left:5px; }
+    .am-alt-name { font-size:12px; color:rgba(255,255,255,0.7); font-weight:500; }
+    .am-alt-country { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.28); margin-top:2px; }
+    .am-alt-score { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; color:#fff; }
+    .am-alt-score-lbl { font-family:'JetBrains Mono',monospace; font-size:8px; color:rgba(255,255,255,0.22); text-align:right; }
+    /* Compliance badge */
+    .am-compliance-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:999px; font-size:9px; font-weight:600; font-family:'JetBrains Mono',monospace; letter-spacing:0.04em; margin-left:8px; }
+    .am-compliance-badge.good { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.18); }
+    .am-compliance-badge.warn { background:rgba(255,200,60,0.1); color:rgba(255,210,80,0.9); border:1px solid rgba(255,200,60,0.2); }
+    .am-compliance-badge.risk { background:rgba(255,60,60,0.1); color:rgba(255,100,100,0.9); border:1px solid rgba(255,60,60,0.2); }
+    @keyframes glassShimmerIn { 0%{box-shadow:inset 0 1px 0 rgba(255,255,255,0.28),0 12px 48px rgba(0,0,0,0.5);} 100%{box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),0 12px 48px rgba(0,0,0,0.5);} }
+    .am-shimmer-in { animation:glassShimmerIn 3s ease-out; }
   </style>
 </head>
 <body>
@@ -657,37 +934,15 @@ document.addEventListener('keydown',__handleIntroKey,true);
 window.addEventListener('keydown',__handleIntroKey,true);
 </script>
 
-<!-- ===== RISKSIM NAVIGATION — Single Source of Truth ===== -->
-<nav id="rsNav" role="navigation" aria-label="RiskSim Navigation">
-  <a href="/">
-    <span class="nav-meta">SYS_01</span>
-    <span class="nav-label">Map</span>
-  </a>
-  <a href="/pages/supplier-audit">
-    <span class="nav-meta">SYS_02</span>
-    <span class="nav-label">Audit</span>
-  </a>
-  <a href="/pages/enterprise">
-    <span class="nav-meta">SYS_03</span>
-    <span class="nav-label">War-Room</span>
-  </a>
+<!-- ===== RS NAV ===== -->
+<nav id="rsNav">
+  <button class="rs-nav-btn active" id="navMod01" onclick="switchModule('map')">
+    <span class="rs-nav-mod">MOD_01</span>Map
+  </button>
+  <button class="rs-nav-btn" id="navMod02" onclick="switchModule('audit')">
+    <span class="rs-nav-mod">MOD_02</span>Supplier Audit
+  </button>
 </nav>
-<script>
-(function(){
-  var path = window.location.pathname;
-  var links = document.querySelectorAll('#rsNav a');
-  for (var i = 0; i < links.length; i++) {
-    var href = links[i].getAttribute('href');
-    if (href === '/' ? path === '/' : path === href || path.indexOf(href + '/') === 0) {
-      links[i].classList.add('active');
-    }
-  }
-  setTimeout(function(){
-    var nav = document.getElementById('rsNav');
-    if (nav) nav.style.opacity = '1';
-  }, 3500);
-})();
-</script>
 
 <!-- ===== INTRO ===== -->
 <div id="rs-intro">
@@ -723,6 +978,12 @@ window.addEventListener('keydown',__handleIntroKey,true);
 <div class="map-overlay-header glass">
   <div class="map-layer-name"><span class="header-accent"></span><span id="overlayName">Risk Levels</span></div>
   <div class="map-layer-sub" id="overlaySub">Geopolitical &amp; operational risk by country</div>
+</div>
+
+
+<!-- ===== COUNTRY SEARCH ===== -->
+<div id="countrySearch" class="glass">
+  <input type="text" id="countrySearchInput" placeholder="Search Country...">
 </div>
 
 <!-- ===== LAYER CONTROLS ===== -->
@@ -808,6 +1069,101 @@ window.addEventListener('keydown',__handleIntroKey,true);
     </div>
   </div>
 </div>
+
+<!-- ===== AUDIT MODULE ===== -->
+<section id="auditModule">
+  <div class="am-bg"></div>
+  <div class="am-scanline"></div>
+  <!-- Paywall -->
+  <div id="amPaywall">
+    <div class="am-pw-card">
+      <div class="am-pw-badge"><span class="am-pw-badge-dot"></span>Enterprise Intelligence</div>
+      <div class="am-pw-title">ENTERPRISE ACCESS REQUIRED</div>
+      <p class="am-pw-sub">Supplier Audit is a premium intelligence module. Gain deep AI-powered analysis of any supplier — fraud detection, compliance scoring, financial stability, and hidden risk discovery.</p>
+      <div class="am-pw-features">
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◈</span>AI Fraud Risk Detection</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◎</span>Financial Stability Score</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">⊟</span>Compliance Analysis</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◇</span>Hidden Risk Discovery</div>
+      </div>
+      <div class="am-pw-actions">
+        <button class="am-pw-subscribe" onclick="window.open('#pricing','_blank')">Subscribe — Enterprise</button>
+        <button class="am-pw-skip" onclick="bypassPaywall()">Skip for Now</button>
+      </div>
+    </div>
+  </div>
+  <!-- Main Interface -->
+  <div id="amMain">
+    <div class="am-topbar">
+      <div class="am-topbar-brand"><span>RiskSim</span> / Supplier Audit Module</div>
+      <div class="am-topbar-status">
+        <div id="amStatusDot"></div>
+        <span id="amStatusText">Select a supplier to begin</span>
+      </div>
+    </div>
+    <!-- Left -->
+    <div class="am-left">
+      <div class="am-search-wrap">
+        <span class="am-search-label">Supplier Intelligence Search</span>
+        <input type="text" id="amSearchInput" class="am-search-input" placeholder="Enter supplier name..." autocomplete="off" />
+        <div id="amAutocomplete" class="am-autocomplete"></div>
+      </div>
+      <div id="amSupplierCard" class="am-supplier-card">
+        <div class="am-sup-logo" id="amSupLogo">—</div>
+        <div class="am-sup-name" id="amSupName">—</div>
+        <div class="am-sup-meta" id="amSupMeta">—</div>
+        <div class="am-sup-divider"></div>
+        <div class="am-sup-row"><span class="am-sup-row-lbl">Country</span><span class="am-sup-row-val" id="amSupCountry">—</span></div>
+        <div class="am-sup-row"><span class="am-sup-row-lbl">Founded</span><span class="am-sup-row-val" id="amSupFounded">—</span></div>
+        <div class="am-sup-row"><span class="am-sup-row-lbl">Revenue</span><span class="am-sup-row-val" id="amSupRevenue">—</span></div>
+        <div class="am-sup-row"><span class="am-sup-row-lbl">Industry</span><span class="am-sup-row-val" id="amSupIndustry">—</span></div>
+      </div>
+      <div class="am-sup-list">
+        <span class="am-sup-list-label">Featured Suppliers</span>
+        <div id="amSupplierList"></div>
+      </div>
+    </div>
+    <!-- Right -->
+    <div class="am-right">
+      <div class="am-analysis-wrap" id="amAnalysisWrap">
+        <div class="am-empty-state" id="amEmptyState">
+          <div class="am-empty-icon">◈</div>
+          <div class="am-empty-title">Supplier Deep Dive</div>
+          <p class="am-empty-sub">Search for any supplier by name to initiate an AI-powered intelligence analysis covering fraud risk, financial stability, compliance, and hidden threats.</p>
+        </div>
+        <div class="am-progress-panel" id="amProgressPanel">
+          <div class="am-progress-title">Initiating Deep Dive Analysis</div>
+          <div class="am-progress-steps" id="amProgressSteps"></div>
+        </div>
+        <div class="am-result" id="amResult">
+          <div class="am-result-header">
+            <div>
+              <div class="am-result-name" id="amResultName">—</div>
+              <div class="am-result-meta" id="amResultMeta">—</div>
+            </div>
+            <div class="am-score-circle">
+              <svg class="am-score-svg" viewBox="0 0 78 78">
+                <circle class="am-score-bg" cx="39" cy="39" r="33"/>
+                <circle class="am-score-fill" id="amScoreFill" cx="39" cy="39" r="33" stroke-dasharray="0 207.3" stroke-dashoffset="0"/>
+              </svg>
+              <div class="am-score-num"><span id="amScoreNum">0</span><span class="am-score-lbl">Risk</span></div>
+            </div>
+          </div>
+          <div class="am-metrics" id="amMetrics"></div>
+          <div class="am-detail-grid" id="amDetailGrid"></div>
+          <div class="am-ai-summary">
+            <div class="am-ai-summary-label"><span class="am-ai-dot"></span>AI Intelligence Summary</div>
+            <div id="amSummaryText"></div>
+          </div>
+          <div class="am-alternatives" id="amAlternatives"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ALERT BANNER ===== -->
+<div id="alertBanner"></div>
 
 <!-- Profile reopen button -->
 <button id="psReopenBtn" title="View Profile" onclick="showProfileSection()">⊕</button>
@@ -1202,6 +1558,283 @@ document.addEventListener('DOMContentLoaded',function(){
     if(cg){var chips=cg.querySelectorAll('.chip-option');for(var i=0;i<chips.length;i++){if(selectedSourcingCountries.indexOf(chips[i].getAttribute('data-country'))!==-1)chips[i].classList.add('selected');}}
   }
   updateHeroStats();
+
+  const searchInput = document.getElementById('countrySearchInput');
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    COUNTRY_DATA.forEach(country => {
+      const marker = countryMarkers[country.name];
+      if (marker) {
+        if (country.name.toLowerCase().includes(searchTerm)) {
+          if (!map.hasLayer(marker)) {
+            marker.addTo(map);
+          }
+        } else {
+          if (map.hasLayer(marker)) {
+            marker.remove();
+          }
+        }
+      }
+    });
+  });
+});
+</script>
+
+<!-- ===== AUDIT MODULE JS ===== -->
+<script>
+var SUPPLIER_DATA=[
+{id:'foxconn',name:'Foxconn Technology',country:'Taiwan',founded:1974,revenue:'$222B',industry:'Electronics',riskScore:42,fraudRisk:18,financialStability:78,compliance:71,supplyReliability:65,pastIssues:['2021: Factory conditions scandal in Chengdu plant','2022: COVID lockdown disrupted 30% iPhone production','2023: Worker protests over bonus payment delays','2020: Excessive overtime violations reported','2019: Quality control failures on early 5G modules'],hiddenRisks:['High concentration risk — 40% revenue tied to single client','Political sensitivity: cross-strait Taiwan/China tension exposure','Leadership transition risk: founder semi-retired'],alternatives:['Pegatron Corp','Wistron Corporation','Flex Ltd']},
+{id:'tsmc',name:'TSMC',country:'Taiwan',founded:1987,revenue:'$69.3B',industry:'Semiconductors',riskScore:35,fraudRisk:8,financialStability:95,compliance:92,supplyReliability:88,pastIssues:['2021: Global chip shortage — 6-month lead time extension','2022: Earthquake minor damage to Hsinchu fab','2023: US export controls compliance review'],hiddenRisks:['Single geography concentration (Taiwan strait risk)','Extreme capex dependency — any market downturn = cash crunch','Customer concentration: top 5 clients = 65% revenue'],alternatives:['Samsung Foundry','Intel Foundry Services','GlobalFoundries']},
+{id:'samsung',name:'Samsung Electronics',country:'South Korea',founded:1969,revenue:'$235.5B',industry:'Electronics',riskScore:22,fraudRisk:8,financialStability:92,compliance:85,supplyReliability:90,pastIssues:['2017: Note 7 battery fire recall — $5.3B loss','2022: Galaxy S22 performance throttling controversy','2021: Chairman Lee Jae-yong pardon after corruption conviction','2023: Memory chip inventory glut — 40% revenue decline'],hiddenRisks:['Chaebol governance structure — founding family influence creates opacity','North Korea geopolitical risk (proximity)','Memory semiconductor cyclicality — severe boom/bust pattern'],alternatives:['SK Hynix','Micron Technology','Kioxia']},
+{id:'yueyuen',name:'Yue Yuen Industrial',country:'China',founded:1988,revenue:'$9.2B',industry:'Footwear Mfg',riskScore:55,fraudRisk:29,financialStability:62,compliance:58,supplyReliability:70,pastIssues:['2014: 40,000-worker strike over social insurance underpayments','2022: 3-month Dongguan factory closure (COVID)','2021: Environmental fine for wastewater violations','2023: Overcharging patterns detected in raw material procurement'],hiddenRisks:['Audit gaps in subcontractor network (6 unverified sub-suppliers)','Recent CFO departure — financial oversight uncertainty','Partial supply from regions with active labor disputes'],alternatives:['Pou Chen Group','Huajian Group','Longsheng Group']},
+{id:'flex',name:'Flex Ltd',country:'Singapore',founded:1969,revenue:'$30.3B',industry:'EMS / Manufacturing',riskScore:25,fraudRisk:9,financialStability:84,compliance:88,supplyReliability:86,pastIssues:['2019: SEC investigation — $8.7M settlement','2021: Component shortage impact on automotive segment','2022: Restructuring of digital health division'],hiddenRisks:['Legacy SEC settlement creates reputational overhang','Broad geographic footprint creates compliance monitoring complexity','Customer concentration: Apple and Microsoft top 2 clients'],alternatives:['Jabil Inc','Celestica','Foxconn']},
+{id:'olam',name:'Olam International',country:'Singapore',founded:1989,revenue:'$47.1B',industry:'Agri-commodities',riskScore:48,fraudRisk:31,financialStability:64,compliance:62,supplyReliability:71,pastIssues:['2012: Short-seller Muddy Waters fraud allegations','2022: Cocoa sourcing linked to child labor reports in Ivory Coast','2023: Wheat supply disruption due to Ukraine conflict','2021: Cashew processing facility fire in Vietnam'],hiddenRisks:['Complex cross-border commodity flows — audit trail gaps','Exposure to sovereign risk in 60+ countries','Debt-funded expansion model — vulnerability to rate increases'],alternatives:['Louis Dreyfus Company','Bunge Limited','Cargill Inc']},
+{id:'haier',name:'Haier Group',country:'China',founded:1984,revenue:'$38.2B',industry:'Appliances',riskScore:32,fraudRisk:14,financialStability:80,compliance:76,supplyReliability:82,pastIssues:['2022: Supply disruption at Qingdao HQ due to COVID','2021: Patent infringement dispute in US market','2023: Minor quality recall on refrigerator compressors'],hiddenRisks:['State-linked enterprise — policy risk exposure','Rapid acquisition pace creates integration risk','US regulatory scrutiny on Chinese tech acquisitions'],alternatives:['Midea Group','Gree Electric','Bosch Home Appliances']},
+{id:'byd',name:'BYD Company',country:'China',founded:1995,revenue:'$85.6B',industry:'EV & Batteries',riskScore:29,fraudRisk:11,financialStability:88,compliance:79,supplyReliability:84,pastIssues:['2022: Battery fire incident in Shenzhen test facility','2023: EU anti-subsidy investigation','2021: Worker fatigue reports at Shenzhen assembly'],hiddenRisks:['State subsidy dependency — removal could impact financials significantly','EU tariff risk materially affects European expansion plans','Lithium supply concentration in contested Bolivian reserves'],alternatives:['CATL','LG Energy Solution','Samsung SDI']},
+{id:'maersk',name:'Maersk (A.P. Møller)',country:'Denmark',founded:1904,revenue:'$81.5B',industry:'Shipping / Logistics',riskScore:16,fraudRisk:5,financialStability:91,compliance:90,supplyReliability:90,pastIssues:['2017: NotPetya cyberattack — $300M damage, 45,000 PCs wiped','2022: Red Sea rerouting cost $1B+ in additional fuel','2023: Revenue decline 74% from COVID boom peak'],hiddenRisks:['Shipping rate cyclicality — earnings highly volatile','Red Sea routing disruption ongoing exposure','Logistics transformation capex ($50B+) — execution risk'],alternatives:['MSC','CMA CGM','Hapag-Lloyd']},
+{id:'vale',name:'Vale SA',country:'Brazil',founded:1942,revenue:'$41.8B',industry:'Mining',riskScore:61,fraudRisk:38,financialStability:67,compliance:52,supplyReliability:69,pastIssues:['2015: Samarco dam collapse — 19 deaths, $7B liability','2019: Brumadinho dam collapse — 270 deaths, criminal charges','2022: Amazon deforestation linked to mine expansion','2023: Tax evasion investigation by Brazilian Federal Revenue'],hiddenRisks:['Catastrophic dam failure history — recurring pattern not yet resolved','Brazilian political interference risk (state has 12% stake)','Environmental litigation pipeline worth $15B+ in aggregate'],alternatives:['Rio Tinto','BHP','Anglo American']},
+{id:'adani',name:'Adani Ports',country:'India',founded:1998,revenue:'$3.6B',industry:'Port Operations',riskScore:58,fraudRisk:45,financialStability:55,compliance:49,supplyReliability:72,pastIssues:['2023: Hindenburg Research report — allegations of stock manipulation','2023: Massive capital outflow — $150B market cap wipe','2021: MSCI ESG downgrade due to governance concerns'],hiddenRisks:['Ongoing SEC investigation into Hindenburg allegations','Promoter leverage: Gautam Adani family share pledges','Political proximity to ruling party — regulatory risk if politics shift'],alternatives:['DP World','JSW Infrastructure','Gujarat Pipavav Port']},
+{id:'glencore',name:'Glencore',country:'Switzerland',founded:1974,revenue:'$255.9B',industry:'Mining / Commodities',riskScore:46,fraudRisk:38,financialStability:74,compliance:48,supplyReliability:76,pastIssues:['2022: $1.5B US DOJ plea for bribery and market manipulation','2022: UK SFO conviction for bribery of African officials','2021: DRC cobalt mining human rights violations documented'],hiddenRisks:['Legacy bribery settlement — ongoing DOJ/SFO monitoring','Congo cobalt operations — child labor and artisanal mining risk','Commodity trader model creates market manipulation risk profile'],alternatives:['Rio Tinto','BHP','Anglo American']},
+{id:'zte',name:'ZTE Corporation',country:'China',founded:1985,revenue:'$16.9B',industry:'Telecom Equipment',riskScore:72,fraudRisk:58,financialStability:60,compliance:35,supplyReliability:52,pastIssues:['2018: US sanctions — near-total business shutdown for 3 months','2017: Guilty plea for Iran sanctions violations — $1.19B fine','2022: FCC Covered List designation','2023: Multiple Western governments banned ZTE from 5G infrastructure'],hiddenRisks:['US Entity List and FCC Covered List — direct sales restriction in US','Multiple government bans in EU/UK/Australia for 5G security concerns','Structural US sanctions exposure — any violation risks total shutdown again'],alternatives:['Nokia','Ericsson','Samsung Networks']},
+{id:'esquel',name:'Esquel Group',country:'China',founded:1978,revenue:'$1.6B',industry:'Textiles/Apparel',riskScore:56,fraudRisk:35,financialStability:58,compliance:50,supplyReliability:62,pastIssues:['2020: US Entity List designation — export restrictions imposed','2021: Supply contracts cancelled by major US brands','2022: Xinjiang cotton sourcing allegations under investigation','2023: Partial operations suspended at Xinjiang facility'],hiddenRisks:['US Entity List designation — direct export restriction to US market','Xinjiang operations under ongoing forced labor scrutiny','Revenue contraction as US/EU brands exit: 25% client loss'],alternatives:['Crystal International','TAL Apparel','Shenzhou International']},
+{id:'vedanta',name:'Vedanta Resources',country:'United Kingdom',founded:1976,revenue:'$17.2B',industry:'Mining / Metals',riskScore:65,fraudRisk:46,financialStability:40,compliance:45,supplyReliability:58,pastIssues:['2018: Thoothukudi copper plant shooting — 13 protesters killed, plant closed','2022: Debt default on multiple international bonds','2023: Delisting attempt for Indian subsidiary failed','2021: Anil Agarwal family trust margin calls created ownership uncertainty'],hiddenRisks:['Debt restructuring ongoing — existential financial risk','Human rights record (Thoothukudi) = permanent ESG exclusion for many investors','Agarwal family financial engineering raises transparency concerns'],alternatives:['Anglo American','Hindalco Industries','Tata Steel']},
+{id:'suzlon',name:'Suzlon Energy',country:'India',founded:1995,revenue:'$1.4B',industry:'Renewable Energy',riskScore:68,fraudRisk:44,financialStability:42,compliance:51,supplyReliability:48,pastIssues:['2012: Near-bankruptcy, debt restructuring','2019: Bond default, second restructuring','2022: Quality complaints on rotor blade failures in Rajasthan','2023: Pending litigation from multiple wind farm operators','2021: Related-party transaction concerns flagged by auditors'],hiddenRisks:['History of financial distress creates systemic reliability questions','Related-party transaction opacity — auditor flags unresolved','Promoter pledge of shares creates financing fragility'],alternatives:['Vestas Wind Systems','Siemens Gamesa','GE Vernova']},
+{id:'sapura',name:'Sapura Energy',country:'Malaysia',founded:2012,revenue:'$1.8B',industry:'Oil & Gas Services',riskScore:74,fraudRisk:52,financialStability:31,compliance:44,supplyReliability:40,pastIssues:['2020: Near-bankruptcy — RM10B debt restructuring','2022: Failed to complete restructuring — creditor standoff','2021: Bribery charges against executives in Brazil operations','2023: Going concern doubt raised by auditors'],hiddenRisks:['Auditors have raised going concern doubt — existential risk','Significant related-party lending from founding family entity','Brazilian bribery investigation ongoing — potential debarment'],alternatives:['Bumi Armada','Dialog Group','TechnipFMC']},
+{id:'tcs',name:'Tata Consultancy Services',country:'India',founded:1968,revenue:'$27.9B',industry:'IT Services',riskScore:18,fraudRisk:6,financialStability:93,compliance:90,supplyReliability:92,pastIssues:['2014: US visa fraud allegations — $30M settlement','2021: Data breach at client-facing system (contained)','2023: Employee moonlighting policy violations discovered'],hiddenRisks:['US immigration policy changes directly affect delivery model','High employee attrition (17%) creates knowledge transfer risk','Tata Group conglomerate structure — group-level events can affect TCS'],alternatives:['Infosys','Wipro','HCL Technologies']},
+{id:'jabil',name:'Jabil Inc',country:'United States',founded:1966,revenue:'$34.7B',industry:'EMS / Manufacturing',riskScore:17,fraudRisk:5,financialStability:88,compliance:91,supplyReliability:91,pastIssues:['2008: Stock options backdating scandal — $1M SEC settlement','2022: Apple AirPods supplier relationship review','2023: Healthcare business spinoff created short-term uncertainty'],hiddenRisks:['Apple revenue concentration (~25%) — dependent on single customer','Healthcare spinoff valuation uncertainty','Global tariff exposure across 30-country manufacturing footprint'],alternatives:['Flex Ltd','Celestica','Sanmina Corporation']},
+{id:'evergreen',name:'Evergreen Marine',country:'Taiwan',founded:1968,revenue:'$16.8B',industry:'Shipping',riskScore:44,fraudRisk:16,financialStability:72,compliance:67,supplyReliability:73,pastIssues:['2021: Ever Given Suez Canal grounding — global supply chain incident','2022: Rate collapse after COVID boom — 60% revenue decline','2023: Port congestion issues at Kaohsiung and Taichung'],hiddenRisks:['Extreme cyclicality — earnings swing violently with freight rates','Ever Given litigation still pending ($550M claim)','Taiwan strait geopolitical risk affects fleet routing'],alternatives:['COSCO Shipping','Hapag-Lloyd','Maersk']},
+{id:'kakao',name:'Kakao Corporation',country:'South Korea',founded:2010,revenue:'$6.1B',industry:'Tech / Platform',riskScore:41,fraudRisk:30,financialStability:70,compliance:60,supplyReliability:74,pastIssues:['2022: Pangyo data center fire — 24h total service outage for 40M users','2023: CEO arrested for stock manipulation during SM Entertainment acquisition','2022: Korean FTC probe into platform power abuse'],hiddenRisks:['CEO criminal charges — governance credibility severely impacted','Monopolistic market position attracting continuous regulatory pressure','Single data center dependency demonstrated vulnerability'],alternatives:['Naver Corporation','Line Corporation','KT Corporation']},
+{id:'posco',name:'POSCO Holdings',country:'South Korea',founded:1968,revenue:'$74.6B',industry:'Steel',riskScore:24,fraudRisk:9,financialStability:85,compliance:84,supplyReliability:86,pastIssues:['2022: Pohang flood — $1.5B production loss, 6-week shutdown','2021: Former CEO indicted for corruption charges','2023: EV battery material joint venture delays'],hiddenRisks:['North Korea geopolitical proximity to Pohang facility','Iron ore supply concentration — Australia/Brazil dependency','Korea-Japan relations deterioration affects supply chain coordination'],alternatives:['Nippon Steel','ArcelorMittal','Baosteel']},
+{id:'cargill',name:'Cargill Inc',country:'United States',founded:1865,revenue:'$177B',industry:'Agri-commodities',riskScore:18,fraudRisk:7,financialStability:91,compliance:82,supplyReliability:89,pastIssues:['2020: Brazil soy sourcing linked to Amazon deforestation','2022: Child labor allegations in Ghana cocoa supply chain','2023: Class action lawsuit over price-fixing in chicken market'],hiddenRisks:['Private company — financial opacity, no public disclosure requirements','ESG exposure: deforestation and child labor supply chain issues','Antitrust risk in US agricultural markets (DOJ monitoring)'],alternatives:['Archer-Daniels-Midland','Bunge','Louis Dreyfus']},
+{id:'lifung',name:'Li & Fung Limited',country:'Hong Kong',founded:1906,revenue:'$12.4B',industry:'Supply Chain Mgmt',riskScore:38,fraudRisk:22,financialStability:68,compliance:74,supplyReliability:77,pastIssues:['2020: Revenue declined 35% due to major client losses','2022: Restructuring — divested logistics arm','2021: Overcharging investigation in US market segment'],hiddenRisks:['Significant exposure to US-China trade war dynamics','Complex entity structure with 300+ subsidiaries — opacity risk','Declining margins in core sourcing business'],alternatives:['Esquel Group','Global Brands Group','TAL Apparel']},
+{id:'inditex',name:'Zara (Inditex)',country:'Spain',founded:1975,revenue:'$35.9B',industry:'Fast Fashion',riskScore:19,fraudRisk:6,financialStability:94,compliance:86,supplyReliability:91,pastIssues:['2011: Brazilian investigation into forced labor in supply chain','2022: Greenwashing allegations — ASA ruling against sustainability claims','2023: Worker conditions at Myanmar supplier flagged by NGO'],hiddenRisks:['Fast fashion business model under regulatory pressure (EU textile regulation)','Deep supply chain opacity — 1,700+ suppliers, limited tier-2 visibility','Founder family (Ortega) owns 59% — succession planning risk'],alternatives:['H&M Group','Fast Retailing (Uniqlo)','Primark (ABF)']},
+{id:'alibaba',name:'Alibaba Group',country:'China',founded:1999,revenue:'$130.4B',industry:'E-commerce / Tech',riskScore:37,fraudRisk:20,financialStability:83,compliance:64,supplyReliability:80,pastIssues:['2021: $2.75B antitrust fine by Chinese regulators','2021: Jack Ma disappeared from public view — governance uncertainty','2023: Restructuring into 6 business units amid regulatory pressure'],hiddenRisks:['CCP regulatory risk — demonstrated willingness to intervene','VIE structure legal uncertainty for foreign investors','CEO turnover amid uncertainty'],alternatives:['JD.com','Pinduoduo (Temu)','Shopify']},
+{id:'yara',name:'Yara International',country:'Norway',founded:1905,revenue:'$19.4B',industry:'Fertilizers',riskScore:28,fraudRisk:11,financialStability:82,compliance:83,supplyReliability:81,pastIssues:['2022: Natural gas price spike forced European plants to cut production 65%','2015: Libya/Qatar anti-corruption cases — $48M DOJ settlement','2023: Ammonia plant explosion in Porsgrunn — 2 injuries','2021: Extensive cyberattack — global IT shutdown for several days'],hiddenRisks:['Natural gas dependency — European energy prices directly affect margins','Ammonia price cycle volatility — earnings highly unpredictable','DOJ settlement history creates enhanced compliance monitoring requirements'],alternatives:['Mosaic Company','Nutrien','CF Industries']},
+{id:'mediatek',name:'MediaTek',country:'Taiwan',founded:1997,revenue:'$13.7B',industry:'Semiconductors',riskScore:30,fraudRisk:11,financialStability:84,compliance:82,supplyReliability:83,pastIssues:['2022: Inventory correction — revenue declined 20% from peak','2023: Huawei-linked customer revenue at risk from US export controls','2021: 4G/5G chip overshipment to China created channel inventory buildup'],hiddenRisks:['Taiwan strait geopolitical risk affects entire operation','Huawei and Chinese customers at risk from US export restrictions','TSMC dependency — any TSMC disruption directly impacts MediaTek'],alternatives:['Qualcomm','Unisoc','Samsung LSI']},
+{id:'geely',name:'Geely Automobile',country:'China',founded:1986,revenue:'$49.2B',industry:'Automotive',riskScore:36,fraudRisk:15,financialStability:76,compliance:72,supplyReliability:78,pastIssues:['2022: Volvo Cars IPO delayed due to market conditions','2021: Quality recall on Lynk & Co models — brake system','2023: EU anti-subsidy tariff investigation'],hiddenRisks:['Aggressive acquisition strategy creates debt load','EU tariff risk on Chinese EVs materially impacts expansion','Founder Li Shufu political connections — policy risk'],alternatives:['SAIC Motor','Chery Automobile','Great Wall Motor']},
+{id:'hyundai',name:'Hyundai Motor',country:'South Korea',founded:1967,revenue:'$162.7B',industry:'Automotive',riskScore:21,fraudRisk:7,financialStability:87,compliance:85,supplyReliability:88,pastIssues:['2021: Kia EV6 battery recall — fire risk investigation','2022: US child labor investigation at Alabama supplier MetalTech','2023: Theta II engine defect class action settlement $210M'],hiddenRisks:['Chaebol structure — founder family controls through complex cross-holdings','US child labor investigation creates reputational and legal exposure','Battery sourcing from China — US IRA subsidy eligibility risk'],alternatives:['Toyota Motor','Kia Motors','Honda Motor']}
+];
+
+var AM_STEPS=['Reviewing supplier history & registration records','Scanning regulatory filings & sanctions databases','Analyzing financial stability indicators','Cross-referencing compliance & audit records','Running fraud pattern detection algorithms','Generating risk assessment report'];
+
+function switchModule(mod){
+  var mapEls=['mapContainer','heroPanel','layerControls','countrySearch','chatPanel','chatMessages','onboardingPanel'];
+  var mapFixed=document.querySelectorAll('.map-overlay-header,.map-legend');
+  if(mod==='audit'){
+    mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+    for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='none';
+    var am=document.getElementById('auditModule');
+    am.style.display='flex';am.style.flexDirection='column';
+    if(!localStorage.getItem('am_paywall_bypassed')){
+      document.getElementById('amPaywall').style.display='flex';
+    }else{
+      document.getElementById('amPaywall').style.display='none';
+      document.getElementById('amMain').classList.add('am-loaded');
+      renderAMSupplierList();
+    }
+    document.getElementById('navMod01').classList.remove('active');
+    document.getElementById('navMod02').classList.add('active');
+  }else{
+    mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});
+    for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='';
+    document.getElementById('auditModule').style.display='none';
+    document.getElementById('navMod01').classList.add('active');
+    document.getElementById('navMod02').classList.remove('active');
+    if(map)map.invalidateSize();
+  }
+}
+
+function bypassPaywall(){
+  localStorage.setItem('am_paywall_bypassed','1');
+  var pw=document.getElementById('amPaywall');
+  pw.classList.add('am-pw-hiding');
+  setTimeout(function(){
+    pw.style.display='none';pw.classList.remove('am-pw-hiding');
+    document.getElementById('amMain').classList.add('am-loaded');
+    renderAMSupplierList();
+  },600);
+}
+
+function renderAMSupplierList(){
+  var list=document.getElementById('amSupplierList');if(!list)return;
+  list.innerHTML=SUPPLIER_DATA.slice(0,14).map(function(s){
+    return'<div class="am-sup-list-item" id="amli-'+s.id+'" onclick="selectSupplier(\''+s.id+'\')"><span>'+s.name+'</span><span class="am-sli-score">'+s.riskScore+'</span></div>';
+  }).join('');
+}
+
+function getSupplierById(id){for(var i=0;i<SUPPLIER_DATA.length;i++)if(SUPPLIER_DATA[i].id===id)return SUPPLIER_DATA[i];return null;}
+
+function selectSupplier(id){
+  var s=getSupplierById(id);if(!s)return;
+  document.getElementById('amSearchInput').value=s.name;
+  document.getElementById('amAutocomplete').classList.remove('open');
+  // Left panel
+  var card=document.getElementById('amSupplierCard');card.classList.add('visible');
+  var initials=s.name.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+  document.getElementById('amSupLogo').textContent=initials;
+  document.getElementById('amSupName').textContent=s.name;
+  document.getElementById('amSupMeta').textContent=s.industry+' · '+s.country;
+  document.getElementById('amSupCountry').textContent=s.country;
+  document.getElementById('amSupFounded').textContent=s.founded;
+  document.getElementById('amSupRevenue').textContent=s.revenue;
+  document.getElementById('amSupIndustry').textContent=s.industry;
+  // List highlight
+  document.querySelectorAll('.am-sup-list-item').forEach(function(el){el.classList.remove('selected');});
+  var li=document.getElementById('amli-'+id);if(li)li.classList.add('selected');
+  startAMAnalysis(s);
+}
+
+function startAMAnalysis(s){
+  document.getElementById('amEmptyState').style.display='none';
+  document.getElementById('amResult').classList.remove('visible');
+  var pp=document.getElementById('amProgressPanel');pp.classList.add('visible');
+  document.getElementById('amStatusDot').classList.add('active');
+  document.getElementById('amStatusText').textContent='Analyzing '+s.name+'...';
+  var stepsEl=document.getElementById('amProgressSteps');
+  stepsEl.innerHTML=AM_STEPS.map(function(step,i){
+    return'<div class="am-step" id="amstep-'+i+'"><div class="am-step-dot"></div><span>'+step+'</span></div>';
+  }).join('');
+  var delay=0;
+  for(var i=0;i<AM_STEPS.length;i++){
+    (function(idx){
+      setTimeout(function(){
+        if(idx>0){var prev=document.getElementById('amstep-'+(idx-1));if(prev){prev.classList.remove('active');prev.classList.add('done');}}
+        var el=document.getElementById('amstep-'+idx);if(el)el.classList.add('active');
+      },delay);
+    })(i);
+    delay+=850+Math.floor(Math.random()*350);
+  }
+  setTimeout(function(){
+    var last=document.getElementById('amstep-'+(AM_STEPS.length-1));
+    if(last){last.classList.remove('active');last.classList.add('done');}
+    setTimeout(function(){
+      pp.classList.remove('visible');
+      document.getElementById('amStatusDot').classList.remove('active');
+      document.getElementById('amStatusText').textContent='Deep Dive Complete — '+s.name;
+      renderAMResult(s);
+    },350);
+  },delay+200);
+}
+
+function renderAMResult(s){
+  var result=document.getElementById('amResult');result.classList.add('visible');
+  document.getElementById('amResultName').textContent=s.name;
+  var cc=s.compliance>=80?'good':s.compliance>=60?'warn':'risk';
+  var cl=s.compliance>=80?'✓ Compliant':s.compliance>=60?'⚠ Warning':'✕ At Risk';
+  document.getElementById('amResultMeta').innerHTML=s.country+' · Est. '+s.founded+' · '+s.revenue+'<span class="am-compliance-badge '+cc+'">'+cl+'</span>';
+  animateScoreCircle(s.riskScore);
+  renderAMMetrics(s);
+  renderAMDetails(s);
+  fetchAISummary(s);
+  renderAMAlternatives(s);
+  document.getElementById('amAnalysisWrap').scrollTop=0;
+}
+
+function animateScoreCircle(score){
+  var fill=document.getElementById('amScoreFill');
+  var numEl=document.getElementById('amScoreNum');
+  var circ=2*Math.PI*33;
+  fill.style.strokeDasharray='0 '+circ;numEl.textContent='0';
+  setTimeout(function(){
+    fill.style.strokeDasharray=((score/100)*circ)+' '+(circ-(score/100)*circ);
+    var start=null;
+    requestAnimationFrame(function step(ts){
+      if(!start)start=ts;
+      var p=Math.min((ts-start)/1500,1),e=1-Math.pow(1-p,3);
+      numEl.textContent=Math.round(e*score);
+      if(p<1)requestAnimationFrame(step);
+    });
+  },80);
+}
+
+function renderAMMetrics(s){
+  var el=document.getElementById('amMetrics');
+  var m=[
+    {label:'Fraud Risk',value:s.fraudRisk+'%',bar:s.fraudRisk,cls:s.fraudRisk>45?'danger':s.fraudRisk>25?'warn':''},
+    {label:'Financial Stability',value:s.financialStability+'%',bar:s.financialStability,cls:s.financialStability<40?'danger':s.financialStability<65?'warn':''},
+    {label:'Supply Reliability',value:s.supplyReliability+'%',bar:s.supplyReliability,cls:s.supplyReliability<45?'danger':s.supplyReliability<65?'warn':''},
+    {label:'Compliance',value:s.compliance+'%',bar:s.compliance,cls:s.compliance<50?'danger':s.compliance<65?'warn':''}
+  ];
+  el.innerHTML=m.map(function(x){
+    return'<div class="am-metric-card am-shimmer-in"><div class="am-metric-lbl">'+x.label+'</div><div class="am-metric-val '+x.cls+'">'+x.value+'</div><div class="am-metric-bar"><div class="am-metric-bar-fill '+x.cls+'" style="width:0" data-target="'+x.bar+'"></div></div></div>';
+  }).join('');
+  setTimeout(function(){el.querySelectorAll('.am-metric-bar-fill').forEach(function(b){b.style.width=b.getAttribute('data-target')+'%';});},150);
+}
+
+function renderAMDetails(s){
+  var grid=document.getElementById('amDetailGrid');
+  var issues=s.pastIssues.map(function(i){var recent=i.match(/202[23]/);return'<div class="am-detail-item"><div class="am-detail-dot '+(recent?'red':'yellow')+'"></div><span>'+i+'</span></div>';}).join('');
+  var risks=s.hiddenRisks.map(function(r){return'<div class="am-detail-item"><div class="am-detail-dot red"></div><span>'+r+'</span></div>';}).join('');
+  grid.innerHTML='<div class="am-detail-panel"><div class="am-detail-panel-title">Past Issues & Incidents</div>'+issues+'</div>'+'<div class="am-detail-panel"><div class="am-detail-panel-title">AI-Detected Hidden Risks</div>'+risks+'</div>';
+}
+
+async function fetchAISummary(s){
+  var el=document.getElementById('amSummaryText');
+  el.innerHTML='<span style="color:rgba(255,255,255,0.25);font-size:11px;font-family:\'JetBrains Mono\',monospace;letter-spacing:0.08em;">GENERATING ANALYSIS...</span>';
+  var prompt='You are a senior supply chain risk analyst. Write a 220-280 word professional intelligence summary for supplier "'+s.name+'" ('+s.country+', '+s.industry+', est. '+s.founded+', rev. '+s.revenue+'). Risk Score: '+s.riskScore+'/100. Fraud Risk: '+s.fraudRisk+'%. Financial Stability: '+s.financialStability+'%. Supply Reliability: '+s.supplyReliability+'%. Key risks: '+s.hiddenRisks.join('; ')+'. Be analytical, specific, and authoritative. End with a clear recommendation. Plain text only.';
+  try{
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,context:'supplier_audit'})});
+    var d=await r.json();
+    if(d.response){streamText(el,d.response);return;}
+  }catch(e){}
+  streamText(el,generateFallback(s));
+}
+
+function streamText(el,text){
+  el.innerHTML='';
+  var words=text.split(' ');
+  words.forEach(function(word,i){
+    var span=document.createElement('span');
+    span.className='stream-word';span.textContent=word+' ';
+    span.style.animationDelay=(i*0.035)+'s';
+    el.appendChild(span);
+  });
+}
+
+function generateFallback(s){
+  var rl=s.riskScore>=60?'high':s.riskScore>=40?'moderate':'manageable';
+  var fl=s.financialStability>=80?'strong':s.financialStability>=60?'adequate':'concerning';
+  var cl=s.compliance>=80?'robust':s.compliance>=60?'acceptable with noted gaps':'deficient and requiring immediate attention';
+  return s.name+' presents a '+rl+' risk profile with a composite risk score of '+s.riskScore+'/100. Headquartered in '+s.country+' and operating in '+s.industry+' since '+s.founded+', the company generates an estimated '+s.revenue+' in annual revenues. Financial stability is assessed as '+fl+' at '+s.financialStability+'%, reflecting current capitalization and debt management posture. Compliance posture is '+cl+', rated '+s.compliance+'% across regulatory, labor, environmental, and trade dimensions. Fraud risk indicators stand at '+s.fraudRisk+'%, driven by patterns identified in procurement practices, related-party transactions, and historical audit trail gaps. Supply reliability of '+s.supplyReliability+'% reflects on-time delivery performance and single-point-of-failure exposure. Primary risk vectors: '+s.hiddenRisks[0]+'. '+(s.hiddenRisks[1]?'Additionally, '+s.hiddenRisks[1].toLowerCase()+'. ':'')+' Recommendation: '+(s.riskScore>=60?'Conduct immediate on-site audit and establish secondary supplier. Reduce sourcing concentration below 30%.':s.riskScore>=40?'Maintain enhanced monitoring cadence. Request updated compliance documentation quarterly.':'Continue standard monitoring protocols. This supplier represents a viable long-term partner with manageable risk exposure.');
+}
+
+function renderAMAlternatives(s){
+  var el=document.getElementById('amAlternatives');
+  if(!s.alternatives||!s.alternatives.length){el.style.display='none';return;}
+  el.style.display='block';
+  var html='<div class="am-detail-panel-title" style="margin-bottom:12px">Recommended Alternatives</div>';
+  html+=s.alternatives.map(function(name){
+    var alt=SUPPLIER_DATA.find(function(x){return x.name===name;});
+    var score=alt?alt.riskScore:Math.floor(15+Math.random()*28);
+    var aid=alt?alt.id:null;
+    return'<div class="am-alt-item" '+(aid?'onclick="selectSupplier(\''+aid+'\')"':'')+'><div><div class="am-alt-name">'+name+'</div><div class="am-alt-country">'+(alt?alt.country+' · '+alt.industry:s.industry)+'</div></div><div><div class="am-alt-score">'+score+'</div><div class="am-alt-score-lbl">Risk Score</div></div></div>';
+  }).join('');
+  el.innerHTML=html;
+}
+
+// Autocomplete init
+document.addEventListener('DOMContentLoaded',function(){
+  var inp=document.getElementById('amSearchInput');
+  var ac=document.getElementById('amAutocomplete');
+  if(!inp||!ac)return;
+  inp.addEventListener('input',function(){
+    var val=this.value.toLowerCase().trim();
+    if(!val){ac.classList.remove('open');return;}
+    var matches=SUPPLIER_DATA.filter(function(s){return s.name.toLowerCase().indexOf(val)!==-1||s.country.toLowerCase().indexOf(val)!==-1||s.industry.toLowerCase().indexOf(val)!==-1;}).slice(0,8);
+    if(!matches.length){ac.classList.remove('open');return;}
+    ac.innerHTML=matches.map(function(s){return'<div class="am-ac-item" onclick="selectSupplier(\''+s.id+'\')"><span>'+s.name+' <span style="color:rgba(255,255,255,0.28);font-size:10px">· '+s.country+'</span></span><span class="am-ac-score">'+s.riskScore+'</span></div>';}).join('');
+    ac.classList.add('open');
+  });
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){ac.classList.remove('open');}
+    if(e.key==='Enter'){
+      var val=this.value.toLowerCase().trim();
+      var match=SUPPLIER_DATA.find(function(s){return s.name.toLowerCase().indexOf(val)!==-1;});
+      if(match)selectSupplier(match.id);
+      ac.classList.remove('open');
+    }
+  });
+  document.addEventListener('click',function(e){if(inp&&!inp.contains(e.target)&&ac&&!ac.contains(e.target))ac.classList.remove('open');});
 });
 </script>
 
