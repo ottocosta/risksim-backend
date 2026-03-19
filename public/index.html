@@ -48,13 +48,13 @@
     }
 
     /* ===== CENTERED NAV — rsNav ===== */
-    #rsNav {
+#rsNav {
       position: fixed;
-      top: 30px;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 9999999;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 0;
       background: rgba(10, 10, 10, 0.65);
@@ -64,7 +64,6 @@
       border-radius: 50px;
       padding: 4px 6px;
       font-family: 'JetBrains Mono', monospace;
-      opacity: 0;
       transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
     #rsNav a {
