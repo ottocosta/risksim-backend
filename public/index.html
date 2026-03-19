@@ -938,16 +938,6 @@ document.addEventListener('keydown',__handleIntroKey,true);
 window.addEventListener('keydown',__handleIntroKey,true);
 </script>
 
-<!-- ===== RS NAV ===== -->
-<nav id="rsNav">
-  <button class="rs-nav-btn active" id="navMod01" onclick="switchModule('map')">
-    <span class="rs-nav-mod">MOD_01</span>Map
-  </button>
-  <button class="rs-nav-btn" id="navMod02" onclick="switchModule('audit')">
-    <span class="rs-nav-mod">MOD_02</span>Supplier Audit
-  </button>
-</nav>
-
 <!-- ===== INTRO ===== -->
 <div id="rs-intro">
   <canvas id="introGlobe"></canvas>
@@ -1620,13 +1610,13 @@ var SUPPLIER_DATA=[
 ];
 
 var AM_STEPS=['Reviewing supplier history & registration records','Scanning regulatory filings & sanctions databases','Analyzing financial stability indicators','Cross-referencing compliance & audit records','Running fraud pattern detection algorithms','Generating risk assessment report'];
-
 function switchModule(mod){
   var mapEls=['mapContainer','heroPanel','layerControls','countrySearch','chatPanel','chatMessages','onboardingPanel'];
   var mapFixed=document.querySelectorAll('.map-overlay-header,.map-legend');
+  mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='none';
+  document.getElementById('auditModule').style.display='none';
   if(mod==='audit'){
-    mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
-    for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='none';
     var am=document.getElementById('auditModule');
     am.style.display='flex';am.style.flexDirection='column';
     if(!localStorage.getItem('am_paywall_bypassed')){
@@ -1636,18 +1626,17 @@ function switchModule(mod){
       document.getElementById('amMain').classList.add('am-loaded');
       renderAMSupplierList();
     }
-    document.getElementById('navMod01').classList.remove('active');
-    document.getElementById('navMod02').classList.add('active');
+  }else if(mod==='warroom'){
+    mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});
+    for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='';
+    if(map)map.invalidateSize();
+    alert('War-Room module coming soon.');
   }else{
     mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});
     for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='';
-    document.getElementById('auditModule').style.display='none';
-    document.getElementById('navMod01').classList.add('active');
-    document.getElementById('navMod02').classList.remove('active');
     if(map)map.invalidateSize();
   }
 }
-
 function bypassPaywall(){
   localStorage.setItem('am_paywall_bypassed','1');
   var pw=document.getElementById('amPaywall');
