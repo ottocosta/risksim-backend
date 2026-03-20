@@ -437,9 +437,9 @@
     .field-select { cursor:pointer; -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; }
     .field-select option { background:#0a0e18; color:#e2e8f0; }
     .chip-grid { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
-    .chip-option { padding:7px 14px; border-radius:999px; font-size:11px; font-weight:500; background:rgba(255,255,255,0.04); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.5); cursor:pointer; transition:all 0.25s; user-select:none; }
+    .chip-option { padding:6px 12px; border-radius:999px; font-size:11px; font-weight:500; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:var(--muted); cursor:pointer; transition:all 0.25s; user-select:none; }
     .chip-option:hover { border-color:rgba(45,212,191,0.2); color:var(--text); }
-    .chip-option.selected { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.25); color:#fff; box-shadow:inset 0 1px 0 rgba(255,255,255,0.15); }
+    .chip-option.selected { background:rgba(45,212,191,0.08); border-color:rgba(45,212,191,0.3); color:var(--accent); }
     .onboard-submit { width:100%; padding:12px; background:var(--accent); border:none; border-radius:8px; color:#050608; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.25s; margin-top:8px; }
     .onboard-submit:hover { background:#5eead4; transform:translateY(-1px); }
     .onboard-cancel { width:100%; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.06); border-radius:8px; color:var(--muted); font-size:12px; cursor:pointer; transition:all 0.2s; margin-top:8px; }
@@ -556,8 +556,8 @@
     @media (max-width:600px) { .ps-form-grid { grid-template-columns: 1fr; } }
     .ps-section-lbl { font-family: var(--font-display); font-size: 8px; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; display: block; }
     .ps-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 20px 0; }
-   .ps-submit-btn { width: 100%; padding: 13px; background: #fff; border: none; border-radius: 10px; color: #000;
-    .ps-submit-btn:hover { background: #e2e8f0; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(45,212,191,0.25); }
+    .ps-submit-btn { width: 100%; padding: 13px; background: var(--accent); border: none; border-radius: 10px; color: #050608; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; margin-top: 6px; }
+    .ps-submit-btn:hover { background: #5eead4; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(45,212,191,0.25); }
     .ps-chips-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 
     /* Reopen button */
@@ -1347,9 +1347,6 @@ function buildPSForm() {
     '<div class="ps-divider"></div>'+
     '<span class="ps-section-lbl">Primary Sourcing Regions</span>'+
     '<div class="ps-chips-grid" id="ps-sourcingChips">'+chips+'</div>'+
-    '<div class="ps-divider"></div>'+
-    '<span class="ps-section-lbl">Additional Context for AI</span>'+
-    '<div class="field-group"><label class="field-label">Tell us about your business</label><textarea class="field-select" id="ps-context" style="min-height:80px;resize:vertical;font-family:var(--font);font-size:13px;line-height:1.5;" placeholder="e.g. We import electronics from Shenzhen, concerned about tariff changes and shipping delays..."></textarea></div>'+
     '<div style="margin-top:24px">'+
       '<button class="ps-submit-btn" onclick="handlePSSubmit()">Start Intelligence →</button>'+
     '</div>';
@@ -1379,8 +1376,7 @@ function handlePSSubmit() {
   var industry=(document.getElementById('ps-industry')||{}).value||'';
   var revenue=(document.getElementById('ps-revenue')||{}).value||'';
   if(industry) currentCategory=industry;
-  var context=(document.getElementById('ps-context')||{}).value||'';
-  userProfile={type:type,country:'',regions:selectedSourcingCountries.join(', '),industry:industry,revenue:revenue,context:context};
+  userProfile={type:type,country:'',regions:selectedSourcingCountries.join(', '),industry:industry,revenue:revenue};
   saveProfileToStorage();
   var mtype=document.getElementById('companyType'); if(mtype&&type) mtype.value=type;
   var mind=document.getElementById('industry'); if(mind&&industry) mind.value=industry;
