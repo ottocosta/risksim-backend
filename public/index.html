@@ -1209,7 +1209,7 @@ var LAYER_CONFIG={risk:{name:'Risk Levels',sub:'Geopolitical & operational risk 
 function getRiskColor(s){return s>=80?'#ff1a4a':s>=60?'#ff8c00':s>=45?'#f5c518':s>=30?'#8bc34a':s>=15?'#00e676':'#00e5ff';}
 function getSourcingColor(s){return s>=80?'#00e5ff':s>=60?'#00e676':s>=40?'#8bc34a':s>=20?'#f5c518':s>=10?'#ff8c00':'#ff1a4a';}
 function getRiskLabel(s){return s>=80?'CRITICAL':s>=60?'HIGH':s>=45?'MED-HIGH':s>=30?'MEDIUM':s>=15?'LOW-MED':'LOW';}
-function getScoreForLayer(c,l){if(l==='shipping')return c.shipping*10;if(l==='labor')return c.labor*10;if(l==='cost')return c.costIndex;if(l==='sourcing')return(c.sourcing&&c.sourcing[currentCategory])||0;return c.risk;}
+function getScoreForLayer(c,l){if(l==='shipping')return c.shipping*10;if(l==='labor')return c.labor*10;if(l==='cost')return c.costIndex;if(l==='sourcing'){var cat=currentCategory;if(cat==='food'||cat==='rawMaterials')cat='generalMfg';return(c.sourcing&&c.sourcing[cat])||0;}return c.risk;}
 function getColorForLayer(s,l){return l==='sourcing'?getSourcingColor(s):getRiskColor(s);}
 function getCountryDotSize(n){if(['China','United States','Germany','Japan','South Korea'].indexOf(n)!==-1)return 9;if(['France','Italy','United Kingdom','Netherlands','Canada','Mexico','India','Vietnam','Taiwan','Singapore','Brazil','Russia'].indexOf(n)!==-1)return 7;return 5;}
 
