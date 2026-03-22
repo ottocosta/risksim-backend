@@ -88,16 +88,6 @@
     .rs-nav-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
     .rs-nav-btn.active { background: rgba(255,255,255,0.09); color: #fff; }
     .rs-nav-mod { display: block; font-size: 7px; opacity: 0.4; letter-spacing: 0.18em; margin-bottom: 3px; }
-.rs-nav-btn {
-      padding: 7px 14px; border-radius: 9px; border: none; cursor: pointer;
-      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500;
-      letter-spacing: 0.08em; text-transform: uppercase;
-      background: transparent; color: rgba(255,255,255,0.4);
-      transition: all 0.25s; white-space: nowrap; line-height: 1;
-    }
-    .rs-nav-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
-    .rs-nav-btn.active { background: rgba(255,255,255,0.09); color: #fff; }
-    .rs-nav-mod { display: block; font-size: 7px; opacity: 0.4; letter-spacing: 0.18em; margin-bottom: 3px; }
     /* ===== CINEMATIC INTRO ===== */
     #rs-intro {
       position: fixed; inset: 0; z-index: 99999; background: #000;
@@ -872,12 +862,6 @@
     @keyframes glassShimmerIn { 0%{box-shadow:inset 0 1px 0 rgba(255,255,255,0.28),0 12px 48px rgba(0,0,0,0.5);} 100%{box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),0 12px 48px rgba(0,0,0,0.5);} }
     .am-shimmer-in { animation:glassShimmerIn 3s ease-out; }
 
-    /* ===== MODULE NAVIGATION ===== */
-    .module-nav { position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:150; display:flex; gap:2px; padding:3px; background:rgba(255,255,255,0.03); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%); border:1px solid rgba(255,255,255,0.08); border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.4); animation:panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s both; }
-    .module-nav-btn { font-family:var(--font-mono); font-size:9px; font-weight:400; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.35); background:transparent; border:none; padding:7px 16px; border-radius:9px; cursor:pointer; transition:all 0.25s cubic-bezier(0.16,1,0.3,1); white-space:nowrap; }
-    .module-nav-btn:hover { color:rgba(255,255,255,0.6); background:rgba(255,255,255,0.04); }
-    .module-nav-btn.active { color:#fff; background:rgba(255,255,255,0.08); }
-
     /* ===== TERMINAL MODULE (SYS_03) ===== */
     #warRoomModule { position:fixed; inset:0; z-index:500; background:#000; display:none; flex-direction:column; overflow:hidden; }
     .wm-scanline { position:absolute; inset:0; z-index:1; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.008) 2px,rgba(255,255,255,0.008) 4px); }
@@ -1093,7 +1077,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <span class="rs-nav-mod">SYS_02</span>Audit
   </button>
   <button class="rs-nav-btn" onclick="switchModule('warroom')">
-    <span class="rs-nav-mod">SYS_03</span>War-Room
+    <span class="rs-nav-mod">SYS_03</span>Terminal
   </button>
 </nav>
 
@@ -1334,13 +1318,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <input id="chatInput" type="text" placeholder="Ask about supply chain risks, costs, sourcing alternatives..." />
     <button id="chatSend" onclick="handleChatSend()">→</button>
   </div>
-</div>
-
-<!-- ===== MODULE NAVIGATION ===== -->
-<div class="module-nav" id="moduleNav">
-  <button class="module-nav-btn active" onclick="switchModule('map')">Map</button>
-  <button class="module-nav-btn" onclick="switchModule('audit')">Audit</button>
-  <button class="module-nav-btn" onclick="switchModule('warroom')">Terminal</button>
 </div>
 
 <!-- ===== TERMINAL MODULE (SYS_03) ===== -->
@@ -1855,7 +1832,7 @@ function switchModule(mod){
     for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='';
     if(map)map.invalidateSize();
     if(btns[2])btns[2].classList.add('active');
-    alert('War-Room module coming soon.');
+    alert('Terminal module coming soon.');
   }else{
     mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});
     for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='';
@@ -2063,7 +2040,7 @@ document.addEventListener('DOMContentLoaded',function(){
 function switchModule(name){
   var mapEls=['mapContainer','heroPanel','layerControls','chatPanel','chatMessages','alertBanner','psReopenBtn'];
   var wr=document.getElementById('warRoomModule');
-  var btns=document.querySelectorAll('.module-nav-btn');
+  var btns=document.querySelectorAll('#rsNav .rs-nav-btn');
   var overlays=document.querySelectorAll('.map-overlay-header,.map-legend');
   // Hide all
   mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
