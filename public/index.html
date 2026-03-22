@@ -643,6 +643,7 @@
       #chatInputWrap { max-width:calc(100% - 32px); }
     }
 
+
     /* ===== RS NAV ===== */
    
     /* ===== AUDIT MODULE ===== */
@@ -870,6 +871,180 @@
     .am-compliance-badge.risk { background:rgba(255,60,60,0.1); color:rgba(255,100,100,0.9); border:1px solid rgba(255,60,60,0.2); }
     @keyframes glassShimmerIn { 0%{box-shadow:inset 0 1px 0 rgba(255,255,255,0.28),0 12px 48px rgba(0,0,0,0.5);} 100%{box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),0 12px 48px rgba(0,0,0,0.5);} }
     .am-shimmer-in { animation:glassShimmerIn 3s ease-out; }
+
+    /* ===== MODULE NAVIGATION ===== */
+    .module-nav { position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:150; display:flex; gap:2px; padding:3px; background:rgba(255,255,255,0.03); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%); border:1px solid rgba(255,255,255,0.08); border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.4); animation:panelIn 0.5s cubic-bezier(0.16,1,0.3,1) 0.4s both; }
+    .module-nav-btn { font-family:var(--font-mono); font-size:9px; font-weight:400; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.35); background:transparent; border:none; padding:7px 16px; border-radius:9px; cursor:pointer; transition:all 0.25s cubic-bezier(0.16,1,0.3,1); white-space:nowrap; }
+    .module-nav-btn:hover { color:rgba(255,255,255,0.6); background:rgba(255,255,255,0.04); }
+    .module-nav-btn.active { color:#fff; background:rgba(255,255,255,0.08); }
+
+    /* ===== TERMINAL MODULE (SYS_03) ===== */
+    #warRoomModule { position:fixed; inset:0; z-index:500; background:#000; display:none; flex-direction:column; overflow:hidden; }
+    .wm-scanline { position:absolute; inset:0; z-index:1; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.008) 2px,rgba(255,255,255,0.008) 4px); }
+    .wm-bg { position:absolute; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,0.02) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,255,255,0.015) 0%,transparent 50%); }
+
+    /* Terminal Paywall */
+    #terminalPaywall { position:absolute; inset:0; z-index:600; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(20px); }
+    .tp-card { width:100%; max-width:480px; padding:40px 36px; text-align:center; background:rgba(255,255,255,0.04); backdrop-filter:blur(60px) saturate(200%); -webkit-backdrop-filter:blur(60px) saturate(200%); border:1px solid rgba(255,255,255,0.1); border-radius:20px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 8px 32px rgba(0,0,0,0.6); animation:psCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .tp-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 14px; border:1px solid rgba(255,255,255,0.15); border-radius:999px; background:rgba(255,255,255,0.04); margin-bottom:20px; font-family:var(--font-mono); font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.5); text-transform:uppercase; }
+    .tp-title { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:#fff; margin-bottom:12px; letter-spacing:-0.01em; }
+    .tp-desc { font-size:13px; color:rgba(255,255,255,0.45); line-height:1.6; margin-bottom:24px; }
+    .tp-features { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:28px; }
+    .tp-feature { padding:12px 10px; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); font-family:var(--font-mono); font-size:10px; color:rgba(255,255,255,0.5); letter-spacing:0.04em; }
+    .tp-subscribe { width:100%; padding:13px; background:#fff; border:none; border-radius:10px; color:#000; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.25s; margin-bottom:10px; }
+    .tp-subscribe:hover { background:#e2e8f0; transform:translateY(-1px); }
+    .tp-skip { width:100%; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.08); border-radius:10px; color:rgba(255,255,255,0.4); font-size:12px; cursor:pointer; transition:all 0.2s; }
+    .tp-skip:hover { border-color:rgba(255,255,255,0.15); color:rgba(255,255,255,0.6); }
+
+    /* Terminal Topbar */
+    .wm-topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 24px; border-bottom:1px solid rgba(255,255,255,0.06); z-index:10; flex-shrink:0; position:relative; }
+    .wm-topbar-brand { font-family:'Syne',sans-serif; font-size:12px; font-weight:800; color:#fff; letter-spacing:0.06em; text-transform:uppercase; }
+    .wm-topbar-brand span { color:rgba(255,255,255,0.35); font-weight:400; }
+    .wm-topbar-status { display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; color:rgba(255,255,255,0.4); text-transform:uppercase; }
+    .wm-status-dot { width:6px; height:6px; border-radius:50%; background:rgba(100,255,140,0.9); box-shadow:0 0 8px rgba(100,255,140,0.5); animation:rsBlink 2s ease-in-out infinite; }
+
+    /* Terminal Stats Bar */
+    .wm-stats-bar { display:flex; gap:10px; padding:16px 24px; flex-shrink:0; overflow-x:auto; z-index:10; position:relative; }
+    .wm-stats-bar::-webkit-scrollbar { height:0; }
+    .wm-stat-card { flex:1; min-width:130px; padding:14px 16px; background:rgba(255,255,255,0.04); backdrop-filter:blur(60px) saturate(200%); -webkit-backdrop-filter:blur(60px) saturate(200%); border:1px solid rgba(255,255,255,0.1); border-radius:12px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 8px 32px rgba(0,0,0,0.6); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); }
+    .wm-stat-card:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-2px); }
+    .wm-stat-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.15em; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-bottom:8px; }
+    .wm-stat-value { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:#fff; display:flex; align-items:center; gap:8px; }
+    .wm-pulse-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,60,60,0.9); box-shadow:0 0 10px rgba(255,60,60,0.5); animation:rsBlink 1.5s ease-in-out infinite; flex-shrink:0; }
+    .wm-confidence-bar { width:60px; height:4px; border-radius:2px; background:rgba(255,255,255,0.06); overflow:hidden; margin-top:6px; }
+    .wm-confidence-fill { height:100%; border-radius:2px; background:rgba(255,255,255,0.4); transition:width 1.5s cubic-bezier(0.16,1,0.3,1); }
+
+    /* Severity Badges */
+    .wm-severity { display:inline-flex; padding:3px 10px; border-radius:999px; font-family:var(--font-mono); font-size:9px; font-weight:600; letter-spacing:0.04em; line-height:1.4; }
+    .wm-severity-critical { background:rgba(255,60,60,0.1); border:1px solid rgba(255,60,60,0.2); color:rgba(255,60,60,0.9); box-shadow:0 0 12px rgba(255,60,60,0.3); }
+    .wm-severity-high { background:rgba(255,160,40,0.1); border:1px solid rgba(255,160,40,0.2); color:rgba(255,160,40,0.9); box-shadow:0 0 12px rgba(255,160,40,0.3); }
+    .wm-severity-medium { background:rgba(255,210,80,0.1); border:1px solid rgba(255,210,80,0.2); color:rgba(255,210,80,0.9); box-shadow:0 0 12px rgba(255,210,80,0.3); }
+    .wm-severity-low { background:rgba(100,255,140,0.1); border:1px solid rgba(100,255,140,0.2); color:rgba(100,255,140,0.9); box-shadow:0 0 12px rgba(100,255,140,0.3); }
+    .wm-risk-badge { font-size:14px; font-weight:800; padding:4px 14px; border-radius:8px; }
+
+    /* Terminal Content Area */
+    .wm-content { flex:1; overflow-y:auto; padding:20px 24px; padding-bottom:160px; z-index:10; position:relative; }
+    .wm-content::-webkit-scrollbar { width:3px; }
+    .wm-content::-webkit-scrollbar-track { background:transparent; }
+    .wm-content::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:3px; }
+    .wm-section { margin-bottom:32px; }
+    .wm-section-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-bottom:16px; display:block; }
+
+    /* Alert Cards */
+    .wm-alerts-grid { display:flex; flex-direction:column; gap:10px; }
+    .wm-alert-card { padding:18px 20px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); opacity:0; animation:wmCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .wm-alert-card:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-2px); }
+    .wm-alert-card.sev-critical { background:rgba(255,60,60,0.06); border-color:rgba(255,60,60,0.2); }
+    .wm-alert-card.sev-high { background:rgba(255,160,40,0.06); border-color:rgba(255,160,40,0.2); }
+    .wm-alert-card.sev-medium { background:rgba(255,210,80,0.06); border-color:rgba(255,210,80,0.2); }
+    .wm-alert-card.sev-low { background:rgba(100,255,140,0.06); border-color:rgba(100,255,140,0.2); }
+    .wm-alert-header { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+    .wm-alert-title { font-size:13px; font-weight:600; color:#fff; flex:1; min-width:200px; }
+    .wm-alert-desc { font-size:12px; color:rgba(255,255,255,0.5); line-height:1.6; margin-bottom:12px; }
+    .wm-alert-footer { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .wm-alert-country { padding:3px 10px; border-radius:999px; font-family:var(--font-mono); font-size:9px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.5); letter-spacing:0.04em; }
+    .wm-alert-time { font-family:var(--font-mono); font-size:9px; color:rgba(255,255,255,0.25); letter-spacing:0.04em; }
+    .wm-alert-action { margin-left:auto; padding:5px 14px; border-radius:8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); font-family:var(--font-mono); font-size:10px; cursor:pointer; transition:all 0.2s; letter-spacing:0.04em; }
+    .wm-alert-action:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2); color:#fff; }
+    @keyframes wmCardIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+    /* News/Intelligence Feed */
+    .wm-ticker-wrap { overflow:hidden; margin-bottom:20px; padding:8px 0; border-top:1px solid rgba(255,255,255,0.04); border-bottom:1px solid rgba(255,255,255,0.04); }
+    .wm-ticker { display:inline-block; white-space:nowrap; font-family:var(--font-mono); font-size:11px; color:rgba(255,255,255,0.45); animation:tickerScroll 45s linear infinite; }
+    .wm-ticker span { margin-right:40px; }
+    .wm-ticker .ticker-dot { display:inline-block; width:4px; height:4px; border-radius:50%; margin:0 12px; vertical-align:middle; }
+    @keyframes tickerScroll { from { transform:translateX(100%); } to { transform:translateX(-100%); } }
+    .wm-feed-columns { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .wm-feed-sublabel { font-family:var(--font-mono); font-size:8px; letter-spacing:0.15em; color:rgba(255,255,255,0.2); text-transform:uppercase; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .wm-news-item { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.03); transition:all 0.2s; }
+    .wm-news-item:hover { background:rgba(255,255,255,0.02); padding-left:6px; }
+    .wm-news-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+    .wm-news-body { flex:1; }
+    .wm-news-headline { font-size:12px; color:rgba(255,255,255,0.6); line-height:1.5; margin-bottom:4px; }
+    .wm-news-meta { display:flex; align-items:center; gap:8px; }
+    .wm-news-time { font-family:var(--font-mono); font-size:9px; color:rgba(255,255,255,0.2); }
+    .wm-news-source { font-family:var(--font-mono); font-size:8px; letter-spacing:0.06em; padding:2px 8px; border-radius:4px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:rgba(255,255,255,0.35); }
+
+    /* Tariff Tracker */
+    .wm-tariff-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .wm-tariff-card { padding:16px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); opacity:0; animation:wmCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .wm-tariff-card:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-2px); }
+    .wm-tariff-card.wm-hi { border-color:rgba(255,255,255,0.15); }
+    .wm-tariff-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+    .wm-tariff-flag { font-size:20px; }
+    .wm-tariff-name { font-size:13px; font-weight:600; color:#fff; }
+    .wm-tariff-rate { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:#fff; margin-bottom:4px; }
+    .wm-tariff-rate span { font-size:14px; color:rgba(255,255,255,0.4); }
+    .wm-tariff-change { font-family:var(--font-mono); font-size:11px; margin-bottom:8px; }
+    .wm-tariff-change.up { color:rgba(255,60,60,0.9); }
+    .wm-tariff-change.down { color:rgba(100,255,140,0.9); }
+    .wm-tariff-date { font-family:var(--font-mono); font-size:9px; color:rgba(255,255,255,0.2); margin-bottom:8px; }
+    .wm-tariff-detail { font-family:var(--font-mono); font-size:10px; color:rgba(255,255,255,0.4); cursor:pointer; transition:color 0.2s; }
+    .wm-tariff-detail:hover { color:rgba(255,255,255,0.7); }
+
+    /* Port Monitor */
+    .wm-port-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .wm-port-card { padding:16px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); opacity:0; animation:wmCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .wm-port-card:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-2px); }
+    .wm-port-card.wm-hi { border-color:rgba(255,255,255,0.15); }
+    .wm-port-name { font-size:13px; font-weight:600; color:#fff; margin-bottom:10px; }
+    .wm-port-metric { display:flex; justify-content:space-between; font-size:10px; margin-bottom:6px; }
+    .wm-port-mlabel { color:rgba(255,255,255,0.35); font-family:var(--font-mono); font-size:9px; letter-spacing:0.04em; }
+    .wm-port-mval { color:rgba(255,255,255,0.7); font-family:var(--font-mono); font-size:10px; font-weight:600; }
+    .wm-port-bar { height:4px; border-radius:2px; background:rgba(255,255,255,0.06); overflow:hidden; margin:8px 0; }
+    .wm-port-bar-fill { height:100%; border-radius:2px; transition:width 1s ease; }
+    .wm-port-status { display:inline-flex; padding:3px 10px; border-radius:999px; font-family:var(--font-mono); font-size:8px; font-weight:600; letter-spacing:0.06em; margin-top:6px; }
+    .wm-port-status.ps-normal { background:rgba(100,255,140,0.08); border:1px solid rgba(100,255,140,0.15); color:rgba(100,255,140,0.8); }
+    .wm-port-status.ps-congested { background:rgba(255,210,80,0.08); border:1px solid rgba(255,210,80,0.15); color:rgba(255,210,80,0.8); }
+    .wm-port-status.ps-severe { background:rgba(255,60,60,0.08); border:1px solid rgba(255,60,60,0.15); color:rgba(255,60,60,0.8); }
+
+    /* Commodity Prices */
+    .wm-commodity-row { display:flex; gap:12px; overflow-x:auto; padding-bottom:8px; }
+    .wm-commodity-row::-webkit-scrollbar { height:3px; }
+    .wm-commodity-row::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:3px; }
+    .wm-commodity-card { min-width:160px; padding:16px; border-radius:12px; flex-shrink:0; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); }
+    .wm-commodity-card:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-2px); }
+    .wm-commodity-card.wm-hi { border-color:rgba(255,255,255,0.15); }
+    .wm-commodity-name { font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:8px; }
+    .wm-commodity-price { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#fff; margin-bottom:4px; }
+    .wm-commodity-change { font-family:var(--font-mono); font-size:11px; margin-bottom:8px; }
+    .wm-commodity-change.pos { color:rgba(100,255,140,0.9); }
+    .wm-commodity-change.neg { color:rgba(255,60,60,0.9); }
+
+    /* Terminal Chat */
+    .wm-chat-panel { position:absolute; bottom:0; left:0; right:0; z-index:20; display:flex; flex-direction:column; align-items:center; padding:0 24px 20px; background:linear-gradient(to bottom,transparent,rgba(0,0,0,0.8) 30%,#000 100%); }
+    .wm-chat-messages { width:100%; max-width:780px; max-height:35vh; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:10px; padding:0 4px; }
+    .wm-chat-messages::-webkit-scrollbar { width:3px; }
+    .wm-chat-messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:3px; }
+    .wm-chat-msg { max-width:75%; padding:12px 16px; border-radius:14px; font-size:13px; line-height:1.6; animation:chatIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards; word-wrap:break-word; }
+    .wm-chat-msg.user { align-self:flex-end; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-bottom-right-radius:4px; }
+    .wm-chat-msg.ai { align-self:flex-start; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); border-bottom-left-radius:4px; backdrop-filter:blur(8px); }
+    .wm-chat-msg.ai .wm-msg-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.12em; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:6px; display:block; }
+    .wm-quick-actions { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; justify-content:center; width:100%; max-width:780px; }
+    .wm-quick-btn { padding:7px 14px; background:rgba(255,255,255,0.04); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.1); border-radius:999px; color:rgba(255,255,255,0.5); font-size:11px; font-weight:500; cursor:pointer; transition:all 0.3s; white-space:nowrap; }
+    .wm-quick-btn:hover { border-color:rgba(255,255,255,0.2); background:rgba(255,255,255,0.06); color:#fff; transform:translateY(-2px); }
+    .wm-chat-input-wrap { display:flex; align-items:center; gap:10px; width:100%; max-width:780px; background:rgba(255,255,255,0.04); backdrop-filter:blur(60px) saturate(200%); -webkit-backdrop-filter:blur(60px) saturate(200%); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:12px 14px 12px 18px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 8px 32px rgba(0,0,0,0.6); transition:border-color 0.3s,box-shadow 0.3s; }
+    .wm-chat-input-wrap:focus-within { border-color:rgba(255,255,255,0.25); box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 8px 32px rgba(0,0,0,0.6),0 0 30px rgba(255,255,255,0.05); }
+    .wm-chat-input { flex:1; background:transparent; border:none; outline:none; color:#fff; font-size:14px; font-family:var(--font); }
+    .wm-chat-input::placeholder { color:rgba(255,255,255,0.25); }
+    .wm-chat-send { width:38px; height:38px; border-radius:10px; background:#fff; border:none; color:#000; font-size:16px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+    .wm-chat-send:hover { background:#e2e8f0; transform:scale(1.05); }
+    .wm-chat-send:active { transform:scale(0.95); }
+
+    /* Terminal Responsive */
+    @media (max-width:768px) {
+      .wm-feed-columns { grid-template-columns:1fr; }
+      .wm-tariff-grid { grid-template-columns:1fr 1fr; }
+      .wm-port-grid { grid-template-columns:1fr 1fr; }
+      .wm-stats-bar { gap:8px; padding:12px 16px; }
+      .wm-content { padding:16px; padding-bottom:160px; }
+      .wm-chat-panel { padding:0 16px 16px; }
+    }
+    @media (max-width:500px) {
+      .wm-tariff-grid { grid-template-columns:1fr; }
+      .wm-port-grid { grid-template-columns:1fr; }
+    }
+
   </style>
 </head>
 <body>
@@ -1160,6 +1335,64 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <button id="chatSend" onclick="handleChatSend()">→</button>
   </div>
 </div>
+
+<!-- ===== MODULE NAVIGATION ===== -->
+<div class="module-nav" id="moduleNav">
+  <button class="module-nav-btn active" onclick="switchModule('map')">Map</button>
+  <button class="module-nav-btn" onclick="switchModule('audit')">Audit</button>
+  <button class="module-nav-btn" onclick="switchModule('warroom')">Terminal</button>
+</div>
+
+<!-- ===== TERMINAL MODULE (SYS_03) ===== -->
+<section id="warRoomModule">
+  <div class="wm-scanline"></div>
+  <div class="wm-bg"></div>
+  <!-- Paywall -->
+  <div id="terminalPaywall">
+    <div class="tp-card">
+      <div class="tp-badge">Terminal Intelligence</div>
+      <div class="tp-title">TERMINAL ACCESS REQUIRED</div>
+      <p class="tp-desc">Unlock real-time supply chain intelligence, AI-powered alerts, and advanced risk monitoring.</p>
+      <div class="tp-features">
+        <div class="tp-feature">AI-Powered Alerts</div>
+        <div class="tp-feature">Live Risk Feed</div>
+        <div class="tp-feature">Tariff Tracking</div>
+        <div class="tp-feature">Port Intelligence</div>
+      </div>
+      <button class="tp-subscribe" onclick="window.open('https://risksim.com','_blank')">Subscribe Now</button>
+      <button class="tp-skip" onclick="bypassTerminalPaywall()">Skip for Now</button>
+    </div>
+  </div>
+  <!-- Topbar -->
+  <div class="wm-topbar">
+    <div class="wm-topbar-brand">RiskSim <span>/ Terminal</span></div>
+    <div class="wm-topbar-status"><div class="wm-status-dot"></div>Intelligence Active</div>
+  </div>
+  <!-- Stats Bar -->
+  <div class="wm-stats-bar" id="wmStatsBar"></div>
+  <!-- Main Content -->
+  <div class="wm-content" id="terminalMain">
+    <div id="wmAlerts" class="wm-section"></div>
+    <div id="wmFeed" class="wm-section"></div>
+    <div id="wmTariff" class="wm-section"></div>
+    <div id="wmPorts" class="wm-section"></div>
+    <div id="wmCommodities" class="wm-section"></div>
+  </div>
+  <!-- Terminal Chat -->
+  <div class="wm-chat-panel">
+    <div class="wm-chat-messages" id="wmChatMessages"></div>
+    <div class="wm-quick-actions">
+      <button class="wm-quick-btn" onclick="sendTerminalChat('Risk Summary')">Risk Summary</button>
+      <button class="wm-quick-btn" onclick="sendTerminalChat('Tariff Impact')">Tariff Impact</button>
+      <button class="wm-quick-btn" onclick="sendTerminalChat('Alternative Routes')">Alternative Routes</button>
+      <button class="wm-quick-btn" onclick="sendTerminalChat('Cost Forecast')">Cost Forecast</button>
+    </div>
+    <div class="wm-chat-input-wrap">
+      <input class="wm-chat-input" id="wmChatInput" type="text" placeholder="Ask about your supply chain risks, alerts, tariffs..." />
+      <button class="wm-chat-send" onclick="handleTerminalChatSend()">→</button>
+    </div>
+  </div>
+</section>
 
 <script>
 var map=null,countryMarkers={},currentLayer='risk',currentCategory='technology',userProfile={},selectedSourcingCountries=[];
@@ -1821,6 +2054,324 @@ document.addEventListener('DOMContentLoaded',function(){
     }
   });
   document.addEventListener('click',function(e){if(inp&&!inp.contains(e.target)&&ac&&!ac.contains(e.target))ac.classList.remove('open');});
+});
+</script>
+
+<!-- ===== TERMINAL MODULE (SYS_03) JS ===== -->
+<script>
+// ===== MODULE SWITCHING =====
+function switchModule(name){
+  var mapEls=['mapContainer','heroPanel','layerControls','chatPanel','chatMessages','alertBanner','psReopenBtn'];
+  var wr=document.getElementById('warRoomModule');
+  var btns=document.querySelectorAll('.module-nav-btn');
+  var overlays=document.querySelectorAll('.map-overlay-header,.map-legend');
+  // Hide all
+  mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  overlays.forEach(function(el){el.style.display='none';});
+  if(wr)wr.style.display='none';
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+
+  if(name==='map'){
+    mapEls.forEach(function(id){var el=document.getElementById(id);if(!el)return;if(id==='chatPanel'||id==='chatMessages')el.style.display='flex';else if(id==='psReopenBtn')el.style.display='flex';else el.style.display='';});
+    overlays.forEach(function(el){el.style.display='';});
+    if(map)setTimeout(function(){map.invalidateSize();},100);
+    if(btns[0])btns[0].classList.add('active');
+  }else if(name==='audit'){
+    alert('Audit module coming soon.');
+    switchModule('map');return;
+  }else if(name==='warroom'){
+    if(wr){
+      wr.style.display='flex';wr.style.flexDirection='column';
+      if(!localStorage.getItem('terminal_paywall_bypassed')){
+        document.getElementById('terminalPaywall').style.display='flex';
+      }else{
+        document.getElementById('terminalPaywall').style.display='none';
+        document.getElementById('terminalMain').classList.add('terminal-loaded');
+        initTerminalData();
+      }
+    }
+    if(btns[2])btns[2].classList.add('active');
+  }
+}
+
+function bypassTerminalPaywall(){
+  localStorage.setItem('terminal_paywall_bypassed','1');
+  document.getElementById('terminalPaywall').style.display='none';
+  document.getElementById('terminalMain').classList.add('terminal-loaded');
+  initTerminalData();
+}
+
+// ===== COUNTRY FLAGS =====
+var CFLAGS={'China':'\u{1F1E8}\u{1F1F3}','Vietnam':'\u{1F1FB}\u{1F1F3}','India':'\u{1F1EE}\u{1F1F3}','Bangladesh':'\u{1F1E7}\u{1F1E9}','Indonesia':'\u{1F1EE}\u{1F1E9}','Mexico':'\u{1F1F2}\u{1F1FD}','Thailand':'\u{1F1F9}\u{1F1ED}','Malaysia':'\u{1F1F2}\u{1F1FE}','Cambodia':'\u{1F1F0}\u{1F1ED}','Philippines':'\u{1F1F5}\u{1F1ED}','Pakistan':'\u{1F1F5}\u{1F1F0}','Turkey':'\u{1F1F9}\u{1F1F7}','Brazil':'\u{1F1E7}\u{1F1F7}','South Korea':'\u{1F1F0}\u{1F1F7}','Japan':'\u{1F1EF}\u{1F1F5}','Taiwan':'\u{1F1F9}\u{1F1FC}','Germany':'\u{1F1E9}\u{1F1EA}','Poland':'\u{1F1F5}\u{1F1F1}','Romania':'\u{1F1F7}\u{1F1F4}','Morocco':'\u{1F1F2}\u{1F1E6}','Ethiopia':'\u{1F1EA}\u{1F1F9}','Italy':'\u{1F1EE}\u{1F1F9}','Portugal':'\u{1F1F5}\u{1F1F9}','Czech Republic':'\u{1F1E8}\u{1F1FF}','Hungary':'\u{1F1ED}\u{1F1FA}','Slovakia':'\u{1F1F8}\u{1F1F0}','United States':'\u{1F1FA}\u{1F1F8}','United Kingdom':'\u{1F1EC}\u{1F1E7}','France':'\u{1F1EB}\u{1F1F7}','Netherlands':'\u{1F1F3}\u{1F1F1}','Singapore':'\u{1F1F8}\u{1F1EC}','UAE':'\u{1F1E6}\u{1F1EA}','Saudi Arabia':'\u{1F1F8}\u{1F1E6}','Australia':'\u{1F1E6}\u{1F1FA}','Canada':'\u{1F1E8}\u{1F1E6}','Russia':'\u{1F1F7}\u{1F1FA}','Egypt':'\u{1F1EA}\u{1F1EC}','South Africa':'\u{1F1FF}\u{1F1E6}','Nigeria':'\u{1F1F3}\u{1F1EC}','Colombia':'\u{1F1E8}\u{1F1F4}','Chile':'\u{1F1E8}\u{1F1F1}','Argentina':'\u{1F1E6}\u{1F1F7}'};
+
+// ===== TERMINAL INIT =====
+var _terminalInited=false;
+function initTerminalData(){
+  if(_terminalInited)return;_terminalInited=true;
+  var profile=null;
+  try{profile=JSON.parse(localStorage.getItem('risksim_profile'));}catch(e){}
+  if(!profile)profile={userProfile:{},selectedSourcingCountries:[],currentCategory:'technology'};
+  var up=profile.userProfile||{};
+  var countries=profile.selectedSourcingCountries||[];
+  var industry=up.industry||profile.currentCategory||'technology';
+  buildStatsBar(countries,industry);
+  buildAlerts(generateMockAlerts(up,countries,industry));
+  var news=generateMockNews(up,countries,industry);
+  buildNewsFeed(news,countries);
+  buildTariffTracker(countries);
+  buildPortMonitor(countries);
+  buildCommodities(industry);
+  setTimeout(animateAllCounters,200);
+}
+
+// ===== ANIMATED COUNTERS =====
+function animateCounter(el,target,dur){
+  var startTime=null;
+  var suffix=el.getAttribute('data-suffix')||'';
+  function step(ts){
+    if(!startTime)startTime=ts;
+    var p=Math.min((ts-startTime)/dur,1);
+    var e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(target*e)+suffix;
+    if(p<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function animateAllCounters(){
+  var c=document.querySelectorAll('.wm-counter');
+  for(var i=0;i<c.length;i++){
+    var t=parseInt(c[i].getAttribute('data-target'),10);
+    if(!isNaN(t))animateCounter(c[i],t,1500);
+  }
+}
+
+// ===== STATS BAR =====
+function buildStatsBar(countries,industry){
+  var bar=document.getElementById('wmStatsBar');if(!bar)return;
+  var ac=6,cc=countries.length||12,te=Math.round(15+Math.random()*20),pd=Math.round(2+Math.random()*5),ai=Math.round(82+Math.random()*12);
+  var rl=countries.length>3?'HIGH':countries.length>0?'MED':'LOW';
+  var rc=rl==='HIGH'?'wm-severity-high':rl==='MED'?'wm-severity-medium':'wm-severity-low';
+  bar.innerHTML='<div class="wm-stat-card"><div class="wm-stat-label">Active Alerts</div><div class="wm-stat-value"><span class="wm-counter" data-target="'+ac+'">0</span><span class="wm-pulse-dot"></span></div></div>'+
+  '<div class="wm-stat-card"><div class="wm-stat-label">Risk Level</div><div class="wm-stat-value"><span class="wm-severity wm-risk-badge '+rc+'">'+rl+'</span></div></div>'+
+  '<div class="wm-stat-card"><div class="wm-stat-label">Countries Monitored</div><div class="wm-stat-value"><span class="wm-counter" data-target="'+cc+'">0</span></div></div>'+
+  '<div class="wm-stat-card"><div class="wm-stat-label">Tariff Exposure</div><div class="wm-stat-value"><span class="wm-counter" data-target="'+te+'" data-suffix="%">0%</span></div></div>'+
+  '<div class="wm-stat-card"><div class="wm-stat-label">Port Delays</div><div class="wm-stat-value"><span class="wm-counter" data-target="'+pd+'">0</span></div></div>'+
+  '<div class="wm-stat-card"><div class="wm-stat-label">AI Confidence</div><div class="wm-stat-value"><span class="wm-counter" data-target="'+ai+'" data-suffix="%">0%</span></div><div class="wm-confidence-bar"><div class="wm-confidence-fill" style="width:0%" id="wmConfFill"></div></div></div>';
+  setTimeout(function(){var f=document.getElementById('wmConfFill');if(f)f.style.width=ai+'%';},300);
+}
+
+// ===== MOCK ALERTS =====
+function generateMockAlerts(up,countries,industry){
+  var IL={technology:'electronics',textiles:'textiles',automotive:'automotive',food:'agricultural',pharma:'pharmaceutical',rawMaterials:'raw materials',consumerGoods:'consumer goods'};
+  var ind=IL[industry]||'supply chain';
+  var c1=countries[0]||'China',c2=countries[1]||'Vietnam',c3=countries[2]||'India',c4=countries[3]||'Mexico';
+  var alerts=[
+    {sev:'critical',title:'Tariff Escalation — '+c1+' '+ind+' imports',desc:'New 15% additional duties on '+ind+' components from '+c1+' effective March 2026. Estimated annual cost impact of $2.4M for affected importers. Immediate supply chain review recommended.',country:c1,time:'2 min ago'},
+    {sev:'high',title:'Port Congestion Alert — '+c1+' exports',desc:'Container dwell times up 40% at major '+c1+' ports. '+ind.charAt(0).toUpperCase()+ind.slice(1)+' shipments may experience 4-7 day additional transit delays. Rerouting options being analyzed.',country:c1,time:'28 min ago'},
+    {sev:'high',title:'Regulatory Compliance Update — '+c2,desc:c2+' announces new quality certification requirements for '+ind+' exports. 60-day implementation window. 3 major facilities flagged for non-compliance review.',country:c2,time:'1 hour ago'},
+    {sev:'medium',title:'Labor Market Disruption — '+c3,desc:'Industrial action reported in '+c3+' manufacturing zones affecting '+ind+' production capacity. Estimated 12% reduction in output over next 2-3 weeks.',country:c3,time:'3 hours ago'},
+    {sev:'medium',title:'Trade Agreement Revision — '+c4,desc:c4+' bilateral trade framework revision may reduce preferential tariffs for '+ind+' by 3-5%. Public consultation period open until Q2 2026.',country:c4,time:'5 hours ago'},
+    {sev:'low',title:'Weather Advisory — Shipping Routes',desc:'Seasonal weather patterns may affect Asia-Pacific shipping lanes through April. Minor delays of 1-2 days expected on secondary routes. Standard contingency planning sufficient.',country:'Global',time:'Yesterday'}
+  ];
+  return alerts;
+}
+
+// ===== BUILD ALERTS =====
+function buildAlerts(alerts){
+  var el=document.getElementById('wmAlerts');if(!el)return;
+  var h='<span class="wm-section-label">PRIORITY ALERTS \u2014 AFFECTING YOUR OPERATIONS</span><div class="wm-alerts-grid">';
+  alerts.forEach(function(a,i){
+    var sc={'critical':'wm-severity-critical','high':'wm-severity-high','medium':'wm-severity-medium','low':'wm-severity-low'};
+    var dot=a.sev==='critical'?'<span class="wm-pulse-dot" style="width:6px;height:6px;margin-right:4px;"></span>':'';
+    h+='<div class="wm-alert-card sev-'+a.sev+'" style="animation-delay:'+(i*0.08)+'s">';
+    h+='<div class="wm-alert-header">'+dot+'<span class="wm-severity '+(sc[a.sev]||'')+'">'+a.sev.toUpperCase()+'</span><span class="wm-alert-title">'+a.title+'</span></div>';
+    h+='<div class="wm-alert-desc">'+a.desc+'</div>';
+    h+='<div class="wm-alert-footer"><span class="wm-alert-country">'+a.country+'</span><span class="wm-alert-time">'+a.time+'</span><button class="wm-alert-action">Analyze \u2192</button></div>';
+    h+='</div>';
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+// ===== MOCK NEWS =====
+function generateMockNews(up,countries,industry){
+  var IL={technology:'Electronics',textiles:'Textiles',automotive:'Automotive',food:'Agriculture',pharma:'Pharma',rawMaterials:'Raw Materials',consumerGoods:'Consumer Goods'};
+  var ind=IL[industry]||'Supply Chain';
+  var c1=countries[0]||'China',c2=countries[1]||'Vietnam',c3=countries[2]||'India';
+  var personal=[
+    {hl:c1+' '+ind+' exports face new customs inspection protocols — average clearance time increases 48 hours',time:'12 min ago',src:'Reuters',sev:'high'},
+    {hl:'US Trade Representative announces review of Section 301 tariffs affecting '+ind+' imports from '+c1,time:'34 min ago',src:'Bloomberg',sev:'high'},
+    {hl:c2+' manufacturing PMI drops to 47.2 — signals contraction in '+ind+' sector output',time:'1 hour ago',src:'Reuters',sev:'medium'},
+    {hl:'New bilateral shipping agreement between '+c1+' and '+c3+' may reduce transit costs by 8%',time:'2 hours ago',src:'RiskSim AI',sev:'low'},
+    {hl:c3+' announces $2.1B investment in port infrastructure upgrades — capacity increase expected by Q4 2026',time:'4 hours ago',src:'Bloomberg',sev:'low'},
+    {hl:'Currency volatility in '+c2+' impacts '+ind+' procurement costs — hedging strategies recommended',time:'6 hours ago',src:'RiskSim AI',sev:'medium'}
+  ];
+  var global=[
+    {hl:'Red Sea shipping disruptions continue — container rates on Asia-Europe routes up 22% week-over-week',time:'8 min ago',src:'Reuters',sev:'critical'},
+    {hl:'Global semiconductor shortage easing — lead times down 15% from Q4 2025 peak',time:'45 min ago',src:'Bloomberg',sev:'low'},
+    {hl:'EU Carbon Border Adjustment Mechanism (CBAM) Phase 2 implementation ahead of schedule',time:'2 hours ago',src:'Reuters',sev:'medium'},
+    {hl:'Panama Canal water levels recover — transit slot allocations returning to normal by May 2026',time:'3 hours ago',src:'Bloomberg',sev:'low'},
+    {hl:'IMO 2026 emissions regulations increase bunker fuel costs by estimated 12-15% globally',time:'5 hours ago',src:'RiskSim AI',sev:'medium'},
+    {hl:'Global freight index (BDI) rises 340 points — signals increased shipping demand across all routes',time:'Yesterday',src:'Bloomberg',sev:'high'}
+  ];
+  return{personal:personal,global:global};
+}
+
+// ===== BUILD NEWS FEED =====
+function buildNewsFeed(news,countries){
+  var el=document.getElementById('wmFeed');if(!el)return;
+  var sevColors={critical:'rgba(255,60,60,0.9)',high:'rgba(255,160,40,0.9)',medium:'rgba(255,210,80,0.9)',low:'rgba(100,255,140,0.9)'};
+  // Ticker
+  var tickerItems=news.personal.concat(news.global).map(function(n){return n.hl;});
+  var tickerHtml='<div class="wm-ticker">';
+  tickerItems.forEach(function(t){tickerHtml+='<span>'+t+'</span>';});
+  tickerHtml+='</div>';
+  var h='<span class="wm-section-label">LIVE INTELLIGENCE FEED</span>';
+  h+='<div class="wm-ticker-wrap">'+tickerHtml+'</div>';
+  h+='<div class="wm-feed-columns"><div class="wm-feed-column"><div class="wm-feed-sublabel">Your Supply Chain</div>';
+  news.personal.forEach(function(n){
+    h+='<div class="wm-news-item"><div class="wm-news-dot" style="background:'+sevColors[n.sev]+'"></div><div class="wm-news-body"><div class="wm-news-headline">'+n.hl+'</div><div class="wm-news-meta"><span class="wm-news-time">'+n.time+'</span><span class="wm-news-source">'+n.src+'</span></div></div></div>';
+  });
+  h+='</div><div class="wm-feed-column"><div class="wm-feed-sublabel">Global Intelligence</div>';
+  news.global.forEach(function(n){
+    h+='<div class="wm-news-item"><div class="wm-news-dot" style="background:'+sevColors[n.sev]+'"></div><div class="wm-news-body"><div class="wm-news-headline">'+n.hl+'</div><div class="wm-news-meta"><span class="wm-news-time">'+n.time+'</span><span class="wm-news-source">'+n.src+'</span></div></div></div>';
+  });
+  h+='</div></div>';
+  el.innerHTML=h;
+}
+
+// ===== TARIFF TRACKER =====
+function buildTariffTracker(countries){
+  var el=document.getElementById('wmTariff');if(!el)return;
+  var tariffData=[
+    {name:'China',rate:25,change:'+3.5%',dir:'up',date:'Mar 2026'},
+    {name:'Vietnam',rate:6,change:'-1.2%',dir:'down',date:'Jan 2026'},
+    {name:'India',rate:10,change:'+2.0%',dir:'up',date:'Feb 2026'},
+    {name:'Bangladesh',rate:12,change:'+0.5%',dir:'up',date:'Mar 2026'},
+    {name:'Mexico',rate:2,change:'-0.8%',dir:'down',date:'Jan 2026'},
+    {name:'Thailand',rate:5,change:'+0.3%',dir:'up',date:'Feb 2026'},
+    {name:'Indonesia',rate:10,change:'+1.5%',dir:'up',date:'Mar 2026'},
+    {name:'South Korea',rate:3,change:'-0.5%',dir:'down',date:'Jan 2026'},
+    {name:'Taiwan',rate:5,change:'+1.0%',dir:'up',date:'Feb 2026'},
+    {name:'Germany',rate:3,change:'0.0%',dir:'down',date:'Jan 2026'},
+    {name:'Turkey',rate:5,change:'+2.2%',dir:'up',date:'Mar 2026'},
+    {name:'Brazil',rate:18,change:'+1.8%',dir:'up',date:'Feb 2026'}
+  ];
+  // Sort: user countries first
+  tariffData.sort(function(a,b){
+    var ai=countries.indexOf(a.name),bi=countries.indexOf(b.name);
+    if(ai!==-1&&bi===-1)return-1;if(ai===-1&&bi!==-1)return 1;return 0;
+  });
+  var h='<span class="wm-section-label">TARIFF & TRADE TRACKER</span><div class="wm-tariff-grid">';
+  tariffData.forEach(function(t,i){
+    var hi=countries.indexOf(t.name)!==-1?' wm-hi':'';
+    var flag=CFLAGS[t.name]||'\u{1F30D}';
+    h+='<div class="wm-tariff-card'+hi+'" style="animation-delay:'+(i*0.08)+'s">';
+    h+='<div class="wm-tariff-header"><span class="wm-tariff-flag">'+flag+'</span><span class="wm-tariff-name">'+t.name+'</span></div>';
+    h+='<div class="wm-tariff-rate">'+t.rate+'<span>%</span></div>';
+    h+='<div class="wm-tariff-change '+t.dir+'">'+(t.dir==='up'?'\u2191':'\u2193')+' '+t.change+'</div>';
+    h+='<div class="wm-tariff-date">Effective '+t.date+'</div>';
+    h+='<span class="wm-tariff-detail">Details \u2192</span></div>';
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+// ===== PORT MONITOR =====
+function buildPortMonitor(countries){
+  var el=document.getElementById('wmPorts');if(!el)return;
+  var portCountryMap={'Shanghai':'China','Singapore':'Singapore','Rotterdam':'Netherlands','Los Angeles':'United States','Shenzhen':'China','Hamburg':'Germany','Busan':'South Korea','Jebel Ali':'UAE'};
+  var ports=[
+    {name:'Shanghai',congestion:72,delay:4.2,queue:38,status:'Congested'},
+    {name:'Singapore',congestion:35,delay:1.1,queue:12,status:'Normal'},
+    {name:'Rotterdam',congestion:48,delay:2.3,queue:18,status:'Congested'},
+    {name:'Los Angeles',congestion:62,delay:3.5,queue:28,status:'Congested'},
+    {name:'Shenzhen',congestion:78,delay:5.1,queue:42,status:'Severe Delay'},
+    {name:'Hamburg',congestion:28,delay:0.8,queue:8,status:'Normal'},
+    {name:'Busan',congestion:42,delay:1.8,queue:15,status:'Congested'},
+    {name:'Jebel Ali',congestion:22,delay:0.5,queue:6,status:'Normal'}
+  ];
+  var h='<span class="wm-section-label">PORT & SHIPPING MONITOR</span><div class="wm-port-grid">';
+  ports.forEach(function(p,i){
+    var pc=portCountryMap[p.name]||'';
+    var hi=countries.indexOf(pc)!==-1?' wm-hi':'';
+    var barColor=p.congestion<40?'rgba(100,255,140,0.8)':p.congestion<70?'rgba(255,210,80,0.8)':'rgba(255,60,60,0.8)';
+    var stClass=p.status==='Normal'?'ps-normal':p.status==='Congested'?'ps-congested':'ps-severe';
+    h+='<div class="wm-port-card'+hi+'" style="animation-delay:'+(i*0.08)+'s">';
+    h+='<div class="wm-port-name">'+p.name+'</div>';
+    h+='<div class="wm-port-metric"><span class="wm-port-mlabel">Congestion</span><span class="wm-port-mval">'+p.congestion+'%</span></div>';
+    h+='<div class="wm-port-bar"><div class="wm-port-bar-fill" style="width:'+p.congestion+'%;background:'+barColor+'"></div></div>';
+    h+='<div class="wm-port-metric"><span class="wm-port-mlabel">Avg Delay</span><span class="wm-port-mval">'+p.delay+' days</span></div>';
+    h+='<div class="wm-port-metric"><span class="wm-port-mlabel">Vessel Queue</span><span class="wm-port-mval">'+p.queue+'</span></div>';
+    h+='<span class="wm-port-status '+stClass+'">'+p.status+'</span></div>';
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+// ===== COMMODITIES =====
+function generateSparklinePoints(trend,count){
+  var pts=[];var y=50;
+  for(var i=0;i<count;i++){
+    y+=trend*(0.5+Math.random()*1.5)+(Math.random()-0.5)*8;
+    y=Math.max(4,Math.min(20,y));
+    pts.push(Math.round(i*(60/(count-1)))+','+Math.round(y));
+  }
+  return pts.join(' ');
+}
+function buildCommodities(industry){
+  var el=document.getElementById('wmCommodities');if(!el)return;
+  var indCommodities={technology:['Lithium','Copper'],textiles:['Cotton'],automotive:['Steel (HRC)','Copper'],food:['Wheat'],pharma:['Oil (Brent)'],rawMaterials:['Steel (HRC)','Copper','Oil (Brent)'],consumerGoods:['Oil (Brent)','Cotton']};
+  var relevant=indCommodities[industry]||[];
+  var commodities=[
+    {name:'Oil (Brent)',price:'$78.42',change:'+1.8%',dir:1},
+    {name:'Steel (HRC)',price:'$612',change:'-2.3%',dir:-1},
+    {name:'Cotton',price:'$0.82/lb',change:'+3.1%',dir:1},
+    {name:'Copper',price:'$9,240',change:'+0.7%',dir:1},
+    {name:'Lithium',price:'$12,800',change:'-4.2%',dir:-1},
+    {name:'Wheat',price:'$5.94/bu',change:'-1.1%',dir:-1},
+    {name:'Shipping (BDI)',price:'1,842',change:'+5.6%',dir:1}
+  ];
+  var h='<span class="wm-section-label">COMMODITY PRICES</span><div class="wm-commodity-row">';
+  commodities.forEach(function(c){
+    var hi=relevant.indexOf(c.name)!==-1?' wm-hi':'';
+    var cls=c.dir>0?'pos':'neg';
+    var pts=generateSparklinePoints(c.dir,12);
+    h+='<div class="wm-commodity-card'+hi+'">';
+    h+='<div class="wm-commodity-name">'+c.name+'</div>';
+    h+='<div class="wm-commodity-price">'+c.price+'</div>';
+    h+='<div class="wm-commodity-change '+cls+'">'+(c.dir>0?'\u2191':'\u2193')+' '+c.change+'</div>';
+    h+='<svg class="wm-sparkline" width="60" height="24" viewBox="0 0 60 24"><polyline points="'+pts+'" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+    h+='</div>';
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+// ===== TERMINAL CHAT =====
+function addTerminalUserMsg(t){var m=document.getElementById('wmChatMessages'),d=document.createElement('div');d.className='wm-chat-msg user';d.textContent=t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function addTerminalAIMsg(t){var m=document.getElementById('wmChatMessages'),d=document.createElement('div');d.className='wm-chat-msg ai';d.innerHTML='<span class="wm-msg-label">RiskSim Terminal</span>'+t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function addTerminalTyping(){var m=document.getElementById('wmChatMessages'),d=document.createElement('div');d.className='wm-chat-msg ai';d.id='wmTyping';d.innerHTML='<span class="wm-msg-label">RiskSim Terminal</span><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function removeTerminalTyping(){var t=document.getElementById('wmTyping');if(t)t.remove();}
+
+function sendTerminalChat(text){handleTerminalMsg(text);}
+function handleTerminalChatSend(){var inp=document.getElementById('wmChatInput'),msg=inp.value.trim();if(!msg)return;inp.value='';handleTerminalMsg(msg);}
+async function handleTerminalMsg(userText){
+  addTerminalUserMsg(userText);addTerminalTyping();
+  try{
+    var pc='[TERMINAL] ';
+    if(userProfile.industry)pc+='Industry:'+(PS_IND_LABELS[userProfile.industry]||userProfile.industry)+'. ';
+    if(userProfile.type)pc+='CompanyType:'+(PS_TYPE_LABELS[userProfile.type]||userProfile.type)+'. ';
+    if(userProfile.regions)pc+='SourcingRegions:'+userProfile.regions+'. ';
+    var cd=COUNTRY_DATA.slice(0,10).map(function(c){return c.name+':risk='+c.risk;}).join(';');
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,context:pc+cd})});
+    var d=await r.json();removeTerminalTyping();addTerminalAIMsg(d.response||'Unable to process.');
+  }catch(e){removeTerminalTyping();addTerminalAIMsg('Connection error.');}
+}
+// Terminal chat Enter key
+document.addEventListener('DOMContentLoaded',function(){
+  var inp=document.getElementById('wmChatInput');
+  if(inp)inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleTerminalChatSend();}});
 });
 </script>
 
