@@ -887,10 +887,11 @@
     .wm-topbar-status { display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; color:rgba(255,255,255,0.4); text-transform:uppercase; }
     .wm-status-dot { width:6px; height:6px; border-radius:50%; background:rgba(100,255,140,0.9); box-shadow:0 0 8px rgba(100,255,140,0.5); animation:rsBlink 2s ease-in-out infinite; }
 
-    /* Terminal Stats Bar */
-    .wm-stats-bar { display:flex; gap:10px; padding:16px 24px; flex-shrink:0; overflow-x:auto; z-index:10; position:relative; }
+    /* Terminal Stats Bar — liquid glass */
+    .wm-stats-bar { display:flex; gap:10px; padding:16px 24px; flex-shrink:0; overflow-x:auto; z-index:10; position:relative; background:rgba(255,255,255,0.05); backdrop-filter:blur(60px) saturate(200%); -webkit-backdrop-filter:blur(60px) saturate(200%); border-bottom:1px solid rgba(255,255,255,0.06); box-shadow:inset 0 1px 0 rgba(255,255,255,0.15),0 8px 32px rgba(0,0,0,0.5); }
     .wm-stats-bar::-webkit-scrollbar { height:0; }
-    .wm-stat-card { flex:1; min-width:130px; padding:14px 16px; background:rgba(255,255,255,0.04); backdrop-filter:blur(60px) saturate(200%); -webkit-backdrop-filter:blur(60px) saturate(200%); border:1px solid rgba(255,255,255,0.1); border-radius:12px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 8px 32px rgba(0,0,0,0.6); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); }
+    .wm-stat-card { flex:1; min-width:130px; padding:14px 16px; background:rgba(255,255,255,0.04); backdrop-filter:blur(60px) saturate(200%); -webkit-backdrop-filter:blur(60px) saturate(200%); border:1px solid rgba(255,255,255,0.12); border-radius:12px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 8px 32px rgba(0,0,0,0.6); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); position:relative; }
+    .wm-stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); border-radius:12px 12px 0 0; pointer-events:none; }
     .wm-stat-card:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-2px); }
     .wm-stat-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.15em; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-bottom:8px; }
     .wm-stat-value { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:#fff; display:flex; align-items:center; gap:8px; }
@@ -898,25 +899,42 @@
     .wm-confidence-bar { width:60px; height:4px; border-radius:2px; background:rgba(255,255,255,0.06); overflow:hidden; margin-top:6px; }
     .wm-confidence-fill { height:100%; border-radius:2px; background:rgba(255,255,255,0.4); transition:width 1.5s cubic-bezier(0.16,1,0.3,1); }
 
-    /* Severity Badges */
-    .wm-severity { display:inline-flex; padding:3px 10px; border-radius:999px; font-family:var(--font-mono); font-size:9px; font-weight:600; letter-spacing:0.04em; line-height:1.4; }
-    .wm-severity-critical { background:rgba(255,60,60,0.1); border:1px solid rgba(255,60,60,0.2); color:rgba(255,60,60,0.9); box-shadow:0 0 12px rgba(255,60,60,0.3); }
-    .wm-severity-high { background:rgba(255,160,40,0.1); border:1px solid rgba(255,160,40,0.2); color:rgba(255,160,40,0.9); box-shadow:0 0 12px rgba(255,160,40,0.3); }
+    /* Severity Badges — enhanced glow */
+    .wm-severity { display:inline-flex; padding:3px 10px; border-radius:999px; font-family:var(--font-mono); font-size:9px; font-weight:700; letter-spacing:0.04em; line-height:1.4; }
+    .wm-severity-critical { background:rgba(255,60,60,0.1); border:1px solid rgba(255,60,60,0.3); color:rgba(255,60,60,0.9); box-shadow:0 0 16px rgba(255,60,60,0.35); }
+    .wm-severity-high { background:rgba(255,160,40,0.1); border:1px solid rgba(255,160,40,0.25); color:rgba(255,160,40,0.9); box-shadow:0 0 12px rgba(255,160,40,0.25); }
     .wm-severity-medium { background:rgba(255,210,80,0.1); border:1px solid rgba(255,210,80,0.2); color:rgba(255,210,80,0.9); box-shadow:0 0 12px rgba(255,210,80,0.3); }
     .wm-severity-low { background:rgba(100,255,140,0.1); border:1px solid rgba(100,255,140,0.2); color:rgba(100,255,140,0.9); box-shadow:0 0 12px rgba(100,255,140,0.3); }
     .wm-risk-badge { font-size:14px; font-weight:800; padding:4px 14px; border-radius:8px; }
 
-    /* Terminal Content Area */
-    .wm-content { flex:1; overflow-y:auto; padding:20px 24px; padding-bottom:160px; z-index:10; position:relative; }
-    .wm-content::-webkit-scrollbar { width:3px; }
-    .wm-content::-webkit-scrollbar-track { background:transparent; }
-    .wm-content::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:3px; }
-    .wm-section { margin-bottom:32px; }
+    /* Terminal Tab Bar */
+    .wm-tab-bar { display:flex; gap:2px; padding:3px; margin:0 24px; flex-shrink:0; z-index:10; position:relative; background:rgba(255,255,255,0.03); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%); border:1px solid rgba(255,255,255,0.08); border-radius:12px; }
+    .wm-tab-btn { padding:8px 18px; border-radius:10px; font-family:var(--font-mono); font-size:9px; font-weight:400; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.35); background:transparent; border:none; cursor:pointer; transition:all 0.25s cubic-bezier(0.16,1,0.3,1); white-space:nowrap; }
+    .wm-tab-btn:hover { color:rgba(255,255,255,0.7); }
+    .wm-tab-btn.active { color:#fff; background:rgba(255,255,255,0.08); }
+
+    /* Terminal Pages Container */
+    .wm-pages { flex:1; position:relative; overflow:hidden; z-index:10; }
+    .wm-page { position:absolute; inset:0; padding:24px 28px; padding-bottom:160px; overflow-y:auto; transition:transform 0.4s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease; will-change:transform,opacity; }
+    .wm-page.active { transform:translateX(0); opacity:1; pointer-events:all; }
+    .wm-page.left { transform:translateX(-100%); opacity:0; pointer-events:none; }
+    .wm-page.right { transform:translateX(100%); opacity:0; pointer-events:none; }
+    .wm-page::-webkit-scrollbar { width:4px; }
+    .wm-page::-webkit-scrollbar-track { background:transparent; }
+    .wm-page::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.12); border-radius:4px; }
+    .wm-page::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.2); }
+
+    .wm-section { margin-bottom:24px; }
     .wm-section-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-bottom:16px; display:block; }
 
+    /* Glass card base — shared across Terminal cards */
+    .wm-glass-card { background:rgba(255,255,255,0.04); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%); border:1px solid rgba(255,255,255,0.1); box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 4px 20px rgba(0,0,0,0.4); position:relative; }
+    .wm-glass-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); border-radius:inherit; pointer-events:none; }
+
     /* Alert Cards */
-    .wm-alerts-grid { display:flex; flex-direction:column; gap:10px; }
-    .wm-alert-card { padding:18px 20px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); opacity:0; animation:wmCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .wm-alerts-grid { display:flex; flex-direction:column; gap:14px; }
+    .wm-alert-card { padding:18px 20px; border-radius:12px; background:rgba(255,255,255,0.04); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%); border:1px solid rgba(255,255,255,0.1); box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 4px 20px rgba(0,0,0,0.4); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); opacity:0; animation:wmCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; position:relative; }
+    .wm-alert-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); border-radius:12px 12px 0 0; pointer-events:none; }
     .wm-alert-card:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-2px); }
     .wm-alert-card.sev-critical { background:rgba(255,60,60,0.06); border-color:rgba(255,60,60,0.2); }
     .wm-alert-card.sev-high { background:rgba(255,160,40,0.06); border-color:rgba(255,160,40,0.2); }
@@ -950,8 +968,9 @@
     .wm-news-source { font-family:var(--font-mono); font-size:8px; letter-spacing:0.06em; padding:2px 8px; border-radius:4px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:rgba(255,255,255,0.35); }
 
     /* Tariff Tracker */
-    .wm-tariff-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-    .wm-tariff-card { padding:16px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); opacity:0; animation:wmCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .wm-tariff-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .wm-tariff-card { padding:16px; border-radius:12px; background:rgba(255,255,255,0.04); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%); border:1px solid rgba(255,255,255,0.1); box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 4px 20px rgba(0,0,0,0.4); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); opacity:0; animation:wmCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; position:relative; }
+    .wm-tariff-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); border-radius:12px 12px 0 0; pointer-events:none; }
     .wm-tariff-card:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-2px); }
     .wm-tariff-card.wm-hi { border-color:rgba(255,255,255,0.15); }
     .wm-tariff-header { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
@@ -967,8 +986,9 @@
     .wm-tariff-detail:hover { color:rgba(255,255,255,0.7); }
 
     /* Port Monitor */
-    .wm-port-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-    .wm-port-card { padding:16px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); opacity:0; animation:wmCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .wm-port-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+    .wm-port-card { padding:16px; border-radius:12px; background:rgba(255,255,255,0.04); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%); border:1px solid rgba(255,255,255,0.1); box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 4px 20px rgba(0,0,0,0.4); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); opacity:0; animation:wmCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; position:relative; }
+    .wm-port-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); border-radius:12px 12px 0 0; pointer-events:none; }
     .wm-port-card:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-2px); }
     .wm-port-card.wm-hi { border-color:rgba(255,255,255,0.15); }
     .wm-port-name { font-size:13px; font-weight:600; color:#fff; margin-bottom:10px; }
@@ -983,10 +1003,11 @@
     .wm-port-status.ps-severe { background:rgba(255,60,60,0.08); border:1px solid rgba(255,60,60,0.15); color:rgba(255,60,60,0.8); }
 
     /* Commodity Prices */
-    .wm-commodity-row { display:flex; gap:12px; overflow-x:auto; padding-bottom:8px; }
+    .wm-commodity-row { display:flex; gap:14px; overflow-x:auto; padding-bottom:8px; }
     .wm-commodity-row::-webkit-scrollbar { height:3px; }
-    .wm-commodity-row::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:3px; }
-    .wm-commodity-card { min-width:160px; padding:16px; border-radius:12px; flex-shrink:0; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); }
+    .wm-commodity-row::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.12); border-radius:3px; }
+    .wm-commodity-card { min-width:160px; padding:16px; border-radius:12px; flex-shrink:0; background:rgba(255,255,255,0.04); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%); border:1px solid rgba(255,255,255,0.1); box-shadow:inset 0 1px 0 rgba(255,255,255,0.1),0 4px 20px rgba(0,0,0,0.4); transition:all 0.25s cubic-bezier(0.16,1,0.3,1); position:relative; }
+    .wm-commodity-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent); border-radius:12px 12px 0 0; pointer-events:none; }
     .wm-commodity-card:hover { border-color:rgba(255,255,255,0.18); transform:translateY(-2px); }
     .wm-commodity-card.wm-hi { border-color:rgba(255,255,255,0.15); }
     .wm-commodity-name { font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:8px; }
@@ -1021,12 +1042,94 @@
       .wm-tariff-grid { grid-template-columns:1fr 1fr; }
       .wm-port-grid { grid-template-columns:1fr 1fr; }
       .wm-stats-bar { gap:8px; padding:12px 16px; }
-      .wm-content { padding:16px; padding-bottom:160px; }
+      .wm-tab-bar { margin:0 16px; }
+      .wm-page { padding:16px; padding-bottom:160px; }
       .wm-chat-panel { padding:0 16px 16px; }
     }
     @media (max-width:500px) {
       .wm-tariff-grid { grid-template-columns:1fr; }
       .wm-port-grid { grid-template-columns:1fr; }
+      .wm-tab-btn { padding:6px 12px; font-size:8px; }
+    }
+
+    /* ===== UNIFIED FULLSCREEN CHAT ===== */
+    #chatFullscreen { position:fixed; inset:0; z-index:10000; background:rgba(5,6,8,0.98); display:none; flex-direction:row; }
+    #chatFullscreen.cf-open { display:flex; animation:cfFadeIn 0.3s ease forwards; }
+    @keyframes cfFadeIn { from{opacity:0;} to{opacity:1;} }
+    @keyframes cfSlideUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+
+    /* Sidebar */
+    .cf-sidebar { width:280px; min-width:280px; background:rgba(255,255,255,0.03); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%); border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; padding:16px 0; }
+    .cf-sidebar-header { padding:0 16px 16px; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:space-between; }
+    .cf-sidebar-title { font-family:var(--font-mono); font-size:9px; letter-spacing:0.15em; color:rgba(255,255,255,0.35); text-transform:uppercase; }
+    .cf-new-chat { padding:7px 14px; border-radius:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); font-family:var(--font-mono); font-size:10px; cursor:pointer; transition:all 0.2s; }
+    .cf-new-chat:hover { background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.2); }
+    .cf-conv-list { flex:1; overflow-y:auto; padding:8px 8px; }
+    .cf-conv-list::-webkit-scrollbar { width:3px; }
+    .cf-conv-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:3px; }
+    .cf-conv-item { padding:10px 12px; border-radius:8px; cursor:pointer; transition:all 0.2s; margin-bottom:2px; border:1px solid transparent; }
+    .cf-conv-item:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.06); }
+    .cf-conv-item.active { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.1); }
+    .cf-conv-name { font-size:12px; color:rgba(255,255,255,0.7); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; }
+    .cf-conv-item.active .cf-conv-name { color:#fff; }
+    .cf-conv-time { font-family:var(--font-mono); font-size:8px; color:rgba(255,255,255,0.2); letter-spacing:0.04em; }
+    .cf-conv-delete { opacity:0; background:none; border:none; color:rgba(255,255,255,0.3); font-size:11px; cursor:pointer; padding:2px 4px; transition:all 0.2s; float:right; margin-top:-2px; }
+    .cf-conv-item:hover .cf-conv-delete { opacity:1; }
+    .cf-conv-delete:hover { color:rgba(255,100,100,0.8); }
+
+    /* Main Chat Area */
+    .cf-main { flex:1; display:flex; flex-direction:column; position:relative; }
+    .cf-topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 24px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+    .cf-topbar-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#fff; }
+    .cf-topbar-source { font-family:var(--font-mono); font-size:8px; letter-spacing:0.1em; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-left:10px; }
+    .cf-close { width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+    .cf-close:hover { background:rgba(255,255,255,0.08); color:#fff; border-color:rgba(255,255,255,0.15); }
+
+    /* Messages */
+    .cf-messages { flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:12px; max-width:780px; width:100%; margin:0 auto; }
+    .cf-messages::-webkit-scrollbar { width:4px; }
+    .cf-messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:4px; }
+    .cf-msg { max-width:75%; padding:14px 18px; border-radius:16px; font-size:13px; line-height:1.65; animation:cfSlideUp 0.3s cubic-bezier(0.16,1,0.3,1) forwards; word-wrap:break-word; }
+    .cf-msg.user { align-self:flex-end; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-bottom-right-radius:4px; }
+    .cf-msg.ai { align-self:flex-start; background:rgba(255,255,255,0.03); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.06); color:rgba(255,255,255,0.75); border-bottom-left-radius:4px; }
+    .cf-msg.ai .cf-msg-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.12em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:6px; display:block; }
+    .cf-typing { display:flex; gap:4px; align-items:center; padding:4px 0; }
+    .cf-typing-dot { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.4); animation:typingDot 1.2s ease-in-out infinite; }
+    .cf-typing-dot:nth-child(2) { animation-delay:0.2s; }
+    .cf-typing-dot:nth-child(3) { animation-delay:0.4s; }
+
+    /* Empty State */
+    .cf-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; text-align:center; padding:40px; }
+    .cf-empty-icon { font-size:32px; margin-bottom:16px; opacity:0.5; }
+    .cf-empty-title { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; color:#fff; margin-bottom:8px; }
+    .cf-empty-sub { font-size:12px; color:rgba(255,255,255,0.3); line-height:1.6; max-width:360px; margin-bottom:28px; }
+    .cf-suggestions { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:440px; }
+    .cf-suggestion { padding:14px 16px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); cursor:pointer; transition:all 0.25s; text-align:left; }
+    .cf-suggestion:hover { border-color:rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); transform:translateY(-2px); }
+    .cf-suggestion-title { font-size:12px; font-weight:600; color:rgba(255,255,255,0.7); margin-bottom:4px; }
+    .cf-suggestion-desc { font-family:var(--font-mono); font-size:9px; color:rgba(255,255,255,0.25); line-height:1.4; }
+
+    /* Input Area */
+    .cf-input-area { padding:16px 24px 24px; flex-shrink:0; max-width:780px; width:100%; margin:0 auto; }
+    .cf-quick-actions { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+    .cf-quick-btn { padding:7px 14px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:999px; color:rgba(255,255,255,0.4); font-size:11px; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+    .cf-quick-btn:hover { border-color:rgba(255,255,255,0.15); color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.06); }
+    .cf-input-wrap { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.04); backdrop-filter:blur(60px) saturate(200%); -webkit-backdrop-filter:blur(60px) saturate(200%); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:12px 14px 12px 18px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 8px 32px rgba(0,0,0,0.6); transition:border-color 0.3s,box-shadow 0.3s; }
+    .cf-input-wrap:focus-within { border-color:rgba(255,255,255,0.25); box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 8px 32px rgba(0,0,0,0.6),0 0 30px rgba(255,255,255,0.05); }
+    #cfInput { flex:1; background:transparent; border:none; outline:none; color:#fff; font-size:14px; font-family:var(--font); }
+    #cfInput::placeholder { color:rgba(255,255,255,0.25); }
+    .cf-send { width:38px; height:38px; border-radius:10px; background:#fff; border:none; color:#000; font-size:16px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+    .cf-send:hover { background:#e2e8f0; transform:scale(1.05); }
+    .cf-send:active { transform:scale(0.95); }
+
+    /* Mobile sidebar */
+    .cf-mobile-toggle { display:none; width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); font-size:14px; cursor:pointer; align-items:center; justify-content:center; transition:all 0.2s; }
+    .cf-mobile-toggle:hover { background:rgba(255,255,255,0.08); color:#fff; }
+    @media (max-width:768px) {
+      .cf-sidebar { position:absolute; left:0; top:0; bottom:0; z-index:10; transform:translateX(-100%); transition:transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+      .cf-sidebar.cf-sb-open { transform:translateX(0); box-shadow:8px 0 32px rgba(0,0,0,0.5); }
+      .cf-mobile-toggle { display:flex; }
+      .cf-msg { max-width:90%; }
     }
 
   </style>
@@ -1347,13 +1450,21 @@ window.addEventListener('keydown',__handleIntroKey,true);
   </div>
   <!-- Stats Bar -->
   <div class="wm-stats-bar" id="wmStatsBar"></div>
-  <!-- Main Content -->
-  <div class="wm-content" id="terminalMain">
-    <div id="wmAlerts" class="wm-section"></div>
-    <div id="wmFeed" class="wm-section"></div>
-    <div id="wmTariff" class="wm-section"></div>
-    <div id="wmPorts" class="wm-section"></div>
-    <div id="wmCommodities" class="wm-section"></div>
+  <!-- Tab Bar -->
+  <div class="wm-tab-bar" id="wmTabBar">
+    <button class="wm-tab-btn active" onclick="switchTerminalTab(0)">Alerts</button>
+    <button class="wm-tab-btn" onclick="switchTerminalTab(1)">Feed</button>
+    <button class="wm-tab-btn" onclick="switchTerminalTab(2)">Tariffs</button>
+    <button class="wm-tab-btn" onclick="switchTerminalTab(3)">Ports</button>
+    <button class="wm-tab-btn" onclick="switchTerminalTab(4)">Commodities</button>
+  </div>
+  <!-- Tabbed Pages -->
+  <div class="wm-pages" id="terminalMain">
+    <div class="wm-page active" id="wmPageAlerts"><div id="wmAlerts" class="wm-section"></div></div>
+    <div class="wm-page right" id="wmPageFeed"><div id="wmFeed" class="wm-section"></div></div>
+    <div class="wm-page right" id="wmPageTariff"><div id="wmTariff" class="wm-section"></div></div>
+    <div class="wm-page right" id="wmPagePorts"><div id="wmPorts" class="wm-section"></div></div>
+    <div class="wm-page right" id="wmPageCommodities"><div id="wmCommodities" class="wm-section"></div></div>
   </div>
   <!-- Terminal Chat -->
   <div class="wm-chat-panel">
@@ -1370,6 +1481,35 @@ window.addEventListener('keydown',__handleIntroKey,true);
     </div>
   </div>
 </section>
+
+<!-- ===== UNIFIED FULLSCREEN CHAT ===== -->
+<div id="chatFullscreen">
+  <div class="cf-sidebar" id="cfSidebar">
+    <div class="cf-sidebar-header">
+      <span class="cf-sidebar-title">Conversations</span>
+      <button class="cf-new-chat" onclick="cfNewChat()">+ New</button>
+    </div>
+    <div class="cf-conv-list" id="cfConvList"></div>
+  </div>
+  <div class="cf-main">
+    <div class="cf-topbar">
+      <div style="display:flex;align-items:center;">
+        <button class="cf-mobile-toggle" onclick="document.getElementById('cfSidebar').classList.toggle('cf-sb-open')">≡</button>
+        <span class="cf-topbar-title">RiskSim AI</span>
+        <span class="cf-topbar-source" id="cfSource"></span>
+      </div>
+      <button class="cf-close" onclick="closeChatFullscreen()">✕</button>
+    </div>
+    <div class="cf-messages" id="cfMessages"></div>
+    <div class="cf-input-area">
+      <div class="cf-quick-actions" id="cfQuickActions"></div>
+      <div class="cf-input-wrap">
+        <input id="cfInput" type="text" placeholder="Ask about supply chain risks, costs, sourcing..." />
+        <button class="cf-send" onclick="handleCfSend()">→</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 var map=null,countryMarkers={},currentLayer='risk',currentCategory='technology',userProfile={},selectedSourcingCountries=[];
@@ -1727,9 +1867,11 @@ function initOnboardScrollIndicator(){
   });
 }
 
-function sendQuickMsg(t){sendMessage(t);}
-function handleChatSend(){var input=document.getElementById('chatInput'),msg=input.value.trim();if(!msg)return;input.value='';sendMessage(msg);}
+// Map chat bar -> unified fullscreen
+function sendQuickMsg(t){openChatFullscreen(t,'map');}
+function handleChatSend(){var input=document.getElementById('chatInput'),msg=input.value.trim();if(!msg)return;input.value='';openChatFullscreen(msg,'map');}
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('chatInput').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleChatSend();}});});
+// Legacy inline chat functions (kept for backward compat)
 function addUserMessage(t){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg user';d.textContent=t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function addAIMessage(t){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.innerHTML='<span class="msg-label">RiskSim AI</span>'+t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function addTypingIndicator(){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.id='typing';d.innerHTML='<span class="msg-label">RiskSim AI</span><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}
@@ -2037,25 +2179,33 @@ document.addEventListener('DOMContentLoaded',function(){
 <!-- ===== TERMINAL MODULE (SYS_03) JS ===== -->
 <script>
 // ===== MODULE SWITCHING =====
+var _activeModule='map';
 function switchModule(name){
-  var mapEls=['mapContainer','heroPanel','layerControls','chatPanel','chatMessages','alertBanner','psReopenBtn'];
+  var mapEls=['mapContainer','heroPanel','layerControls','chatPanel','chatMessages','alertBanner','psReopenBtn','countrySearch'];
   var wr=document.getElementById('warRoomModule');
-  var btns=document.querySelectorAll('#rsNav .rs-nav-btn');
+  var am=document.getElementById('auditModule');
+  var navBtns=document.querySelectorAll('#rsNav .rs-nav-btn');
+  var oldNav=document.getElementById('moduleNav');
   var overlays=document.querySelectorAll('.map-overlay-header,.map-legend');
   // Hide all
   mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   overlays.forEach(function(el){el.style.display='none';});
   if(wr)wr.style.display='none';
-  for(var i=0;i<btns.length;i++)btns[i].classList.remove('active');
+  if(am)am.style.display='none';
+  if(oldNav)oldNav.style.display='none';
+  for(var i=0;i<navBtns.length;i++)navBtns[i].classList.remove('active');
 
+  _activeModule=name;
+  // Close fullscreen chat on module switch
+  if(typeof closeChatFullscreen==='function')closeChatFullscreen();
   if(name==='map'){
     mapEls.forEach(function(id){var el=document.getElementById(id);if(!el)return;if(id==='chatPanel'||id==='chatMessages')el.style.display='flex';else if(id==='psReopenBtn')el.style.display='flex';else el.style.display='';});
     overlays.forEach(function(el){el.style.display='';});
     if(map)setTimeout(function(){map.invalidateSize();},100);
-    if(btns[0])btns[0].classList.add('active');
+    if(navBtns[0])navBtns[0].classList.add('active');
   }else if(name==='audit'){
-    alert('Audit module coming soon.');
-    switchModule('map');return;
+    if(am){am.style.display='flex';am.style.flexDirection='column';}
+    if(navBtns[1])navBtns[1].classList.add('active');
   }else if(name==='warroom'){
     if(wr){
       wr.style.display='flex';wr.style.flexDirection='column';
@@ -2063,19 +2213,37 @@ function switchModule(name){
         document.getElementById('terminalPaywall').style.display='flex';
       }else{
         document.getElementById('terminalPaywall').style.display='none';
-        document.getElementById('terminalMain').classList.add('terminal-loaded');
         initTerminalData();
       }
     }
-    if(btns[2])btns[2].classList.add('active');
+    if(navBtns[2])navBtns[2].classList.add('active');
   }
 }
 
 function bypassTerminalPaywall(){
   localStorage.setItem('terminal_paywall_bypassed','1');
   document.getElementById('terminalPaywall').style.display='none';
-  document.getElementById('terminalMain').classList.add('terminal-loaded');
   initTerminalData();
+}
+
+// ===== TAB SWITCHING =====
+var _currentTerminalTab=0;
+function switchTerminalTab(idx){
+  if(idx===_currentTerminalTab)return;
+  var pages=document.querySelectorAll('#terminalMain .wm-page');
+  var btns=document.querySelectorAll('#wmTabBar .wm-tab-btn');
+  var dir=idx>_currentTerminalTab?1:-1;
+  for(var i=0;i<pages.length;i++){
+    if(i===idx){pages[i].className='wm-page active';}else if(i<idx){pages[i].className='wm-page left';}else{pages[i].className='wm-page right';}
+  }
+  for(var j=0;j<btns.length;j++){btns[j].classList.toggle('active',j===idx);}
+  _currentTerminalTab=idx;
+}
+
+// ===== ANALYZE ALERT =====
+function analyzeAlert(title,desc){
+  var msg='[Terminal Alert Analysis] '+title+': '+desc;
+  handleTerminalMsg(msg);
 }
 
 // ===== COUNTRY FLAGS =====
@@ -2160,10 +2328,12 @@ function buildAlerts(alerts){
   alerts.forEach(function(a,i){
     var sc={'critical':'wm-severity-critical','high':'wm-severity-high','medium':'wm-severity-medium','low':'wm-severity-low'};
     var dot=a.sev==='critical'?'<span class="wm-pulse-dot" style="width:6px;height:6px;margin-right:4px;"></span>':'';
+    var safeTitle=a.title.replace(/'/g,"\\'");
+    var safeDesc=a.desc.replace(/'/g,"\\'");
     h+='<div class="wm-alert-card sev-'+a.sev+'" style="animation-delay:'+(i*0.08)+'s">';
     h+='<div class="wm-alert-header">'+dot+'<span class="wm-severity '+(sc[a.sev]||'')+'">'+a.sev.toUpperCase()+'</span><span class="wm-alert-title">'+a.title+'</span></div>';
     h+='<div class="wm-alert-desc">'+a.desc+'</div>';
-    h+='<div class="wm-alert-footer"><span class="wm-alert-country">'+a.country+'</span><span class="wm-alert-time">'+a.time+'</span><button class="wm-alert-action">Analyze \u2192</button></div>';
+    h+='<div class="wm-alert-footer"><span class="wm-alert-country">'+a.country+'</span><span class="wm-alert-time">'+a.time+'</span><button class="wm-alert-action" onclick="analyzeAlert(\''+safeTitle+'\',\''+safeDesc+'\')">Analyze \u2192</button></div>';
     h+='</div>';
   });
   h+='</div>';
@@ -2288,11 +2458,11 @@ function buildPortMonitor(countries){
 
 // ===== COMMODITIES =====
 function generateSparklinePoints(trend,count){
-  var pts=[];var y=50;
+  var pts=[];var y=14;
   for(var i=0;i<count;i++){
-    y+=trend*(0.5+Math.random()*1.5)+(Math.random()-0.5)*8;
-    y=Math.max(4,Math.min(20,y));
-    pts.push(Math.round(i*(60/(count-1)))+','+Math.round(y));
+    y+=trend*(0.5+Math.random()*1.5)+(Math.random()-0.5)*4;
+    y=Math.max(2,Math.min(24,y));
+    pts.push(Math.round(i*(80/(count-1)))+','+Math.round(y));
   }
   return pts.join(' ');
 }
@@ -2310,29 +2480,34 @@ function buildCommodities(industry){
     {name:'Shipping (BDI)',price:'1,842',change:'+5.6%',dir:1}
   ];
   var h='<span class="wm-section-label">COMMODITY PRICES</span><div class="wm-commodity-row">';
-  commodities.forEach(function(c){
+  commodities.forEach(function(c,ci){
     var hi=relevant.indexOf(c.name)!==-1?' wm-hi':'';
     var cls=c.dir>0?'pos':'neg';
     var pts=generateSparklinePoints(c.dir,12);
+    var gid='spkg'+ci;
     h+='<div class="wm-commodity-card'+hi+'">';
     h+='<div class="wm-commodity-name">'+c.name+'</div>';
     h+='<div class="wm-commodity-price">'+c.price+'</div>';
     h+='<div class="wm-commodity-change '+cls+'">'+(c.dir>0?'\u2191':'\u2193')+' '+c.change+'</div>';
-    h+='<svg class="wm-sparkline" width="60" height="24" viewBox="0 0 60 24"><polyline points="'+pts+'" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+    h+='<svg class="wm-sparkline" width="80" height="28" viewBox="0 0 80 28">';
+    h+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.08)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient></defs>';
+    h+='<polygon points="0,28 '+pts+' 80,28" fill="url(#'+gid+')" />';
+    h+='<polyline points="'+pts+'" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>';
+    h+='</svg>';
     h+='</div>';
   });
   h+='</div>';
   el.innerHTML=h;
 }
 
-// ===== TERMINAL CHAT =====
+// ===== TERMINAL CHAT (redirects to unified) =====
 function addTerminalUserMsg(t){var m=document.getElementById('wmChatMessages'),d=document.createElement('div');d.className='wm-chat-msg user';d.textContent=t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function addTerminalAIMsg(t){var m=document.getElementById('wmChatMessages'),d=document.createElement('div');d.className='wm-chat-msg ai';d.innerHTML='<span class="wm-msg-label">RiskSim Terminal</span>'+t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function addTerminalTyping(){var m=document.getElementById('wmChatMessages'),d=document.createElement('div');d.className='wm-chat-msg ai';d.id='wmTyping';d.innerHTML='<span class="wm-msg-label">RiskSim Terminal</span><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function removeTerminalTyping(){var t=document.getElementById('wmTyping');if(t)t.remove();}
 
-function sendTerminalChat(text){handleTerminalMsg(text);}
-function handleTerminalChatSend(){var inp=document.getElementById('wmChatInput'),msg=inp.value.trim();if(!msg)return;inp.value='';handleTerminalMsg(msg);}
+function sendTerminalChat(text){openChatFullscreen(text,'terminal');}
+function handleTerminalChatSend(){var inp=document.getElementById('wmChatInput'),msg=inp.value.trim();if(!msg)return;inp.value='';openChatFullscreen(msg,'terminal');}
 async function handleTerminalMsg(userText){
   addTerminalUserMsg(userText);addTerminalTyping();
   try{
@@ -2350,6 +2525,227 @@ document.addEventListener('DOMContentLoaded',function(){
   var inp=document.getElementById('wmChatInput');
   if(inp)inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleTerminalChatSend();}});
 });
+
+// =============================================================
+// ===== UNIFIED FULLSCREEN CHAT SYSTEM =====
+// =============================================================
+
+// ===== CHAT DATA LAYER =====
+var _cfActiveConv=null;
+var _cfChatSource='map';
+var _CF_STORAGE_KEY='risksim_chats';
+
+function cfLoadChats(){
+  try{var s=localStorage.getItem(_CF_STORAGE_KEY);return s?JSON.parse(s):[];}
+  catch(e){return [];}
+}
+function cfSaveChats(chats){
+  try{localStorage.setItem(_CF_STORAGE_KEY,JSON.stringify(chats));}catch(e){}
+}
+function cfCreateConversation(name,source){
+  var id='conv_'+Date.now()+'_'+Math.random().toString(36).substr(2,4);
+  var conv={id:id,name:name||'New conversation',source:source||'map',messages:[],createdAt:Date.now(),updatedAt:Date.now()};
+  var chats=cfLoadChats();
+  chats.unshift(conv);
+  cfSaveChats(chats);
+  return conv;
+}
+function cfGetConversation(id){
+  var chats=cfLoadChats();
+  for(var i=0;i<chats.length;i++){if(chats[i].id===id)return chats[i];}
+  return null;
+}
+function cfAddMessage(convId,role,content){
+  var chats=cfLoadChats();
+  for(var i=0;i<chats.length;i++){
+    if(chats[i].id===convId){
+      chats[i].messages.push({role:role,content:content,ts:Date.now()});
+      chats[i].updatedAt=Date.now();
+      if(chats[i].messages.length===1&&role==='user')chats[i].name=content.substring(0,40)+(content.length>40?'...':'');
+      break;
+    }
+  }
+  cfSaveChats(chats);
+}
+function cfDeleteConversation(id){
+  var chats=cfLoadChats().filter(function(c){return c.id!==id;});
+  cfSaveChats(chats);
+  if(_cfActiveConv===id){_cfActiveConv=null;cfRenderEmpty();}
+  cfRenderConvList();
+}
+
+// ===== RENDER FUNCTIONS =====
+function cfRenderConvList(){
+  var list=document.getElementById('cfConvList');
+  if(!list)return;
+  var chats=cfLoadChats();
+  if(chats.length===0){list.innerHTML='<div style="padding:20px 12px;text-align:center;"><div style="font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:0.1em;text-transform:uppercase;">No conversations yet</div></div>';return;}
+  var h='';
+  chats.forEach(function(c){
+    var active=c.id===_cfActiveConv?' active':'';
+    var d=new Date(c.updatedAt);
+    var timeStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    h+='<div class="cf-conv-item'+active+'" onclick="cfSwitchConv(\''+c.id+'\')"><button class="cf-conv-delete" onclick="event.stopPropagation();cfDeleteConversation(\''+c.id+'\')">\u2715</button><div class="cf-conv-name">'+c.name+'</div><div class="cf-conv-time">'+timeStr+'</div></div>';
+  });
+  list.innerHTML=h;
+}
+
+function cfRenderMessages(convId){
+  var msgEl=document.getElementById('cfMessages');
+  if(!msgEl)return;
+  var conv=cfGetConversation(convId);
+  if(!conv||conv.messages.length===0){cfRenderEmpty();return;}
+  var h='';
+  conv.messages.forEach(function(m){
+    if(m.role==='user'){
+      h+='<div class="cf-msg user">'+escapeHtml(m.content)+'</div>';
+    }else{
+      h+='<div class="cf-msg ai"><span class="cf-msg-label">RiskSim AI</span>'+m.content+'</div>';
+    }
+  });
+  msgEl.innerHTML=h;
+  msgEl.scrollTop=msgEl.scrollHeight;
+}
+
+function cfRenderEmpty(){
+  var msgEl=document.getElementById('cfMessages');
+  if(!msgEl)return;
+  var src=_cfChatSource==='terminal'?'Terminal':'Map';
+  msgEl.innerHTML='<div class="cf-empty"><div class="cf-empty-icon">\u25C8</div><div class="cf-empty-title">RiskSim Intelligence</div><div class="cf-empty-sub">Ask anything about supply chain risks, costs, sourcing strategies, or tariff impacts.</div><div class="cf-suggestions"><div class="cf-suggestion" onclick="cfSendFromSuggestion(\'Analyze my top supply chain risks\')"><div class="cf-suggestion-title">Risk Analysis</div><div class="cf-suggestion-desc">Identify threats to your supply chain</div></div><div class="cf-suggestion" onclick="cfSendFromSuggestion(\'Compare sourcing costs across my regions\')"><div class="cf-suggestion-title">Cost Comparison</div><div class="cf-suggestion-desc">Regional cost breakdown</div></div><div class="cf-suggestion" onclick="cfSendFromSuggestion(\'What tariff changes affect my industry?\')" ><div class="cf-suggestion-title">Tariff Impact</div><div class="cf-suggestion-desc">Latest trade policy effects</div></div><div class="cf-suggestion" onclick="cfSendFromSuggestion(\'Find alternative suppliers for my products\')"><div class="cf-suggestion-title">Alternative Suppliers</div><div class="cf-suggestion-desc">Diversification opportunities</div></div></div></div>';
+}
+
+function cfSendFromSuggestion(text){
+  cfSendMessage(text);
+}
+
+function cfRenderQuickActions(){
+  var qa=document.getElementById('cfQuickActions');
+  if(!qa)return;
+  var actions=_cfChatSource==='terminal'?
+    [{t:'Risk Summary'},{t:'Tariff Impact'},{t:'Port Status'},{t:'Cost Forecast'}]:
+    [{t:'Full Audit'},{t:'Cost Comparison'},{t:'Live Risk Alerts'},{t:'Alternative Suppliers'}];
+  var h='';
+  actions.forEach(function(a){
+    h+='<button class="cf-quick-btn" onclick="cfSendMessage(\''+a.t+'\')">' + a.t + '</button>';
+  });
+  qa.innerHTML=h;
+}
+
+function escapeHtml(t){
+  var d=document.createElement('div');d.textContent=t;return d.innerHTML;
+}
+
+// ===== OPEN / CLOSE =====
+function openChatFullscreen(msg,source){
+  _cfChatSource=source||_activeModule||'map';
+  var cf=document.getElementById('chatFullscreen');
+  cf.classList.add('cf-open');
+  document.getElementById('cfSource').textContent=_cfChatSource==='terminal'?'VIA TERMINAL':'VIA MAP';
+  cfRenderQuickActions();
+  // Create new conversation if none active
+  if(!_cfActiveConv){
+    var conv=cfCreateConversation(null,_cfChatSource);
+    _cfActiveConv=conv.id;
+  }
+  cfRenderConvList();
+  if(msg){
+    cfRenderMessages(_cfActiveConv);
+    cfSendMessage(msg);
+  }else{
+    var conv=cfGetConversation(_cfActiveConv);
+    if(conv&&conv.messages.length>0)cfRenderMessages(_cfActiveConv);
+    else cfRenderEmpty();
+  }
+  var inp=document.getElementById('cfInput');
+  if(inp)setTimeout(function(){inp.focus();},100);
+}
+
+function closeChatFullscreen(){
+  var cf=document.getElementById('chatFullscreen');
+  cf.classList.remove('cf-open');
+  var sb=document.getElementById('cfSidebar');
+  if(sb)sb.classList.remove('cf-sb-open');
+}
+
+function cfNewChat(){
+  var conv=cfCreateConversation(null,_cfChatSource);
+  _cfActiveConv=conv.id;
+  cfRenderConvList();
+  cfRenderEmpty();
+  var inp=document.getElementById('cfInput');
+  if(inp){inp.value='';inp.focus();}
+}
+
+function cfSwitchConv(id){
+  _cfActiveConv=id;
+  cfRenderConvList();
+  cfRenderMessages(id);
+  var sb=document.getElementById('cfSidebar');
+  if(sb)sb.classList.remove('cf-sb-open');
+}
+
+// ===== SEND MESSAGE =====
+async function cfSendMessage(userText){
+  if(!_cfActiveConv){
+    var conv=cfCreateConversation(null,_cfChatSource);
+    _cfActiveConv=conv.id;
+  }
+  // Add user message
+  cfAddMessage(_cfActiveConv,'user',userText);
+  cfRenderMessages(_cfActiveConv);
+  cfRenderConvList();
+  // Add typing indicator
+  var msgEl=document.getElementById('cfMessages');
+  var typingDiv=document.createElement('div');
+  typingDiv.className='cf-msg ai';
+  typingDiv.id='cfTyping';
+  typingDiv.innerHTML='<span class="cf-msg-label">RiskSim AI</span><div class="cf-typing"><div class="cf-typing-dot"></div><div class="cf-typing-dot"></div><div class="cf-typing-dot"></div></div>';
+  msgEl.appendChild(typingDiv);
+  msgEl.scrollTop=msgEl.scrollHeight;
+
+  try{
+    var profilePayload={companyType:(typeof PS_TYPE_LABELS!=='undefined'&&PS_TYPE_LABELS[userProfile.type])||userProfile.type||'',homeCountry:userProfile.country||'',industry:(typeof PS_IND_LABELS!=='undefined'&&PS_IND_LABELS[userProfile.industry])||userProfile.industry||'',sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||''};
+    var contextPrefix=_cfChatSource==='terminal'?'[TERMINAL] ':'[MAP] ';
+    if(userProfile.industry)contextPrefix+='Industry:'+(profilePayload.industry)+'. ';
+    if(userProfile.type)contextPrefix+='CompanyType:'+(profilePayload.companyType)+'. ';
+    if(selectedSourcingCountries&&selectedSourcingCountries.length)contextPrefix+='Sourcing:'+selectedSourcingCountries.join(',')+'. ';
+    var body=JSON.stringify({message:userText,profile:profilePayload,context:contextPrefix});
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:body});
+    var d=await r.json();
+    var reply=d.reply||d.response||d.error||'Unable to process.';
+    // Remove typing
+    var tp=document.getElementById('cfTyping');if(tp)tp.remove();
+    // Save AI message
+    cfAddMessage(_cfActiveConv,'ai',reply);
+    cfRenderMessages(_cfActiveConv);
+  }catch(e){
+    var tp=document.getElementById('cfTyping');if(tp)tp.remove();
+    cfAddMessage(_cfActiveConv,'ai','Connection error. Please try again.');
+    cfRenderMessages(_cfActiveConv);
+  }
+}
+
+function handleCfSend(){
+  var inp=document.getElementById('cfInput');
+  var msg=inp.value.trim();
+  if(!msg)return;
+  inp.value='';
+  cfSendMessage(msg);
+}
+
+// Enter key for fullscreen chat
+document.addEventListener('DOMContentLoaded',function(){
+  var inp=document.getElementById('cfInput');
+  if(inp)inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleCfSend();}});
+});
+
+// ===== ANALYZE ALERT (updated) =====
+// Override to open fullscreen chat
+function analyzeAlert(title,desc){
+  var msg='[Alert Analysis] '+title+': '+desc;
+  openChatFullscreen(msg,'terminal');
+}
+
 </script>
 
 <!-- ===== D3 INTRO GLOBE ===== -->
