@@ -3808,6 +3808,7 @@ function exitSimCompare(){
   intro.addEventListener('touchmove',function(e){e.preventDefault();if(e.touches[0].clientY<ty-30)dismiss();},{passive:false});
 })();
 </script>
+<iframe id="voiceFrame" src="https://risksim-backend.onrender.com/voice.html" style="display:none;width:0;height:0;border:none;position:absolute;" allow="microphone"></iframe>
 <div id="voiceAssistant">
   <div id="voicePulse"></div>
   <button id="voiceBtn" onclick="toggleVoice()">
@@ -3904,13 +3905,69 @@ function initVoiceAssistant() {
   }
 }
 
-// ===== TOGGLE =====
-function toggleVoice() {
-  if (voiceState.isListening) {
+window.addEventListener('message',function(e){
+  if(!e.data||!e.data.type)return;
+  if(e.data.type.indexOf('risksim-voice-')!==0)return;
+  
+  if(e.data.type==='risksim-voice-result'){
     stopListening();
-  } else {
-    startListening();
+    showTranscript(e.data.transcript,true);
+    handleVoiceCommand(e.data.transcript.trim().toLowerCase());
   }
+  if(e.data.type==='risksim-voice-interim'){
+    showTranscript(e.data.transcript,false);
+  }
+  if(e.data.type==='risksim-voice-error'){
+    stopListening();
+    if(e.data.error==='not-allowed'){
+      setVoiceStatus('Mic access denied');
+    }else{
+      setVoiceStatus('Error: '+e.data.error);
+    }
+    setTimeout(function(){setVoiceStatus('');},3000);
+  }
+  if(e.data.type==='risksim-voice-ended'){
+    if(voiceState.isListening)stopListening();
+  }
+});
+
+// ===== TOGGLE =====
+function toggleVoice(){
+  if(voiceState.isListening){
+    stopListening();
+    var vf=document.getElementById('voiceFrame');
+    if(vf)vf.contentWindow.postMessage({type:'risksim-voice-stop'},'*');
+    return;
+  }
+  // Try direct mic first
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){
+    try{
+      var test=new SR();
+      var directWorks=false;
+      test.onstart=function(){directWorks=true;test.stop();startListening();};
+      test.onerror=function(e){
+        if(e.error==='not-allowed'&&!directWorks){startVoiceViaFrame();}
+        else if(!directWorks){startListening();}
+      };
+      test.start();
+    }catch(e){startVoiceViaFrame();}
+  }else{startVoiceViaFrame();}
+}
+
+function startVoiceViaFrame(){
+  var vf=document.getElementById('voiceFrame');
+  if(!vf){setVoiceStatus('Voice unavailable');return;}
+  
+  voiceState.isListening=true;
+  var btn=document.getElementById('voiceBtn');
+  btn.classList.add('listening');
+  document.getElementById('voiceMicIcon').style.display='none';
+  document.getElementById('voiceWaveform').style.display='flex';
+  document.getElementById('voiceAmbient').classList.add('active');
+  setVoiceStatus('Listening...');
+  
+  vf.contentWindow.postMessage({type:'risksim-voice-start'},'*');
 }
 
 function startListening() {
