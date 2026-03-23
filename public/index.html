@@ -1360,6 +1360,164 @@
       .sim-center-scroll { padding:0 16px 32px; }
       .sim-input-pinned { padding:16px 16px 0; }
     }
+
+    /* ===== VOICE ASSISTANT ===== */
+    #voiceAssistant {
+      position: fixed;
+      bottom: 100px;
+      right: 24px;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #voiceBtn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(40px) saturate(200%);
+      -webkit-backdrop-filter: blur(40px) saturate(200%);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    #voiceBtn:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    #voiceBtn.listening {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.3);
+      color: #fff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 0 30px rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    #voiceBtn.speaking {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.25);
+      color: #fff;
+    }
+
+    #voicePulse {
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.15);
+      opacity: 0;
+      pointer-events: none;
+      bottom: 0;
+    }
+
+    #voiceBtn.listening ~ #voicePulse,
+    #voiceAssistant.voice-active #voicePulse {
+      animation: voicePulseRing 2s ease-out infinite;
+    }
+
+    @keyframes voicePulseRing {
+      0% { transform: scale(1); opacity: 0.4; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+
+    .voice-wave-bar {
+      display: inline-block;
+      width: 3px;
+      height: 8px;
+      background: #fff;
+      border-radius: 2px;
+      margin: 0 1px;
+      animation: voiceWave 0.8s ease-in-out infinite;
+    }
+    .voice-wave-bar:nth-child(1) { animation-delay: 0s; height: 8px; }
+    .voice-wave-bar:nth-child(2) { animation-delay: 0.1s; height: 14px; }
+    .voice-wave-bar:nth-child(3) { animation-delay: 0.2s; height: 10px; }
+    .voice-wave-bar:nth-child(4) { animation-delay: 0.3s; height: 16px; }
+    .voice-wave-bar:nth-child(5) { animation-delay: 0.15s; height: 6px; }
+
+    @keyframes voiceWave {
+      0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    #voiceStatus {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      text-align: center;
+      min-height: 14px;
+      transition: opacity 0.3s;
+    }
+
+    #voiceTranscript {
+      position: absolute;
+      bottom: 80px;
+      right: 0;
+      min-width: 280px;
+      max-width: 380px;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(60px) saturate(200%);
+      -webkit-backdrop-filter: blur(60px) saturate(200%);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.6);
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      display: none;
+      animation: voiceTranscriptIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+
+    @keyframes voiceTranscriptIn {
+      from { opacity: 0; transform: translateY(8px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    #voiceTranscript .vt-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    #voiceAmbient {
+      position: fixed;
+      inset: 0;
+      z-index: 99998;
+      pointer-events: none;
+      opacity: 0;
+      background: radial-gradient(ellipse at bottom right, rgba(255,255,255,0.03), transparent 70%);
+      transition: opacity 0.6s ease;
+    }
+
+    #voiceAmbient.active {
+      opacity: 1;
+      animation: voiceAmbientPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes voiceAmbientPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -1399,6 +1557,7 @@ function __handleIntroKey(e){
 document.addEventListener('keydown',__handleIntroKey,true);
 window.addEventListener('keydown',__handleIntroKey,true);
 </script>
+<div id="voiceAmbient"></div>
   <!-- ===== RS NAV ===== -->
 <nav id="rsNav" style="opacity:1">
   <button class="rs-nav-btn active" onclick="switchModule('map')">
@@ -2276,6 +2435,7 @@ function switchModule(mod){
   var sim=document.getElementById('simulatorModule');if(sim)sim.style.display='none';
   mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='none';
+  var va=document.getElementById('voiceAssistant');
   if(mod==='audit'){
     if(am){am.style.display='flex';am.style.flexDirection='column';}
     if(!localStorage.getItem('am_paywall_bypassed')){
@@ -2286,11 +2446,13 @@ function switchModule(mod){
       renderAMSupplierList();
     }
     if(btns[1])btns[1].classList.add('active');
+    if(va)va.style.display='none';
   }else{
     mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});
     for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='';
     if(map)map.invalidateSize();
     if(btns[0])btns[0].classList.add('active');
+    if(va)va.style.display='';
   }
 }
 function bypassPaywall(){
@@ -2511,6 +2673,8 @@ function switchModule(name){
   _activeModule=name;
   // Close fullscreen chat on module switch
   if(typeof closeChatFullscreen==='function')closeChatFullscreen();
+  var va=document.getElementById('voiceAssistant');
+  if(va)va.style.display=(name==='audit')?'none':'';
   if(name==='map'){
     mapEls.forEach(function(id){var el=document.getElementById(id);if(!el)return;if(id==='chatPanel'||id==='chatMessages')el.style.display='flex';else if(id==='psReopenBtn')el.style.display='flex';else el.style.display='';});
     overlays.forEach(function(el){el.style.display='';});
@@ -3643,6 +3807,331 @@ function exitSimCompare(){
   intro.addEventListener('touchstart',function(e){ty=e.touches[0].clientY;},{passive:true});
   intro.addEventListener('touchmove',function(e){e.preventDefault();if(e.touches[0].clientY<ty-30)dismiss();},{passive:false});
 })();
+</script>
+<div id="voiceAssistant">
+  <div id="voicePulse"></div>
+  <button id="voiceBtn" onclick="toggleVoice()">
+    <svg id="voiceMicIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+      <line x1="12" y1="19" x2="12" y2="23"/>
+      <line x1="8" y1="23" x2="16" y2="23"/>
+    </svg>
+    <div id="voiceWaveform" style="display:none">
+      <span class="voice-wave-bar"></span>
+      <span class="voice-wave-bar"></span>
+      <span class="voice-wave-bar"></span>
+      <span class="voice-wave-bar"></span>
+      <span class="voice-wave-bar"></span>
+    </div>
+  </button>
+  <div id="voiceStatus"></div>
+  <div id="voiceTranscript"></div>
+</div>
+<script>
+var voiceState = {
+  isListening: false,
+  isSpeaking: false,
+  recognition: null,
+  synthesis: window.speechSynthesis,
+  preferredVoice: null,
+  lastTranscript: ''
+};
+
+// ===== INIT =====
+function initVoiceAssistant() {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('voiceBtn').style.display = 'none';
+    console.warn('Speech recognition not supported');
+    return;
+  }
+
+  voiceState.recognition = new SpeechRecognition();
+  voiceState.recognition.continuous = false;
+  voiceState.recognition.interimResults = true;
+  voiceState.recognition.lang = 'en-US';
+
+  voiceState.recognition.onresult = function(event) {
+    var transcript = '';
+    for (var i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    voiceState.lastTranscript = transcript;
+    showTranscript(transcript, event.results[event.resultIndex].isFinal);
+
+    if (event.results[event.resultIndex].isFinal) {
+      handleVoiceCommand(transcript.trim().toLowerCase());
+    }
+  };
+
+  voiceState.recognition.onend = function() {
+    if (voiceState.isListening) {
+      stopListening();
+    }
+  };
+
+  voiceState.recognition.onerror = function(event) {
+    console.error('Speech recognition error:', event.error);
+    stopListening();
+    if (event.error === 'not-allowed') {
+      setVoiceStatus('Mic access denied');
+    }
+  };
+
+  function loadVoices() {
+    var voices = voiceState.synthesis.getVoices();
+    var preferred = ['Samantha', 'Karen', 'Victoria', 'Google UK English Female', 'Microsoft Zira', 'Fiona'];
+    for (var p = 0; p < preferred.length; p++) {
+      for (var v = 0; v < voices.length; v++) {
+        if (voices[v].name.indexOf(preferred[p]) !== -1) {
+          voiceState.preferredVoice = voices[v];
+          return;
+        }
+      }
+    }
+    for (var j = 0; j < voices.length; j++) {
+      if (voices[j].lang.indexOf('en') === 0) {
+        voiceState.preferredVoice = voices[j];
+        return;
+      }
+    }
+  }
+
+  loadVoices();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+}
+
+// ===== TOGGLE =====
+function toggleVoice() {
+  if (voiceState.isListening) {
+    stopListening();
+  } else {
+    startListening();
+  }
+}
+
+function startListening() {
+  if (!voiceState.recognition) return;
+  voiceState.synthesis.cancel();
+  voiceState.isSpeaking = false;
+
+  voiceState.isListening = true;
+  voiceState.recognition.start();
+
+  var btn = document.getElementById('voiceBtn');
+  btn.classList.add('listening');
+  document.getElementById('voiceMicIcon').style.display = 'none';
+  document.getElementById('voiceWaveform').style.display = 'flex';
+  document.getElementById('voiceAmbient').classList.add('active');
+  setVoiceStatus('Listening...');
+}
+
+function stopListening() {
+  voiceState.isListening = false;
+  try { voiceState.recognition.stop(); } catch(e) {}
+
+  var btn = document.getElementById('voiceBtn');
+  btn.classList.remove('listening');
+  document.getElementById('voiceMicIcon').style.display = '';
+  document.getElementById('voiceWaveform').style.display = 'none';
+  if (!voiceState.isSpeaking) {
+    document.getElementById('voiceAmbient').classList.remove('active');
+  }
+  setVoiceStatus('');
+}
+
+// ===== SPEAK =====
+function speak(text, callback) {
+  voiceState.synthesis.cancel();
+  var utterance = new SpeechSynthesisUtterance(text);
+  if (voiceState.preferredVoice) utterance.voice = voiceState.preferredVoice;
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
+  utterance.volume = 0.9;
+
+  voiceState.isSpeaking = true;
+  var btn = document.getElementById('voiceBtn');
+  btn.classList.add('speaking');
+  document.getElementById('voiceAmbient').classList.add('active');
+  setVoiceStatus('Speaking...');
+
+  utterance.onend = function() {
+    voiceState.isSpeaking = false;
+    btn.classList.remove('speaking');
+    document.getElementById('voiceAmbient').classList.remove('active');
+    setVoiceStatus('');
+    if (callback) callback();
+  };
+
+  voiceState.synthesis.speak(utterance);
+}
+
+// ===== STATUS & TRANSCRIPT =====
+function setVoiceStatus(text) {
+  document.getElementById('voiceStatus').textContent = text;
+}
+
+function showTranscript(text, isFinal) {
+  var el = document.getElementById('voiceTranscript');
+  el.style.display = 'block';
+  el.innerHTML = '<span class="vt-label">' + (isFinal ? 'You said' : 'Listening...') + '</span>' + text;
+
+  if (isFinal) {
+    setTimeout(function() { el.style.display = 'none'; }, 4000);
+  }
+}
+
+// ===== COMMAND PARSER (Layer 1 — free, instant) =====
+function handleVoiceCommand(text) {
+  var profile = {};
+  try {
+    var saved = localStorage.getItem('risksim_profile');
+    if (saved) profile = JSON.parse(saved);
+  } catch(e) {}
+
+  // ---- NAVIGATION COMMANDS ----
+  if (matchCommand(text, ['go to map', 'show map', 'open map', 'switch to map', 'show me the map'])) {
+    switchModule('map');
+    speak('Opening the map.');
+    return;
+  }
+  if (matchCommand(text, ['go to audit', 'open audit', 'supplier audit', 'switch to audit', 'show audit'])) {
+    switchModule('audit');
+    speak('Opening Supplier Audit.');
+    return;
+  }
+  if (matchCommand(text, ['go to terminal', 'open terminal', 'switch to terminal', 'show terminal', 'show alerts'])) {
+    switchModule('warroom');
+    speak('Opening Terminal.');
+    return;
+  }
+  if (matchCommand(text, ['go to simulator', 'open simulator', 'switch to simulator', 'run simulation', 'what if'])) {
+    switchModule('simulator');
+    speak('Opening Scenario Simulator.');
+    return;
+  }
+
+  // ---- DATA LOOKUP COMMANDS ----
+  var countryMatch = text.match(/(?:risk|score|risk score).*?(?:for|of|in)\s+(.+?)(?:\s*\?|$)/);
+  if (!countryMatch) countryMatch = text.match(/(.+?)(?:'s)?\s+(?:risk|score)/);
+  if (countryMatch) {
+    var countryName = countryMatch[1].trim();
+    countryName = countryName.replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+    var countryData = COUNTRY_MAP[countryName];
+    if (countryData) {
+      var sourcingScore = (countryData.sourcing && countryData.sourcing[currentCategory]) || 0;
+      speak(countryName + ' has a risk score of ' + countryData.risk + ' out of 100. Shipping cost is ' + countryData.shipping + ' out of 10. Sourcing attractiveness is ' + sourcingScore + ' out of 100.');
+      return;
+    }
+  }
+
+  // Supplier lookup
+  var supplierMatch = text.match(/(?:show|pull up|find|audit|check)\s+(.+?)(?:\s*audit|\s*supplier|\s*$)/);
+  if (supplierMatch) {
+    var supplierName = supplierMatch[1].trim().toLowerCase();
+    var foundSupplier = null;
+    for (var i = 0; i < SUPPLIER_DATA.length; i++) {
+      if (SUPPLIER_DATA[i].name.toLowerCase().indexOf(supplierName) !== -1) {
+        foundSupplier = SUPPLIER_DATA[i];
+        break;
+      }
+    }
+    if (foundSupplier) {
+      switchModule('audit');
+      setTimeout(function() {
+        if (typeof selectSupplier === 'function') selectSupplier(foundSupplier.id);
+      }, 800);
+      speak('Pulling up ' + foundSupplier.name + '. Risk score ' + foundSupplier.riskScore + '.');
+      return;
+    }
+  }
+
+  // ---- STATUS COMMANDS ----
+  if (matchCommand(text, ['any alerts', 'critical alerts', 'any critical', 'any new alerts', 'what alerts', 'status update', 'any risks'])) {
+    var countries = (profile.selectedSourcingCountries || []).slice(0, 3);
+    var countryText = countries.length ? countries.join(', ') : 'your sourcing regions';
+    speak('Checking alerts for ' + countryText + '. There are 6 active alerts, 1 critical. Switch to Terminal for details. Want me to open it?');
+    return;
+  }
+
+  if (matchCommand(text, ['how many countries', 'countries monitored', 'my countries', 'my regions', 'sourcing countries'])) {
+    var sc = profile.selectedSourcingCountries || [];
+    if (sc.length) {
+      speak('You are monitoring ' + sc.length + ' sourcing countries: ' + sc.slice(0, 5).join(', ') + (sc.length > 5 ? ' and ' + (sc.length - 5) + ' more.' : '.'));
+    } else {
+      speak('No sourcing countries set up yet. Open your profile to configure them.');
+    }
+    return;
+  }
+
+  if (matchCommand(text, ['compare', 'compare countries', 'comparison'])) {
+    if (typeof openCompTool === 'function') {
+      switchModule('map');
+      setTimeout(function() { openCompTool(); }, 500);
+      speak('Opening the country comparison tool.');
+    }
+    return;
+  }
+
+  // ---- GREETINGS ----
+  if (matchCommand(text, ['hello', 'hey', 'hi', 'good morning', 'good afternoon', 'good evening'])) {
+    var timeOfDay = new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening';
+    var industry = '';
+    try { industry = profile.userProfile && profile.userProfile.industry ? profile.userProfile.industry : ''; } catch(e) {}
+    speak('Good ' + timeOfDay + '. RiskSim is monitoring your supply chain. ' + (industry ? 'All ' + industry + ' sector indicators are active.' : 'All systems active.') + ' How can I help?');
+    return;
+  }
+
+  // ---- LAYER 2: FALL BACK TO AI ----
+  speak('Let me look into that.');
+  showTranscript('Thinking...', false);
+
+  var profilePayload = {};
+  try {
+    profilePayload = {
+      companyType: (profile.userProfile && profile.userProfile.type) || '',
+      industry: (profile.userProfile && profile.userProfile.industry) || '',
+      sourcingCountries: profile.selectedSourcingCountries || [],
+      revenue: (profile.userProfile && profile.userProfile.revenue) || '',
+      context: (profile.userProfile && profile.userProfile.context) || ''
+    };
+  } catch(e) {}
+
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: text, profile: profilePayload, source: 'voice' })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    var reply = d.reply || d.response || d.error || 'I could not process that request.';
+    var speechText = reply;
+    if (speechText.length > 300) {
+      speechText = speechText.substring(0, 297) + '... Check the screen for the full response.';
+    }
+    showTranscript(reply, true);
+    speak(speechText);
+  })
+  .catch(function(e) {
+    speak('Connection error. Please try again.');
+  });
+}
+
+// ===== HELPER: Match command against list of phrases =====
+function matchCommand(text, phrases) {
+  for (var i = 0; i < phrases.length; i++) {
+    if (text.indexOf(phrases[i]) !== -1) return true;
+  }
+  return false;
+}
+
+// ===== INIT ON LOAD =====
+document.addEventListener('DOMContentLoaded', function() {
+  initVoiceAssistant();
+});
 </script>
 </body>
 </html>
