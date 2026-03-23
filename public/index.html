@@ -1245,7 +1245,7 @@
     }
     .sim-trending-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent); }
     .sim-trending-card:hover { border-color:rgba(255,255,255,0.16); transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,0.5); }
-    .sim-trending-icon { font-size:16px; margin-bottom:8px; display:block; }
+    .sim-trending-icon { font-size:18px; color:rgba(255,255,255,0.5); font-family:'JetBrains Mono',monospace; margin-bottom:8px; display:block; }
     .sim-trending-title { font-size:12px; font-weight:600; color:#fff; margin-bottom:5px; }
     .sim-trending-desc { font-size:10px; color:rgba(255,255,255,0.38); line-height:1.55; }
     .sim-powered-text { font-size:10px; color:rgba(255,255,255,0.15); text-align:center; font-family:'JetBrains Mono',monospace; }
@@ -3155,16 +3155,16 @@ function generateTrendingScenarios(profile){
   var sources=(profile&&profile.sourcingCountries)||['China'];
   var fromChina=sources.indexOf('China')!==-1;
   return[
-    {icon:'🌐',title:fromChina?'US-China Decoupling':'Trade War Escalation',
+    {icon:'◈',title:fromChina?'US-China Decoupling':'Trade War Escalation',
      question:fromChina?'What if the US and China fully decouple and tariffs reach 145%?':'What if your top sourcing markets face simultaneous trade restrictions?',
      desc:fromChina?'Model the impact of complete US-China trade separation on your supply chain':'Simulate cascading trade restriction effects across your sourcing network'},
-    {icon:'📈',title:'Tariff Surge +25%',
+    {icon:'◎',title:'Tariff Surge +25%',
      question:'What if tariffs on primary sourcing countries increase by 25%?',
      desc:'Calculate the landed cost impact of a broad-based tariff escalation across your sourcing regions'},
-    {icon:'🚢',title:'Major Port Shutdown',
+    {icon:'⊟',title:'Major Port Shutdown',
      question:'What if Shanghai port shuts down for 30 days?',
      desc:'Simulate a 30-day closure of a major hub port and its ripple effects on logistics'},
-    {icon:'⚠️',title:'Primary Supplier Failure',
+    {icon:'◇',title:'Primary Supplier Failure',
      question:'What if your primary supplier goes offline for 60 days?',
      desc:'Model the revenue and continuity impact of losing your main supplier for two months'}
   ];
