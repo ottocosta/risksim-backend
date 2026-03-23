@@ -1132,6 +1132,234 @@
       .cf-msg { max-width:90%; }
     }
 
+    /* ===== SIMULATOR MODULE ===== */
+    #simulatorModule {
+      display:none; position:fixed; inset:0; z-index:500;
+      width:100vw; height:100vh; background:#000; overflow:hidden;
+    }
+    .sim-bg {
+      position:absolute; inset:0; z-index:0;
+      background: radial-gradient(ellipse at 20% 70%, rgba(255,255,255,0.016) 0%, transparent 55%),
+                  radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.01) 0%, transparent 50%), #000;
+    }
+    .sim-scanline {
+      position:absolute; inset:0; z-index:1; pointer-events:none;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.01) 2px,rgba(255,255,255,0.01) 4px);
+    }
+    /* Paywall */
+    #simPaywall {
+      position:absolute; inset:0; z-index:200;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.88); backdrop-filter:blur(20px);
+      transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+    #simPaywall.sim-pw-hiding { opacity:0; pointer-events:none; }
+    /* Main */
+    #simMain {
+      position:relative; z-index:10; display:flex; flex-direction:column; height:100vh;
+      opacity:0; transition:opacity 0.6s ease;
+    }
+    #simMain.sim-loaded { opacity:1; }
+    /* Topbar */
+    .sim-topbar {
+      position:absolute; top:0; left:0; right:0; z-index:50;
+      display:flex; align-items:center; justify-content:space-between; padding:14px 24px;
+      background:rgba(0,0,0,0.5); backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0;
+    }
+    .sim-topbar-brand { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.25em; color:rgba(255,255,255,0.35); text-transform:uppercase; }
+    .sim-topbar-brand span { color:#fff; }
+    .sim-topbar-right { display:flex; align-items:center; gap:16px; }
+    .sim-topbar-status { display:flex; align-items:center; gap:8px; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.12em; color:rgba(255,255,255,0.3); text-transform:uppercase; }
+    #simStatusDot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all 0.4s; flex-shrink:0; }
+    #simStatusDot.active { background:#fff; box-shadow:0 0 8px #fff; animation:rsBlink 1.5s infinite; }
+    .sim-compare-toggle {
+      padding:5px 12px; border-radius:7px; border:1px solid rgba(255,255,255,0.1);
+      background:transparent; color:rgba(255,255,255,0.35); font-family:'JetBrains Mono',monospace;
+      font-size:9px; letter-spacing:0.1em; cursor:pointer; transition:all 0.25s; text-transform:uppercase;
+    }
+    .sim-compare-toggle:hover { border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); }
+    .sim-compare-toggle.active { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.2); color:#fff; }
+    /* Body layout */
+    .sim-body { display:flex; flex:1; overflow:hidden; padding-top:49px; height:100vh; }
+    /* Sidebar */
+    .sim-sidebar {
+      width:260px; min-width:260px; display:flex; flex-direction:column;
+      border-right:1px solid rgba(255,255,255,0.06); overflow:hidden; height:100%;
+    }
+    .sim-new-btn {
+      margin:14px 12px 10px; padding:10px; border-radius:10px;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+      color:#fff; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em;
+      text-transform:uppercase; cursor:pointer; transition:all 0.25s; text-align:center;
+    }
+    .sim-new-btn:hover { background:rgba(255,255,255,0.09); border-color:rgba(255,255,255,0.2); }
+    .sim-sidebar-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.2); text-transform:uppercase; padding:0 14px; margin-bottom:6px; }
+    .sim-scenario-list { flex:1; overflow-y:auto; padding:0 10px 10px; }
+    .sim-scenario-list::-webkit-scrollbar { width:3px; }
+    .sim-scenario-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:3px; }
+    .sim-scenario-item {
+      padding:10px 11px; border-radius:9px; cursor:pointer; margin-bottom:3px;
+      border:1px solid transparent; transition:all 0.2s;
+    }
+    .sim-scenario-item:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.07); }
+    .sim-scenario-item.active { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.12); border-left:2px solid #fff; }
+    .sim-scenario-q { font-size:11px; color:rgba(255,255,255,0.6); margin-bottom:4px; line-height:1.45; }
+    .sim-scenario-item.active .sim-scenario-q { color:#fff; }
+    .sim-scenario-meta { font-family:'JetBrains Mono',monospace; font-size:8px; color:rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:space-between; }
+    .sim-scenario-delta { font-size:9px; font-weight:700; }
+    .sim-scenario-delta.up { color:rgba(255,80,80,0.8); }
+    .sim-scenario-delta.down { color:rgba(100,255,140,0.8); }
+    /* Center area */
+    .sim-center { flex:1; display:flex; flex-direction:column; overflow:hidden; position:relative; }
+    .sim-center-scroll { flex:1; overflow-y:auto; padding:0 28px 32px; }
+    .sim-center-scroll::-webkit-scrollbar { width:3px; }
+    .sim-center-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:3px; }
+    /* Empty state */
+    #simEmptyState { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:calc(100vh - 100px); padding:40px; }
+    .sim-input-container { width:100%; max-width:640px; margin:0 auto 28px; }
+    .sim-input-wrap {
+      display:flex; align-items:center; gap:10px;
+      background:rgba(255,255,255,0.04); backdrop-filter:blur(60px) saturate(200%);
+      -webkit-backdrop-filter:blur(60px) saturate(200%);
+      border:1px solid rgba(255,255,255,0.12); border-radius:16px;
+      padding:14px 16px 14px 20px; position:relative;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.15), 0 12px 48px rgba(0,0,0,0.5);
+      transition:border-color 0.3s, box-shadow 0.3s;
+    }
+    .sim-input-wrap::before { content:''; position:absolute; top:0; left:20px; right:20px; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent); }
+    .sim-input-wrap:focus-within { border-color:rgba(255,255,255,0.25); box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 12px 48px rgba(0,0,0,0.6),0 0 30px rgba(255,255,255,0.04); }
+    #simInput,#simInputPinned { flex:1; background:transparent; border:none; outline:none; color:#fff; font-size:16px; font-family:'Inter',sans-serif; }
+    #simInput::placeholder,#simInputPinned::placeholder { color:rgba(255,255,255,0.25); }
+    .sim-send {
+      width:38px; height:38px; border-radius:10px; background:#fff; border:none;
+      color:#000; font-size:16px; font-weight:700; cursor:pointer; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; transition:all 0.2s;
+    }
+    .sim-send:hover { background:#e8e8e8; transform:scale(1.05); }
+    .sim-empty-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:14px; text-align:center; width:100%; max-width:640px; }
+    .sim-trending-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:640px; margin-bottom:16px; }
+    .sim-trending-card {
+      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px; padding:14px; cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden;
+    }
+    .sim-trending-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent); }
+    .sim-trending-card:hover { border-color:rgba(255,255,255,0.16); transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,0.5); }
+    .sim-trending-icon { font-size:16px; margin-bottom:8px; display:block; }
+    .sim-trending-title { font-size:12px; font-weight:600; color:#fff; margin-bottom:5px; }
+    .sim-trending-desc { font-size:10px; color:rgba(255,255,255,0.38); line-height:1.55; }
+    .sim-powered-text { font-size:10px; color:rgba(255,255,255,0.15); text-align:center; font-family:'JetBrains Mono',monospace; }
+    /* Pinned input */
+    .sim-input-pinned { padding:16px 28px 0; flex-shrink:0; }
+    /* Progress */
+    .sim-progress-panel {
+      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+      border-radius:14px; padding:22px; margin-bottom:18px; display:none;
+    }
+    .sim-progress-panel.visible { display:block; }
+    .sim-progress-title { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:16px; }
+    .sim-step { display:flex; align-items:center; gap:11px; font-size:12px; color:rgba(255,255,255,0.22); transition:all 0.4s; margin-bottom:10px; }
+    .sim-step.active { color:rgba(255,255,255,0.85); }
+    .sim-step.done { color:rgba(255,255,255,0.4); }
+    .sim-step-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.1); flex-shrink:0; transition:all 0.4s; }
+    .sim-step.active .sim-step-dot { background:#fff; box-shadow:0 0 8px rgba(255,255,255,0.8); animation:rsBlink 1s infinite; }
+    .sim-step.done .sim-step-dot { background:rgba(255,255,255,0.35); }
+    /* Result cards */
+    .sim-results { display:none; }
+    .sim-results.visible { display:block; }
+    @keyframes simCardIn { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
+    .sim-card {
+      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+      border-radius:14px; padding:20px; margin-bottom:14px; position:relative; overflow:hidden;
+      animation:simCardIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .sim-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent); }
+    .sim-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .sim-card-title { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.35); text-transform:uppercase; }
+    .sim-card-action { padding:5px 12px; border-radius:7px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:rgba(255,255,255,0.45); font-size:10px; cursor:pointer; transition:all 0.2s; font-family:'JetBrains Mono',monospace; }
+    .sim-card-action:hover { border-color:rgba(255,255,255,0.2); color:#fff; }
+    .sim-scenario-question { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; color:#fff; margin-bottom:12px; line-height:1.3; }
+    .sim-summary-text { font-size:13px; color:rgba(255,255,255,0.65); line-height:1.8; font-family:'Inter',sans-serif; }
+    /* Cost impact */
+    .sim-cost-cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .sim-cost-col-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.15em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:12px; }
+    .sim-cost-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .sim-cost-row:last-of-type { border-bottom:none; }
+    .sim-cost-lbl { font-size:11px; color:rgba(255,255,255,0.45); }
+    .sim-cost-val { font-family:'JetBrains Mono',monospace; font-size:12px; color:#fff; }
+    .sim-cost-change { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; margin-left:5px; }
+    .sim-cost-change.pos { color:rgba(255,80,80,0.9); }
+    .sim-cost-change.neg { color:rgba(100,255,140,0.9); }
+    .sim-cost-bar { height:3px; border-radius:3px; background:rgba(255,255,255,0.05); overflow:hidden; margin-top:5px; }
+    .sim-cost-bar-fill { height:100%; border-radius:3px; transition:width 1.2s ease; width:0; }
+    .sim-cost-bar-fill.current { background:rgba(255,255,255,0.3); }
+    .sim-cost-bar-fill.worse { background:rgba(255,80,80,0.7); }
+    .sim-cost-bar-fill.better { background:rgba(100,255,140,0.6); }
+    /* Risk circles */
+    .sim-risk-circles { display:flex; align-items:center; justify-content:center; gap:32px; margin-bottom:20px; }
+    .sim-risk-circle-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; }
+    .sim-risk-circle-inner { position:relative; width:78px; height:78px; }
+    .sim-risk-circle-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.15em; color:rgba(255,255,255,0.3); text-transform:uppercase; }
+    .sim-risk-delta { display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .sim-risk-delta-val { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; }
+    .sim-risk-delta-val.worse { color:rgba(255,80,80,0.9); }
+    .sim-risk-delta-val.better { color:rgba(100,255,140,0.9); }
+    .sim-risk-delta-lbl { font-family:'JetBrains Mono',monospace; font-size:8px; color:rgba(255,255,255,0.28); letter-spacing:0.1em; text-transform:uppercase; }
+    .sim-sub-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    /* Timeline chart */
+    .sim-chart-wrap { width:100%; height:200px; margin-bottom:12px; }
+    svg.sim-chart { width:100%; height:100%; }
+    .sim-chart-insight { font-size:11px; color:rgba(255,255,255,0.4); text-align:center; font-style:italic; }
+    /* Flow diagram */
+    .sim-flow { display:flex; align-items:center; justify-content:center; gap:0; padding:20px 0; overflow-x:auto; }
+    .sim-flow-node { display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0; }
+    .sim-flow-circle {
+      width:64px; height:64px; border-radius:50%;
+      border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04);
+      display:flex; align-items:center; justify-content:center; font-size:22px; transition:all 0.3s;
+    }
+    .sim-flow-circle.affected { border-color:rgba(255,80,80,0.4); box-shadow:0 0 20px rgba(255,80,80,0.15); }
+    .sim-flow-circle.partial { border-color:rgba(255,200,60,0.4); box-shadow:0 0 20px rgba(255,200,60,0.12); }
+    .sim-flow-label { font-family:'JetBrains Mono',monospace; font-size:8px; color:rgba(255,255,255,0.35); letter-spacing:0.08em; text-transform:uppercase; text-align:center; }
+    .sim-flow-connector { width:48px; height:2px; flex-shrink:0; margin-bottom:22px; }
+    .sim-flow-connector.ok { background:rgba(255,255,255,0.12); }
+    .sim-flow-connector.disrupted { background-image:repeating-linear-gradient(90deg,rgba(255,80,80,0.6) 0,rgba(255,80,80,0.6) 6px,transparent 6px,transparent 12px); }
+    .sim-flow-placeholder { font-size:9px; color:rgba(255,255,255,0.15); text-align:center; margin-top:8px; font-family:'JetBrains Mono',monospace; font-style:italic; }
+    /* Recommendations */
+    .sim-rec-cards { display:flex; flex-direction:column; gap:10px; }
+    .sim-rec-card { display:flex; gap:16px; padding:14px 16px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); transition:all 0.2s; }
+    .sim-rec-card:hover { border-color:rgba(255,255,255,0.12); transform:translateY(-1px); }
+    .sim-rec-num { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:rgba(255,255,255,0.08); flex-shrink:0; line-height:1; }
+    .sim-rec-body { flex:1; }
+    .sim-rec-title { font-size:13px; font-weight:600; color:#fff; margin-bottom:5px; }
+    .sim-rec-desc { font-size:11px; color:rgba(255,255,255,0.45); line-height:1.6; margin-bottom:8px; }
+    .sim-rec-tags { display:flex; gap:6px; flex-wrap:wrap; }
+    .sim-rec-tag { padding:3px 9px; border-radius:999px; font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.06em; border:1px solid rgba(255,200,60,0.2); color:rgba(255,200,60,0.8); }
+    /* Toast */
+    .sim-toast {
+      position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(16px);
+      background:rgba(20,20,20,0.95); backdrop-filter:blur(40px);
+      border:1px solid rgba(255,255,255,0.15); border-radius:10px;
+      padding:10px 20px; font-size:12px; color:#fff;
+      z-index:10000; opacity:0; transition:all 0.35s cubic-bezier(0.16,1,0.3,1); pointer-events:none; white-space:nowrap;
+    }
+    .sim-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    /* Compare */
+    .sim-compare-cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:20px 28px; overflow-y:auto; flex:1; }
+    .sim-compare-col { display:flex; flex-direction:column; gap:12px; }
+    .sim-compare-header-q { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#fff; padding:12px 0 10px; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:2px; }
+    .sim-compare-back { padding:6px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:rgba(255,255,255,0.5); font-family:'JetBrains Mono',monospace; font-size:9px; cursor:pointer; transition:all 0.2s; letter-spacing:0.08em; }
+    .sim-compare-back:hover { color:#fff; border-color:rgba(255,255,255,0.2); }
+    /* Mobile */
+    @media (max-width:768px) {
+      .sim-sidebar { display:none; }
+      .sim-sub-metrics { grid-template-columns:repeat(2,1fr); }
+      .sim-cost-cols { grid-template-columns:1fr; }
+      .sim-trending-grid { grid-template-columns:1fr; }
+      .sim-compare-cols { grid-template-columns:1fr; }
+      .sim-center-scroll { padding:0 16px 32px; }
+      .sim-input-pinned { padding:16px 16px 0; }
+    }
   </style>
 </head>
 <body>
@@ -1181,6 +1409,9 @@ window.addEventListener('keydown',__handleIntroKey,true);
   </button>
   <button class="rs-nav-btn" onclick="switchModule('warroom')">
     <span class="rs-nav-mod">SYS_03</span>Terminal
+  </button>
+  <button class="rs-nav-btn" id="navMod04" onclick="switchModule('simulator')">
+    <span class="rs-nav-mod">SYS_04</span>Simulator
   </button>
 </nav>
 
@@ -1396,6 +1627,95 @@ window.addEventListener('keydown',__handleIntroKey,true);
             <div id="amSummaryText"></div>
           </div>
           <div class="am-alternatives" id="amAlternatives"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SIMULATOR MODULE ===== -->
+<section id="simulatorModule">
+  <div class="sim-bg"></div>
+  <div class="sim-scanline"></div>
+  <!-- Paywall -->
+  <div id="simPaywall">
+    <div class="am-pw-card">
+      <div class="am-pw-badge"><span class="am-pw-badge-dot"></span>Scenario Intelligence</div>
+      <div class="am-pw-title">SIMULATOR ACCESS REQUIRED</div>
+      <p class="am-pw-sub">The Scenario Simulator is a premium modeling engine. Run what-if scenarios to project cost impact, risk score changes, and supply chain disruptions before they happen.</p>
+      <div class="am-pw-features">
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◈</span>What-If Modeling</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◎</span>Cost Projections</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">⊟</span>Risk Forecasting</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◇</span>Comparative Analysis</div>
+      </div>
+      <div class="am-pw-actions">
+        <button class="am-pw-subscribe" onclick="window.open('#pricing','_blank')">Subscribe — Enterprise</button>
+        <button class="am-pw-skip" onclick="bypassSimulatorPaywall()">Skip for Now</button>
+      </div>
+    </div>
+  </div>
+  <!-- Main Interface -->
+  <div id="simMain">
+    <!-- Topbar -->
+    <div class="sim-topbar">
+      <div class="sim-topbar-brand"><span>RiskSim</span> / Scenario Simulator</div>
+      <div class="sim-topbar-right">
+        <button class="sim-compare-toggle" id="simCompareToggle" onclick="toggleSimCompare()">⊞ Compare Mode</button>
+        <div class="sim-topbar-status">
+          <div id="simStatusDot"></div>
+          <span id="simStatusText">Ready</span>
+        </div>
+      </div>
+    </div>
+    <!-- Body -->
+    <div class="sim-body">
+      <!-- Left Sidebar -->
+      <div class="sim-sidebar">
+        <button class="sim-new-btn" onclick="showSimEmpty()">+ New Scenario</button>
+        <div class="sim-sidebar-label">Past Scenarios</div>
+        <div class="sim-scenario-list" id="simScenarioList">
+          <div style="padding:12px 4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.18);letter-spacing:0.08em;">No scenarios yet</div>
+        </div>
+      </div>
+      <!-- Center -->
+      <div class="sim-center">
+        <!-- Empty state (default) -->
+        <div id="simEmptyState" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 100px);padding:40px;">
+          <div class="sim-input-container">
+            <div class="sim-input-wrap">
+              <input type="text" id="simInput" placeholder="What if..." autocomplete="off" onkeydown="if(event.key==='Enter')submitSimScenario()" />
+              <button class="sim-send" onclick="submitSimScenario()">→</button>
+            </div>
+          </div>
+          <div class="sim-empty-label">Trending Scenarios</div>
+          <div class="sim-trending-grid" id="simTrendingGrid"></div>
+          <div class="sim-powered-text">Powered by AI · Results are simulated projections</div>
+        </div>
+        <!-- Analysis view (shown after submit) -->
+        <div id="simAnalysisView" style="display:none;flex-direction:column;height:100%;">
+          <div class="sim-input-pinned">
+            <div class="sim-input-wrap">
+              <input type="text" id="simInputPinned" placeholder="What if..." autocomplete="off" onkeydown="if(event.key==='Enter')submitSimScenarioFromPinned()" />
+              <button class="sim-send" onclick="submitSimScenarioFromPinned()">→</button>
+            </div>
+          </div>
+          <div class="sim-center-scroll" id="simCenterScroll">
+            <div style="height:16px;"></div>
+            <div class="sim-progress-panel" id="simProgressPanel">
+              <div class="sim-progress-title">Initializing Scenario Analysis</div>
+              <div id="simProgressSteps"></div>
+            </div>
+            <div class="sim-results" id="simResults"></div>
+          </div>
+        </div>
+        <!-- Compare view -->
+        <div id="simCompareView" style="display:none;flex-direction:column;flex:1;">
+          <div style="padding:14px 28px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:14px;flex-shrink:0;">
+            <button class="sim-compare-back" onclick="exitSimCompare()">← Single View</button>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.28);letter-spacing:0.1em;text-transform:uppercase;">Comparing 2 most recent scenarios</span>
+          </div>
+          <div class="sim-compare-cols" id="simCompareCols"></div>
         </div>
       </div>
     </div>
@@ -1949,18 +2269,15 @@ var AM_STEPS=['Reviewing supplier history & registration records','Scanning regu
 function switchModule(mod){
   var mapEls=['mapContainer','heroPanel','layerControls','countrySearch','chatPanel','chatMessages','onboardingPanel'];
   var mapFixed=document.querySelectorAll('.map-overlay-header,.map-legend');
-  mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
-  for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='none';
-  document.getElementById('auditModule').style.display='none';
-  
-  // Update nav buttons
+  // Hide all modules; terminal JS fully overrides this function below
   var btns=document.querySelectorAll('#rsNav .rs-nav-btn');
   btns.forEach(function(b){b.classList.remove('active');});
-
+  var am=document.getElementById('auditModule');if(am)am.style.display='none';
+  var sim=document.getElementById('simulatorModule');if(sim)sim.style.display='none';
+  mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='none';
   if(mod==='audit'){
-    var am=document.getElementById('auditModule');
-    if(!am){console.error('auditModule not found');return;}
-    am.style.display='flex';am.style.flexDirection='column';
+    if(am){am.style.display='flex';am.style.flexDirection='column';}
     if(!localStorage.getItem('am_paywall_bypassed')){
       document.getElementById('amPaywall').style.display='flex';
     }else{
@@ -1969,12 +2286,6 @@ function switchModule(mod){
       renderAMSupplierList();
     }
     if(btns[1])btns[1].classList.add('active');
-  }else if(mod==='warroom'){
-    mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});
-    for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='';
-    if(map)map.invalidateSize();
-    if(btns[2])btns[2].classList.add('active');
-    alert('Terminal module coming soon.');
   }else{
     mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='';});
     for(var i=0;i<mapFixed.length;i++)mapFixed[i].style.display='';
@@ -2190,8 +2501,10 @@ function switchModule(name){
   // Hide all
   mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   overlays.forEach(function(el){el.style.display='none';});
+  var sim=document.getElementById('simulatorModule');
   if(wr)wr.style.display='none';
   if(am)am.style.display='none';
+  if(sim)sim.style.display='none';
   if(oldNav)oldNav.style.display='none';
   for(var i=0;i<navBtns.length;i++)navBtns[i].classList.remove('active');
 
@@ -2217,6 +2530,16 @@ function switchModule(name){
       }
     }
     if(navBtns[2])navBtns[2].classList.add('active');
+  }else if(name==='simulator'){
+    if(sim){sim.style.display='flex';sim.style.flexDirection='column';}
+    if(!localStorage.getItem('simulator_paywall_bypassed')){
+      var sp=document.getElementById('simPaywall');if(sp)sp.style.display='flex';
+    }else{
+      var sp=document.getElementById('simPaywall');if(sp)sp.style.display='none';
+      var sm=document.getElementById('simMain');if(sm)sm.classList.add('sim-loaded');
+      if(typeof initSimulatorData==='function')initSimulatorData();
+    }
+    if(navBtns[3])navBtns[3].classList.add('active');
   }
 }
 
@@ -2745,7 +3068,481 @@ function analyzeAlert(title,desc){
   var msg='[Alert Analysis] '+title+': '+desc;
   openChatFullscreen(msg,'terminal');
 }
+</script>
 
+<!-- ===== SIMULATOR MODULE JS ===== -->
+<script>
+var SIM_STEPS=['Parsing scenario parameters...','Loading supply chain model...','Calculating cost impact projections...','Modeling risk score changes...','Generating timeline forecast...','Building comparative analysis...','Compiling executive summary...'];
+var simCurrentScenarioId=null,simCompareMode=false;
+
+function bypassSimulatorPaywall(){
+  localStorage.setItem('simulator_paywall_bypassed','1');
+  var pw=document.getElementById('simPaywall');
+  pw.classList.add('sim-pw-hiding');
+  setTimeout(function(){
+    pw.style.display='none';pw.classList.remove('sim-pw-hiding');
+    document.getElementById('simMain').classList.add('sim-loaded');
+    initSimulatorData();
+  },600);
+}
+
+function initSimulatorData(){
+  loadSimScenarios();
+  renderSimTrending();
+}
+
+function getSimProfile(){
+  try{var s=localStorage.getItem('risksim_profile');if(s){var d=JSON.parse(s);return d.userProfile||{};}}catch(e){}return{};
+}
+function getSimScenarios(){
+  try{var s=localStorage.getItem('risksim_scenarios');if(s){var d=JSON.parse(s);return d.scenarios||[];}}catch(e){}return[];
+}
+function saveSimScenariosList(scenarios){
+  try{localStorage.setItem('risksim_scenarios',JSON.stringify({scenarios:scenarios}));}catch(e){}
+}
+function saveSimScenario(question,results){
+  var scenarios=getSimScenarios();
+  var id='sim_'+Date.now();
+  var delta=results.riskProjected-results.riskCurrent;
+  scenarios.unshift({id:id,question:question,createdAt:Date.now(),delta:delta,results:results});
+  if(scenarios.length>20)scenarios=scenarios.slice(0,20);
+  saveSimScenariosList(scenarios);
+  return id;
+}
+
+function loadSimScenarios(){
+  var scenarios=getSimScenarios();
+  var list=document.getElementById('simScenarioList');if(!list)return;
+  if(!scenarios.length){list.innerHTML='<div style="padding:12px 4px;font-family:\'JetBrains Mono\',monospace;font-size:9px;color:rgba(255,255,255,0.18);letter-spacing:0.08em;">No scenarios yet</div>';return;}
+  list.innerHTML=scenarios.map(function(s){
+    var dSign=s.delta>=0?'+':'';var dCls=s.delta>=0?'up':'down';
+    var date=new Date(s.createdAt);var ds=date.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    var q=s.question.length>52?s.question.slice(0,52)+'...':s.question;
+    return'<div class="sim-scenario-item'+(simCurrentScenarioId===s.id?' active':'')+'" onclick="loadSimScenario(\''+s.id+'\')">'
+      +'<div class="sim-scenario-q">'+q+'</div>'
+      +'<div class="sim-scenario-meta"><span>'+ds+'</span><span class="sim-scenario-delta '+dCls+'">'+dSign+s.delta+'</span></div></div>';
+  }).join('');
+}
+
+function loadSimScenario(id){
+  var sc=getSimScenarios().find(function(s){return s.id===id;});if(!sc)return;
+  simCurrentScenarioId=id;loadSimScenarios();
+  showSimAnalysisView(sc.question,sc.results,false);
+}
+
+function showSimEmpty(){
+  simCurrentScenarioId=null;
+  document.getElementById('simEmptyState').style.cssText='display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 100px);padding:40px;';
+  document.getElementById('simAnalysisView').style.display='none';
+  document.getElementById('simCompareView').style.display='none';
+  loadSimScenarios();
+}
+
+function renderSimTrending(){
+  var grid=document.getElementById('simTrendingGrid');if(!grid)return;
+  var profile=getSimProfile();
+  var scenarios=generateTrendingScenarios(profile);
+  grid.innerHTML=scenarios.map(function(sc){
+    var q=sc.question.replace(/'/g,"\\'");
+    return'<div class="sim-trending-card" onclick="quickSubmitSim(\''+q+'\')">'
+      +'<span class="sim-trending-icon">'+sc.icon+'</span>'
+      +'<div class="sim-trending-title">'+sc.title+'</div>'
+      +'<div class="sim-trending-desc">'+sc.desc+'</div></div>';
+  }).join('');
+}
+
+function generateTrendingScenarios(profile){
+  var sources=(profile&&profile.sourcingCountries)||['China'];
+  var fromChina=sources.indexOf('China')!==-1;
+  return[
+    {icon:'🌐',title:fromChina?'US-China Decoupling':'Trade War Escalation',
+     question:fromChina?'What if the US and China fully decouple and tariffs reach 145%?':'What if your top sourcing markets face simultaneous trade restrictions?',
+     desc:fromChina?'Model the impact of complete US-China trade separation on your supply chain':'Simulate cascading trade restriction effects across your sourcing network'},
+    {icon:'📈',title:'Tariff Surge +25%',
+     question:'What if tariffs on primary sourcing countries increase by 25%?',
+     desc:'Calculate the landed cost impact of a broad-based tariff escalation across your sourcing regions'},
+    {icon:'🚢',title:'Major Port Shutdown',
+     question:'What if Shanghai port shuts down for 30 days?',
+     desc:'Simulate a 30-day closure of a major hub port and its ripple effects on logistics'},
+    {icon:'⚠️',title:'Primary Supplier Failure',
+     question:'What if your primary supplier goes offline for 60 days?',
+     desc:'Model the revenue and continuity impact of losing your main supplier for two months'}
+  ];
+}
+
+function quickSubmitSim(question){
+  var inp=document.getElementById('simInput');if(inp)inp.value=question;
+  showSimAnalysisView(question,null,true);
+}
+function submitSimScenario(){
+  var inp=document.getElementById('simInput');var q=inp?inp.value.trim():'';if(!q)return;
+  showSimAnalysisView(q,null,true);
+}
+function submitSimScenarioFromPinned(){
+  var inp=document.getElementById('simInputPinned');var q=inp?inp.value.trim():'';if(!q)return;
+  showSimAnalysisView(q,null,true);
+}
+
+function showSimAnalysisView(question,results,runAnalysis){
+  document.getElementById('simEmptyState').style.display='none';
+  var av=document.getElementById('simAnalysisView');
+  av.style.cssText='display:flex;flex-direction:column;height:100%;';
+  document.getElementById('simCompareView').style.display='none';
+  var pinned=document.getElementById('simInputPinned');if(pinned)pinned.value=question;
+  if(runAnalysis){
+    document.getElementById('simResults').innerHTML='';
+    document.getElementById('simResults').classList.remove('visible');
+    runSimProgress(question);
+  }else if(results){
+    document.getElementById('simProgressPanel').classList.remove('visible');
+    renderSimResults(results,question);
+  }
+}
+
+function runSimProgress(question){
+  var pp=document.getElementById('simProgressPanel');
+  var stepsEl=document.getElementById('simProgressSteps');if(!pp||!stepsEl)return;
+  document.getElementById('simStatusDot').classList.add('active');
+  document.getElementById('simStatusText').textContent='Simulating...';
+  document.getElementById('simResults').classList.remove('visible');
+  document.getElementById('simResults').innerHTML='';
+  pp.classList.add('visible');
+  stepsEl.innerHTML=SIM_STEPS.map(function(step,i){
+    return'<div class="sim-step" id="simstep-'+i+'"><div class="sim-step-dot"></div><span>'+step+'</span></div>';
+  }).join('');
+  var delay=0;
+  for(var i=0;i<SIM_STEPS.length;i++){
+    (function(idx){
+      setTimeout(function(){
+        if(idx>0){var prev=document.getElementById('simstep-'+(idx-1));if(prev){prev.classList.remove('active');prev.classList.add('done');}}
+        var el=document.getElementById('simstep-'+idx);if(el)el.classList.add('active');
+      },delay);
+    })(i);
+    delay+=850+Math.floor(Math.random()*350);
+  }
+  setTimeout(function(){
+    var last=document.getElementById('simstep-'+(SIM_STEPS.length-1));
+    if(last){last.classList.remove('active');last.classList.add('done');}
+    setTimeout(function(){
+      pp.classList.remove('visible');
+      document.getElementById('simStatusDot').classList.remove('active');
+      document.getElementById('simStatusText').textContent='Analysis complete';
+      var results=generateScenarioResults(question);
+      var id=saveSimScenario(question,results);
+      simCurrentScenarioId=id;
+      loadSimScenarios();
+      renderSimResults(results,question);
+      var scroll=document.getElementById('simCenterScroll');if(scroll)scroll.scrollTop=0;
+    },350);
+  },delay+200);
+}
+
+function generateScenarioResults(question){
+  var q=question.toLowerCase();
+  var profile=getSimProfile();
+  var industry=profile.industry||'technology';
+  var sources=profile.sourcingCountries||['China'];
+  var hasTariff=/tariff|duty|trade tax|levy/.test(q);
+  var hasPort=/port|ship|shipping|maritime/.test(q);
+  var hasSupplier=/supplier|vendor|manufacturer|factory|offline|failure/.test(q);
+  var hasChina=/china|chinese/.test(q);
+  var hasDecouple=/decouple|decoupling|separate|ban|restriction/.test(q);
+  var hasNeg=/increase|surge|rise|up|hike|shutdown|close|fail|offline|loss|cut/.test(q);
+  var pctMatch=q.match(/(\d+)\s*%/);var pct=pctMatch?parseInt(pctMatch[1]):25;
+  var magnitude=Math.min(pct/100,0.55);
+  if(hasDecouple)magnitude=Math.max(magnitude,0.40);
+  if(hasPort)magnitude=Math.max(magnitude,0.25);
+  if(hasSupplier)magnitude=Math.max(magnitude,0.30);
+  var neg=hasNeg||hasTariff||hasPort||hasDecouple||hasSupplier;
+  var baseSourcing=industry==='automotive'?18.5:industry==='pharma'?8.2:industry==='textiles'?2.4:industry==='food'?3.6:5.8;
+  var costDelta=neg?(magnitude*0.55+0.04):-(magnitude*0.25);
+  var tariffDelta=hasTariff?(pct*0.01):(neg?magnitude*0.28:-magnitude*0.08);
+  var shippingDelta=hasPort?(0.35+magnitude*0.85):(neg?magnitude*0.22:-magnitude*0.05);
+  var leadDelta=hasPort?(18+Math.round(magnitude*22)):(neg?Math.round(magnitude*12):-Math.round(magnitude*5));
+  var currentRisk=42;
+  var riskChange=neg?Math.round(magnitude*32+6):-Math.round(magnitude*13+2);
+  var projectedRisk=Math.min(95,Math.max(5,currentRisk+riskChange));
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var now=new Date();var sm=now.getMonth();
+  var baseline=[],scenario=[];
+  for(var i=0;i<12;i++){
+    baseline.push(40+Math.sin(i*0.4)*3+Math.random()*2-1);
+    var impact=i<3?(i/3)*riskChange:i<8?riskChange*(1-(i-3)*0.055):riskChange*(0.68-(i-8)*0.06);
+    scenario.push(40+impact+Math.sin(i*0.4)*2.5+Math.random()*2-1);
+  }
+  var peakMon=months[(sm+3)%12],stabMon=months[(sm+8)%12];
+  var flowAffected=hasPort?[2,3]:hasSupplier?[0,1]:hasChina||hasDecouple?[0,1,2]:neg?[1,2]:[];
+  return{
+    question:question,
+    summary:generateSimSummary(question,neg,costDelta,riskChange,industry,sources,hasTariff,hasPort,hasSupplier,hasChina,hasDecouple,pct),
+    currentSourcing:'$'+baseSourcing.toFixed(1)+'M',
+    projectedSourcing:'$'+(baseSourcing*(1+costDelta)).toFixed(1)+'M',
+    currentTariff:'8%',projectedTariff:Math.round(8+tariffDelta*100)+'%',
+    currentShipping:'100',projectedShipping:Math.round(100+shippingDelta*100)+'',
+    currentLead:'32 days',projectedLead:Math.round(32+leadDelta)+' days',
+    costBetter:!neg,
+    riskCurrent:currentRisk,riskProjected:projectedRisk,riskDelta:(riskChange>=0?'+':'')+riskChange,
+    fraudCurrent:28,fraudProjected:Math.min(95,28+(neg?Math.round(magnitude*16+3):-Math.round(magnitude*7))),
+    stabilityCurrent:72,stabilityProjected:Math.max(5,72+(neg?-Math.round(magnitude*20+4):Math.round(magnitude*9))),
+    reliabilityCurrent:68,reliabilityProjected:Math.max(5,68+((hasPort||hasSupplier)?-Math.round(magnitude*28+8):(neg?-Math.round(magnitude*13):Math.round(magnitude*7)))),
+    complianceCurrent:74,complianceProjected:Math.max(5,74+(hasDecouple?-Math.round(magnitude*18):(neg?-Math.round(magnitude*9):Math.round(magnitude*5)))),
+    timeline:{baseline:baseline,scenario:scenario,peakMonth:peakMon,stabilizeMonth:stabMon,neg:neg},
+    flowAffected:flowAffected,
+    recs:generateSimRecs(hasTariff,hasPort,hasSupplier,hasChina,hasDecouple,neg,industry)
+  };
+}
+
+function generateSimSummary(question,neg,costDelta,riskChange,industry,sources,hasTariff,hasPort,hasSupplier,hasChina,hasDecouple,pct){
+  var costPct=Math.abs(Math.round(costDelta*100));
+  var dir=neg?'increase':'decrease';
+  var rDir=neg?'escalate':'improve';
+  var srcList=(sources||['China']).slice(0,3).join(', ');
+  if(hasDecouple&&hasChina)return'A full US-China decoupling scenario represents the most significant structural disruption to global '+industry+' supply chains in modern history. Based on your sourcing profile with exposure to '+srcList+', this scenario triggers a '+costPct+'% increase in total sourcing costs as near-shore and friend-shore alternatives command significant premiums. Lead times extend by 3–8 weeks as new supplier relationships are established, and compliance costs rise due to new documentation requirements. Risk scores are projected to '+rDir+' by approximately '+Math.abs(riskChange)+' points, driven by transition uncertainty and geopolitical exposure concentration. Impact peaks in months 2–4, with stabilization beginning around month 8 as alternative supply chains mature. Immediate diversification planning into Vietnam, India, and Mexico is strongly recommended.';
+  if(hasTariff)return'This tariff escalation scenario has material impact on your '+industry+' procurement economics. With sourcing concentration in '+srcList+', the modeled '+pct+'% tariff change translates to an approximate '+costPct+'% shift in total landed costs. Pass-through to end customers is expected at 40–60% given competitive market dynamics, compressing margins in the short term. Risk scores are projected to '+rDir+' by '+Math.abs(riskChange)+' points, primarily from financial pressure on supply chain partners who face their own cost squeezes. Mitigation through tariff engineering, duty drawback programs, and accelerated supplier qualification in unaffected regions can reduce exposure by 30–45%. Stabilization typically occurs within 6–9 months as the market reprices.';
+  if(hasPort)return'A major port disruption scenario creates immediate and severe ripple effects through your '+industry+' logistics network. With supply chains routed through high-concentration maritime corridors, a 30-day port closure creates inventory shortfalls within 18–22 days for fast-moving items. Rerouting costs through alternative ports add $800–$1,400 per container depending on destination, while air freight diversion for critical components adds 340–580% to logistics costs for affected SKUs. Risk scores are projected to '+rDir+' by '+Math.abs(riskChange)+' points during the disruption window. Maintaining 45–60 days of strategic inventory for critical components provides the most cost-effective buffer against this scenario type.';
+  if(hasSupplier)return'A primary supplier failure scenario exposes critical single-source dependencies in your '+industry+' supply chain. A 60-day offline period exhausts safety stock for most component categories, requiring emergency qualification of alternatives — a process typically taking 45–90 days for standard components and 6–18 months for specialty items. Revenue at risk during the gap period is estimated at 15–35% of affected product lines. Risk scores would '+rDir+' by '+Math.abs(riskChange)+' points, driven by supply continuity and customer satisfaction pressures. This scenario underscores the importance of qualified secondary suppliers and pre-negotiated capacity reservation agreements across all single-source components.';
+  return'This scenario projects a '+costPct+'% '+dir+' in total supply chain costs based on your current profile in the '+industry+' sector with sourcing from '+srcList+'. Risk scores are projected to '+rDir+' by approximately '+Math.abs(riskChange)+' points over the 12-month horizon, with the most significant impact concentrated in the first quarter following the scenario trigger. Supply chain partners in affected regions face compounding pressure that may accelerate previously latent risk factors. Our model recommends beginning contingency planning immediately to reduce scenario impact by 25–40%.';
+}
+
+function generateSimRecs(hasTariff,hasPort,hasSupplier,hasChina,hasDecouple,neg,industry){
+  if(hasDecouple||hasChina)return[
+    {title:'Accelerate China+1 Strategy',desc:'Immediately qualify production-ready alternatives in Vietnam, India, and Mexico. Target 30% sourcing shift within 12 months to reduce China exposure below 40% of total spend.',tags:['High Impact','90 Days']},
+    {title:'Tariff Engineering Review',desc:'Engage customs and trade counsel to identify First Sale valuation, tariff classification optimization, and FTZ opportunities that reduce effective tariff burden by 15–25%.',tags:['High Impact','30 Days']},
+    {title:'Contractual Tariff Protection',desc:'Add force majeure and tariff adjustment clauses to all supplier contracts. Consider currency hedging for CNY-denominated purchasing agreements to limit FX exposure.',tags:['Medium Impact','Immediate']}
+  ];
+  if(hasPort)return[
+    {title:'Build Strategic Inventory Buffer',desc:'Increase safety stock to 60–90 days for critical components sourced through high-risk maritime corridors. Prioritize items with long lead times and limited air freight substitution.',tags:['High Impact','30 Days']},
+    {title:'Pre-qualify Alternative Routing',desc:'Establish relationships with freight forwarders serving alternate port pairs. Pre-negotiate capacity reservations that activate automatically under defined disruption conditions.',tags:['High Impact','60 Days']},
+    {title:'Air Freight Surge Protocol',desc:'Identify the 15–20% of SKUs by value that justify air freight under disruption. Pre-negotiate rates and capacity with 2+ carriers for rapid activation when port disruption is detected.',tags:['Medium Impact','30 Days']}
+  ];
+  if(hasSupplier)return[
+    {title:'Dual-Source All Critical Components',desc:'Identify all single-source components and begin qualification of secondary suppliers. Prioritize by revenue impact and lead time. Target 100% dual-source coverage within 18 months.',tags:['High Impact','90 Days']},
+    {title:'Strategic Inventory Positioning',desc:'Implement buffer inventory for items with >45 day supplier qualification lead times. Calculate economically optimal safety stock levels using demand variability and disruption probability data.',tags:['High Impact','30 Days']},
+    {title:'Supplier Financial Monitoring',desc:'Establish quarterly financial health checks for all Tier 1 and critical Tier 2 suppliers. Set early warning triggers around payment behavior, facility utilization, and leadership changes.',tags:['Medium Impact','Immediate']}
+  ];
+  return[
+    {title:'Supply Chain Visibility Investment',desc:'Deploy real-time monitoring across Tier 1 and Tier 2 suppliers to detect scenario-relevant signals before they become disruptions. Target 72-hour advance warning capability.',tags:['High Impact','90 Days']},
+    {title:'Sourcing Diversification Roadmap',desc:'Develop a 24-month sourcing diversification plan targeting exposure reduction in highest-risk categories. Prioritize by spend concentration and scenario sensitivity score.',tags:['High Impact','60 Days']},
+    {title:'Scenario Response Playbook',desc:'Document response protocols for this scenario type including supplier escalation contacts, alternative routing maps, customer communication templates, and approval authorities.',tags:['Medium Impact','Immediate']}
+  ];
+}
+
+function renderSimResults(results,question){
+  var container=document.getElementById('simResults');
+  container.classList.add('visible');
+  var q=question||results.question;
+  var rDelta=results.riskProjected-results.riskCurrent;
+  var rCls=rDelta>0?'worse':'better';
+  // Card 1: Summary
+  var c1='<div class="sim-card" style="animation-delay:0s">'
+    +'<div class="sim-card-header"><div class="sim-card-title">Executive Summary</div><button class="sim-card-action" onclick="exportSimReport()">Export Report →</button></div>'
+    +'<div class="sim-scenario-question">'+q+'</div>'
+    +'<div id="simSummaryText" class="sim-summary-text"></div></div>';
+  // Card 2: Cost impact
+  var worse=!results.costBetter;
+  var c2='<div class="sim-card" style="animation-delay:0.08s">'
+    +'<div class="sim-card-header"><div class="sim-card-title">Cost Impact Projection</div></div>'
+    +'<div class="sim-cost-cols">'
+    +'<div><div class="sim-cost-col-label">Current</div>'
+    +simCostRowHtml('Total Sourcing',results.currentSourcing,'',50,'current')
+    +simCostRowHtml('Tariff Burden',results.currentTariff,'',25,'current')
+    +simCostRowHtml('Shipping Index',results.currentShipping,'',50,'current')
+    +simCostRowHtml('Lead Time',results.currentLead,'',40,'current')
+    +'</div>'
+    +'<div><div class="sim-cost-col-label">Projected</div>'
+    +simCostRowHtml('Total Sourcing',results.projectedSourcing,simCalcChange(results.currentSourcing,results.projectedSourcing),Math.min(95,parseFloat(results.projectedSourcing)/parseFloat(results.currentSourcing)*50),worse?'worse':'better')
+    +simCostRowHtml('Tariff Burden',results.projectedTariff,simCalcChange(results.currentTariff,results.projectedTariff),Math.min(95,parseInt(results.projectedTariff)),worse?'worse':'better')
+    +simCostRowHtml('Shipping Index',results.projectedShipping+'',simCalcChange(results.currentShipping+'',results.projectedShipping+''),Math.min(95,parseInt(results.projectedShipping)/2),worse?'worse':'better')
+    +simCostRowHtml('Lead Time',results.projectedLead,simCalcChange(results.currentLead,results.projectedLead),Math.min(95,parseInt(results.projectedLead)/2),worse?'worse':'better')
+    +'</div></div></div>';
+  // Card 3: Risk circles
+  var c3='<div class="sim-card" style="animation-delay:0.16s">'
+    +'<div class="sim-card-header"><div class="sim-card-title">Risk Score Change</div></div>'
+    +'<div class="sim-risk-circles">'
+    +'<div class="sim-risk-circle-wrap"><div class="sim-risk-circle-inner"><svg width="78" height="78" viewBox="0 0 78 78" style="transform:rotate(-90deg)"><circle fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="4" cx="39" cy="39" r="33"/><circle id="simRiskFill1" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" cx="39" cy="39" r="33" stroke-dasharray="0 207.3" style="transition:stroke-dasharray 1.5s cubic-bezier(0.34,1.56,0.64,1)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span id="simRiskNum1" style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:19px;color:#fff">0</span></div></div><div class="sim-risk-circle-label">Current Risk</div></div>'
+    +'<div class="sim-risk-delta"><div class="sim-risk-delta-val '+rCls+'">'+(rDelta>=0?'+':'')+rDelta+'</div><div class="sim-risk-delta-lbl">Delta</div></div>'
+    +'<div class="sim-risk-circle-wrap"><div class="sim-risk-circle-inner"><svg width="78" height="78" viewBox="0 0 78 78" style="transform:rotate(-90deg)"><circle fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="4" cx="39" cy="39" r="33"/><circle id="simRiskFill2" fill="none" stroke="'+(rDelta>0?'rgba(255,80,80,0.9)':'rgba(100,255,140,0.9)')+'" stroke-width="4" stroke-linecap="round" cx="39" cy="39" r="33" stroke-dasharray="0 207.3" style="transition:stroke-dasharray 1.5s cubic-bezier(0.34,1.56,0.64,1)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span id="simRiskNum2" style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:19px;color:#fff">0</span></div></div><div class="sim-risk-circle-label">Projected Risk</div></div>'
+    +'</div>'
+    +'<div class="sim-sub-metrics">'
+    +simSubMetricHtml('Fraud Risk',results.fraudCurrent,results.fraudProjected,true)
+    +simSubMetricHtml('Fin. Stability',results.stabilityCurrent,results.stabilityProjected,false)
+    +simSubMetricHtml('Supply Reliab.',results.reliabilityCurrent,results.reliabilityProjected,false)
+    +simSubMetricHtml('Compliance',results.complianceCurrent,results.complianceProjected,false)
+    +'</div></div>';
+  // Card 4: Timeline
+  var c4='<div class="sim-card" style="animation-delay:0.24s">'
+    +'<div class="sim-card-header"><div class="sim-card-title">12-Month Impact Timeline</div></div>'
+    +'<div class="sim-chart-wrap"><svg id="simTimelineChart" class="sim-chart" viewBox="0 0 600 200" preserveAspectRatio="none"></svg></div>'
+    +'<div class="sim-chart-insight">Peak impact in '+results.timeline.peakMonth+' · Stabilization expected by '+results.timeline.stabilizeMonth+'</div>'
+    +'</div>';
+  // Card 5: Flow diagram
+  var fa=results.flowAffected;
+  var c5='<div class="sim-card" style="animation-delay:0.32s">'
+    +'<div class="sim-card-header"><div class="sim-card-title">Supply Chain Impact Map</div></div>'
+    +'<div class="sim-flow">'
+    +simFlowNodeHtml('🏭','Supplier',fa.indexOf(0)!==-1?'affected':'')
+    +simFlowConnHtml(fa.indexOf(0)!==-1||fa.indexOf(1)!==-1)
+    +simFlowNodeHtml('⚙️','Mfg.',fa.indexOf(1)!==-1?'partial':'')
+    +simFlowConnHtml(fa.indexOf(1)!==-1||fa.indexOf(2)!==-1)
+    +simFlowNodeHtml('🚢','Logistics',fa.indexOf(2)!==-1?'affected':'')
+    +simFlowConnHtml(fa.indexOf(3)!==-1)
+    +simFlowNodeHtml('📦','Destination',fa.indexOf(3)!==-1?'partial':'')
+    +'</div>'
+    +'<div id="simVisualPlaceholder" class="sim-flow-placeholder">// Future: Veo animated visualization</div>'
+    +'</div>';
+  // Card 6: Recommendations
+  var c6='<div class="sim-card" style="animation-delay:0.40s">'
+    +'<div class="sim-card-header"><div class="sim-card-title">Recommended Actions</div></div>'
+    +'<div class="sim-rec-cards">'
+    +results.recs.map(function(r,i){
+      return'<div class="sim-rec-card"><div class="sim-rec-num">0'+(i+1)+'</div>'
+        +'<div class="sim-rec-body"><div class="sim-rec-title">'+r.title+'</div>'
+        +'<div class="sim-rec-desc">'+r.desc+'</div>'
+        +'<div class="sim-rec-tags">'+r.tags.map(function(t){return'<span class="sim-rec-tag">'+t+'</span>';}).join('')+'</div>'
+        +'</div></div>';
+    }).join('')
+    +'</div></div>';
+  container.innerHTML=c1+c2+c3+c4+c5+c6;
+  streamSimText(document.getElementById('simSummaryText'),results.summary);
+  setTimeout(function(){animSimCircle('simRiskFill1','simRiskNum1',results.riskCurrent);animSimCircle('simRiskFill2','simRiskNum2',results.riskProjected);},200);
+  setTimeout(function(){drawSimTimeline(results.timeline);},400);
+  setTimeout(function(){document.querySelectorAll('.sim-cost-bar-fill').forEach(function(b){b.style.width=b.getAttribute('data-w')||'0%';});},600);
+}
+
+function simCostRowHtml(label,val,change,barW,barCls){
+  var chHtml=change?'<span class="sim-cost-change '+(change.charAt(0)==='-'?'neg':'pos')+'">'+change+'</span>':'';
+  return'<div class="sim-cost-row"><span class="sim-cost-lbl">'+label+'</span><span class="sim-cost-val">'+val+chHtml+'</span></div>'
+    +'<div class="sim-cost-bar"><div class="sim-cost-bar-fill '+barCls+'" style="width:0" data-w="'+Math.max(2,Math.min(100,barW))+'%"></div></div>';
+}
+function simCalcChange(current,projected){
+  var c=parseFloat(String(current).replace(/[^0-9.]/g,''));var p=parseFloat(String(projected).replace(/[^0-9.]/g,''));
+  if(!c||!p)return'';var d=((p-c)/c*100).toFixed(0);return(parseFloat(d)>0?'+':'')+d+'%';
+}
+function simSubMetricHtml(label,current,projected,higherIsBad){
+  var delta=projected-current;var worse=higherIsBad?delta>0:delta<0;
+  var arrow=delta>=0?'↑':'↓';var col=worse?'rgba(255,80,80,0.8)':'rgba(100,255,140,0.8)';
+  return'<div class="am-metric-card am-shimmer-in"><div class="am-metric-lbl">'+label+'</div>'
+    +'<div class="am-metric-val '+(worse&&Math.abs(delta)>5?'danger':'')+'">'+projected+'%</div>'
+    +'<div style="font-size:9px;color:'+col+';margin-top:3px">'+arrow+' '+(delta>=0?'+':'')+delta+'</div></div>';
+}
+function simFlowNodeHtml(icon,label,cls){
+  return'<div class="sim-flow-node"><div class="sim-flow-circle '+cls+'">'+icon+'</div><div class="sim-flow-label">'+label+'</div></div>';
+}
+function simFlowConnHtml(disrupted){
+  return'<div class="sim-flow-connector '+(disrupted?'disrupted':'ok')+'"></div>';
+}
+
+function animSimCircle(fillId,numId,score){
+  var fill=document.getElementById(fillId);var numEl=document.getElementById(numId);if(!fill||!numEl)return;
+  var circ=2*Math.PI*33;fill.style.strokeDasharray='0 '+circ;numEl.textContent='0';
+  setTimeout(function(){
+    fill.style.strokeDasharray=((score/100)*circ)+' '+(circ-(score/100)*circ);
+    var start=null;
+    requestAnimationFrame(function step(ts){
+      if(!start)start=ts;var p=Math.min((ts-start)/1500,1),e=1-Math.pow(1-p,3);
+      numEl.textContent=Math.round(e*score);if(p<1)requestAnimationFrame(step);
+    });
+  },80);
+}
+
+function drawSimTimeline(timeline){
+  var svg=document.getElementById('simTimelineChart');if(!svg)return;
+  var W=600,H=200,pad={t:20,b:30,l:38,r:16};
+  var iW=W-pad.l-pad.r,iH=H-pad.t-pad.b,n=timeline.baseline.length;
+  var all=timeline.baseline.concat(timeline.scenario);
+  var minV=Math.min.apply(null,all)-4,maxV=Math.max.apply(null,all)+4;
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var sm=new Date().getMonth();
+  function xP(i){return pad.l+(i/(n-1))*iW;}
+  function yP(v){return pad.t+(1-(v-minV)/(maxV-minV))*iH;}
+  function path(data){return data.map(function(v,i){return(i===0?'M':'L')+xP(i).toFixed(1)+','+yP(v).toFixed(1);}).join(' ');}
+  var sPath=path(timeline.scenario),bPath=path(timeline.baseline);
+  var grid='';for(var g=0;g<5;g++){var gy=pad.t+g*(iH/4);grid+='<line x1="'+pad.l+'" y1="'+gy.toFixed(1)+'" x2="'+(W-pad.r)+'" y2="'+gy.toFixed(1)+'" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>';}
+  var xlbls='';[0,2,4,6,8,10].forEach(function(i){xlbls+='<text x="'+xP(i).toFixed(1)+'" y="'+(H-8)+'" fill="rgba(255,255,255,0.22)" font-size="9" font-family="JetBrains Mono" text-anchor="middle">'+months[(sm+i)%12]+'</text>';});
+  var aPath=sPath+' L'+xP(n-1).toFixed(1)+','+(pad.t+iH)+' L'+pad.l+','+(pad.t+iH)+' Z';
+  svg.innerHTML='<defs><linearGradient id="sag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.08)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient></defs>'
+    +grid
+    +'<path d="'+aPath+'" fill="url(#sag)"/>'
+    +'<path d="'+bPath+'" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="4,4"/>'
+    +'<path id="simScenLine" d="'+sPath+'" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="700" stroke-dashoffset="700" style="transition:stroke-dashoffset 2s cubic-bezier(0.16,1,0.3,1)"/>'
+    +xlbls;
+  setTimeout(function(){var ln=document.getElementById('simScenLine');if(ln)ln.style.strokeDashoffset='0';},80);
+}
+
+function streamSimText(el,text){
+  if(!el)return;el.innerHTML='';
+  text.split(' ').forEach(function(word,i){
+    var sp=document.createElement('span');sp.className='stream-word';sp.textContent=word+' ';sp.style.animationDelay=(i*0.028)+'s';el.appendChild(sp);
+  });
+}
+
+function exportSimReport(){
+  var q=document.getElementById('simInputPinned');var s=document.getElementById('simSummaryText');
+  var text='RISKSIM SCENARIO REPORT\n========================\nGenerated: '+new Date().toLocaleString()+'\n\nSCENARIO\n'+((q&&q.value)||'N/A')+'\n\nEXECUTIVE SUMMARY\n'+((s&&s.textContent)||'N/A')+'\n\nExported from RiskSim AI';
+  try{navigator.clipboard.writeText(text).then(function(){showSimToast('Report copied to clipboard');});}catch(e){showSimToast('Export ready');}
+}
+
+function showSimToast(msg){
+  var t=document.querySelector('.sim-toast');
+  if(!t){t=document.createElement('div');t.className='sim-toast';document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+function toggleSimCompare(){
+  simCompareMode=!simCompareMode;
+  var btn=document.getElementById('simCompareToggle');
+  if(simCompareMode){btn.classList.add('active');showSimCompareMode();}
+  else{btn.classList.remove('active');exitSimCompare();}
+}
+
+function showSimCompareMode(){
+  var scenarios=getSimScenarios();
+  if(scenarios.length<2){showSimToast('Run at least 2 scenarios to compare');simCompareMode=false;var b=document.getElementById('simCompareToggle');if(b)b.classList.remove('active');return;}
+  document.getElementById('simEmptyState').style.display='none';
+  document.getElementById('simAnalysisView').style.display='none';
+  var cv=document.getElementById('simCompareView');cv.style.cssText='display:flex;flex-direction:column;flex:1;';
+  var cols=document.getElementById('simCompareCols');
+  cols.innerHTML=renderSimCompareCol(scenarios[0],1)+renderSimCompareCol(scenarios[1],2);
+  setTimeout(function(){
+    animSimCircle('scc1a','scn1a',scenarios[0].results.riskCurrent);
+    animSimCircle('scc1b','scn1b',scenarios[0].results.riskProjected);
+    animSimCircle('scc2a','scn2a',scenarios[1].results.riskCurrent);
+    animSimCircle('scc2b','scn2b',scenarios[1].results.riskProjected);
+  },100);
+}
+
+function renderSimCompareCol(sc,idx){
+  var r=sc.results;var rDelta=r.riskProjected-r.riskCurrent;
+  var q=sc.question.length>58?sc.question.slice(0,58)+'...':sc.question;
+  var dCol=rDelta>0?'rgba(255,80,80,0.9)':'rgba(100,255,140,0.9)';
+  var sCol=rDelta>0?'rgba(255,80,80,0.9)':'rgba(100,255,140,0.9)';
+  return'<div class="sim-compare-col">'
+    +'<div class="sim-compare-header-q">'+q+'</div>'
+    +'<div class="sim-card" style="padding:14px">'
+    +'<div class="am-metric-lbl" style="margin-bottom:10px">Risk Scores</div>'
+    +'<div style="display:flex;gap:12px;align-items:center;justify-content:center">'
+    +'<div style="position:relative;width:62px;height:62px;flex-shrink:0"><svg width="62" height="62" viewBox="0 0 78 78" style="transform:rotate(-90deg)"><circle fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="4" cx="39" cy="39" r="33"/><circle id="scc'+idx+'a" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" cx="39" cy="39" r="33" stroke-dasharray="0 207.3" style="transition:stroke-dasharray 1.5s cubic-bezier(0.34,1.56,0.64,1)"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><span id="scn'+idx+'a" style="font-family:Syne,sans-serif;font-weight:800;font-size:14px;color:#fff">0</span></div></div>'
+    +'<span style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;color:'+dCol+'">'+(rDelta>=0?'+':'')+rDelta+'</span>'
+    +'<div style="position:relative;width:62px;height:62px;flex-shrink:0"><svg width="62" height="62" viewBox="0 0 78 78" style="transform:rotate(-90deg)"><circle fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="4" cx="39" cy="39" r="33"/><circle id="scc'+idx+'b" fill="none" stroke="'+sCol+'" stroke-width="4" stroke-linecap="round" cx="39" cy="39" r="33" stroke-dasharray="0 207.3" style="transition:stroke-dasharray 1.5s cubic-bezier(0.34,1.56,0.64,1)"/></svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><span id="scn'+idx+'b" style="font-family:Syne,sans-serif;font-weight:800;font-size:14px;color:#fff">0</span></div></div>'
+    +'</div></div>'
+    +'<div class="sim-card" style="padding:14px">'
+    +'<div class="am-metric-lbl" style="margin-bottom:10px">Cost Impact</div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.45);padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04)"><span>Sourcing Cost</span><span style="color:#fff;font-family:\'JetBrains Mono\',monospace">'+r.projectedSourcing+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.45);padding:6px 0"><span>Tariff Burden</span><span style="color:#fff;font-family:\'JetBrains Mono\',monospace">'+r.projectedTariff+'</span></div>'
+    +'</div>'
+    +'<div class="sim-card" style="padding:14px">'
+    +'<div class="am-metric-lbl" style="margin-bottom:8px">AI Summary</div>'
+    +'<div style="font-size:11px;color:rgba(255,255,255,0.45);line-height:1.65">'+(r.summary||'').slice(0,220)+'...</div>'
+    +'</div></div>';
+}
+
+function exitSimCompare(){
+  simCompareMode=false;
+  var btn=document.getElementById('simCompareToggle');if(btn)btn.classList.remove('active');
+  document.getElementById('simCompareView').style.display='none';
+  showSimEmpty();
+}
 </script>
 
 <!-- ===== D3 INTRO GLOBE ===== -->
