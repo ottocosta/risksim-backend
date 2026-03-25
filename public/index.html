@@ -1726,7 +1726,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
 </script>
 <div id="voiceAmbient"></div>
   <!-- ===== RS NAV ===== -->
-<nav id="rsNav" style="opacity:1">
+<nav id="rsNav" style="opacity:0">
   <button class="rs-nav-btn active" onclick="switchModule('map')">
     <span class="rs-nav-mod">SYS_01</span>Map
   </button>
@@ -2242,6 +2242,7 @@ var PS_SOURCING_COUNTRIES=['China','Vietnam','India','Bangladesh','Indonesia','M
 
 function showProfileSection() {
   renderProfileContent();
+  document.getElementById('rsNav').style.display='none';
   var ps=document.getElementById('profileSection');
   if(ps){ ps.classList.add('ps-visible'); }
   var card=document.getElementById('psCard');
@@ -2251,6 +2252,7 @@ function showProfileSection() {
 }
 
 function closeProfileSection() {
+  document.getElementById('rsNav').style.display='';
   var ps=document.getElementById('profileSection');
   if(!ps) return;
   ps.classList.add('ps-exiting');
@@ -3957,6 +3959,7 @@ function exitSimCompare(){
       document.body.style.width='';
       document.body.style.top='';
       document.documentElement.style.height='';
+      setTimeout(function(){ var nav=document.getElementById('rsNav'); if(nav){nav.style.opacity='1';} }, 500);
       requestAnimationFrame(function(){
         if(map)map.invalidateSize();
         if(window.showProfileSection)window.showProfileSection();
@@ -4467,10 +4470,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===== PRICING OVERLAY =====
 function showPricing() {
   document.getElementById('pricingOverlay').style.display = 'flex';
+  document.getElementById('rsNav').style.display='none';
 }
 
 function closePricing() {
   document.getElementById('pricingOverlay').style.display = 'none';
+  document.getElementById('rsNav').style.display='';
 }
 
 function toggleBilling(isAnnual) {
