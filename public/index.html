@@ -1518,6 +1518,173 @@
       0%, 100% { opacity: 0.6; }
       50% { opacity: 1; }
     }
+
+    /* ===== UNIFIED PRICING OVERLAY ===== */
+    @keyframes pricingOverlayIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes pricingCardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pricingShimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+
+    #pricingOverlay {
+      position: fixed; inset: 0; z-index: 20000;
+      background: rgba(0,0,0,0.92); backdrop-filter: blur(20px);
+      display: none; align-items: center; justify-content: center;
+      animation: pricingOverlayIn 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    #pricingOverlay.po-visible { display: flex; }
+
+    .po-container {
+      max-width: 1100px; width: calc(100% - 40px); max-height: 90vh; overflow-y: auto;
+      background: rgba(255,255,255,0.04); backdrop-filter: blur(60px) saturate(200%);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 32px 100px rgba(0,0,0,0.85);
+      padding: 48px 40px;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent;
+    }
+    .po-container::-webkit-scrollbar { width: 3px; }
+    .po-container::-webkit-scrollbar-track { background: transparent; }
+    .po-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+
+    .po-header {
+      display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px;
+    }
+    .po-brand {
+      font-family: 'Syne', sans-serif; font-size: 14px; color: #fff;
+      letter-spacing: 0.14em; text-transform: uppercase;
+    }
+    .po-close {
+      width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); font-size: 14px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .po-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    .po-title {
+      font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: #fff;
+      margin-bottom: 8px; margin-top: 16px;
+    }
+    .po-subtitle {
+      font-size: 14px; color: rgba(255,255,255,0.45); margin-bottom: 20px;
+    }
+
+    .po-founder-banner {
+      width: 100%; background: rgba(255,255,255,0.06); border-radius: 12px;
+      padding: 14px 20px; margin-bottom: 24px; position: relative; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .po-founder-banner::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      background-size: 400px 1px; animation: pricingShimmer 3s linear infinite;
+    }
+    .po-founder-text {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #fff;
+      letter-spacing: 0.05em;
+    }
+
+    .po-billing-wrap {
+      display: flex; justify-content: center; margin-bottom: 32px;
+    }
+    .po-billing-toggle {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px; padding: 3px;
+    }
+    .po-billing-btn {
+      padding: 8px 20px; border-radius: 999px; border: none; cursor: pointer;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      letter-spacing: 0.08em; text-transform: uppercase; transition: all 0.2s;
+      color: rgba(255,255,255,0.35); background: transparent;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .po-billing-btn.po-active { background: rgba(255,255,255,0.1); color: #fff; }
+    .po-annual-badge {
+      font-size: 9px; color: rgba(100,255,140,0.9); background: rgba(100,255,140,0.1);
+      border-radius: 999px; padding: 2px 8px;
+    }
+
+    .po-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;
+    }
+    .po-card {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 32px 28px; position: relative; transition: all 0.3s;
+      animation: pricingCardIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .po-card:nth-child(1) { animation-delay: 0.1s; }
+    .po-card:nth-child(2) { animation-delay: 0.2s; }
+    .po-card:nth-child(3) { animation-delay: 0.3s; }
+    .po-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.18); }
+    .po-card.po-card-featured {
+      border: 1px solid rgba(255,255,255,0.2); transform: scale(1.02);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 60px rgba(255,255,255,0.05), 0 32px 80px rgba(0,0,0,0.6);
+    }
+    .po-card.po-card-featured:hover { transform: scale(1.02) translateY(-3px); }
+
+    .po-best-value {
+      position: absolute; top: -12px; right: 20px;
+      background: #fff; color: #000; padding: 4px 14px; border-radius: 999px;
+      font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+
+    .po-tier {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.4); margin-bottom: 16px; text-transform: uppercase;
+    }
+    .po-price-wrap { margin-bottom: 4px; }
+    .po-price {
+      font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; color: #fff;
+      display: inline;
+    }
+    .po-price-period { font-size: 13px; color: rgba(255,255,255,0.3); }
+    .po-price-original {
+      font-size: 16px; color: rgba(255,255,255,0.3); text-decoration: line-through;
+      display: none; margin-left: 4px;
+    }
+    .po-savings { font-size: 11px; color: rgba(100,255,140,0.8); display: none; margin-bottom: 4px; }
+    .po-founder-price {
+      font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 6px;
+    }
+    .po-seats { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 20px; }
+
+    .po-features { list-style: none; margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px; }
+    .po-feature { font-size: 13px; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 8px; }
+    .po-feature-check { color: #fff; flex-shrink: 0; }
+    .po-feature.po-locked { color: rgba(255,255,255,0.2); }
+    .po-feature.po-locked .po-feature-check { color: rgba(255,255,255,0.2); }
+
+    .po-cta {
+      width: 100%; padding: 14px; background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.25s;
+    }
+    .po-cta:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); }
+    .po-cta-featured {
+      background: #fff; color: #000; border: none; font-weight: 700;
+    }
+    .po-cta-featured:hover { background: #e2e8f0; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(255,255,255,0.15); }
+
+    .po-bottom-text {
+      font-size: 11px; color: rgba(255,255,255,0.25); text-align: center; margin-top: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .po-container { padding: 28px 20px; }
+      .po-cards { grid-template-columns: 1fr; }
+      .po-card.po-card-featured { transform: scale(1); }
+      .po-card.po-card-featured:hover { transform: translateY(-3px); }
+      .po-title { font-size: 24px; }
+    }
   </style>
 </head>
 <body>
@@ -1717,7 +1884,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
         <div class="am-pw-feature"><span class="am-pw-feature-icon">◇</span>Hidden Risk Discovery</div>
       </div>
       <div class="am-pw-actions">
-        <button class="am-pw-subscribe" onclick="window.open('#pricing','_blank')">Subscribe — Enterprise</button>
+        <button class="am-pw-subscribe" onclick="showPricing()">Subscribe — Enterprise</button>
         <button class="am-pw-skip" onclick="bypassPaywall()">Skip for Now</button>
       </div>
     </div>
@@ -1809,7 +1976,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
         <div class="am-pw-feature"><span class="am-pw-feature-icon">◇</span>Comparative Analysis</div>
       </div>
       <div class="am-pw-actions">
-        <button class="am-pw-subscribe" onclick="window.open('#pricing','_blank')">Subscribe — Enterprise</button>
+        <button class="am-pw-subscribe" onclick="showPricing()">Subscribe — Enterprise</button>
         <button class="am-pw-skip" onclick="bypassSimulatorPaywall()">Skip for Now</button>
       </div>
     </div>
@@ -1918,7 +2085,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
         <div class="tp-feature">Tariff Tracking</div>
         <div class="tp-feature">Port Intelligence</div>
       </div>
-      <button class="tp-subscribe" onclick="window.open('https://risksim.com','_blank')">Subscribe Now</button>
+      <button class="tp-subscribe" onclick="showPricing()">Subscribe Now</button>
       <button class="tp-skip" onclick="bypassTerminalPaywall()">Skip for Now</button>
     </div>
   </div>
@@ -4190,5 +4357,172 @@ document.addEventListener('DOMContentLoaded', function() {
   initVoiceAssistant();
 });
 </script>
+
+<!-- ===== UNIFIED PRICING OVERLAY ===== -->
+<div id="pricingOverlay">
+  <div class="po-container">
+
+    <!-- Header -->
+    <div class="po-header">
+      <span class="po-brand">RiskSim AI</span>
+      <button class="po-close" onclick="closePricing()">✕</button>
+    </div>
+    <div class="po-title">Choose Your Plan</div>
+    <div class="po-subtitle">Unlock the full power of AI-driven supply chain intelligence</div>
+
+    <!-- Founder Banner -->
+    <div class="po-founder-banner">
+      <span class="po-founder-text">◈ Founder Pricing — First 10 customers get 30% off forever</span>
+    </div>
+
+    <!-- Billing Toggle -->
+    <div class="po-billing-wrap">
+      <div class="po-billing-toggle">
+        <button class="po-billing-btn po-active" id="poBtnMonthly" onclick="toggleBilling(false)">Monthly</button>
+        <button class="po-billing-btn" id="poBtnAnnual" onclick="toggleBilling(true)">Annual <span class="po-annual-badge">Save 17%</span></button>
+      </div>
+    </div>
+
+    <!-- Tier Cards -->
+    <div class="po-cards">
+
+      <!-- PRO -->
+      <div class="po-card">
+        <div class="po-tier">PRO</div>
+        <div class="po-price-wrap">
+          <span class="po-price" id="poProPrice">$249</span>
+          <span class="po-price-original" id="poProOrig">$249</span>
+          <span class="po-price-period">/month</span>
+        </div>
+        <div class="po-savings" id="poProSavings">Save $504/year</div>
+        <div class="po-founder-price" id="poProFounder">$174/mo with founder pricing</div>
+        <div class="po-seats">Up to 3 users</div>
+        <ul class="po-features">
+          <li class="po-feature"><span class="po-feature-check">✓</span> Intelligence Map — all layers</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> Country Comparison Tool</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> Terminal — alerts, news, tariffs, ports</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> AI Chat — 300 messages/day</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> Profile-based personalization</li>
+          <li class="po-feature po-locked"><span class="po-feature-check">✕</span> Scenario Simulator</li>
+          <li class="po-feature po-locked"><span class="po-feature-check">✕</span> Supplier Audit</li>
+          <li class="po-feature po-locked"><span class="po-feature-check">✕</span> Voice Assistant</li>
+          <li class="po-feature po-locked"><span class="po-feature-check">✕</span> Priority email alerts</li>
+        </ul>
+        <button class="po-cta" onclick="window.open('mailto:risksim.ai@gmail.com?subject=Pro%20Plan%20Inquiry','_blank')">Subscribe — Pro</button>
+      </div>
+
+      <!-- ENTERPRISE -->
+      <div class="po-card po-card-featured">
+        <div class="po-best-value">BEST VALUE</div>
+        <div class="po-tier">ENTERPRISE</div>
+        <div class="po-price-wrap">
+          <span class="po-price" id="poEntPrice">$799</span>
+          <span class="po-price-original" id="poEntOrig">$799</span>
+          <span class="po-price-period">/month</span>
+        </div>
+        <div class="po-savings" id="poEntSavings">Save $1,596/year</div>
+        <div class="po-founder-price" id="poEntFounder">$559/mo with founder pricing</div>
+        <div class="po-seats">Up to 8 users</div>
+        <ul class="po-features">
+          <li class="po-feature"><span class="po-feature-check">✓</span> Everything in Pro</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> Scenario Simulator</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> Supplier Audit — full deep dive</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> Voice Assistant — Jarvis AI</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> Priority email alerts</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> Advanced risk modeling</li>
+        </ul>
+        <button class="po-cta po-cta-featured" onclick="window.open('mailto:risksim.ai@gmail.com?subject=Enterprise%20Plan%20Inquiry','_blank')">Subscribe — Enterprise</button>
+      </div>
+
+      <!-- CUSTOM -->
+      <div class="po-card">
+        <div class="po-tier">CUSTOM</div>
+        <div class="po-price-wrap">
+          <span class="po-price" id="poCustPrice">$1,299</span>
+          <span class="po-price-original" id="poCustOrig">$1,299</span>
+          <span class="po-price-period">/month</span>
+        </div>
+        <div class="po-savings" id="poCustSavings">Save $2,604/year</div>
+        <div class="po-founder-price" id="poCustFounder">$909/mo with founder pricing</div>
+        <div class="po-seats">Negotiated</div>
+        <ul class="po-features">
+          <li class="po-feature"><span class="po-feature-check">✓</span> Everything in Enterprise</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> Fully customized to your business</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> Custom data feeds &amp; integrations</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> API access</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> White-glove onboarding &amp; setup</li>
+          <li class="po-feature"><span class="po-feature-check">✓</span> Dedicated account support</li>
+        </ul>
+        <button class="po-cta" onclick="window.open('mailto:risksim.ai@gmail.com?subject=Custom%20Plan%20Inquiry','_blank')">Contact Sales</button>
+      </div>
+
+    </div><!-- /.po-cards -->
+
+    <div class="po-bottom-text">All plans include a personalized demo call. Questions? Contact risksim.ai@gmail.com</div>
+
+  </div><!-- /.po-container -->
+</div><!-- /#pricingOverlay -->
+
+<script>
+// ===== PRICING OVERLAY =====
+function showPricing() {
+  document.getElementById('pricingOverlay').style.display = 'flex';
+}
+
+function closePricing() {
+  document.getElementById('pricingOverlay').style.display = 'none';
+}
+
+function toggleBilling(isAnnual) {
+  const btnMonthly = document.getElementById('poBtnMonthly');
+  const btnAnnual = document.getElementById('poBtnAnnual');
+
+  if (isAnnual) {
+    btnMonthly.classList.remove('po-active');
+    btnAnnual.classList.add('po-active');
+    // Prices
+    document.getElementById('poProPrice').textContent = '$207';
+    document.getElementById('poEntPrice').textContent = '$666';
+    document.getElementById('poCustPrice').textContent = '$1,082';
+    // Show crossed-out originals
+    document.getElementById('poProOrig').style.display = 'inline';
+    document.getElementById('poEntOrig').style.display = 'inline';
+    document.getElementById('poCustOrig').style.display = 'inline';
+    // Show savings
+    document.getElementById('poProSavings').style.display = 'block';
+    document.getElementById('poEntSavings').style.display = 'block';
+    document.getElementById('poCustSavings').style.display = 'block';
+    // Founder prices
+    document.getElementById('poProFounder').textContent = '$145/mo with founder pricing';
+    document.getElementById('poEntFounder').textContent = '$466/mo with founder pricing';
+    document.getElementById('poCustFounder').textContent = '$758/mo with founder pricing';
+  } else {
+    btnAnnual.classList.remove('po-active');
+    btnMonthly.classList.add('po-active');
+    // Prices
+    document.getElementById('poProPrice').textContent = '$249';
+    document.getElementById('poEntPrice').textContent = '$799';
+    document.getElementById('poCustPrice').textContent = '$1,299';
+    // Hide crossed-out originals
+    document.getElementById('poProOrig').style.display = 'none';
+    document.getElementById('poEntOrig').style.display = 'none';
+    document.getElementById('poCustOrig').style.display = 'none';
+    // Hide savings
+    document.getElementById('poProSavings').style.display = 'none';
+    document.getElementById('poEntSavings').style.display = 'none';
+    document.getElementById('poCustSavings').style.display = 'none';
+    // Founder prices
+    document.getElementById('poProFounder').textContent = '$174/mo with founder pricing';
+    document.getElementById('poEntFounder').textContent = '$559/mo with founder pricing';
+    document.getElementById('poCustFounder').textContent = '$909/mo with founder pricing';
+  }
+}
+
+// Close pricing overlay on backdrop click
+document.getElementById('pricingOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closePricing();
+});
+</script>
+
 </body>
 </html>
