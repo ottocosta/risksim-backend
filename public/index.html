@@ -64,13 +64,14 @@
       border-radius: 50px;
       padding: 4px 8px;
       font-family: 'JetBrains Mono', monospace;
+      max-width: calc(100vw - 40px);
     }
     .rs-nav-btn {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 8px 18px;
+      padding: 6px 12px;
       border: none;
       border-radius: 44px;
       background: transparent;
@@ -79,7 +80,7 @@
       transition: all 0.25s;
       white-space: nowrap;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 500;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -87,7 +88,7 @@
     }
     .rs-nav-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
     .rs-nav-btn.active { background: rgba(255,255,255,0.09); color: #fff; }
-    .rs-nav-mod { display: block; font-size: 7px; opacity: 0.4; letter-spacing: 0.18em; margin-bottom: 3px; }
+    .rs-nav-mod { display: block; font-size: 6px; opacity: 0.4; letter-spacing: 0.18em; margin-bottom: 3px; }
     /* ===== CINEMATIC INTRO ===== */
     #rs-intro {
       position: fixed; inset: 0; z-index: 99999; background: #000;
@@ -1278,6 +1279,184 @@
     .sim-card-title { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.35); text-transform:uppercase; }
     .sim-card-action { padding:5px 12px; border-radius:7px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:rgba(255,255,255,0.45); font-size:10px; cursor:pointer; transition:all 0.2s; font-family:'JetBrains Mono',monospace; }
     .sim-card-action:hover { border-color:rgba(255,255,255,0.2); color:#fff; }
+
+    /* ===== PRICING OVERLAY ===== */
+    #pricingOverlay {
+      position:fixed; inset:0; z-index:9999998;
+      background:rgba(0,0,0,0.93); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+      display:none; align-items:center; justify-content:center; padding:20px;
+    }
+    #pricingOverlay.pricing-open { display:flex; }
+    .pricing-card {
+      width:100%; max-width:680px; max-height:92vh; overflow-y:auto;
+      background:rgba(255,255,255,0.04); backdrop-filter:blur(80px) saturate(200%); -webkit-backdrop-filter:blur(80px) saturate(200%);
+      border:1px solid rgba(255,255,255,0.1); border-radius:24px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.14), 0 32px 100px rgba(0,0,0,0.9);
+      padding:44px 40px; position:relative; animation:amCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .pricing-card::-webkit-scrollbar { width:4px; }
+    .pricing-card::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:4px; }
+    .pricing-close {
+      position:absolute; top:16px; right:16px; width:30px; height:30px;
+      border-radius:50%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+      color:rgba(255,255,255,0.4); font-size:13px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; transition:all 0.2s;
+    }
+    .pricing-close:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .pricing-badge {
+      display:inline-flex; align-items:center; gap:7px; padding:5px 14px;
+      border-radius:999px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.04);
+      font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.2em;
+      color:rgba(255,255,255,0.55); text-transform:uppercase; margin-bottom:22px;
+    }
+    .pricing-badge-dot { width:5px; height:5px; border-radius:50%; background:#fff; box-shadow:0 0 6px #fff; animation:rsBlink 2s infinite; }
+    .pricing-title { font-family:'Syne',sans-serif; font-weight:800; font-size:30px; color:#fff; letter-spacing:-0.02em; margin-bottom:10px; }
+    .pricing-sub { font-size:13px; color:rgba(255,255,255,0.42); line-height:1.65; margin-bottom:32px; }
+    .pricing-plans { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:28px; }
+    @media(max-width:560px){ .pricing-plans { grid-template-columns:1fr; } }
+    .pricing-plan {
+      border:1px solid rgba(255,255,255,0.08); border-radius:16px;
+      padding:24px 20px; background:rgba(255,255,255,0.02); transition:all 0.3s;
+    }
+    .pricing-plan.featured {
+      border-color:rgba(255,255,255,0.2); background:rgba(255,255,255,0.05);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .pricing-plan-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:12px; display:block; }
+    .pricing-plan-label.hl { color:rgba(255,255,255,0.7); }
+    .pricing-plan-price { font-family:'Syne',sans-serif; font-size:34px; font-weight:800; color:#fff; margin-bottom:6px; }
+    .pricing-plan-price span { font-size:14px; font-weight:400; color:rgba(255,255,255,0.38); margin-left:3px; font-family:'Inter',sans-serif; }
+    .pricing-plan-desc { font-size:12px; color:rgba(255,255,255,0.38); margin-bottom:20px; line-height:1.5; }
+    .pricing-plan-features { list-style:none; display:flex; flex-direction:column; gap:9px; margin-bottom:22px; }
+    .pricing-plan-features li { display:flex; align-items:flex-start; gap:8px; font-size:11px; color:rgba(255,255,255,0.55); line-height:1.5; }
+    .pricing-plan-features li::before { content:'—'; color:rgba(255,255,255,0.2); flex-shrink:0; }
+    .pricing-plan-btn {
+      width:100%; padding:12px; border:1px solid rgba(255,255,255,0.15); border-radius:10px;
+      background:transparent; color:rgba(255,255,255,0.6); font-size:12px; font-weight:600;
+      cursor:pointer; transition:all 0.25s; font-family:'Inter',sans-serif; letter-spacing:0.03em;
+    }
+    .pricing-plan-btn:hover { border-color:rgba(255,255,255,0.3); color:#fff; background:rgba(255,255,255,0.04); }
+    .pricing-plan-btn.featured-btn { background:#fff; color:#000; border-color:#fff; }
+    .pricing-plan-btn.featured-btn:hover { background:#e8e8e8; transform:translateY(-1px); box-shadow:0 6px 24px rgba(255,255,255,0.15); }
+    .pricing-contact { text-align:center; font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.25); letter-spacing:0.08em; }
+    .pricing-contact a { color:rgba(255,255,255,0.4); text-decoration:none; }
+    .pricing-contact a:hover { color:#fff; }
+
+    /* ===== JARVIS MODE ===== */
+    #jarvisBorder {
+      position:fixed; inset:0; z-index:9999990; pointer-events:none;
+      border:1.5px solid rgba(100,150,255,0.25);
+      box-shadow:inset 0 0 80px rgba(100,150,255,0.06), 0 0 0 1px rgba(100,150,255,0.08);
+      border-radius:0; opacity:0; transition:opacity 0.6s ease;
+    }
+    #jarvisBorder.jarvis-active { opacity:1; }
+    #jarvisToggleBtn {
+      position:fixed; bottom:24px; right:20px; z-index:9999992;
+      padding:6px 14px; background:transparent; border:1px solid rgba(255,255,255,0.12);
+      border-radius:999px; color:rgba(255,255,255,0.3);
+      font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.18em;
+      text-transform:uppercase; cursor:pointer; transition:all 0.3s;
+    }
+    #jarvisToggleBtn:hover { border-color:rgba(100,150,255,0.4); color:rgba(150,190,255,0.8); background:rgba(100,150,255,0.05); }
+    #jarvisToggleBtn.jarvis-on { border-color:rgba(100,150,255,0.35); color:rgba(130,175,255,0.8); }
+    #jarvisListeningBubble {
+      position:fixed; bottom:56px; right:20px; z-index:9999993;
+      padding:8px 16px; background:rgba(10,15,30,0.9); backdrop-filter:blur(20px);
+      border:1px solid rgba(100,150,255,0.25); border-radius:12px;
+      font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.1em;
+      color:rgba(130,175,255,0.85); display:none; align-items:center; gap:8px;
+      animation:panelIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
+      max-width:240px;
+    }
+    #jarvisListeningBubble.jlb-visible { display:flex; }
+    .jarvis-listen-dot { width:6px; height:6px; border-radius:50%; background:rgba(100,150,255,0.8); box-shadow:0 0 8px rgba(100,150,255,0.5); animation:rsBlink 1.2s ease-in-out infinite; flex-shrink:0; }
+    #jarvisResponseBubble {
+      position:fixed; bottom:56px; right:20px; z-index:9999993;
+      padding:12px 16px; background:rgba(8,12,28,0.95); backdrop-filter:blur(24px);
+      border:1px solid rgba(100,150,255,0.2); border-radius:12px;
+      font-family:'Inter',sans-serif; font-size:12px; color:rgba(180,210,255,0.85);
+      line-height:1.55; display:none; max-width:280px;
+      animation:panelIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    #jarvisResponseBubble.jrb-visible { display:block; }
+    .jarvis-resp-label { font-family:'JetBrains Mono',monospace; font-size:7px; letter-spacing:0.2em; color:rgba(100,150,255,0.55); text-transform:uppercase; margin-bottom:6px; }
+
+    /* ===== ONBOARDING SLIDES ===== */
+    #onboardSlides {
+      position:fixed; inset:0; z-index:9999995;
+      background:rgba(0,0,0,0.95); backdrop-filter:blur(30px);
+      display:none; align-items:center; justify-content:center; padding:20px;
+    }
+    #onboardSlides.obs-open { display:flex; }
+    .obs-card {
+      width:100%; max-width:520px;
+      background:rgba(255,255,255,0.04); backdrop-filter:blur(80px) saturate(200%);
+      border:1px solid rgba(255,255,255,0.1); border-radius:24px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.14), 0 32px 100px rgba(0,0,0,0.9);
+      padding:44px 40px; position:relative; animation:amCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .obs-progress { display:flex; gap:6px; margin-bottom:32px; }
+    .obs-pip { flex:1; height:2px; border-radius:2px; background:rgba(255,255,255,0.1); transition:background 0.4s; }
+    .obs-pip.done { background:rgba(255,255,255,0.6); }
+    .obs-pip.active { background:#fff; }
+    .obs-icon { font-size:36px; margin-bottom:18px; }
+    .obs-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.22em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:10px; }
+    .obs-title { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; color:#fff; letter-spacing:-0.02em; margin-bottom:10px; line-height:1.2; }
+    .obs-desc { font-size:13px; color:rgba(255,255,255,0.42); line-height:1.7; margin-bottom:24px; }
+    .obs-jarvis-opts { margin-bottom:24px; }
+    .obs-honorific-row { display:flex; gap:8px; margin-bottom:14px; }
+    .obs-honorific-btn { flex:1; padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:rgba(255,255,255,0.4); font-size:13px; cursor:pointer; transition:all 0.25s; font-family:'Inter',sans-serif; }
+    .obs-honorific-btn.selected { border-color:rgba(100,150,255,0.4); color:rgba(130,175,255,0.9); background:rgba(100,150,255,0.06); }
+    .obs-enable-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-top:1px solid rgba(255,255,255,0.06); }
+    .obs-enable-label { font-size:13px; color:rgba(255,255,255,0.6); }
+    .obs-toggle { width:42px; height:24px; border-radius:12px; background:rgba(255,255,255,0.1); border:none; cursor:pointer; position:relative; transition:background 0.3s; }
+    .obs-toggle.on { background:rgba(100,150,255,0.5); }
+    .obs-toggle::after { content:''; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left 0.3s; }
+    .obs-toggle.on::after { left:21px; }
+    .obs-next-btn { width:100%; padding:13px; background:#fff; border:none; border-radius:10px; color:#000; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.25s; margin-top:8px; }
+    .obs-next-btn:hover { background:#e8e8e8; transform:translateY(-1px); box-shadow:0 6px 24px rgba(255,255,255,0.15); }
+    .obs-skip { width:100%; padding:10px; background:transparent; border:none; color:rgba(255,255,255,0.25); font-size:11px; cursor:pointer; transition:all 0.2s; margin-top:6px; font-family:'Inter',sans-serif; }
+    .obs-skip:hover { color:rgba(255,255,255,0.5); }
+
+    /* ===== DAILY BRIEFING ===== */
+    #dailyBriefing {
+      position:fixed; inset:0; z-index:9999994;
+      background:rgba(0,0,0,0.92); backdrop-filter:blur(24px);
+      display:none; align-items:center; justify-content:center; padding:20px;
+    }
+    #dailyBriefing.db-open { display:flex; }
+    .db-card {
+      width:100%; max-width:620px; max-height:88vh; overflow-y:auto;
+      background:rgba(255,255,255,0.04); backdrop-filter:blur(80px) saturate(200%);
+      border:1px solid rgba(255,255,255,0.1); border-radius:24px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.14), 0 32px 100px rgba(0,0,0,0.9);
+      padding:40px 36px; position:relative; animation:amCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+    .db-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:28px; }
+    .db-title-wrap {}
+    .db-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.22em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:8px; }
+    .db-title { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:#fff; letter-spacing:-0.02em; }
+    .db-close { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
+    .db-close:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .db-alerts { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+    .db-alert {
+      padding:14px 16px; border-radius:12px; background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.07); border-left:3px solid;
+      transition:all 0.25s;
+    }
+    .db-alert:hover { background:rgba(255,255,255,0.05); }
+    .db-alert.high { border-left-color:rgba(255,80,80,0.6); }
+    .db-alert.medium { border-left-color:rgba(255,190,60,0.6); }
+    .db-alert.low { border-left-color:rgba(80,200,120,0.6); }
+    .db-alert-tag { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:6px; }
+    .db-alert.high .db-alert-tag { color:rgba(255,120,120,0.8); }
+    .db-alert.medium .db-alert-tag { color:rgba(255,210,80,0.8); }
+    .db-alert.low .db-alert-tag { color:rgba(100,220,140,0.8); }
+    .db-alert-text { font-size:13px; color:rgba(255,255,255,0.7); line-height:1.55; }
+    .db-alert-src { font-size:10px; color:rgba(255,255,255,0.25); margin-top:5px; font-family:'JetBrains Mono',monospace; }
+    .db-jarvis-line { padding:14px 16px; border-radius:12px; background:rgba(100,150,255,0.04); border:1px solid rgba(100,150,255,0.15); font-size:12px; color:rgba(160,200,255,0.7); line-height:1.6; margin-bottom:22px; font-style:italic; }
+    .db-dismiss-btn { width:100%; padding:12px; background:#fff; border:none; border-radius:10px; color:#000; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.25s; }
+    .db-dismiss-btn:hover { background:#e8e8e8; transform:translateY(-1px); }
     .sim-scenario-question { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; color:#fff; margin-bottom:12px; line-height:1.3; }
     .sim-summary-text { font-size:13px; color:rgba(255,255,255,0.65); line-height:1.8; font-family:'Inter',sans-serif; }
     /* Cost impact */
@@ -1790,6 +1969,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
   <button class="layer-btn" id="btnLabor" onclick="updateMapLayer('labor')">Labor</button>
   <button class="layer-btn" id="btnCost" onclick="updateMapLayer('cost')">Cost</button>
   <button class="layer-btn" id="btnSourcing" onclick="updateMapLayer('sourcing')">Sourcing</button>
+  <button class="layer-btn" id="btnRoutes" onclick="toggleShippingRoutes()">Routes</button>
   <button class="layer-btn" onclick="openCompTool()">⊞ Compare</button>
 </div>
 
@@ -1811,7 +1991,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <div class="hero-stat"><div class="hero-stat-num">&lt;2s</div><div class="hero-stat-lbl">Analysis</div></div>
     </div>
     <div class="hero-actions">
-      <button class="btn-primary" onclick="var p=document.getElementById('onboardingPanel');p.style.display='block';p.scrollTop=0;var si=document.getElementById('onboardScrollIndicator');if(si)si.classList.remove('si-hidden');">Claim Founder Access</button>
+      <button class="btn-primary" onclick="showPricing()">Claim Founder Access</button>
       <button class="btn-secondary" onclick="document.getElementById('heroPanel').style.display='none'">Explore Map</button>
     </div>
     <div class="hero-founder-line">First 10 founders get 50% off forever.</div>
@@ -2265,6 +2445,14 @@ function closeProfileSection() {
     updateHeroStats();
     // Start hero float after profile closes
     setTimeout(function(){ var h=document.getElementById('heroPanel'); if(h) h.style.animation='heroFloat 5s ease-in-out infinite'; }, 800);
+    // Show onboarding slides if first time, otherwise show daily briefing
+    if(typeof showOnboardSlides==='function'){
+      if(localStorage.getItem('risksim_onboarding_done')==='1'){
+        if(typeof showDailyBriefing==='function')setTimeout(showDailyBriefing,900);
+      }else{
+        setTimeout(showOnboardSlides,900);
+      }
+    }
   }, 560);
 }
 
@@ -3877,6 +4065,532 @@ function exitSimCompare(){
   showSimEmpty();
 }
 </script>
+
+<!-- ===== SYSTEM JS: Pricing, Jarvis, Onboarding, Routes, Briefing ===== -->
+<script>
+// ===== PRICING OVERLAY =====
+function showPricing(){
+  var o=document.getElementById('pricingOverlay');
+  if(o){o.classList.add('pricing-open');}
+}
+function closePricing(){
+  var o=document.getElementById('pricingOverlay');
+  if(o){o.classList.remove('pricing-open');}
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    closePricing();
+    if(typeof closeDailyBriefing==='function')closeDailyBriefing();
+    if(typeof closeOnboardSlides==='function')closeOnboardSlides();
+  }
+});
+
+// ===== JARVIS MODE =====
+var _jarvisEnabled=false;
+var _jarvisRecognition=null;
+var _jarvisHonorific='Sir';
+var _jarvisResponseTimer=null;
+var _jarvisSpeaking=false;
+
+function initJarvis(){
+  var stored=localStorage.getItem('jarvis_honorific');
+  if(stored)_jarvisHonorific=stored;
+  var enabled=localStorage.getItem('jarvis_enabled')==='1';
+  if(enabled)enableJarvis();
+}
+
+function toggleJarvis(){
+  if(_jarvisEnabled)disableJarvis();
+  else enableJarvis();
+}
+
+function enableJarvis(){
+  _jarvisEnabled=true;
+  localStorage.setItem('jarvis_enabled','1');
+  var btn=document.getElementById('jarvisToggleBtn');
+  var border=document.getElementById('jarvisBorder');
+  if(btn){btn.textContent='JARVIS ACTIVE';btn.classList.add('jarvis-on');}
+  if(border)border.classList.add('jarvis-active');
+  startJarvisListening();
+  jarvisSpeak('Hello, '+_jarvisHonorific+'. RiskSim intelligence is online. Say "Jarvis" followed by a command.');
+}
+
+function disableJarvis(){
+  _jarvisEnabled=false;
+  localStorage.setItem('jarvis_enabled','0');
+  var btn=document.getElementById('jarvisToggleBtn');
+  var border=document.getElementById('jarvisBorder');
+  if(btn){btn.textContent='ENABLE JARVIS';btn.classList.remove('jarvis-on');}
+  if(border)border.classList.remove('jarvis-active');
+  stopJarvisListening();
+  hideJarvisBubbles();
+}
+
+function startJarvisListening(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    console.warn('Jarvis: Web Speech API not available');return;
+  }
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(_jarvisRecognition){try{_jarvisRecognition.stop();}catch(e){}}
+  var r=new SR();
+  r.continuous=true;
+  r.interimResults=false;
+  r.lang='en-US';
+  r.onresult=function(e){
+    var t=e.results[e.results.length-1][0].transcript.trim().toLowerCase();
+    if(t.indexOf('jarvis')!==-1){
+      var cmd=t.replace(/jarvis/,'').trim();
+      handleJarvisCommand(cmd);
+    }
+  };
+  r.onerror=function(e){
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){disableJarvis();return;}
+    setTimeout(function(){if(_jarvisEnabled)startJarvisListening();},2000);
+  };
+  r.onend=function(){
+    if(_jarvisEnabled)setTimeout(function(){if(_jarvisEnabled)startJarvisListening();},500);
+  };
+  _jarvisRecognition=r;
+  try{r.start();}catch(e){}
+}
+
+function stopJarvisListening(){
+  if(_jarvisRecognition){try{_jarvisRecognition.stop();}catch(e){}; _jarvisRecognition=null;}
+}
+
+function handleJarvisCommand(cmd){
+  var bubble=document.getElementById('jarvisListeningBubble');
+  var listenText=document.getElementById('jarvisListeningText');
+  if(bubble)bubble.classList.add('jlb-visible');
+  if(listenText)listenText.textContent='"'+cmd+'"';
+
+  var response='';
+  // Navigation commands
+  if(/\b(open|go to|show|switch to|navigate)\b.*\bmap\b/.test(cmd)||(cmd==='map')){
+    switchModule('map');response='Opening the Map module, '+_jarvisHonorific+'.';
+  }else if(/\b(open|go to|show|switch to|navigate)\b.*\baudit\b/.test(cmd)||(cmd==='audit')){
+    switchModule('audit');response='Supplier Audit module activated, '+_jarvisHonorific+'.';
+  }else if(/\b(open|go to|show|switch to|navigate)\b.*\bterminal\b/.test(cmd)||(cmd==='terminal')){
+    switchModule('warroom');response='Terminal intelligence feed loading, '+_jarvisHonorific+'.';
+  }else if(/\b(open|go to|show|switch to|navigate)\b.*\bsimulat/.test(cmd)||(cmd==='simulator')){
+    switchModule('simulator');response='Scenario Simulator online, '+_jarvisHonorific+'.';
+  }
+  // Status / greeting
+  else if(/\b(hello|hey|hi|good morning|good evening)\b/.test(cmd)){
+    response='Hello, '+_jarvisHonorific+'. All systems nominal. Global risk intelligence is active.';
+  }else if(/\b(status|how are you|system status)\b/.test(cmd)){
+    response='All systems operational, '+_jarvisHonorific+'. 47 active supply chain events being monitored.';
+  }else if(/\b(what.?s the risk|global risk|risk level)\b/.test(cmd)){
+    response='Current global supply chain risk index stands at 73 out of 100, '+_jarvisHonorific+'. Elevated pressure from Southeast Asian port delays and European energy costs.';
+  }else if(/\b(pricing|subscribe|plan)\b/.test(cmd)){
+    showPricing();response='Opening pricing information, '+_jarvisHonorific+'.';
+  }else if(/\b(close|dismiss|hide|goodbye|shut down)\b/.test(cmd)){
+    response='Understood, '+_jarvisHonorific+'. Standing by.';
+    setTimeout(function(){hideJarvisBubbles();},1800);
+  }else if(cmd.length<2){
+    response='Yes, '+_jarvisHonorific+'? Please follow "Jarvis" with a command.';
+  }else{
+    response='I heard "'+cmd+'". I\'m working on expanding my capabilities, '+_jarvisHonorific+'. Try navigation commands like "Jarvis, open map".';
+  }
+
+  setTimeout(function(){
+    if(bubble)bubble.classList.remove('jlb-visible');
+    if(response)jarvisSpeak(response);
+  },600);
+}
+
+function jarvisSpeak(text){
+  var respBubble=document.getElementById('jarvisResponseBubble');
+  var respText=document.getElementById('jarvisResponseText');
+  if(respBubble&&respText){
+    respText.textContent=text;
+    respBubble.classList.add('jrb-visible');
+  }
+  if(_jarvisResponseTimer)clearTimeout(_jarvisResponseTimer);
+  _jarvisResponseTimer=setTimeout(function(){hideJarvisBubbles();},6000);
+
+  if('speechSynthesis' in window){
+    window.speechSynthesis.cancel();
+    var utt=new SpeechSynthesisUtterance(text);
+    utt.lang='en-GB';
+    utt.rate=0.95;
+    utt.pitch=0.9;
+    utt.volume=0.8;
+    // Try to find a good voice
+    var voices=window.speechSynthesis.getVoices();
+    var preferred=['Google UK English Male','Daniel','Microsoft David','Alex'];
+    for(var i=0;i<preferred.length;i++){
+      var v=voices.find(function(vv){return vv.name===preferred[i]||vv.name.toLowerCase().indexOf(preferred[i].toLowerCase())!==-1;});
+      if(v){utt.voice=v;break;}
+    }
+    window.speechSynthesis.speak(utt);
+  }
+}
+
+function hideJarvisBubbles(){
+  var a=document.getElementById('jarvisListeningBubble');
+  var b=document.getElementById('jarvisResponseBubble');
+  if(a)a.classList.remove('jlb-visible');
+  if(b)b.classList.remove('jrb-visible');
+}
+
+// ===== ONBOARDING SLIDES =====
+var _obsSlide=0;
+var _obsJarvisHonorific='Sir';
+var _obsJarvisEnabled=false;
+
+var _obsSlides=[
+  {
+    icon:'◉',
+    label:'Step 1 of 3',
+    title:'Navigate Your Intelligence.',
+    desc:'Use the navigation pill at the top to switch between modules: Map (global risk view), Audit (supplier deep-dive), Terminal (live intelligence feed), and Simulator (what-if scenarios).'
+  },
+  {
+    icon:'⊹',
+    label:'Step 2 of 3',
+    title:'AI Chat, Always On.',
+    desc:'The chat bar at the bottom is your always-available analyst. Ask anything — "What\'s the risk in Vietnam?", "Compare China vs Mexico", or "Run a tariff scenario". Powered by RiskSim AI.'
+  },
+  {
+    icon:'◈',
+    label:'Step 3 of 3',
+    title:'Meet Jarvis.',
+    desc:'Jarvis is your voice-activated intelligence assistant. Say "Jarvis, open map" or "Jarvis, what\'s the global risk?" — always listening, always ready.',
+    jarvisOpts:true
+  }
+];
+
+function showOnboardSlides(){
+  if(localStorage.getItem('risksim_onboarding_done')==='1')return;
+  _obsSlide=0;
+  _obsJarvisHonorific='Sir';
+  _obsJarvisEnabled=false;
+  renderObsSlide();
+  document.getElementById('onboardSlides').classList.add('obs-open');
+}
+
+function renderObsSlide(){
+  var s=_obsSlides[_obsSlide];
+  var pips=['obsPip0','obsPip1','obsPip2'];
+  pips.forEach(function(id,i){
+    var el=document.getElementById(id);
+    if(!el)return;
+    el.className='obs-pip'+(i<_obsSlide?' done':i===_obsSlide?' active':'');
+  });
+  var btn=document.getElementById('obsNextBtn');
+  if(btn)btn.textContent=_obsSlide<_obsSlides.length-1?'Continue →':'Get Started';
+
+  var content=document.getElementById('obsSlideContent');
+  if(!content)return;
+  var html='<div class="obs-icon">'+s.icon+'</div>'
+    +'<div class="obs-label">'+s.label+'</div>'
+    +'<div class="obs-title">'+s.title+'</div>'
+    +'<div class="obs-desc">'+s.desc+'</div>';
+  if(s.jarvisOpts){
+    html+='<div class="obs-jarvis-opts">'
+      +'<div class="obs-honorific-row">'
+      +'<button class="obs-honorific-btn selected" id="obsHonSir" onclick="selectObsHonorific(\'Sir\')">Sir</button>'
+      +'<button class="obs-honorific-btn" id="obsHonMaam" onclick="selectObsHonorific(\'Ma\'am\')">Ma\'am</button>'
+      +'</div>'
+      +'<div class="obs-enable-row">'
+      +'<span class="obs-enable-label">Enable Jarvis voice assistant</span>'
+      +'<button class="obs-toggle" id="obsJarvisToggle" onclick="toggleObsJarvis()"></button>'
+      +'</div>'
+      +'</div>';
+  }
+  content.innerHTML=html;
+}
+
+function selectObsHonorific(h){
+  _obsJarvisHonorific=h;
+  var sir=document.getElementById('obsHonSir');
+  var maam=document.getElementById('obsHonMaam');
+  if(sir)sir.className='obs-honorific-btn'+(h==='Sir'?' selected':'');
+  if(maam)maam.className='obs-honorific-btn'+(h==="Ma'am"?' selected':'');
+}
+
+function toggleObsJarvis(){
+  _obsJarvisEnabled=!_obsJarvisEnabled;
+  var t=document.getElementById('obsJarvisToggle');
+  if(t)t.className='obs-toggle'+(_obsJarvisEnabled?' on':'');
+}
+
+function obsNext(){
+  if(_obsSlide<_obsSlides.length-1){
+    _obsSlide++;
+    renderObsSlide();
+  }else{
+    // Save settings and close
+    localStorage.setItem('risksim_onboarding_done','1');
+    localStorage.setItem('jarvis_honorific',_obsJarvisHonorific);
+    _jarvisHonorific=_obsJarvisHonorific;
+    if(_obsJarvisEnabled){
+      localStorage.setItem('jarvis_enabled','1');
+      enableJarvis();
+    }
+    closeOnboardSlides();
+    // Trigger daily briefing after a short delay
+    setTimeout(showDailyBriefing,800);
+  }
+}
+
+function closeOnboardSlides(){
+  document.getElementById('onboardSlides').classList.remove('obs-open');
+  localStorage.setItem('risksim_onboarding_done','1');
+}
+
+// ===== ANIMATED SHIPPING ROUTES =====
+var _routesEnabled=false;
+var _routeLayers=[];
+var _routeDotAnimFrames=[];
+
+var SHIPPING_ROUTES=[
+  {from:[121.5,31.2],to:[-118.2,33.9],name:'Shanghai → LA',risk:'medium'},
+  {from:[103.8,1.35],to:[51.5,0.12],name:'Singapore → London',risk:'low'},
+  {from:[55.3,25.2],to:[40.7,74.0],name:'Dubai → New York',risk:'low'},
+  {from:[139.7,35.7],to:[37.6,55.7],name:'Tokyo → Moscow',risk:'high'},
+  {from:[114.1,22.3],to:[2.3,48.9],name:'Hong Kong → Paris',risk:'medium'},
+  {from:[80.3,13.1],to:[-43.2,-22.9],name:'Chennai → Rio',risk:'low'},
+  {from:[-87.6,41.9],to:[18.1,59.3],name:'Chicago → Stockholm',risk:'low'},
+  {from:[126.9,37.6],to:[151.2,-33.9],name:'Seoul → Sydney',risk:'medium'},
+  {from:[72.9,19.1],to:[31.2,30.1],name:'Mumbai → Cairo',risk:'high'},
+  {from:[-46.6,-23.6],to:[-77.0,38.9],name:'São Paulo → Washington',risk:'low'}
+];
+
+function toggleShippingRoutes(){
+  if(_routesEnabled)hideShippingRoutes();
+  else showShippingRoutes();
+}
+
+function showShippingRoutes(){
+  if(!window.L||!window.map)return;
+  _routesEnabled=true;
+  var btn=document.getElementById('btnRoutes');
+  if(btn)btn.classList.add('active');
+
+  var profile=null;
+  try{profile=JSON.parse(localStorage.getItem('risksim_profile'));}catch(e){}
+  var sourcingCountries=(profile&&profile.sourcingCountries)||[];
+
+  SHIPPING_ROUTES.forEach(function(route){
+    var riskColors={high:'rgba(255,80,80,0.45)',medium:'rgba(255,190,60,0.35)',low:'rgba(80,200,120,0.28)'};
+    var col=riskColors[route.risk]||riskColors.low;
+
+    // Check if route involves user's sourcing regions (highlight)
+    var isPersonal=false;
+    if(sourcingCountries.length){
+      isPersonal=sourcingCountries.some(function(c){
+        var cLow=c.toLowerCase();
+        return route.name.toLowerCase().indexOf(cLow.slice(0,4))!==-1;
+      });
+    }
+
+    // Draw dashed polyline (great circle approximated)
+    var pts=interpolateGreatCircle(route.from,route.to,24);
+    var latlngs=pts.map(function(p){return[p[1],p[0]];});
+    var poly=L.polyline(latlngs,{
+      color:isPersonal?'rgba(100,200,255,0.5)':col,
+      weight:isPersonal?1.5:1,
+      dashArray:'6,8',
+      opacity:1
+    }).addTo(window.map);
+    poly.bindTooltip(route.name,{sticky:true,className:'leaflet-control'});
+    _routeLayers.push(poly);
+
+    // Animate a moving dot along the route
+    animateRouteDot(latlngs,isPersonal?'rgba(130,210,255,0.9)':col.replace(/[\d.]+\)$/,'0.9)'));
+  });
+}
+
+function interpolateGreatCircle(from,to,steps){
+  var pts=[];
+  for(var i=0;i<=steps;i++){
+    var t=i/steps;
+    var lng=from[0]+(to[0]-from[0])*t;
+    var lat=from[1]+(to[1]-from[1])*t;
+    pts.push([lng,lat]);
+  }
+  return pts;
+}
+
+function animateRouteDot(latlngs,color){
+  var idx=0;
+  var dot=L.circleMarker(latlngs[0],{radius:3,color:color,fillColor:color,fillOpacity:0.9,opacity:0.9,weight:0}).addTo(window.map);
+  _routeLayers.push(dot);
+  var step=Math.max(1,Math.floor(Math.random()*3+1));
+  var speed=Math.floor(Math.random()*60+40);
+  function move(){
+    idx=(idx+step)%latlngs.length;
+    dot.setLatLng(latlngs[idx]);
+    var t=setTimeout(move,speed);
+    _routeDotAnimFrames.push(t);
+  }
+  var t=setTimeout(move,Math.random()*2000);
+  _routeDotAnimFrames.push(t);
+}
+
+function hideShippingRoutes(){
+  _routesEnabled=false;
+  var btn=document.getElementById('btnRoutes');
+  if(btn)btn.classList.remove('active');
+  _routeLayers.forEach(function(l){if(window.map&&l)window.map.removeLayer(l);});
+  _routeLayers=[];
+  _routeDotAnimFrames.forEach(function(t){clearTimeout(t);});
+  _routeDotAnimFrames=[];
+}
+
+// ===== DAILY BRIEFING =====
+var DB_ALERTS=[
+  {sev:'high',tag:'Port Alert',text:'Port of Shanghai operating at 89% capacity — container backlogs forming. Expected 4–7 day delay on trans-Pacific routes.',src:'Port Authority Feed'},
+  {sev:'medium',tag:'Tariff Watch',text:'US Section 301 tariff review ongoing — potential 15% increase on electronics components from China in Q2 2026.',src:'Trade Intelligence'},
+  {sev:'medium',tag:'Labour Risk',text:'Dock worker negotiations in Rotterdam break down. Strike action possible within 72 hours.',src:'Labour Monitor'},
+  {sev:'low',tag:'Commodity',text:'Global semiconductor lead times down 15% from Q4 2025 peak — supply easing across consumer electronics sector.',src:'Bloomberg Terminal'}
+];
+
+function showDailyBriefing(){
+  var today=new Date().toDateString();
+  var last=localStorage.getItem('risksim_last_briefing');
+  if(last===today)return;
+
+  var profile=null;
+  try{profile=JSON.parse(localStorage.getItem('risksim_profile'));}catch(e){}
+  var name=profile&&profile.name?profile.name.split(' ')[0]:'';
+  var hour=new Date().getHours();
+  var greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+
+  var titleEl=document.getElementById('dbTitle');
+  if(titleEl)titleEl.textContent=greeting+(name?', '+name:'')+'.';
+
+  var alertsEl=document.getElementById('dbAlerts');
+  if(alertsEl){
+    alertsEl.innerHTML=DB_ALERTS.map(function(a){
+      return'<div class="db-alert '+a.sev+'">'
+        +'<div class="db-alert-tag">'+a.tag+'</div>'
+        +'<div class="db-alert-text">'+a.text+'</div>'
+        +'<div class="db-alert-src">'+a.src+'</div>'
+        +'</div>';
+    }).join('');
+  }
+
+  var jarvisLine=document.getElementById('dbJarvisLine');
+  if(jarvisLine&&localStorage.getItem('jarvis_enabled')==='1'){
+    var h=localStorage.getItem('jarvis_honorific')||'Sir';
+    jarvisLine.textContent='Good '+(['morning','afternoon','evening'][hour<12?0:hour<17?1:2])+', '+h+'. Four intelligence items require your attention. Port pressure in Shanghai is your highest priority. Shall I navigate there?';
+    jarvisLine.style.display='block';
+    setTimeout(function(){jarvisSpeak(jarvisLine.textContent);},800);
+  }
+
+  document.getElementById('dailyBriefing').classList.add('db-open');
+}
+
+function closeDailyBriefing(){
+  localStorage.setItem('risksim_last_briefing',new Date().toDateString());
+  document.getElementById('dailyBriefing').classList.remove('db-open');
+}
+
+// ===== INIT =====
+window.addEventListener('load',function(){
+  initJarvis();
+  // Close pricing on backdrop click
+  var po=document.getElementById('pricingOverlay');
+  if(po)po.addEventListener('click',function(e){if(e.target===this)closePricing();});
+  // Close daily briefing on backdrop click
+  var db=document.getElementById('dailyBriefing');
+  if(db)db.addEventListener('click',function(e){if(e.target===this)closeDailyBriefing();});
+  // Close onboard slides on backdrop click
+  var obs=document.getElementById('onboardSlides');
+  if(obs)obs.addEventListener('click',function(e){if(e.target===this)closeOnboardSlides();});
+});
+
+</script>
+
+<!-- ===== PRICING OVERLAY ===== -->
+<div id="pricingOverlay">
+  <div class="pricing-card">
+    <button class="pricing-close" onclick="closePricing()">✕</button>
+    <div class="pricing-badge"><span class="pricing-badge-dot"></span>Founder Access</div>
+    <h2 class="pricing-title">Simple, Honest Pricing</h2>
+    <p class="pricing-sub">Join the first 10 founders and lock in 50% off forever. No hidden fees, no long-term contracts.</p>
+    <div class="pricing-plans">
+      <div class="pricing-plan">
+        <span class="pricing-plan-label">Starter</span>
+        <div class="pricing-plan-price">$299<span>/mo</span></div>
+        <p class="pricing-plan-desc">For small teams beginning to map supply chain risk.</p>
+        <ul class="pricing-plan-features">
+          <li>Map Intelligence — 50 countries</li>
+          <li>AI Chat (100 queries/mo)</li>
+          <li>Weekly risk digest</li>
+          <li>2 team seats</li>
+        </ul>
+        <button class="pricing-plan-btn" onclick="alert('Coming soon — email hello@risksim.ai to join the waitlist.')">Get Started</button>
+      </div>
+      <div class="pricing-plan featured">
+        <span class="pricing-plan-label hl">Enterprise — Founder Rate</span>
+        <div class="pricing-plan-price">$799<span>/mo</span></div>
+        <p class="pricing-plan-desc">Full platform access. Everything, unlocked.</p>
+        <ul class="pricing-plan-features">
+          <li>All 4 modules — Map, Audit, Terminal, Simulator</li>
+          <li>Unlimited AI queries + Jarvis Mode</li>
+          <li>Real-time alerts + Daily briefing</li>
+          <li>Scenario modeling with compare mode</li>
+          <li>Unlimited team seats</li>
+          <li>50% off locked in forever</li>
+        </ul>
+        <button class="pricing-plan-btn featured-btn" onclick="alert('Coming soon — email hello@risksim.ai to reserve your founder spot.')">Reserve Founder Spot →</button>
+      </div>
+    </div>
+    <div class="pricing-contact">Questions? <a href="mailto:hello@risksim.ai">hello@risksim.ai</a></div>
+  </div>
+</div>
+
+<!-- ===== JARVIS BORDER GLOW ===== -->
+<div id="jarvisBorder"></div>
+
+<!-- ===== JARVIS TOGGLE BUTTON ===== -->
+<button id="jarvisToggleBtn" onclick="toggleJarvis()">ENABLE JARVIS</button>
+
+<!-- ===== JARVIS LISTENING BUBBLE ===== -->
+<div id="jarvisListeningBubble">
+  <div class="jarvis-listen-dot"></div>
+  <span id="jarvisListeningText">Listening…</span>
+</div>
+
+<!-- ===== JARVIS RESPONSE BUBBLE ===== -->
+<div id="jarvisResponseBubble">
+  <div class="jarvis-resp-label">Jarvis</div>
+  <div id="jarvisResponseText"></div>
+</div>
+
+<!-- ===== ONBOARDING SLIDES ===== -->
+<div id="onboardSlides">
+  <div class="obs-card">
+    <div class="obs-progress">
+      <div class="obs-pip active" id="obsPip0"></div>
+      <div class="obs-pip" id="obsPip1"></div>
+      <div class="obs-pip" id="obsPip2"></div>
+    </div>
+    <div id="obsSlideContent"></div>
+    <button class="obs-next-btn" id="obsNextBtn" onclick="obsNext()">Continue →</button>
+    <button class="obs-skip" onclick="closeOnboardSlides()">Skip introduction</button>
+  </div>
+</div>
+
+<!-- ===== DAILY BRIEFING ===== -->
+<div id="dailyBriefing">
+  <div class="db-card">
+    <div class="db-header">
+      <div class="db-title-wrap">
+        <div class="db-label">Morning Intelligence Brief</div>
+        <div class="db-title" id="dbTitle">Good morning.</div>
+      </div>
+      <button class="db-close" onclick="closeDailyBriefing()">✕</button>
+    </div>
+    <div class="db-alerts" id="dbAlerts"></div>
+    <div class="db-jarvis-line" id="dbJarvisLine" style="display:none"></div>
+    <button class="db-dismiss-btn" onclick="closeDailyBriefing()">Got it — Launch RiskSim</button>
+  </div>
+</div>
 
 <!-- ===== D3 INTRO GLOBE ===== -->
 <script>
