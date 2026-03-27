@@ -1280,67 +1280,6 @@
     .sim-card-action { padding:5px 12px; border-radius:7px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:rgba(255,255,255,0.45); font-size:10px; cursor:pointer; transition:all 0.2s; font-family:'JetBrains Mono',monospace; }
     .sim-card-action:hover { border-color:rgba(255,255,255,0.2); color:#fff; }
 
-    /* ===== PRICING OVERLAY ===== */
-    #pricingOverlay {
-      position:fixed; inset:0; z-index:9999998;
-      background:rgba(0,0,0,0.93); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-      display:none; align-items:center; justify-content:center; padding:20px;
-    }
-    #pricingOverlay.pricing-open { display:flex; }
-    .pricing-card {
-      width:100%; max-width:680px; max-height:92vh; overflow-y:auto;
-      background:rgba(255,255,255,0.04); backdrop-filter:blur(80px) saturate(200%); -webkit-backdrop-filter:blur(80px) saturate(200%);
-      border:1px solid rgba(255,255,255,0.1); border-radius:24px;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,0.14), 0 32px 100px rgba(0,0,0,0.9);
-      padding:44px 40px; position:relative; animation:amCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
-    }
-    .pricing-card::-webkit-scrollbar { width:4px; }
-    .pricing-card::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:4px; }
-    .pricing-close {
-      position:absolute; top:16px; right:16px; width:30px; height:30px;
-      border-radius:50%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
-      color:rgba(255,255,255,0.4); font-size:13px; cursor:pointer;
-      display:flex; align-items:center; justify-content:center; transition:all 0.2s;
-    }
-    .pricing-close:hover { background:rgba(255,255,255,0.1); color:#fff; }
-    .pricing-badge {
-      display:inline-flex; align-items:center; gap:7px; padding:5px 14px;
-      border-radius:999px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.04);
-      font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.2em;
-      color:rgba(255,255,255,0.55); text-transform:uppercase; margin-bottom:22px;
-    }
-    .pricing-badge-dot { width:5px; height:5px; border-radius:50%; background:#fff; box-shadow:0 0 6px #fff; animation:rsBlink 2s infinite; }
-    .pricing-title { font-family:'Syne',sans-serif; font-weight:800; font-size:30px; color:#fff; letter-spacing:-0.02em; margin-bottom:10px; }
-    .pricing-sub { font-size:13px; color:rgba(255,255,255,0.42); line-height:1.65; margin-bottom:32px; }
-    .pricing-plans { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:28px; }
-    @media(max-width:560px){ .pricing-plans { grid-template-columns:1fr; } }
-    .pricing-plan {
-      border:1px solid rgba(255,255,255,0.08); border-radius:16px;
-      padding:24px 20px; background:rgba(255,255,255,0.02); transition:all 0.3s;
-    }
-    .pricing-plan.featured {
-      border-color:rgba(255,255,255,0.2); background:rgba(255,255,255,0.05);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.5);
-    }
-    .pricing-plan-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:12px; display:block; }
-    .pricing-plan-label.hl { color:rgba(255,255,255,0.7); }
-    .pricing-plan-price { font-family:'Syne',sans-serif; font-size:34px; font-weight:800; color:#fff; margin-bottom:6px; }
-    .pricing-plan-price span { font-size:14px; font-weight:400; color:rgba(255,255,255,0.38); margin-left:3px; font-family:'Inter',sans-serif; }
-    .pricing-plan-desc { font-size:12px; color:rgba(255,255,255,0.38); margin-bottom:20px; line-height:1.5; }
-    .pricing-plan-features { list-style:none; display:flex; flex-direction:column; gap:9px; margin-bottom:22px; }
-    .pricing-plan-features li { display:flex; align-items:flex-start; gap:8px; font-size:11px; color:rgba(255,255,255,0.55); line-height:1.5; }
-    .pricing-plan-features li::before { content:'—'; color:rgba(255,255,255,0.2); flex-shrink:0; }
-    .pricing-plan-btn {
-      width:100%; padding:12px; border:1px solid rgba(255,255,255,0.15); border-radius:10px;
-      background:transparent; color:rgba(255,255,255,0.6); font-size:12px; font-weight:600;
-      cursor:pointer; transition:all 0.25s; font-family:'Inter',sans-serif; letter-spacing:0.03em;
-    }
-    .pricing-plan-btn:hover { border-color:rgba(255,255,255,0.3); color:#fff; background:rgba(255,255,255,0.04); }
-    .pricing-plan-btn.featured-btn { background:#fff; color:#000; border-color:#fff; }
-    .pricing-plan-btn.featured-btn:hover { background:#e8e8e8; transform:translateY(-1px); box-shadow:0 6px 24px rgba(255,255,255,0.15); }
-    .pricing-contact { text-align:center; font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.25); letter-spacing:0.08em; }
-    .pricing-contact a { color:rgba(255,255,255,0.4); text-decoration:none; }
-    .pricing-contact a:hover { color:#fff; }
 
     /* ===== JARVIS MODE ===== */
     #jarvisBorder {
@@ -1969,7 +1908,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
   <button class="layer-btn" id="btnLabor" onclick="updateMapLayer('labor')">Labor</button>
   <button class="layer-btn" id="btnCost" onclick="updateMapLayer('cost')">Cost</button>
   <button class="layer-btn" id="btnSourcing" onclick="updateMapLayer('sourcing')">Sourcing</button>
-  <button class="layer-btn" id="btnRoutes" onclick="toggleShippingRoutes()">Routes</button>
   <button class="layer-btn" onclick="openCompTool()">⊞ Compare</button>
 </div>
 
@@ -1994,7 +1932,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <button class="btn-primary" onclick="showPricing()">Claim Founder Access</button>
       <button class="btn-secondary" onclick="document.getElementById('heroPanel').style.display='none'">Explore Map</button>
     </div>
-    <div class="hero-founder-line">First 10 founders get 50% off forever.</div>
+    <div class="hero-founder-line">First 10 founders get 30% off forever.</div>
   </div>
 </div>
 
@@ -4066,16 +4004,20 @@ function exitSimCompare(){
 }
 </script>
 
-<!-- ===== SYSTEM JS: Pricing, Jarvis, Onboarding, Routes, Briefing ===== -->
+<!-- ===== SYSTEM JS: Pricing, Jarvis, Onboarding, Briefing ===== -->
 <script>
 // ===== PRICING OVERLAY =====
 function showPricing(){
   var o=document.getElementById('pricingOverlay');
-  if(o){o.classList.add('pricing-open');}
+  if(o){o.style.display='flex';}
+  var nav=document.getElementById('rsNav');
+  if(nav)nav.style.display='none';
 }
 function closePricing(){
   var o=document.getElementById('pricingOverlay');
-  if(o){o.classList.remove('pricing-open');}
+  if(o){o.style.display='none';}
+  var nav=document.getElementById('rsNav');
+  if(nav)nav.style.display='';
 }
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
@@ -4340,106 +4282,6 @@ function closeOnboardSlides(){
   localStorage.setItem('risksim_onboarding_done','1');
 }
 
-// ===== ANIMATED SHIPPING ROUTES =====
-var _routesEnabled=false;
-var _routeLayers=[];
-var _routeDotAnimFrames=[];
-
-var SHIPPING_ROUTES=[
-  {from:[121.5,31.2],to:[-118.2,33.9],name:'Shanghai → LA',risk:'medium'},
-  {from:[103.8,1.35],to:[51.5,0.12],name:'Singapore → London',risk:'low'},
-  {from:[55.3,25.2],to:[40.7,74.0],name:'Dubai → New York',risk:'low'},
-  {from:[139.7,35.7],to:[37.6,55.7],name:'Tokyo → Moscow',risk:'high'},
-  {from:[114.1,22.3],to:[2.3,48.9],name:'Hong Kong → Paris',risk:'medium'},
-  {from:[80.3,13.1],to:[-43.2,-22.9],name:'Chennai → Rio',risk:'low'},
-  {from:[-87.6,41.9],to:[18.1,59.3],name:'Chicago → Stockholm',risk:'low'},
-  {from:[126.9,37.6],to:[151.2,-33.9],name:'Seoul → Sydney',risk:'medium'},
-  {from:[72.9,19.1],to:[31.2,30.1],name:'Mumbai → Cairo',risk:'high'},
-  {from:[-46.6,-23.6],to:[-77.0,38.9],name:'São Paulo → Washington',risk:'low'}
-];
-
-function toggleShippingRoutes(){
-  if(_routesEnabled)hideShippingRoutes();
-  else showShippingRoutes();
-}
-
-function showShippingRoutes(){
-  if(!window.L||!window.map)return;
-  _routesEnabled=true;
-  var btn=document.getElementById('btnRoutes');
-  if(btn)btn.classList.add('active');
-
-  var profile=null;
-  try{profile=JSON.parse(localStorage.getItem('risksim_profile'));}catch(e){}
-  var sourcingCountries=(profile&&profile.sourcingCountries)||[];
-
-  SHIPPING_ROUTES.forEach(function(route){
-    var riskColors={high:'rgba(255,80,80,0.45)',medium:'rgba(255,190,60,0.35)',low:'rgba(80,200,120,0.28)'};
-    var col=riskColors[route.risk]||riskColors.low;
-
-    // Check if route involves user's sourcing regions (highlight)
-    var isPersonal=false;
-    if(sourcingCountries.length){
-      isPersonal=sourcingCountries.some(function(c){
-        var cLow=c.toLowerCase();
-        return route.name.toLowerCase().indexOf(cLow.slice(0,4))!==-1;
-      });
-    }
-
-    // Draw dashed polyline (great circle approximated)
-    var pts=interpolateGreatCircle(route.from,route.to,24);
-    var latlngs=pts.map(function(p){return[p[1],p[0]];});
-    var poly=L.polyline(latlngs,{
-      color:isPersonal?'rgba(100,200,255,0.5)':col,
-      weight:isPersonal?1.5:1,
-      dashArray:'6,8',
-      opacity:1
-    }).addTo(window.map);
-    poly.bindTooltip(route.name,{sticky:true,className:'leaflet-control'});
-    _routeLayers.push(poly);
-
-    // Animate a moving dot along the route
-    animateRouteDot(latlngs,isPersonal?'rgba(130,210,255,0.9)':col.replace(/[\d.]+\)$/,'0.9)'));
-  });
-}
-
-function interpolateGreatCircle(from,to,steps){
-  var pts=[];
-  for(var i=0;i<=steps;i++){
-    var t=i/steps;
-    var lng=from[0]+(to[0]-from[0])*t;
-    var lat=from[1]+(to[1]-from[1])*t;
-    pts.push([lng,lat]);
-  }
-  return pts;
-}
-
-function animateRouteDot(latlngs,color){
-  var idx=0;
-  var dot=L.circleMarker(latlngs[0],{radius:3,color:color,fillColor:color,fillOpacity:0.9,opacity:0.9,weight:0}).addTo(window.map);
-  _routeLayers.push(dot);
-  var step=Math.max(1,Math.floor(Math.random()*3+1));
-  var speed=Math.floor(Math.random()*60+40);
-  function move(){
-    idx=(idx+step)%latlngs.length;
-    dot.setLatLng(latlngs[idx]);
-    var t=setTimeout(move,speed);
-    _routeDotAnimFrames.push(t);
-  }
-  var t=setTimeout(move,Math.random()*2000);
-  _routeDotAnimFrames.push(t);
-}
-
-function hideShippingRoutes(){
-  _routesEnabled=false;
-  var btn=document.getElementById('btnRoutes');
-  if(btn)btn.classList.remove('active');
-  _routeLayers.forEach(function(l){if(window.map&&l)window.map.removeLayer(l);});
-  _routeLayers=[];
-  _routeDotAnimFrames.forEach(function(t){clearTimeout(t);});
-  _routeDotAnimFrames=[];
-}
-
 // ===== DAILY BRIEFING =====
 var DB_ALERTS=[
   {sev:'high',tag:'Port Alert',text:'Port of Shanghai operating at 89% capacity — container backlogs forming. Expected 4–7 day delay on trans-Pacific routes.',src:'Port Authority Feed'},
@@ -4504,45 +4346,6 @@ window.addEventListener('load',function(){
 });
 
 </script>
-
-<!-- ===== PRICING OVERLAY ===== -->
-<div id="pricingOverlay">
-  <div class="pricing-card">
-    <button class="pricing-close" onclick="closePricing()">✕</button>
-    <div class="pricing-badge"><span class="pricing-badge-dot"></span>Founder Access</div>
-    <h2 class="pricing-title">Simple, Honest Pricing</h2>
-    <p class="pricing-sub">Join the first 10 founders and lock in 50% off forever. No hidden fees, no long-term contracts.</p>
-    <div class="pricing-plans">
-      <div class="pricing-plan">
-        <span class="pricing-plan-label">Starter</span>
-        <div class="pricing-plan-price">$299<span>/mo</span></div>
-        <p class="pricing-plan-desc">For small teams beginning to map supply chain risk.</p>
-        <ul class="pricing-plan-features">
-          <li>Map Intelligence — 50 countries</li>
-          <li>AI Chat (100 queries/mo)</li>
-          <li>Weekly risk digest</li>
-          <li>2 team seats</li>
-        </ul>
-        <button class="pricing-plan-btn" onclick="alert('Coming soon — email hello@risksim.ai to join the waitlist.')">Get Started</button>
-      </div>
-      <div class="pricing-plan featured">
-        <span class="pricing-plan-label hl">Enterprise — Founder Rate</span>
-        <div class="pricing-plan-price">$799<span>/mo</span></div>
-        <p class="pricing-plan-desc">Full platform access. Everything, unlocked.</p>
-        <ul class="pricing-plan-features">
-          <li>All 4 modules — Map, Audit, Terminal, Simulator</li>
-          <li>Unlimited AI queries + Jarvis Mode</li>
-          <li>Real-time alerts + Daily briefing</li>
-          <li>Scenario modeling with compare mode</li>
-          <li>Unlimited team seats</li>
-          <li>50% off locked in forever</li>
-        </ul>
-        <button class="pricing-plan-btn featured-btn" onclick="alert('Coming soon — email hello@risksim.ai to reserve your founder spot.')">Reserve Founder Spot →</button>
-      </div>
-    </div>
-    <div class="pricing-contact">Questions? <a href="mailto:hello@risksim.ai">hello@risksim.ai</a></div>
-  </div>
-</div>
 
 <!-- ===== JARVIS BORDER GLOW ===== -->
 <div id="jarvisBorder"></div>
@@ -5181,17 +4984,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div><!-- /#pricingOverlay -->
 
 <script>
-// ===== PRICING OVERLAY =====
-function showPricing() {
-  document.getElementById('pricingOverlay').style.display = 'flex';
-  document.getElementById('rsNav').style.display='none';
-}
-
-function closePricing() {
-  document.getElementById('pricingOverlay').style.display = 'none';
-  document.getElementById('rsNav').style.display='';
-}
-
+// ===== BILLING TOGGLE & PRICING CLICK HANDLER =====
 function toggleBilling(isAnnual) {
   const btnMonthly = document.getElementById('poBtnMonthly');
   const btnAnnual = document.getElementById('poBtnAnnual');
