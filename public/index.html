@@ -4079,9 +4079,16 @@ function startJarvisListening(){
   r.interimResults=false;
   r.lang='en-US';
   r.onresult=function(e){
-    var t=e.results[e.results.length-1][0].transcript.trim().toLowerCase();
-    if(t.indexOf('jarvis')!==-1){
-      var cmd=t.replace(/jarvis/,'').trim();
+    var transcript=e.results[e.results.length-1][0].transcript.trim();
+    console.log('Jarvis heard:',transcript);
+    var t=transcript.toLowerCase();
+    console.log('Checking for wake word in:',t);
+    var variants=['jarvis','jarvas','service','travis','javis','jervis'];
+    var matched=null;
+    for(var i=0;i<variants.length;i++){if(t.indexOf(variants[i])!==-1){matched=variants[i];break;}}
+    if(matched){
+      console.log('WAKE WORD DETECTED');
+      var cmd=t.replace(new RegExp('\\b'+matched+'\\b'),'').trim();
       handleJarvisCommand(cmd);
     }
   };
