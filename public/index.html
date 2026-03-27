@@ -4093,11 +4093,14 @@ function startJarvisListening(){
     }
   };
   r.onerror=function(e){
+    console.log('Jarvis error:',e.error);
     if(e.error==='not-allowed'||e.error==='service-not-allowed'){disableJarvis();return;}
-    setTimeout(function(){if(_jarvisEnabled)startJarvisListening();},2000);
+    if(_jarvisEnabled&&(e.error==='no-speech'||e.error==='aborted'||e.error==='network')){
+      setTimeout(function(){if(_jarvisEnabled)startJarvisListening();},500);
+    }
   };
   r.onend=function(){
-    if(_jarvisEnabled)setTimeout(function(){if(_jarvisEnabled)startJarvisListening();},500);
+    if(_jarvisEnabled)setTimeout(function(){try{startJarvisListening();}catch(e){}},300);
   };
   _jarvisRecognition=r;
   try{r.start();}catch(e){}
@@ -4172,6 +4175,13 @@ function jarvisSpeak(text){
       var v=voices.find(function(vv){return vv.name===preferred[i]||vv.name.toLowerCase().indexOf(preferred[i].toLowerCase())!==-1;});
       if(v){utt.voice=v;break;}
     }
+    utt.onend=function(){
+      _jarvisSpeaking=false;
+      if(_jarvisEnabled){
+        setTimeout(function(){try{startJarvisListening();}catch(e){}},300);
+      }
+    };
+    _jarvisSpeaking=true;
     window.speechSynthesis.speak(utt);
   }
 }
