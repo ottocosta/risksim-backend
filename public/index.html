@@ -4033,6 +4033,8 @@ var _jarvisRecognition=null;
 var _jarvisHonorific='Sir';
 var _jarvisResponseTimer=null;
 var _jarvisSpeaking=false;
+var _jarvisListening=false;
+var _jarvisHeartbeat=null;
 
 function initJarvis(){
   var stored=localStorage.getItem('jarvis_honorific');
@@ -4054,6 +4056,12 @@ function enableJarvis(){
   if(btn){btn.textContent='JARVIS ACTIVE';btn.classList.add('jarvis-on');}
   if(border)border.classList.add('jarvis-active');
   startJarvisListening();
+  _jarvisHeartbeat=setInterval(function(){
+    if(_jarvisEnabled&&!_jarvisListening){
+      console.log('JARVIS: Heartbeat restart');
+      startJarvisListening();
+    }
+  },5000);
   jarvisSpeak('Hello, '+_jarvisHonorific+'. RiskSim intelligence is online. Say "Jarvis" followed by a command.');
 }
 
@@ -4064,6 +4072,7 @@ function disableJarvis(){
   var border=document.getElementById('jarvisBorder');
   if(btn){btn.textContent='ENABLE JARVIS';btn.classList.remove('jarvis-on');}
   if(border)border.classList.remove('jarvis-active');
+  if(_jarvisHeartbeat){clearInterval(_jarvisHeartbeat);_jarvisHeartbeat=null;}
   stopJarvisListening();
   hideJarvisBubbles();
 }
@@ -4078,32 +4087,39 @@ function startJarvisListening(){
   r.continuous=true;
   r.interimResults=false;
   r.lang='en-US';
+  _jarvisListening=true;
+  r.onstart=function(){
+    console.log('JARVIS: Recognition started');
+    _jarvisListening=true;
+  };
   r.onresult=function(e){
     var transcript=e.results[e.results.length-1][0].transcript.trim();
-    console.log('Jarvis heard:',transcript);
+    console.log('JARVIS: Heard -',transcript);
     var t=transcript.toLowerCase();
-    console.log('Checking for wake word in:',t);
     var variants=['jarvis','jarvas','service','travis','javis','jervis'];
     var matched=null;
     for(var i=0;i<variants.length;i++){if(t.indexOf(variants[i])!==-1){matched=variants[i];break;}}
     if(matched){
-      console.log('WAKE WORD DETECTED');
+      console.log('JARVIS: Wake word detected!');
       var cmd=t.replace(new RegExp('\\b'+matched+'\\b'),'').trim();
+      console.log('JARVIS: Command -',cmd);
       handleJarvisCommand(cmd);
     }
   };
   r.onerror=function(e){
-    console.log('Jarvis error:',e.error);
+    console.log('JARVIS: Error -',e.error);
     if(e.error==='not-allowed'||e.error==='service-not-allowed'){disableJarvis();return;}
     if(_jarvisEnabled&&(e.error==='no-speech'||e.error==='aborted'||e.error==='network')){
       setTimeout(function(){if(_jarvisEnabled)startJarvisListening();},500);
     }
   };
   r.onend=function(){
-    if(_jarvisEnabled)setTimeout(function(){try{startJarvisListening();}catch(e){}},300);
+    console.log('JARVIS: Recognition ended, restarting...');
+    _jarvisListening=false;
+    if(_jarvisEnabled)setTimeout(function(){if(!_jarvisListening){try{startJarvisListening();}catch(e){console.log('JARVIS: Error -',e);}}},300);
   };
   _jarvisRecognition=r;
-  try{r.start();}catch(e){}
+  try{r.start();}catch(e){console.log('JARVIS: Error -',e);}
 }
 
 function stopJarvisListening(){
