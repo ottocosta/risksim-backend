@@ -1289,15 +1289,73 @@
       border-radius:0; opacity:0; transition:opacity 0.6s ease;
     }
     #jarvisBorder.jarvis-active { opacity:1; }
-    #jarvisToggleBtn {
-      position:fixed; bottom:24px; right:20px; z-index:9999992;
-      padding:6px 14px; background:transparent; border:1px solid rgba(255,255,255,0.12);
-      border-radius:999px; color:rgba(255,255,255,0.3);
-      font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.18em;
-      text-transform:uppercase; cursor:pointer; transition:all 0.3s;
+    #jarvisToggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 99999;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px;
+      color: rgba(255,255,255,0.4);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    #jarvisToggleBtn:hover { border-color:rgba(100,150,255,0.4); color:rgba(150,190,255,0.8); background:rgba(100,150,255,0.05); }
-    #jarvisToggleBtn.jarvis-on { border-color:rgba(100,150,255,0.35); color:rgba(130,175,255,0.8); }
+    #jarvisToggle:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.7);
+    }
+    #jarvisToggle.listening {
+      border-color: rgba(100,150,255,0.4);
+      color: rgba(100,150,255,0.8);
+      box-shadow: 0 0 20px rgba(100,150,255,0.15);
+    }
+    #jarvisToggle.speaking {
+      border-color: rgba(100,150,255,0.3);
+      color: rgba(100,150,255,0.6);
+    }
+    #jarvisToggle.jarvis-on {
+      border-color: rgba(100,150,255,0.2);
+      color: rgba(130,175,255,0.7);
+    }
+    .jarvis-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      transition: all 0.3s;
+    }
+    #jarvisToggle.jarvis-on .jarvis-dot {
+      background: rgba(100,150,255,0.8);
+      box-shadow: 0 0 6px rgba(100,150,255,0.5);
+      animation: jarvisDotPulse 2s ease-in-out infinite;
+    }
+    #jarvisToggle.listening .jarvis-dot {
+      background: rgba(100,150,255,1);
+      box-shadow: 0 0 10px rgba(100,150,255,0.8);
+    }
+    @keyframes jarvisDotPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    #jarvisToggle.listening #jarvisLabel {
+      animation: jarvisLabelPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes jarvisLabelPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
     #jarvisListeningBubble {
       position:fixed; bottom:56px; right:20px; z-index:9999993;
       padding:8px 16px; background:rgba(10,15,30,0.9); backdrop-filter:blur(20px);
@@ -1477,164 +1535,6 @@
       .sim-compare-cols { grid-template-columns:1fr; }
       .sim-center-scroll { padding:0 16px 32px; }
       .sim-input-pinned { padding:16px 16px 0; }
-    }
-
-    /* ===== VOICE ASSISTANT ===== */
-    #voiceAssistant {
-      position: fixed;
-      bottom: 100px;
-      right: 24px;
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
-    #voiceBtn {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.06);
-      backdrop-filter: blur(40px) saturate(200%);
-      -webkit-backdrop-filter: blur(40px) saturate(200%);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.5);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.5);
-      position: relative;
-    }
-
-    #voiceBtn:hover {
-      background: rgba(255,255,255,0.1);
-      border-color: rgba(255,255,255,0.2);
-      color: #fff;
-      transform: scale(1.05);
-    }
-
-    #voiceBtn.listening {
-      background: rgba(255,255,255,0.12);
-      border-color: rgba(255,255,255,0.3);
-      color: #fff;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 0 30px rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.5);
-    }
-
-    #voiceBtn.speaking {
-      background: rgba(255,255,255,0.08);
-      border-color: rgba(255,255,255,0.25);
-      color: #fff;
-    }
-
-    #voicePulse {
-      position: absolute;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.15);
-      opacity: 0;
-      pointer-events: none;
-      bottom: 0;
-    }
-
-    #voiceBtn.listening ~ #voicePulse,
-    #voiceAssistant.voice-active #voicePulse {
-      animation: voicePulseRing 2s ease-out infinite;
-    }
-
-    @keyframes voicePulseRing {
-      0% { transform: scale(1); opacity: 0.4; }
-      100% { transform: scale(2.5); opacity: 0; }
-    }
-
-    .voice-wave-bar {
-      display: inline-block;
-      width: 3px;
-      height: 8px;
-      background: #fff;
-      border-radius: 2px;
-      margin: 0 1px;
-      animation: voiceWave 0.8s ease-in-out infinite;
-    }
-    .voice-wave-bar:nth-child(1) { animation-delay: 0s; height: 8px; }
-    .voice-wave-bar:nth-child(2) { animation-delay: 0.1s; height: 14px; }
-    .voice-wave-bar:nth-child(3) { animation-delay: 0.2s; height: 10px; }
-    .voice-wave-bar:nth-child(4) { animation-delay: 0.3s; height: 16px; }
-    .voice-wave-bar:nth-child(5) { animation-delay: 0.15s; height: 6px; }
-
-    @keyframes voiceWave {
-      0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
-      50% { transform: scaleY(1); opacity: 1; }
-    }
-
-    #voiceStatus {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      color: rgba(255,255,255,0.3);
-      text-transform: uppercase;
-      text-align: center;
-      min-height: 14px;
-      transition: opacity 0.3s;
-    }
-
-    #voiceTranscript {
-      position: absolute;
-      bottom: 80px;
-      right: 0;
-      min-width: 280px;
-      max-width: 380px;
-      padding: 14px 18px;
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(60px) saturate(200%);
-      -webkit-backdrop-filter: blur(60px) saturate(200%);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.6);
-      font-size: 13px;
-      color: rgba(255,255,255,0.8);
-      font-family: 'Inter', sans-serif;
-      line-height: 1.6;
-      display: none;
-      animation: voiceTranscriptIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
-    }
-
-    @keyframes voiceTranscriptIn {
-      from { opacity: 0; transform: translateY(8px) scale(0.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    #voiceTranscript .vt-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 8px;
-      letter-spacing: 0.15em;
-      color: rgba(255,255,255,0.3);
-      text-transform: uppercase;
-      margin-bottom: 6px;
-      display: block;
-    }
-
-    #voiceAmbient {
-      position: fixed;
-      inset: 0;
-      z-index: 99998;
-      pointer-events: none;
-      opacity: 0;
-      background: radial-gradient(ellipse at bottom right, rgba(255,255,255,0.03), transparent 70%);
-      transition: opacity 0.6s ease;
-    }
-
-    #voiceAmbient.active {
-      opacity: 1;
-      animation: voiceAmbientPulse 3s ease-in-out infinite;
-    }
-
-    @keyframes voiceAmbientPulse {
-      0%, 100% { opacity: 0.6; }
-      50% { opacity: 1; }
     }
 
     /* ===== UNIFIED PRICING OVERLAY ===== */
@@ -1842,7 +1742,6 @@ function __handleIntroKey(e){
 document.addEventListener('keydown',__handleIntroKey,true);
 window.addEventListener('keydown',__handleIntroKey,true);
 </script>
-<div id="voiceAmbient"></div>
   <!-- ===== RS NAV ===== -->
 <nav id="rsNav" style="opacity:0">
   <button class="rs-nav-btn active" onclick="switchModule('map')">
@@ -4033,8 +3932,7 @@ var _jarvisRecognition=null;
 var _jarvisHonorific='Sir';
 var _jarvisResponseTimer=null;
 var _jarvisSpeaking=false;
-var _jarvisListening=false;
-var _jarvisHeartbeat=null;
+var _jarvisIsListening=false;
 var _jarvisUseIframe=false;
 
 function initJarvis(){
@@ -4044,100 +3942,104 @@ function initJarvis(){
   if(enabled)enableJarvis();
 }
 
-function toggleJarvis(){
-  if(_jarvisEnabled)disableJarvis();
-  else enableJarvis();
+function handleJarvisClick(){
+  if(!_jarvisEnabled){
+    enableJarvis();
+    return;
+  }
+  if(_jarvisIsListening||_jarvisSpeaking)return;
+  jarvisListenOnce();
 }
 
 function enableJarvis(){
   _jarvisEnabled=true;
   localStorage.setItem('jarvis_enabled','1');
-  var btn=document.getElementById('jarvisToggleBtn');
+  var toggle=document.getElementById('jarvisToggle');
+  var label=document.getElementById('jarvisLabel');
   var border=document.getElementById('jarvisBorder');
-  if(btn){btn.textContent='JARVIS ACTIVE';btn.classList.add('jarvis-on');}
+  if(toggle)toggle.className='jarvis-on';
+  if(label)label.textContent='JARVIS ACTIVE';
   if(border)border.classList.add('jarvis-active');
-  startJarvisListening();
-  _jarvisHeartbeat=setInterval(function(){
-    if(_jarvisEnabled&&!_jarvisListening&&!_jarvisUseIframe){
-      console.log('JARVIS: Heartbeat restart');
-      startJarvisListening();
-    }
-  },5000);
-  jarvisSpeak('Hello, '+_jarvisHonorific+'. RiskSim intelligence is online. Say "Jarvis" followed by a command.');
+  var hour=new Date().getHours();
+  var greeting=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
+  jarvisSpeak(greeting+', '+_jarvisHonorific+'. RiskSim is online. Click my button anytime to give a command.');
 }
 
 function disableJarvis(){
   _jarvisEnabled=false;
   localStorage.setItem('jarvis_enabled','0');
-  var btn=document.getElementById('jarvisToggleBtn');
   var border=document.getElementById('jarvisBorder');
-  if(btn){btn.textContent='ENABLE JARVIS';btn.classList.remove('jarvis-on');}
   if(border)border.classList.remove('jarvis-active');
-  if(_jarvisHeartbeat){clearInterval(_jarvisHeartbeat);_jarvisHeartbeat=null;}
-  stopJarvisListening();
+  if(_jarvisRecognition){try{_jarvisRecognition.stop();}catch(e){} _jarvisRecognition=null;}
+  _jarvisIsListening=false;
+  jarvisResetButton();
   hideJarvisBubbles();
 }
 
-function startJarvisListening(){
-  if(_jarvisUseIframe){
-    var frame=document.getElementById('jarvisFrame');
-    if(frame)frame.contentWindow.postMessage({type:'risksim-voice-start',mode:'continuous'},'https://risksim-backend.onrender.com');
-    return;
-  }
-  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
-    console.warn('Jarvis: Web Speech API not available');return;
-  }
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(_jarvisRecognition){try{_jarvisRecognition.stop();}catch(e){}}
-  var r=new SR();
-  r.continuous=true;
-  r.interimResults=false;
-  r.lang='en-US';
-  _jarvisListening=true;
-  r.onstart=function(){
-    console.log('JARVIS: Recognition started');
-    _jarvisListening=true;
-  };
-  r.onresult=function(e){
-    var transcript=e.results[e.results.length-1][0].transcript.trim();
-    console.log('JARVIS: Heard -',transcript);
-    var t=transcript.toLowerCase();
-    var variants=['jarvis','jarvas','service','travis','javis','jervis'];
-    var matched=null;
-    for(var i=0;i<variants.length;i++){if(t.indexOf(variants[i])!==-1){matched=variants[i];break;}}
-    if(matched){
-      console.log('JARVIS: Wake word detected!');
-      var cmd=t.replace(new RegExp('\\b'+matched+'\\b'),'').trim();
-      console.log('JARVIS: Command -',cmd);
-      handleJarvisCommand(cmd);
-    }
-  };
-  r.onerror=function(e){
-    console.log('JARVIS: Error -',e.error);
-    if(e.error==='not-allowed'||e.error==='service-not-allowed'){
-      console.log('JARVIS: Mic blocked, switching to iframe mode');
-      _jarvisUseIframe=true;
-      var frame=document.getElementById('jarvisFrame');
-      if(frame)frame.contentWindow.postMessage({type:'risksim-voice-start',mode:'continuous'},'https://risksim-backend.onrender.com');
+function jarvisListenOnce(){
+  var toggle=document.getElementById('jarvisToggle');
+  var label=document.getElementById('jarvisLabel');
+  if(toggle){toggle.className='listening';}
+  if(label){label.textContent='LISTENING...';}
+  _jarvisIsListening=true;
+
+  if(!_jarvisUseIframe){
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(SR){
+      if(_jarvisRecognition){try{_jarvisRecognition.stop();}catch(e){}}
+      var r=new SR();
+      r.continuous=false;
+      r.interimResults=false;
+      r.lang='en-US';
+      r.onresult=function(e){
+        var t=e.results[0][0].transcript.trim();
+        console.log('JARVIS: Heard -',t);
+        _jarvisIsListening=false;
+        jarvisResetButton();
+        handleJarvisCommand(t.toLowerCase());
+      };
+      r.onerror=function(e){
+        console.log('JARVIS: Error -',e.error);
+        if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+          console.log('JARVIS: Mic blocked, switching to iframe');
+          _jarvisUseIframe=true;
+          jarvisListenViaIframe();
+          return;
+        }
+        _jarvisIsListening=false;
+        jarvisResetButton();
+      };
+      r.onend=function(){
+        if(_jarvisIsListening){
+          _jarvisIsListening=false;
+          jarvisResetButton();
+        }
+      };
+      _jarvisRecognition=r;
+      try{r.start();}catch(e){_jarvisIsListening=false;jarvisResetButton();}
       return;
     }
-    if(_jarvisEnabled&&!_jarvisUseIframe&&(e.error==='no-speech'||e.error==='aborted'||e.error==='network')){
-      setTimeout(function(){if(_jarvisEnabled&&!_jarvisUseIframe)startJarvisListening();},500);
-    }
-  };
-  r.onend=function(){
-    console.log('JARVIS: Recognition ended, restarting...');
-    _jarvisListening=false;
-    if(_jarvisEnabled&&!_jarvisUseIframe)setTimeout(function(){if(!_jarvisListening&&!_jarvisUseIframe){try{startJarvisListening();}catch(e){console.log('JARVIS: Error -',e);}}},300);
-  };
-  _jarvisRecognition=r;
-  try{r.start();}catch(e){console.log('JARVIS: Error -',e);}
+  }
+  jarvisListenViaIframe();
 }
 
-function stopJarvisListening(){
-  if(_jarvisRecognition){try{_jarvisRecognition.stop();}catch(e){}; _jarvisRecognition=null;}
+function jarvisListenViaIframe(){
   var frame=document.getElementById('jarvisFrame');
-  if(frame)frame.contentWindow.postMessage({type:'risksim-voice-stop'},'https://risksim-backend.onrender.com');
+  if(frame){
+    frame.contentWindow.postMessage({type:'risksim-voice-start',mode:'single'},'https://risksim-backend.onrender.com');
+  }
+}
+
+function jarvisResetButton(){
+  var toggle=document.getElementById('jarvisToggle');
+  var label=document.getElementById('jarvisLabel');
+  if(_jarvisEnabled){
+    if(toggle)toggle.className='jarvis-on';
+    if(label)label.textContent='JARVIS ACTIVE';
+  }else{
+    if(toggle)toggle.className='';
+    if(label)label.textContent='ENABLE JARVIS';
+  }
 }
 
 function handleJarvisCommand(cmd){
@@ -4147,7 +4049,6 @@ function handleJarvisCommand(cmd){
   if(listenText)listenText.textContent='"'+cmd+'"';
 
   var response='';
-  // Navigation commands
   if(/\b(open|go to|show|switch to|navigate)\b.*\bmap\b/.test(cmd)||(cmd==='map')){
     switchModule('map');response='Opening the Map module, '+_jarvisHonorific+'.';
   }else if(/\b(open|go to|show|switch to|navigate)\b.*\baudit\b/.test(cmd)||(cmd==='audit')){
@@ -4156,9 +4057,7 @@ function handleJarvisCommand(cmd){
     switchModule('warroom');response='Terminal intelligence feed loading, '+_jarvisHonorific+'.';
   }else if(/\b(open|go to|show|switch to|navigate)\b.*\bsimulat/.test(cmd)||(cmd==='simulator')){
     switchModule('simulator');response='Scenario Simulator online, '+_jarvisHonorific+'.';
-  }
-  // Status / greeting
-  else if(/\b(hello|hey|hi|good morning|good evening)\b/.test(cmd)){
+  }else if(/\b(hello|hey|hi|good morning|good evening)\b/.test(cmd)){
     response='Hello, '+_jarvisHonorific+'. All systems nominal. Global risk intelligence is active.';
   }else if(/\b(status|how are you|system status)\b/.test(cmd)){
     response='All systems operational, '+_jarvisHonorific+'. 47 active supply chain events being monitored.';
@@ -4170,9 +4069,9 @@ function handleJarvisCommand(cmd){
     response='Understood, '+_jarvisHonorific+'. Standing by.';
     setTimeout(function(){hideJarvisBubbles();},1800);
   }else if(cmd.length<2){
-    response='Yes, '+_jarvisHonorific+'? Please follow "Jarvis" with a command.';
+    response='Yes, '+_jarvisHonorific+'? I\'m ready for your command.';
   }else{
-    response='I heard "'+cmd+'". I\'m working on expanding my capabilities, '+_jarvisHonorific+'. Try navigation commands like "Jarvis, open map".';
+    response='I heard "'+cmd+'". I\'m working on expanding my capabilities, '+_jarvisHonorific+'. Try navigation commands like "open map".';
   }
 
   setTimeout(function(){
@@ -4191,6 +4090,11 @@ function jarvisSpeak(text){
   if(_jarvisResponseTimer)clearTimeout(_jarvisResponseTimer);
   _jarvisResponseTimer=setTimeout(function(){hideJarvisBubbles();},6000);
 
+  var toggle=document.getElementById('jarvisToggle');
+  var label=document.getElementById('jarvisLabel');
+  if(toggle)toggle.className='speaking';
+  if(label)label.textContent='SPEAKING...';
+
   if('speechSynthesis' in window){
     window.speechSynthesis.cancel();
     var utt=new SpeechSynthesisUtterance(text);
@@ -4198,7 +4102,6 @@ function jarvisSpeak(text){
     utt.rate=0.95;
     utt.pitch=0.9;
     utt.volume=0.8;
-    // Try to find a good voice
     var voices=window.speechSynthesis.getVoices();
     var preferred=['Google UK English Male','Daniel','Microsoft David','Alex'];
     for(var i=0;i<preferred.length;i++){
@@ -4207,12 +4110,13 @@ function jarvisSpeak(text){
     }
     utt.onend=function(){
       _jarvisSpeaking=false;
-      if(_jarvisEnabled){
-        setTimeout(function(){try{startJarvisListening();}catch(e){}},300);
-      }
+      jarvisResetButton();
     };
     _jarvisSpeaking=true;
     window.speechSynthesis.speak(utt);
+  }else{
+    _jarvisSpeaking=false;
+    jarvisResetButton();
   }
 }
 
@@ -4225,19 +4129,17 @@ function hideJarvisBubbles(){
 
 window.addEventListener('message',function(e){
   if(e.origin!=='https://risksim-backend.onrender.com')return;
-  var frame=document.getElementById('jarvisFrame');
-  if(!frame||e.source!==frame.contentWindow)return;
-  if(!e.data||!e.data.type)return;
-  if(e.data.type==='risksim-voice-result'||e.data.type==='risksim-voice-interim'){
-    var transcript=(e.data.transcript||'').toLowerCase();
+  if(e.data&&e.data.type==='risksim-voice-result'&&_jarvisIsListening){
+    var transcript=e.data.transcript;
     console.log('JARVIS (iframe): Heard -',transcript);
-    var variants=['jarvis','jarvas','service','travis','javis','jervis'];
-    var matched=null;
-    for(var i=0;i<variants.length;i++){if(transcript.indexOf(variants[i])!==-1){matched=variants[i];break;}}
-    if(matched){
-      console.log('JARVIS (iframe): Wake word detected! Command -',transcript.replace(new RegExp('\\b'+matched+'\\b'),'').trim());
-      handleJarvisCommand(transcript.replace(new RegExp('\\b'+matched+'\\b'),'').trim());
-    }
+    _jarvisIsListening=false;
+    jarvisResetButton();
+    handleJarvisCommand(transcript.toLowerCase());
+  }
+  if(e.data&&e.data.type==='risksim-voice-error'&&_jarvisIsListening){
+    console.log('JARVIS (iframe): Error -',e.data.error);
+    _jarvisIsListening=false;
+    jarvisResetButton();
   }
 });
 
@@ -4416,7 +4318,10 @@ window.addEventListener('load',function(){
 <div id="jarvisBorder"></div>
 
 <!-- ===== JARVIS TOGGLE BUTTON ===== -->
-<button id="jarvisToggleBtn" onclick="toggleJarvis()">ENABLE JARVIS</button>
+<div id="jarvisToggle" onclick="handleJarvisClick()">
+  <span class="jarvis-dot"></span>
+  <span id="jarvisLabel">ENABLE JARVIS</span>
+</div>
 
 <!-- ===== JARVIS LISTENING BUBBLE ===== -->
 <div id="jarvisListeningBubble">
@@ -4559,388 +4464,6 @@ window.addEventListener('load',function(){
   intro.addEventListener('touchstart',function(e){ty=e.touches[0].clientY;},{passive:true});
   intro.addEventListener('touchmove',function(e){e.preventDefault();if(e.touches[0].clientY<ty-30)dismiss();},{passive:false});
 })();
-</script>
-<iframe id="voiceFrame" src="https://risksim-backend.onrender.com/voice.html" style="display:none;width:0;height:0;border:none;position:absolute;" allow="microphone"></iframe>
-<div id="voiceAssistant">
-  <div id="voicePulse"></div>
-  <button id="voiceBtn" onclick="toggleVoice()">
-    <svg id="voiceMicIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-      <line x1="12" y1="19" x2="12" y2="23"/>
-      <line x1="8" y1="23" x2="16" y2="23"/>
-    </svg>
-    <div id="voiceWaveform" style="display:none">
-      <span class="voice-wave-bar"></span>
-      <span class="voice-wave-bar"></span>
-      <span class="voice-wave-bar"></span>
-      <span class="voice-wave-bar"></span>
-      <span class="voice-wave-bar"></span>
-    </div>
-  </button>
-  <div id="voiceStatus"></div>
-  <div id="voiceTranscript"></div>
-</div>
-<script>
-var voiceState = {
-  isListening: false,
-  isSpeaking: false,
-  recognition: null,
-  synthesis: window.speechSynthesis,
-  preferredVoice: null,
-  lastTranscript: ''
-};
-
-// ===== INIT =====
-function initVoiceAssistant() {
-  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    document.getElementById('voiceBtn').style.display = 'none';
-    console.warn('Speech recognition not supported');
-    return;
-  }
-
-  voiceState.recognition = new SpeechRecognition();
-  voiceState.recognition.continuous = false;
-  voiceState.recognition.interimResults = true;
-  voiceState.recognition.lang = 'en-US';
-
-  voiceState.recognition.onresult = function(event) {
-    var transcript = '';
-    for (var i = event.resultIndex; i < event.results.length; i++) {
-      transcript += event.results[i][0].transcript;
-    }
-    voiceState.lastTranscript = transcript;
-    showTranscript(transcript, event.results[event.resultIndex].isFinal);
-
-    if (event.results[event.resultIndex].isFinal) {
-      handleVoiceCommand(transcript.trim().toLowerCase());
-    }
-  };
-
-  voiceState.recognition.onend = function() {
-    if (voiceState.isListening) {
-      stopListening();
-    }
-  };
-
-  voiceState.recognition.onerror = function(event) {
-    console.error('Speech recognition error:', event.error);
-    stopListening();
-    if (event.error === 'not-allowed') {
-      setVoiceStatus('Mic access denied');
-    }
-  };
-
-  function loadVoices() {
-    var voices = voiceState.synthesis.getVoices();
-    var preferred = ['Samantha', 'Karen', 'Victoria', 'Google UK English Female', 'Microsoft Zira', 'Fiona'];
-    for (var p = 0; p < preferred.length; p++) {
-      for (var v = 0; v < voices.length; v++) {
-        if (voices[v].name.indexOf(preferred[p]) !== -1) {
-          voiceState.preferredVoice = voices[v];
-          return;
-        }
-      }
-    }
-    for (var j = 0; j < voices.length; j++) {
-      if (voices[j].lang.indexOf('en') === 0) {
-        voiceState.preferredVoice = voices[j];
-        return;
-      }
-    }
-  }
-
-  loadVoices();
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = loadVoices;
-  }
-}
-
-window.addEventListener('message',function(e){
-  if(!e.data||!e.data.type)return;
-  if(e.data.type.indexOf('risksim-voice-')!==0)return;
-  
-  if(e.data.type==='risksim-voice-result'){
-    stopListening();
-    showTranscript(e.data.transcript,true);
-    handleVoiceCommand(e.data.transcript.trim().toLowerCase());
-  }
-  if(e.data.type==='risksim-voice-interim'){
-    showTranscript(e.data.transcript,false);
-  }
-  if(e.data.type==='risksim-voice-error'){
-    stopListening();
-    if(e.data.error==='not-allowed'){
-      setVoiceStatus('Mic access denied');
-    }else{
-      setVoiceStatus('Error: '+e.data.error);
-    }
-    setTimeout(function(){setVoiceStatus('');},3000);
-  }
-  if(e.data.type==='risksim-voice-ended'){
-    if(voiceState.isListening)stopListening();
-  }
-});
-
-// ===== TOGGLE =====
-function toggleVoice(){
-  if(voiceState.isListening){
-    stopListening();
-    var vf=document.getElementById('voiceFrame');
-    if(vf)vf.contentWindow.postMessage({type:'risksim-voice-stop'},'*');
-    return;
-  }
-  // Try direct mic first
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(SR){
-    try{
-      var test=new SR();
-      var directWorks=false;
-      test.onstart=function(){directWorks=true;test.stop();startListening();};
-      test.onerror=function(e){
-        if(e.error==='not-allowed'&&!directWorks){startVoiceViaFrame();}
-        else if(!directWorks){startListening();}
-      };
-      test.start();
-    }catch(e){startVoiceViaFrame();}
-  }else{startVoiceViaFrame();}
-}
-
-function startVoiceViaFrame(){
-  var vf=document.getElementById('voiceFrame');
-  if(!vf){setVoiceStatus('Voice unavailable');return;}
-  
-  voiceState.isListening=true;
-  var btn=document.getElementById('voiceBtn');
-  btn.classList.add('listening');
-  document.getElementById('voiceMicIcon').style.display='none';
-  document.getElementById('voiceWaveform').style.display='flex';
-  document.getElementById('voiceAmbient').classList.add('active');
-  setVoiceStatus('Listening...');
-  
-  vf.contentWindow.postMessage({type:'risksim-voice-start'},'*');
-}
-
-function startListening() {
-  if (!voiceState.recognition) return;
-  voiceState.synthesis.cancel();
-  voiceState.isSpeaking = false;
-
-  voiceState.isListening = true;
-  voiceState.recognition.start();
-
-  var btn = document.getElementById('voiceBtn');
-  btn.classList.add('listening');
-  document.getElementById('voiceMicIcon').style.display = 'none';
-  document.getElementById('voiceWaveform').style.display = 'flex';
-  document.getElementById('voiceAmbient').classList.add('active');
-  setVoiceStatus('Listening...');
-}
-
-function stopListening() {
-  voiceState.isListening = false;
-  try { voiceState.recognition.stop(); } catch(e) {}
-
-  var btn = document.getElementById('voiceBtn');
-  btn.classList.remove('listening');
-  document.getElementById('voiceMicIcon').style.display = '';
-  document.getElementById('voiceWaveform').style.display = 'none';
-  if (!voiceState.isSpeaking) {
-    document.getElementById('voiceAmbient').classList.remove('active');
-  }
-  setVoiceStatus('');
-}
-
-// ===== SPEAK =====
-function speak(text, callback) {
-  voiceState.synthesis.cancel();
-  var utterance = new SpeechSynthesisUtterance(text);
-  if (voiceState.preferredVoice) utterance.voice = voiceState.preferredVoice;
-  utterance.rate = 1.0;
-  utterance.pitch = 1.0;
-  utterance.volume = 0.9;
-
-  voiceState.isSpeaking = true;
-  var btn = document.getElementById('voiceBtn');
-  btn.classList.add('speaking');
-  document.getElementById('voiceAmbient').classList.add('active');
-  setVoiceStatus('Speaking...');
-
-  utterance.onend = function() {
-    voiceState.isSpeaking = false;
-    btn.classList.remove('speaking');
-    document.getElementById('voiceAmbient').classList.remove('active');
-    setVoiceStatus('');
-    if (callback) callback();
-  };
-
-  voiceState.synthesis.speak(utterance);
-}
-
-// ===== STATUS & TRANSCRIPT =====
-function setVoiceStatus(text) {
-  document.getElementById('voiceStatus').textContent = text;
-}
-
-function showTranscript(text, isFinal) {
-  var el = document.getElementById('voiceTranscript');
-  el.style.display = 'block';
-  el.innerHTML = '<span class="vt-label">' + (isFinal ? 'You said' : 'Listening...') + '</span>' + text;
-
-  if (isFinal) {
-    setTimeout(function() { el.style.display = 'none'; }, 4000);
-  }
-}
-
-// ===== COMMAND PARSER (Layer 1 — free, instant) =====
-function handleVoiceCommand(text) {
-  var profile = {};
-  try {
-    var saved = localStorage.getItem('risksim_profile');
-    if (saved) profile = JSON.parse(saved);
-  } catch(e) {}
-
-  // ---- NAVIGATION COMMANDS ----
-  if (matchCommand(text, ['go to map', 'show map', 'open map', 'switch to map', 'show me the map'])) {
-    switchModule('map');
-    speak('Opening the map.');
-    return;
-  }
-  if (matchCommand(text, ['go to audit', 'open audit', 'supplier audit', 'switch to audit', 'show audit'])) {
-    switchModule('audit');
-    speak('Opening Supplier Audit.');
-    return;
-  }
-  if (matchCommand(text, ['go to terminal', 'open terminal', 'switch to terminal', 'show terminal', 'show alerts'])) {
-    switchModule('warroom');
-    speak('Opening Terminal.');
-    return;
-  }
-  if (matchCommand(text, ['go to simulator', 'open simulator', 'switch to simulator', 'run simulation', 'what if'])) {
-    switchModule('simulator');
-    speak('Opening Scenario Simulator.');
-    return;
-  }
-
-  // ---- DATA LOOKUP COMMANDS ----
-  var countryMatch = text.match(/(?:risk|score|risk score).*?(?:for|of|in)\s+(.+?)(?:\s*\?|$)/);
-  if (!countryMatch) countryMatch = text.match(/(.+?)(?:'s)?\s+(?:risk|score)/);
-  if (countryMatch) {
-    var countryName = countryMatch[1].trim();
-    countryName = countryName.replace(/\b\w/g, function(l) { return l.toUpperCase(); });
-    var countryData = COUNTRY_MAP[countryName];
-    if (countryData) {
-      var sourcingScore = (countryData.sourcing && countryData.sourcing[currentCategory]) || 0;
-      speak(countryName + ' has a risk score of ' + countryData.risk + ' out of 100. Shipping cost is ' + countryData.shipping + ' out of 10. Sourcing attractiveness is ' + sourcingScore + ' out of 100.');
-      return;
-    }
-  }
-
-  // Supplier lookup
-  var supplierMatch = text.match(/(?:show|pull up|find|audit|check)\s+(.+?)(?:\s*audit|\s*supplier|\s*$)/);
-  if (supplierMatch) {
-    var supplierName = supplierMatch[1].trim().toLowerCase();
-    var foundSupplier = null;
-    for (var i = 0; i < SUPPLIER_DATA.length; i++) {
-      if (SUPPLIER_DATA[i].name.toLowerCase().indexOf(supplierName) !== -1) {
-        foundSupplier = SUPPLIER_DATA[i];
-        break;
-      }
-    }
-    if (foundSupplier) {
-      switchModule('audit');
-      setTimeout(function() {
-        if (typeof selectSupplier === 'function') selectSupplier(foundSupplier.id);
-      }, 800);
-      speak('Pulling up ' + foundSupplier.name + '. Risk score ' + foundSupplier.riskScore + '.');
-      return;
-    }
-  }
-
-  // ---- STATUS COMMANDS ----
-  if (matchCommand(text, ['any alerts', 'critical alerts', 'any critical', 'any new alerts', 'what alerts', 'status update', 'any risks'])) {
-    var countries = (profile.selectedSourcingCountries || []).slice(0, 3);
-    var countryText = countries.length ? countries.join(', ') : 'your sourcing regions';
-    speak('Checking alerts for ' + countryText + '. There are 6 active alerts, 1 critical. Switch to Terminal for details. Want me to open it?');
-    return;
-  }
-
-  if (matchCommand(text, ['how many countries', 'countries monitored', 'my countries', 'my regions', 'sourcing countries'])) {
-    var sc = profile.selectedSourcingCountries || [];
-    if (sc.length) {
-      speak('You are monitoring ' + sc.length + ' sourcing countries: ' + sc.slice(0, 5).join(', ') + (sc.length > 5 ? ' and ' + (sc.length - 5) + ' more.' : '.'));
-    } else {
-      speak('No sourcing countries set up yet. Open your profile to configure them.');
-    }
-    return;
-  }
-
-  if (matchCommand(text, ['compare', 'compare countries', 'comparison'])) {
-    if (typeof openCompTool === 'function') {
-      switchModule('map');
-      setTimeout(function() { openCompTool(); }, 500);
-      speak('Opening the country comparison tool.');
-    }
-    return;
-  }
-
-  // ---- GREETINGS ----
-  if (matchCommand(text, ['hello', 'hey', 'hi', 'good morning', 'good afternoon', 'good evening'])) {
-    var timeOfDay = new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening';
-    var industry = '';
-    try { industry = profile.userProfile && profile.userProfile.industry ? profile.userProfile.industry : ''; } catch(e) {}
-    speak('Good ' + timeOfDay + '. RiskSim is monitoring your supply chain. ' + (industry ? 'All ' + industry + ' sector indicators are active.' : 'All systems active.') + ' How can I help?');
-    return;
-  }
-
-  // ---- LAYER 2: FALL BACK TO AI ----
-  speak('Let me look into that.');
-  showTranscript('Thinking...', false);
-
-  var profilePayload = {};
-  try {
-    profilePayload = {
-      companyType: (profile.userProfile && profile.userProfile.type) || '',
-      industry: (profile.userProfile && profile.userProfile.industry) || '',
-      sourcingCountries: profile.selectedSourcingCountries || [],
-      revenue: (profile.userProfile && profile.userProfile.revenue) || '',
-      context: (profile.userProfile && profile.userProfile.context) || ''
-    };
-  } catch(e) {}
-
-  fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: text, profile: profilePayload, source: 'voice' })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(d) {
-    var reply = d.reply || d.response || d.error || 'I could not process that request.';
-    var speechText = reply;
-    if (speechText.length > 300) {
-      speechText = speechText.substring(0, 297) + '... Check the screen for the full response.';
-    }
-    showTranscript(reply, true);
-    speak(speechText);
-  })
-  .catch(function(e) {
-    speak('Connection error. Please try again.');
-  });
-}
-
-// ===== HELPER: Match command against list of phrases =====
-function matchCommand(text, phrases) {
-  for (var i = 0; i < phrases.length; i++) {
-    if (text.indexOf(phrases[i]) !== -1) return true;
-  }
-  return false;
-}
-
-// ===== INIT ON LOAD =====
-document.addEventListener('DOMContentLoaded', function() {
-  initVoiceAssistant();
-});
 </script>
 
 <!-- ===== UNIFIED PRICING OVERLAY ===== -->
