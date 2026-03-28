@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -1377,6 +1377,9 @@
     }
     #jarvisResponseBubble.jrb-visible { display:block; }
     .jarvis-resp-label { font-family:'JetBrains Mono',monospace; font-size:7px; letter-spacing:0.2em; color:rgba(100,150,255,0.55); text-transform:uppercase; margin-bottom:6px; }
+    #jarvisToggleBtn.listening { border-color:rgba(100,150,255,0.5); color:rgba(130,175,255,0.9); background:rgba(100,150,255,0.08); }
+    #jarvisToggleBtn.speaking { border-color:rgba(150,180,255,0.4); color:rgba(180,210,255,0.85); }
+    @keyframes voiceTranscriptIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 
     /* ===== ONBOARDING SLIDES ===== */
     #onboardSlides {
@@ -3960,15 +3963,18 @@ function handleJarvisClick(){
 function enableJarvis(){
   _jarvisEnabled=true;
   localStorage.setItem('jarvis_enabled','1');
-  var toggle=document.getElementById('jarvisToggle');
-  var label=document.getElementById('jarvisLabel');
   var border=document.getElementById('jarvisBorder');
-  if(toggle)toggle.className='jarvis-on';
-  if(label)label.textContent='JARVIS ACTIVE';
   if(border)border.classList.add('jarvis-active');
-  var hour=new Date().getHours();
-  var greeting=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
-  jarvisSpeak(greeting+', '+_jarvisHonorific+'. RiskSim is online. Click my button anytime to give a command.',10000);
+  updateJarvisButton('active');
+  startJarvisListening();
+  var h=new Date().getHours();
+  var tg=h<12?'morning':h<18?'afternoon':'evening';
+  var hon=localStorage.getItem('jarvis_honorific')||'sir';
+  jarvisSpeak(pick([
+    'Good '+tg+', '+hon+'. RiskSim intelligence is online. Say "Jarvis" followed by a command.',
+    'Hello, '+hon+'. All systems are active. I\'m listening.',
+    'Online and ready, '+hon+'. Speak naturally and I\'ll take care of the rest.'
+  ]));
 }
 
 function disableJarvis(){
@@ -3976,10 +3982,10 @@ function disableJarvis(){
   localStorage.setItem('jarvis_enabled','0');
   var border=document.getElementById('jarvisBorder');
   if(border)border.classList.remove('jarvis-active');
-  if(_jarvisRecognition){try{_jarvisRecognition.stop();}catch(e){} _jarvisRecognition=null;}
-  _jarvisIsListening=false;
-  jarvisResetButton();
+  updateJarvisButton('off');
+  stopJarvisListening();
   hideJarvisBubbles();
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
 }
 
 function jarvisListenOnce(){
@@ -4048,108 +4054,440 @@ function jarvisResetButton(){
   }
 }
 
-function handleJarvisCommand(cmd){
-  var bubble=document.getElementById('jarvisListeningBubble');
-  var listenText=document.getElementById('jarvisListeningText');
-  if(bubble)bubble.classList.add('jlb-visible');
-  if(listenText)listenText.textContent='"'+cmd+'"';
-
-  var response='';
-  if(/\b(open|go to|show|switch to|navigate)\b.*\bmap\b/.test(cmd)||(cmd==='map')){
-    switchModule('map');response='Opening the Map module, '+_jarvisHonorific+'.';
-  }else if(/\b(open|go to|show|switch to|navigate)\b.*\baudit\b/.test(cmd)||(cmd==='audit')){
-    switchModule('audit');response='Supplier Audit module activated, '+_jarvisHonorific+'.';
-  }else if(/\b(open|go to|show|switch to|navigate)\b.*\bterminal\b/.test(cmd)||(cmd==='terminal')){
-    switchModule('warroom');response='Terminal intelligence feed loading, '+_jarvisHonorific+'.';
-  }else if(/\b(open|go to|show|switch to|navigate)\b.*\bsimulat/.test(cmd)||(cmd==='simulator')){
-    switchModule('simulator');response='Scenario Simulator online, '+_jarvisHonorific+'.';
-  }else if(/\b(hello|hey|hi|good morning|good evening)\b/.test(cmd)){
-    response='Hello, '+_jarvisHonorific+'. All systems nominal. Global risk intelligence is active.';
-  }else if(/\b(status|how are you|system status)\b/.test(cmd)){
-    response='All systems operational, '+_jarvisHonorific+'. 47 active supply chain events being monitored.';
-  }else if(/\b(what.?s the risk|global risk|risk level)\b/.test(cmd)){
-    response='Current global supply chain risk index stands at 73 out of 100, '+_jarvisHonorific+'. Elevated pressure from Southeast Asian port delays and European energy costs.';
-  }else if(/\b(pricing|subscribe|plan)\b/.test(cmd)){
-    showPricing();response='Opening pricing information, '+_jarvisHonorific+'.';
-  }else if(/\b(close|dismiss|hide|goodbye|shut down)\b/.test(cmd)){
-    response='Understood, '+_jarvisHonorific+'. Standing by.';
-    setTimeout(function(){hideJarvisBubbles();},1800);
-  }else if(cmd.length<2){
-    response='Yes, '+_jarvisHonorific+'? I\'m ready for your command.';
-  }else{
-    response='I heard "'+cmd+'". I\'m working on expanding my capabilities, '+_jarvisHonorific+'. Try navigation commands like "open map".';
+// ===== JARVIS VOICE PREFERENCE =====
+var jarvisVoice=null;
+function _initJarvisVoice(){
+  var preferred=['Google UK English Male','Daniel','Microsoft David Desktop','Alex'];
+  var voices=window.speechSynthesis.getVoices();
+  for(var i=0;i<preferred.length;i++){
+    var v=voices.find(function(vv){return vv.name.toLowerCase().indexOf(preferred[i].toLowerCase())!==-1;});
+    if(v){jarvisVoice=v;return;}
   }
-
-  setTimeout(function(){
-    if(bubble)bubble.classList.remove('jlb-visible');
-    if(response)jarvisSpeak(response);
-  },600);
+  // fallback: any English voice
+  jarvisVoice=voices.find(function(v){return v.lang&&v.lang.indexOf('en')===0;})||null;
+}
+if(window.speechSynthesis){
+  window.speechSynthesis.onvoiceschanged=_initJarvisVoice;
+  _initJarvisVoice();
 }
 
-function jarvisSpeak(text,timeout){
-  speechSynthesis.cancel();
-  var timeoutMs=timeout||15000;
-  var respBubble=document.getElementById('jarvisResponseBubble');
-  var respText=document.getElementById('jarvisResponseText');
-  if(respBubble&&respText){
-    respText.textContent=text;
-    respBubble.classList.add('jrb-visible');
-  }
+// ===== JARVIS SPEAK (with callback + transcript) =====
+function jarvisSpeak(text,callback){
+  showJarvisTranscript(text);
+  updateJarvisButton('speaking');
+  var border=document.getElementById('jarvisBorder');
+  if(border)border.classList.add('jarvis-active');
+
   if(_jarvisResponseTimer)clearTimeout(_jarvisResponseTimer);
-  _jarvisResponseTimer=setTimeout(function(){hideJarvisBubbles();},6000);
 
-  var toggle=document.getElementById('jarvisToggle');
-  var label=document.getElementById('jarvisLabel');
-  if(toggle)toggle.className='speaking';
-  if(label)label.textContent='SPEAKING...';
+  if(!('speechSynthesis' in window)){
+    _jarvisResponseTimer=setTimeout(function(){
+      updateJarvisButton(_jarvisEnabled?'active':'off');
+      if(!_jarvisEnabled&&border)border.classList.remove('jarvis-active');
+      if(callback)callback();
+    },2200);
+    return;
+  }
+  window.speechSynthesis.cancel();
+  var utt=new SpeechSynthesisUtterance(text);
+  utt.lang='en-GB'; utt.rate=0.95; utt.pitch=0.88; utt.volume=0.85;
+  if(jarvisVoice)utt.voice=jarvisVoice;
 
-  if('speechSynthesis' in window){
+  var speakTimeout=setTimeout(function(){
     window.speechSynthesis.cancel();
-    var utt=new SpeechSynthesisUtterance(text);
-    utt.lang='en-GB';
-    utt.rate=0.95;
-    utt.pitch=0.9;
-    utt.volume=0.8;
-    var voices=window.speechSynthesis.getVoices();
-    var preferred=['Google UK English Male','Daniel','Microsoft David','Alex'];
-    for(var i=0;i<preferred.length;i++){
-      var v=voices.find(function(vv){return vv.name===preferred[i]||vv.name.toLowerCase().indexOf(preferred[i].toLowerCase())!==-1;});
-      if(v){utt.voice=v;break;}
-    }
-    var speakTimeout=setTimeout(function(){
-      console.log('JARVIS: Speak timeout - forcing reset');
-      speechSynthesis.cancel();
-      _jarvisSpeaking=false;
-      jarvisResetButton();
-      var border=document.getElementById('jarvisBorder');
-      if(border)border.classList.remove('jarvis-active');
-    },timeoutMs);
-    utt.onend=function(){
-      clearTimeout(speakTimeout);
-      _jarvisSpeaking=false;
-      jarvisResetButton();
-    };
-    utt.onerror=function(e){
-      console.log('JARVIS: Speech error -',e.error);
-      clearTimeout(speakTimeout);
-      _jarvisSpeaking=false;
-      jarvisResetButton();
-      var border=document.getElementById('jarvisBorder');
-      if(border)border.classList.remove('jarvis-active');
-    };
-    _jarvisSpeaking=true;
-    window.speechSynthesis.speak(utt);
+    updateJarvisButton(_jarvisEnabled?'active':'off');
+    if(!_jarvisEnabled&&border)border.classList.remove('jarvis-active');
+    if(callback)callback();
+  },15000);
+
+  utt.onend=function(){
+    clearTimeout(speakTimeout);
+    updateJarvisButton(_jarvisEnabled?'active':'off');
+    if(!_jarvisEnabled&&border)border.classList.remove('jarvis-active');
+    if(callback)callback();
+  };
+  utt.onerror=function(){
+    clearTimeout(speakTimeout);
+    updateJarvisButton(_jarvisEnabled?'active':'off');
+    if(!_jarvisEnabled&&border)border.classList.remove('jarvis-active');
+    if(callback)callback();
+  };
+  window.speechSynthesis.speak(utt);
+}
+
+function showJarvisTranscript(text){
+  var el=document.getElementById('jarvisTranscript');
+  if(!el){
+    el=document.createElement('div');
+    el.id='jarvisTranscript';
+    el.style.cssText='position:fixed;bottom:60px;right:24px;max-width:320px;padding:14px 16px;'
+      +'background:rgba(255,255,255,0.04);backdrop-filter:blur(60px) saturate(200%);'
+      +'-webkit-backdrop-filter:blur(60px) saturate(200%);border:1px solid rgba(255,255,255,0.1);'
+      +'border-radius:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 8px 32px rgba(0,0,0,0.6);'
+      +'z-index:9999993;font-family:Inter,sans-serif;font-size:13px;color:rgba(255,255,255,0.82);'
+      +'line-height:1.55;pointer-events:none;';
+    document.body.appendChild(el);
+  }
+  el.innerHTML='<div style="font-family:\'JetBrains Mono\',monospace;font-size:7px;letter-spacing:0.18em;'
+    +'color:rgba(100,150,255,0.6);text-transform:uppercase;margin-bottom:7px;">JARVIS</div>'+text;
+  el.style.display='block';
+  el.style.animation='none';
+  void el.offsetHeight;
+  el.style.animation='voiceTranscriptIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards';
+  clearTimeout(el._ht);
+  el._ht=setTimeout(function(){el.style.display='none';},Math.max(4000,text.length*55));
+}
+
+function updateJarvisButton(state){
+  var btn=document.getElementById('jarvisToggleBtn');
+  if(!btn)return;
+  btn.classList.remove('jarvis-on','listening','speaking');
+  if(state==='listening'){
+    btn.innerHTML='<span style="display:inline-block;width:5px;height:5px;border-radius:50%;'
+      +'background:rgba(100,150,255,0.9);box-shadow:0 0 8px rgba(100,150,255,0.6);'
+      +'animation:rsBlink 1s infinite;vertical-align:middle;margin-right:5px;"></span>LISTENING';
+    btn.classList.add('listening');
+  }else if(state==='speaking'){
+    btn.innerHTML='<span style="display:inline-block;width:5px;height:5px;border-radius:50%;'
+      +'background:rgba(150,180,255,0.8);vertical-align:middle;margin-right:5px;"></span>SPEAKING';
+    btn.classList.add('jarvis-on','speaking');
+  }else if(state==='active'){
+    btn.innerHTML='<span style="display:inline-block;width:4px;height:4px;border-radius:50%;'
+      +'background:rgba(100,150,255,0.5);box-shadow:0 0 6px rgba(100,150,255,0.4);'
+      +'animation:rsBlink 2s infinite;vertical-align:middle;margin-right:5px;"></span>JARVIS ACTIVE';
+    btn.classList.add('jarvis-on');
   }else{
-    _jarvisSpeaking=false;
-    jarvisResetButton();
+    btn.textContent='ENABLE JARVIS';
   }
 }
 
 function hideJarvisBubbles(){
   var a=document.getElementById('jarvisListeningBubble');
   var b=document.getElementById('jarvisResponseBubble');
+  var t=document.getElementById('jarvisTranscript');
   if(a)a.classList.remove('jlb-visible');
   if(b)b.classList.remove('jrb-visible');
+  if(t)t.style.display='none';
+}
+
+// ===== JARVIS HELPER FUNCTIONS =====
+function matchAny(text,phrases){
+  for(var i=0;i<phrases.length;i++)if(text.indexOf(phrases[i])!==-1)return true;
+  return false;
+}
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+function loadJarvisProfile(){
+  try{
+    var s=localStorage.getItem('risksim_profile');
+    if(s){
+      var d=JSON.parse(s);
+      return{
+        type:(d.userProfile&&d.userProfile.type)||'',
+        industry:(d.userProfile&&d.userProfile.industry)||'',
+        sourcingCountries:d.selectedSourcingCountries||[],
+        countriesCount:(d.selectedSourcingCountries||[]).length||101,
+        revenue:(d.userProfile&&d.userProfile.revenue)||''
+      };
+    }
+  }catch(e){}
+  return{type:'',industry:'',sourcingCountries:[],countriesCount:101,revenue:''};
+}
+
+// Country aliases for natural speech
+var _COUNTRY_ALIASES={
+  'usa':'United States','us':'United States','united states':'United States','america':'United States',
+  'uk':'United Kingdom','united kingdom':'United Kingdom','britain':'United Kingdom','england':'United Kingdom',
+  'uae':'UAE','dubai':'UAE','emirates':'UAE',
+  'south korea':'South Korea','korea':'South Korea',
+  'viet nam':'Vietnam','taiwan':'Taiwan',
+  'czech republic':'Czech Republic','czechia':'Czech Republic',
+  'saudi':'Saudi Arabia','ksa':'Saudi Arabia',
+  'south africa':'South Africa'
+};
+
+function extractCountry(text){
+  // Check aliases first
+  var aliases=Object.keys(_COUNTRY_ALIASES);
+  for(var i=0;i<aliases.length;i++){
+    if(text.indexOf(aliases[i])!==-1){
+      var resolved=_COUNTRY_ALIASES[aliases[i]];
+      if(COUNTRY_MAP[resolved])return resolved;
+    }
+  }
+  // Check actual country names (sorted longest first for specificity)
+  var countries=Object.keys(COUNTRY_MAP).slice().sort(function(a,b){return b.length-a.length;});
+  for(var i=0;i<countries.length;i++){
+    if(text.indexOf(countries[i].toLowerCase())!==-1)return countries[i];
+  }
+  return null;
+}
+
+function extractSupplier(text){
+  for(var i=0;i<SUPPLIER_DATA.length;i++){
+    var s=SUPPLIER_DATA[i];
+    var name=s.name.toLowerCase();
+    var first=name.split(' ')[0];
+    if(text.indexOf(name)!==-1||(first.length>3&&text.indexOf(first)!==-1))return s;
+  }
+  return null;
+}
+
+function clickTerminalTab(tabName){
+  var tabMap={alerts:0,feed:1,tariffs:2,ports:3,commodities:4};
+  var idx=tabMap[tabName];
+  if(idx!==undefined&&typeof switchTerminalTab==='function')switchTerminalTab(idx);
+}
+
+function sendJarvisToAPI(text,profile,honorific){
+  fetch('/api/chat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      message:'[JARVIS MODE] Answer in 2 SHORT sentences max, suitable for voice. Address user as "'+honorific+'" occasionally. Question: '+text,
+      profile:{companyType:profile.type,industry:profile.industry,sourcingCountries:profile.sourcingCountries,revenue:profile.revenue},
+      source:'jarvis'
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var reply=d.reply||d.response||d.content||'I could not retrieve that right now.';
+    if(reply.length>220)reply=reply.substring(0,217)+'... Check the chat for the full answer.';
+    jarvisSpeak(reply);
+  })
+  .catch(function(){
+    jarvisSpeak(pick([
+      'I\'m having trouble connecting right now. Try typing your question in the chat instead.',
+      'Connection issue on my end. The chat bar below will handle that question for you.',
+      'I can\'t reach the intelligence feed at the moment. Please try the chat.'
+    ]));
+  });
+}
+
+// ===== JARVIS COMMAND HANDLER (Conversational) =====
+function handleJarvisCommand(text){
+  text=(text||'').toLowerCase().trim().replace(/^jarvis\s*/i,'').trim();
+  if(!text){jarvisSpeak('Yes? What can I do for you?');return;}
+
+  var bubble=document.getElementById('jarvisListeningBubble');
+  var listenText=document.getElementById('jarvisListeningText');
+  if(bubble)bubble.classList.add('jlb-visible');
+  if(listenText)listenText.textContent='"'+text+'"';
+  updateJarvisButton('listening');
+  setTimeout(function(){if(bubble)bubble.classList.remove('jlb-visible');},900);
+
+  var profile=loadJarvisProfile();
+  var honorific=localStorage.getItem('jarvis_honorific')||'sir';
+  var sir=Math.random()>0.6?', '+honorific:'';
+
+  // ===== NAVIGATION =====
+  if(matchAny(text,['open map','go to map','show map','show me the map','back to map','go home','main screen','go back'])||(text==='map')||(text==='home')){
+    switchModule('map');
+    jarvisSpeak(pick([
+      'Back to the map'+sir+'. All '+profile.countriesCount+' countries are being monitored.',
+      'Map view coming up. Everything looks stable across your regions'+sir+'.',
+      'Sure thing'+sir+'. Pulling up the intelligence map.'
+    ]));
+    return;
+  }
+
+  if(matchAny(text,['open audit','go to audit','supplier audit','show suppliers','audit page'])||(text==='audit')||(text==='suppliers')){
+    switchModule('audit');
+    jarvisSpeak(pick([
+      'Opening Supplier Audit'+sir+'. We have '+SUPPLIER_DATA.length+' suppliers in the database ready for analysis.',
+      'Pulling up the audit module. Select any supplier for a deep dive'+sir+'.',
+      'Supplier Audit loading'+sir+'. Search by name or browse the list.'
+    ]));
+    return;
+  }
+
+  if(matchAny(text,['open terminal','go to terminal','show terminal','show dashboard','intelligence feed','control center'])||(text==='terminal')||(text==='dashboard')){
+    switchModule('warroom');
+    jarvisSpeak(pick([
+      'Pulling up the Terminal'+sir+'. You have 6 active alerts today.',
+      'Terminal loading'+sir+'. There are 6 alerts — one of them critical.',
+      'Opening your intelligence dashboard. 6 alerts across your supply chain'+sir+'.'
+    ]));
+    return;
+  }
+
+  if(matchAny(text,['open simulator','go to simulator','run simulation','what if','model','forecast'])||(text==='simulator')||(text==='simulate')){
+    switchModule('simulator');
+    jarvisSpeak(pick([
+      'Scenario Simulator ready'+sir+'. What would you like to model?',
+      'Opening the simulator'+sir+'. Type a what-if question to get started.',
+      'Modeling engine is up. Run any supply chain scenario here'+sir+'.'
+    ]));
+    return;
+  }
+
+  if(matchAny(text,['pricing','show pricing','how much','subscribe','upgrade','plans','price'])){
+    showPricing();
+    jarvisSpeak(pick([
+      'Here are the available plans'+sir+'.',
+      'Showing pricing now'+sir+'. We have Starter and Enterprise tiers.'
+    ]));
+    return;
+  }
+
+  // ===== TERMINAL TABS =====
+  if(matchAny(text,['show alerts','priority alerts','critical alerts','alert status','any alerts'])){
+    switchModule('warroom');
+    setTimeout(function(){clickTerminalTab('alerts');},600);
+    jarvisSpeak(pick([
+      'Pulling up your alerts'+sir+'. One critical situation requires your attention.',
+      'Alert dashboard coming up. One item you should review'+sir+'.',
+      'Checking alerts now'+sir+'. There are a few things worth your attention.'
+    ]));
+    return;
+  }
+
+  if(matchAny(text,['show feed','latest news','show news','what happened','whats new','intelligence feed','updates','any news'])){
+    switchModule('warroom');
+    setTimeout(function(){clickTerminalTab('feed');},600);
+    jarvisSpeak(pick([
+      'Here is your intelligence feed'+sir+'. I have updates from Reuters and Bloomberg.',
+      'Loading the latest supply chain news'+sir+'. A few developments worth noting.',
+      'News feed coming up. Let me know if anything catches your eye'+sir+'.'
+    ]));
+    return;
+  }
+
+  if(matchAny(text,['tariffs','tariff tracker','tariff changes','trade tracker','duties'])){
+    switchModule('warroom');
+    setTimeout(function(){clickTerminalTab('tariffs');},600);
+    jarvisSpeak(pick([
+      'Opening the tariff tracker'+sir+'. Monitoring rate changes across your sourcing regions.',
+      'Tariff data coming up. Some movements worth watching'+sir+'.',
+      'Pulling up trade and tariff information'+sir+'.'
+    ]));
+    return;
+  }
+
+  if(matchAny(text,['ports','show ports','port status','port congestion','shipping delays','vessel','containers'])){
+    switchModule('warroom');
+    setTimeout(function(){clickTerminalTab('ports');},600);
+    jarvisSpeak(pick([
+      'Checking port conditions'+sir+'. Shanghai and Shenzhen are showing elevated congestion.',
+      'Port monitor coming up. A couple of major hubs have delays worth noting'+sir+'.',
+      'Loading shipping and port intelligence'+sir+'.'
+    ]));
+    return;
+  }
+
+  if(matchAny(text,['commodities','commodity prices','oil price','steel price','raw materials','material prices'])){
+    switchModule('warroom');
+    setTimeout(function(){clickTerminalTab('commodities');},600);
+    jarvisSpeak(pick([
+      'Here are the commodity prices'+sir+'. A few notable movements in the last 24 hours.',
+      'Pulling up commodity data'+sir+'. Oil and steel have been active.',
+      'Commodity tracker loading'+sir+'.'
+    ]));
+    return;
+  }
+
+  // ===== COUNTRY LOOKUPS =====
+  var country=extractCountry(text);
+  if(country){
+    var c=COUNTRY_MAP[country];
+    if(c){
+      var riskDesc=c.risk>=80?'critical':c.risk>=60?'high':c.risk>=40?'elevated':c.risk>=20?'moderate':'low';
+      var src=(c.sourcing&&c.sourcing[currentCategory])||0;
+      jarvisSpeak(pick([
+        country+' has a risk score of '+c.risk+' out of 100 — '+riskDesc+sir+'. Shipping cost index is '+c.shipping+', labor cost index '+c.labor+'.',
+        'Looking at '+country+sir+'. Risk is '+riskDesc+' at '+c.risk+' out of 100. Sourcing attractiveness for your sector: '+src+'.',
+        country+sir+'. Risk score '+c.risk+', '+riskDesc+' category. Infrastructure '+c.infra+'/10, tariff rate '+c.tariff+'%.'
+      ]));
+      return;
+    }
+  }
+
+  // ===== SUPPLIER LOOKUPS =====
+  var supplier=extractSupplier(text);
+  if(supplier){
+    switchModule('audit');
+    setTimeout(function(){if(typeof selectSupplier==='function')selectSupplier(supplier.id);},800);
+    jarvisSpeak(pick([
+      'Pulling up '+supplier.name+sir+'. Risk score '+supplier.riskScore+' out of 100. Running full audit.',
+      supplier.name+', based in '+supplier.country+sir+'. Risk profile: '+supplier.riskScore+'. Initiating deep dive.',
+      'Loading intelligence on '+supplier.name+'. Rated '+supplier.riskScore+' on our risk scale'+sir+'.'
+    ]));
+    return;
+  }
+
+  // ===== COMPARE =====
+  if(matchAny(text,['compare','comparison','compare countries','versus',' vs '])){
+    switchModule('map');
+    setTimeout(function(){if(typeof openCompTool==='function')openCompTool();},500);
+    jarvisSpeak('Opening the comparison tool'+sir+'. Select two countries to analyze side by side.');
+    return;
+  }
+
+  // ===== STATUS / BRIEFING =====
+  if(matchAny(text,['status','brief me','briefing','what should i know','anything new','how are things','overview','summary','report','anything going on'])){
+    var sc=profile.sourcingCountries||[];
+    var ind=profile.industry||'supply chain';
+    jarvisSpeak(pick([
+      'Quick briefing'+sir+'. Monitoring '+(sc.length||profile.countriesCount)+' regions, 6 active alerts, one critical. Your '+ind+' indicators are within range — elevated port activity to watch.',
+      'Status update: '+(sc.length||profile.countriesCount)+' countries monitored, 6 alerts active'+sir+'. One critical situation involving tariff escalation. Check Terminal for details.',
+      'All systems nominal'+sir+'. '+(sc.length?sc.slice(0,3).join(', '):'Your regions')+' showing stable conditions. One critical alert flagged for your review.'
+    ]));
+    return;
+  }
+
+  // ===== PROFILE =====
+  if(matchAny(text,['my profile','show profile','my settings','profile','who am i'])){
+    if(typeof showProfileSection==='function')showProfileSection();
+    jarvisSpeak('Opening your profile'+sir+'.');
+    return;
+  }
+
+  // ===== PLEASANTRIES =====
+  if(matchAny(text,['thank you','thanks','thank','appreciate it'])){
+    jarvisSpeak(pick(['Of course'+sir+'.','Happy to help'+sir+'.','Anytime.','My pleasure.']));
+    return;
+  }
+
+  if(matchAny(text,['goodbye','bye','thats all','nothing else','im done','good night'])){
+    jarvisSpeak(pick([
+      'Standing by whenever you need me'+sir+'.',
+      'I\'ll be here'+sir+'. Have a good one.',
+      'Understood. Tap the button anytime you need me'+sir+'.'
+    ]));
+    return;
+  }
+
+  if(matchAny(text,['hello','hey','hi','good morning','good afternoon','good evening','yo'])){
+    var h=new Date().getHours();
+    var tg=h<12?'morning':h<18?'afternoon':'evening';
+    jarvisSpeak(pick([
+      'Good '+tg+sir+'. Supply chain intelligence is active. What would you like to look into?',
+      'Hello'+sir+'. Everything\'s online. How can I assist you?',
+      'Good '+tg+'. All systems running normally'+sir+'. What do you need?'
+    ]));
+    return;
+  }
+
+  if(matchAny(text,['help','what can you do','commands','capabilities','what do you do'])){
+    jarvisSpeak('I can navigate between modules, look up country risk data, audit suppliers, check alerts, track tariffs and ports, and analyze your supply chain'+sir+'. Just speak naturally.');
+    return;
+  }
+
+  if(matchAny(text,['who are you','what are you','your name'])){
+    jarvisSpeak('I\'m Jarvis, your supply chain intelligence assistant'+sir+'. Built by RiskSim AI to keep your operations informed.');
+    return;
+  }
+
+  // ===== FALLBACK → CLAUDE API =====
+  jarvisSpeak(pick([
+    'Let me look into that'+sir+'. Analyzing your data now.',
+    'Good question'+sir+'. Cross-referencing intelligence feeds.',
+    'Running that through our models'+sir+'. One moment.',
+    'Searching our database'+sir+'. Bear with me.'
+  ]),function(){
+    sendJarvisToAPI(text,profile,honorific);
+  });
 }
 
 window.addEventListener('message',function(e){
