@@ -3938,6 +3938,12 @@ var _jarvisUseIframe=false;
 function initJarvis(){
   var stored=localStorage.getItem('jarvis_honorific');
   if(stored)_jarvisHonorific=stored;
+  // Chrome workaround: prime speech synthesis engine
+  if('speechSynthesis' in window){
+    var primer=new SpeechSynthesisUtterance('');
+    speechSynthesis.speak(primer);
+    speechSynthesis.cancel();
+  }
   var enabled=localStorage.getItem('jarvis_enabled')==='1';
   if(enabled)enableJarvis();
 }
@@ -3962,7 +3968,7 @@ function enableJarvis(){
   if(border)border.classList.add('jarvis-active');
   var hour=new Date().getHours();
   var greeting=hour<12?'Good morning':hour<18?'Good afternoon':'Good evening';
-  jarvisSpeak(greeting+', '+_jarvisHonorific+'. RiskSim is online. Click my button anytime to give a command.');
+  jarvisSpeak(greeting+', '+_jarvisHonorific+'. RiskSim is online. Click my button anytime to give a command.',10000);
 }
 
 function disableJarvis(){
@@ -4080,7 +4086,9 @@ function handleJarvisCommand(cmd){
   },600);
 }
 
-function jarvisSpeak(text){
+function jarvisSpeak(text,timeout){
+  speechSynthesis.cancel();
+  var timeoutMs=timeout||15000;
   var respBubble=document.getElementById('jarvisResponseBubble');
   var respText=document.getElementById('jarvisResponseText');
   if(respBubble&&respText){
@@ -4108,9 +4116,26 @@ function jarvisSpeak(text){
       var v=voices.find(function(vv){return vv.name===preferred[i]||vv.name.toLowerCase().indexOf(preferred[i].toLowerCase())!==-1;});
       if(v){utt.voice=v;break;}
     }
-    utt.onend=function(){
+    var speakTimeout=setTimeout(function(){
+      console.log('JARVIS: Speak timeout - forcing reset');
+      speechSynthesis.cancel();
       _jarvisSpeaking=false;
       jarvisResetButton();
+      var border=document.getElementById('jarvisBorder');
+      if(border)border.classList.remove('jarvis-active');
+    },timeoutMs);
+    utt.onend=function(){
+      clearTimeout(speakTimeout);
+      _jarvisSpeaking=false;
+      jarvisResetButton();
+    };
+    utt.onerror=function(e){
+      console.log('JARVIS: Speech error -',e.error);
+      clearTimeout(speakTimeout);
+      _jarvisSpeaking=false;
+      jarvisResetButton();
+      var border=document.getElementById('jarvisBorder');
+      if(border)border.classList.remove('jarvis-active');
     };
     _jarvisSpeaking=true;
     window.speechSynthesis.speak(utt);
