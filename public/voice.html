@@ -4,36 +4,49 @@
 <script>
 var recognition=null;
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+var _continuous=false;
+var _parentOrigin=null;
+
+function replyToParent(msg){
+  window.parent.postMessage(msg,_parentOrigin||'*');
+}
 
 window.addEventListener('message',function(e){
   if(!e.data||!e.data.type)return;
   
   if(e.data.type==='risksim-voice-start'){
-    if(!SR){window.parent.postMessage({type:'risksim-voice-error',error:'not-supported'},'*');return;}
+    _parentOrigin=e.origin;
+    if(!SR){replyToParent({type:'risksim-voice-error',error:'not-supported'});return;}
+    _continuous=(e.data.mode==='continuous');
     if(recognition){try{recognition.stop();}catch(x){}}
     recognition=new SR();
-    recognition.continuous=false;
+    recognition.continuous=_continuous;
     recognition.interimResults=true;
     recognition.lang='en-US';
     recognition.onresult=function(ev){
       var t='';for(var i=ev.resultIndex;i<ev.results.length;i++)t+=ev.results[i][0].transcript;
       if(ev.results[ev.resultIndex].isFinal){
-        window.parent.postMessage({type:'risksim-voice-result',transcript:t.trim()},'*');
+        replyToParent({type:'risksim-voice-result',transcript:t.trim()});
       }else{
-        window.parent.postMessage({type:'risksim-voice-interim',transcript:t},'*');
+        replyToParent({type:'risksim-voice-interim',transcript:t});
       }
     };
     recognition.onerror=function(ev){
-      window.parent.postMessage({type:'risksim-voice-error',error:ev.error},'*');
+      replyToParent({type:'risksim-voice-error',error:ev.error});
     };
     recognition.onend=function(){
-      window.parent.postMessage({type:'risksim-voice-ended'},'*');
+      if(_continuous){
+        try{recognition.start();}catch(x){}
+      }else{
+        replyToParent({type:'risksim-voice-ended'});
+      }
     };
     recognition.start();
-    window.parent.postMessage({type:'risksim-voice-started'},'*');
+    replyToParent({type:'risksim-voice-started'});
   }
   
   if(e.data.type==='risksim-voice-stop'){
+    _continuous=false;
     if(recognition){try{recognition.stop();}catch(x){}}
   }
 });

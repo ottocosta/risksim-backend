@@ -4035,6 +4035,7 @@ var _jarvisResponseTimer=null;
 var _jarvisSpeaking=false;
 var _jarvisListening=false;
 var _jarvisHeartbeat=null;
+var _jarvisUseIframe=false;
 
 function initJarvis(){
   var stored=localStorage.getItem('jarvis_honorific');
@@ -4057,7 +4058,7 @@ function enableJarvis(){
   if(border)border.classList.add('jarvis-active');
   startJarvisListening();
   _jarvisHeartbeat=setInterval(function(){
-    if(_jarvisEnabled&&!_jarvisListening){
+    if(_jarvisEnabled&&!_jarvisListening&&!_jarvisUseIframe){
       console.log('JARVIS: Heartbeat restart');
       startJarvisListening();
     }
@@ -4078,6 +4079,11 @@ function disableJarvis(){
 }
 
 function startJarvisListening(){
+  if(_jarvisUseIframe){
+    var frame=document.getElementById('jarvisFrame');
+    if(frame)frame.contentWindow.postMessage({type:'risksim-voice-start',mode:'continuous'},'https://risksim-backend.onrender.com');
+    return;
+  }
   if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
     console.warn('Jarvis: Web Speech API not available');return;
   }
@@ -4108,15 +4114,21 @@ function startJarvisListening(){
   };
   r.onerror=function(e){
     console.log('JARVIS: Error -',e.error);
-    if(e.error==='not-allowed'||e.error==='service-not-allowed'){disableJarvis();return;}
-    if(_jarvisEnabled&&(e.error==='no-speech'||e.error==='aborted'||e.error==='network')){
-      setTimeout(function(){if(_jarvisEnabled)startJarvisListening();},500);
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+      console.log('JARVIS: Mic blocked, switching to iframe mode');
+      _jarvisUseIframe=true;
+      var frame=document.getElementById('jarvisFrame');
+      if(frame)frame.contentWindow.postMessage({type:'risksim-voice-start',mode:'continuous'},'https://risksim-backend.onrender.com');
+      return;
+    }
+    if(_jarvisEnabled&&!_jarvisUseIframe&&(e.error==='no-speech'||e.error==='aborted'||e.error==='network')){
+      setTimeout(function(){if(_jarvisEnabled&&!_jarvisUseIframe)startJarvisListening();},500);
     }
   };
   r.onend=function(){
     console.log('JARVIS: Recognition ended, restarting...');
     _jarvisListening=false;
-    if(_jarvisEnabled)setTimeout(function(){if(!_jarvisListening){try{startJarvisListening();}catch(e){console.log('JARVIS: Error -',e);}}},300);
+    if(_jarvisEnabled&&!_jarvisUseIframe)setTimeout(function(){if(!_jarvisListening&&!_jarvisUseIframe){try{startJarvisListening();}catch(e){console.log('JARVIS: Error -',e);}}},300);
   };
   _jarvisRecognition=r;
   try{r.start();}catch(e){console.log('JARVIS: Error -',e);}
@@ -4124,6 +4136,8 @@ function startJarvisListening(){
 
 function stopJarvisListening(){
   if(_jarvisRecognition){try{_jarvisRecognition.stop();}catch(e){}; _jarvisRecognition=null;}
+  var frame=document.getElementById('jarvisFrame');
+  if(frame)frame.contentWindow.postMessage({type:'risksim-voice-stop'},'https://risksim-backend.onrender.com');
 }
 
 function handleJarvisCommand(cmd){
@@ -4208,6 +4222,24 @@ function hideJarvisBubbles(){
   if(a)a.classList.remove('jlb-visible');
   if(b)b.classList.remove('jrb-visible');
 }
+
+window.addEventListener('message',function(e){
+  if(e.origin!=='https://risksim-backend.onrender.com')return;
+  var frame=document.getElementById('jarvisFrame');
+  if(!frame||e.source!==frame.contentWindow)return;
+  if(!e.data||!e.data.type)return;
+  if(e.data.type==='risksim-voice-result'||e.data.type==='risksim-voice-interim'){
+    var transcript=(e.data.transcript||'').toLowerCase();
+    console.log('JARVIS (iframe): Heard -',transcript);
+    var variants=['jarvis','jarvas','service','travis','javis','jervis'];
+    var matched=null;
+    for(var i=0;i<variants.length;i++){if(transcript.indexOf(variants[i])!==-1){matched=variants[i];break;}}
+    if(matched){
+      console.log('JARVIS (iframe): Wake word detected! Command -',transcript.replace(new RegExp('\\b'+matched+'\\b'),'').trim());
+      handleJarvisCommand(transcript.replace(new RegExp('\\b'+matched+'\\b'),'').trim());
+    }
+  }
+});
 
 // ===== ONBOARDING SLIDES =====
 var _obsSlide=0;
@@ -5068,6 +5100,8 @@ document.getElementById('pricingOverlay').addEventListener('click', function(e) 
   if (e.target === this) closePricing();
 });
 </script>
+
+<iframe id="jarvisFrame" src="https://risksim-backend.onrender.com/voice.html" style="display:none;width:0;height:0;border:none;position:absolute;" allow="microphone"></iframe>
 
 </body>
 </html>
