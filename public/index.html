@@ -430,7 +430,7 @@
     .chip-grid { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
     .chip-option { padding:6px 12px; border-radius:999px; font-size:11px; font-weight:500; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:var(--muted); cursor:pointer; transition:all 0.25s; user-select:none; }
     .chip-option:hover { border-color:rgba(45,212,191,0.2); color:var(--text); }
-    .chip-option.selected { background:rgba(45,212,191,0.08); border-color:rgba(45,212,191,0.3); color:var(--accent); }
+    .chip-option.selected { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.3); color:#fff; }
     .onboard-submit { width:100%; padding:12px; background:var(--accent); border:none; border-radius:8px; color:#050608; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.25s; margin-top:8px; }
     .onboard-submit:hover { background:#5eead4; transform:translateY(-1px); }
     .onboard-cancel { width:100%; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.06); border-radius:8px; color:var(--muted); font-size:12px; cursor:pointer; transition:all 0.2s; margin-top:8px; }
@@ -509,47 +509,59 @@
 
     .ps-shimmer-top {
       position: absolute; top: 0; left: 0; right: 0; height: 1px; border-radius: 24px 24px 0 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(45,212,191,0.5) 50%, transparent 100%);
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
       background-size: 400px 1px; animation: psShimmer 3s linear infinite;
     }
     .ps-inner { padding: 36px 40px; }
     @media (max-width:600px) { .ps-inner { padding: 24px 20px; } }
 
     .ps-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
-    .ps-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: var(--accent); letter-spacing: 0.14em; text-transform: uppercase; }
+    .ps-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: #fff; letter-spacing: 0.14em; text-transform: uppercase; }
     .ps-badge { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; padding: 4px 12px; border: 1px solid rgba(255,255,255,0.06); border-radius: 999px; }
     .ps-title { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; color: #fff; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 8px; }
-    .ps-title em { color: var(--accent); font-style: normal; }
+    .ps-title em { color: #fff; font-style: normal; }
     .ps-subtitle { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 28px; }
 
     /* Summary view */
     .ps-stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
     @media (max-width:600px) { .ps-stat-grid { grid-template-columns: 1fr 1fr; } }
-    .ps-stat { background: rgba(255,255,255,0.02); border: 1px solid rgba(45,212,191,0.08); border-radius: 12px; padding: 14px 12px; transition: all 0.28s; }
-    .ps-stat:hover { border-color: rgba(45,212,191,0.2); background: rgba(45,212,191,0.04); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(45,212,191,0.07); }
+    .ps-stat { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 14px 12px; transition: all 0.28s; }
+    .ps-stat:hover { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,255,255,0.05); }
     .ps-stat-lbl { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; margin-bottom: 7px; }
     .ps-stat-val { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.3; }
-    .ps-stat-val.accent { color: var(--accent); }
+    .ps-stat-val.accent { color: #fff; }
 
-    .ps-sentence { background: rgba(45,212,191,0.04); border: 1px solid rgba(45,212,191,0.1); border-left: 3px solid var(--accent); border-radius: 10px; padding: 13px 15px; font-size: 13px; color: #cbd5e1; line-height: 1.65; margin-bottom: 20px; font-style: italic; }
+    .ps-sentence { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-left: 3px solid #fff; border-radius: 10px; padding: 13px 15px; font-size: 13px; color: #cbd5e1; line-height: 1.65; margin-bottom: 20px; font-style: italic; }
 
     .ps-chips-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 26px; }
-    .ps-chip { padding: 5px 11px; border-radius: 999px; font-size: 10px; font-weight: 500; background: rgba(45,212,191,0.07); border: 1px solid rgba(45,212,191,0.18); color: var(--accent); font-family: var(--font-mono); }
+    .ps-chip { padding: 5px 11px; border-radius: 999px; font-size: 10px; font-weight: 500; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.85); font-family: var(--font-mono); }
 
     .ps-actions { display: flex; gap: 10px; justify-content: flex-end; align-items: center; padding-top: 4px; }
     .ps-edit-btn { padding: 10px 18px; background: transparent; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: var(--muted); font-size: 12px; cursor: pointer; transition: all 0.25s; }
     .ps-edit-btn:hover { border-color: rgba(255,255,255,0.16); color: var(--text); }
-    .ps-proceed-btn { padding: 12px 26px; background: var(--accent); border: none; border-radius: 10px; color: #050608; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; gap: 8px; }
-    .ps-proceed-btn:hover { background: #5eead4; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(45,212,191,0.3); }
+    .ps-proceed-btn { padding: 12px 26px; background: #fff; border: none; border-radius: 10px; color: #000; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; gap: 8px; }
+    .ps-proceed-btn:hover { background: rgba(255,255,255,0.88); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(255,255,255,0.15); }
 
     /* Form view */
     .ps-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 16px; }
     @media (max-width:600px) { .ps-form-grid { grid-template-columns: 1fr; } }
-    .ps-section-lbl { font-family: var(--font-display); font-size: 8px; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; display: block; }
+    .ps-section-lbl { font-family: var(--font-display); font-size: 8px; letter-spacing: 0.18em; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 12px; display: block; }
     .ps-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 20px 0; }
-    .ps-submit-btn { width: 100%; padding: 13px; background: var(--accent); border: none; border-radius: 10px; color: #050608; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; margin-top: 6px; }
-    .ps-submit-btn:hover { background: #5eead4; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(45,212,191,0.25); }
+    .ps-submit-btn { width: 100%; padding: 13px; background: #fff; border: none; border-radius: 10px; color: #000; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; margin-top: 6px; }
+    .ps-submit-btn:hover { background: rgba(255,255,255,0.88); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(255,255,255,0.15); }
     .ps-chips-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .ps-wiz-bar { height: 2px; background: rgba(255,255,255,0.08); border-radius: 999px; margin-bottom: 6px; overflow: hidden; }
+    .ps-wiz-bar-fill { height: 100%; background: #fff; border-radius: 999px; transition: width 0.4s cubic-bezier(0.25,0,0,1); }
+    .ps-wiz-labels { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 8px; color: rgba(255,255,255,0.2); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 28px; }
+    .ps-wiz-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; }
+    @keyframes psWizIn { from { opacity:0; transform:translateX(28px); } to { opacity:1; transform:none; } }
+    @keyframes psWizInBack { from { opacity:0; transform:translateX(-28px); } to { opacity:1; transform:none; } }
+    .ps-wiz-enter { animation: psWizIn 0.32s cubic-bezier(0.25,0,0.3,1); }
+    .ps-wiz-enter-back { animation: psWizInBack 0.32s cubic-bezier(0.25,0,0.3,1); }
+    .field-input { width:100%; box-sizing:border-box; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff; font-family:var(--font-mono); font-size:12px; padding:10px 12px; outline:none; transition:border-color 0.2s; }
+    .field-input:focus { border-color:rgba(255,255,255,0.28); }
+    .field-input::placeholder { color:rgba(255,255,255,0.2); }
+    textarea.field-input { resize:vertical; min-height:72px; }
 
     /* Reopen button */
     #psReopenBtn {
@@ -1280,6 +1292,14 @@
     .sim-card-action { padding:5px 12px; border-radius:7px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:rgba(255,255,255,0.45); font-size:10px; cursor:pointer; transition:all 0.2s; font-family:'JetBrains Mono',monospace; }
     .sim-card-action:hover { border-color:rgba(255,255,255,0.2); color:#fff; }
 
+
+    /* ===== JARVIS VISIBILITY (hide during intro / profile / pricing) ===== */
+    body:has(#rs-intro) #jarvisToggle,
+    body:has(#rs-intro) #jarvisBorder,
+    body:has(#profileSection.ps-visible) #jarvisToggle,
+    body:has(#profileSection.ps-visible) #jarvisBorder,
+    body:has(#pricingOverlay.po-visible) #jarvisToggle,
+    body:has(#pricingOverlay.po-visible) #jarvisBorder { display: none !important; }
 
     /* ===== JARVIS MODE ===== */
     #jarvisBorder {
@@ -2312,14 +2332,17 @@ function renderProfileContent() {
   if(!hasProfile) initPSFormChips();
 }
 
+var psWizardStep=1;
+
 function buildPSSummary() {
   var typeLabel=PS_TYPE_LABELS[userProfile.type]||userProfile.type||'Business';
   var indLabel=PS_IND_LABELS[userProfile.industry]||userProfile.industry||'General Industry';
   var regions=selectedSourcingCountries.length?selectedSourcingCountries:['Global'];
-  var sentence='You\'re a <strong>'+typeLabel+'</strong> in <strong>'+indLabel+'</strong> sourcing from <strong>'+regions.slice(0,4).join(', ')+(regions.length>4?' +'+( regions.length-4)+' more':'')+'</strong>.';
+  var name=userProfile.companyName||typeLabel;
+  var sentence='You\'re a <strong>'+typeLabel+'</strong> in <strong>'+indLabel+'</strong> sourcing from <strong>'+regions.slice(0,4).join(', ')+(regions.length>4?' +'+(regions.length-4)+' more':'')+'</strong>.';
   var chips=regions.slice(0,12).map(function(r){return'<span class="ps-chip">'+r+'</span>';}).join('');
   return '<div class="ps-header-row"><span class="ps-brand">RiskSim AI</span><span class="ps-badge">Your Profile</span></div>'+
-    '<div class="ps-title">Welcome back,<br><em>'+typeLabel+'</em></div>'+
+    '<div class="ps-title">Welcome back,<br><em>'+name+'</em></div>'+
     '<p class="ps-subtitle">Your personalized supply chain intelligence is ready. Data is filtered to your industry and sourcing regions.</p>'+
     '<div class="ps-stat-grid">'+
       '<div class="ps-stat"><div class="ps-stat-lbl">Company Type</div><div class="ps-stat-val">'+typeLabel+'</div></div>'+
@@ -2327,6 +2350,7 @@ function buildPSSummary() {
       '<div class="ps-stat"><div class="ps-stat-lbl">Sourcing Regions</div><div class="ps-stat-val">'+regions.length+' countries</div></div>'+
       (userProfile.country?'<div class="ps-stat"><div class="ps-stat-lbl">Home Country</div><div class="ps-stat-val">'+userProfile.country+'</div></div>':'')+
       (userProfile.revenue?'<div class="ps-stat"><div class="ps-stat-lbl">Revenue</div><div class="ps-stat-val">'+userProfile.revenue+'</div></div>':'')+
+      (userProfile.employees?'<div class="ps-stat"><div class="ps-stat-lbl">Team Size</div><div class="ps-stat-val">'+userProfile.employees+'</div></div>':'')+
       '<div class="ps-stat"><div class="ps-stat-lbl">Data Points/Day</div><div class="ps-stat-val accent">2.4M</div></div>'+
     '</div>'+
     '<div class="ps-sentence">'+sentence+'</div>'+
@@ -2337,51 +2361,149 @@ function buildPSSummary() {
     '</div>';
 }
 
-function buildPSForm() {
-  var indOpts=['<option value="">Select industry…</option>',
-    '<option value="technology">Electronics</option>',
-    '<option value="textiles">Textiles / Apparel</option>',
-    '<option value="automotive">Automotive</option>',
-    '<option value="food">Food / Agriculture</option>',
-    '<option value="pharma">Pharmaceuticals</option>',
-    '<option value="rawMaterials">Raw Materials</option>',
-    '<option value="consumerGoods">Consumer Goods</option>',
-    '<option value="other">Other</option>'].join('');
-  var typeOpts=['<option value="">Select type…</option>',
-    '<option value="manufacturer">Manufacturer</option>',
-    '<option value="retailer">Retailer</option>',
-    '<option value="distributor">Distributor</option>',
-    '<option value="logistics">Logistics Provider</option>',
-    '<option value="other">Other</option>'].join('');
-  var revOpts=['<option value="">Select range…</option>',
-    '<option value="under1m">&lt;$1M</option>',
-    '<option value="1m10m">$1M–$10M</option>',
-    '<option value="10m50m">$10M–$50M</option>',
-    '<option value="50m100m">$50M–$100M</option>',
-    '<option value="over100m">$100M+</option>'].join('');
-  var chips=PS_SOURCING_COUNTRIES.map(function(c){return'<span class="chip-option ps-sourcing-chip" data-country="'+c+'">'+c+'</span>';}).join('');
-  return '<div class="ps-header-row"><span class="ps-brand">RiskSim AI</span><span class="ps-badge">Step 1 of 1</span></div>'+
-    '<div class="ps-title">Set Up Your<br><em>Intelligence Profile</em></div>'+
-    '<p class="ps-subtitle">Personalize your supply chain risk data — every metric will be filtered to your industry, company type, and sourcing regions.</p>'+
+function _psWizardShell(stepNum,body){
+  var pct=Math.round((stepNum/3)*100);
+  var labels=['Basics','Sourcing','Context'];
+  return '<div class="ps-header-row"><span class="ps-brand">RiskSim AI</span><span class="ps-badge">Step '+stepNum+' of 3</span></div>'+
+    '<div class="ps-wiz-bar"><div class="ps-wiz-bar-fill" style="width:'+pct+'%"></div></div>'+
+    '<div class="ps-wiz-labels">'+labels.map(function(l,i){return'<span style="color:'+(i+1<=stepNum?'rgba(255,255,255,0.6)':'rgba(255,255,255,0.2)')+'">'+l+'</span>';}).join('')+'</div>'+
+    '<div id="ps-wizard-body">'+body+'</div>';
+}
+
+function buildPSForm(){
+  psWizardStep=1;
+  return _psWizardShell(1,_psWizStep1());
+}
+
+function _psWizStep1(){
+  var indOpts='<option value="">Select industry…</option>'+
+    '<option value="technology"'+(userProfile.industry==='technology'?' selected':'')+'>Electronics</option>'+
+    '<option value="textiles"'+(userProfile.industry==='textiles'?' selected':'')+'>Textiles / Apparel</option>'+
+    '<option value="automotive"'+(userProfile.industry==='automotive'?' selected':'')+'>Automotive</option>'+
+    '<option value="food"'+(userProfile.industry==='food'?' selected':'')+'>Food / Agriculture</option>'+
+    '<option value="pharma"'+(userProfile.industry==='pharma'?' selected':'')+'>Pharmaceuticals</option>'+
+    '<option value="rawMaterials"'+(userProfile.industry==='rawMaterials'?' selected':'')+'>Raw Materials</option>'+
+    '<option value="consumerGoods"'+(userProfile.industry==='consumerGoods'?' selected':'')+'>Consumer Goods</option>'+
+    '<option value="other"'+(userProfile.industry==='other'?' selected':'')+'>Other</option>';
+  var typeOpts='<option value="">Select type…</option>'+
+    '<option value="manufacturer"'+(userProfile.type==='manufacturer'?' selected':'')+'>Manufacturer</option>'+
+    '<option value="retailer"'+(userProfile.type==='retailer'?' selected':'')+'>Retailer</option>'+
+    '<option value="distributor"'+(userProfile.type==='distributor'?' selected':'')+'>Distributor</option>'+
+    '<option value="logistics"'+(userProfile.type==='logistics'?' selected':'')+'>Logistics Provider</option>'+
+    '<option value="other"'+(userProfile.type==='other'?' selected':'')+'>Other</option>';
+  return '<div class="ps-title">Company<br><em>Basics</em></div>'+
+    '<p class="ps-subtitle">Tell us about your business to personalize your intelligence feed.</p>'+
     '<div class="ps-divider"></div>'+
-    '<span class="ps-section-lbl">About Your Business</span>'+
     '<div class="ps-form-grid">'+
+      '<div class="field-group"><label class="field-label">Company Name</label><input class="field-input" id="ps-companyName" type="text" placeholder="Acme Corp" value="'+(userProfile.companyName||'')+'"></div>'+
+      '<div class="field-group"><label class="field-label">Home Country</label><input class="field-input" id="ps-homeCountry" type="text" placeholder="United States" value="'+(userProfile.country||'')+'"></div>'+
+    '</div>'+
+    '<div class="ps-form-grid" style="margin-top:12px">'+
       '<div class="field-group"><label class="field-label">Company Type</label><select class="field-select" id="ps-companyType">'+typeOpts+'</select></div>'+
       '<div class="field-group"><label class="field-label">Industry</label><select class="field-select" id="ps-industry">'+indOpts+'</select></div>'+
     '</div>'+
-    '<div class="field-group"><label class="field-label">Annual Revenue</label><select class="field-select" id="ps-revenue">'+revOpts+'</select></div>'+
-    '<div class="ps-divider"></div>'+
-    '<span class="ps-section-lbl">Primary Sourcing Regions</span>'+
-    '<div class="ps-chips-grid" id="ps-sourcingChips">'+chips+'</div>'+
-    '<div style="margin-top:24px">'+
-      '<button class="ps-submit-btn" onclick="handlePSSubmit()">Start Intelligence →</button>'+
+    '<div style="margin-top:24px;display:flex;justify-content:flex-end">'+
+      '<button class="ps-submit-btn" style="width:auto;padding:12px 28px" onclick="psNextStep()">Next →</button>'+
     '</div>';
 }
 
-function initPSFormChips() {
+function _psWizStep2(){
+  var revOpts='<option value="">Select range…</option>'+
+    '<option value="under1m"'+(userProfile.revenue==='under1m'?' selected':'')+'>&lt;$1M</option>'+
+    '<option value="1m10m"'+(userProfile.revenue==='1m10m'?' selected':'')+'>$1M–$10M</option>'+
+    '<option value="10m50m"'+(userProfile.revenue==='10m50m'?' selected':'')+'>$10M–$50M</option>'+
+    '<option value="50m100m"'+(userProfile.revenue==='50m100m'?' selected':'')+'>$50M–$100M</option>'+
+    '<option value="over100m"'+(userProfile.revenue==='over100m'?' selected':'')+'>$100M+</option>';
+  var empOpts='<option value="">Select size…</option>'+
+    '<option value="1-10"'+(userProfile.employees==='1-10'?' selected':'')+'>1–10</option>'+
+    '<option value="11-50"'+(userProfile.employees==='11-50'?' selected':'')+'>11–50</option>'+
+    '<option value="51-200"'+(userProfile.employees==='51-200'?' selected':'')+'>51–200</option>'+
+    '<option value="201-500"'+(userProfile.employees==='201-500'?' selected':'')+'>201–500</option>'+
+    '<option value="500+"'+(userProfile.employees==='500+'?' selected':'')+'>500+</option>';
+  var chips=PS_SOURCING_COUNTRIES.map(function(c){return'<span class="chip-option ps-sourcing-chip" data-country="'+c+'">'+c+'</span>';}).join('');
+  return '<div class="ps-title">Sourcing<br><em>Regions</em></div>'+
+    '<p class="ps-subtitle">Where do you source from? Select all that apply.</p>'+
+    '<div class="ps-divider"></div>'+
+    '<div class="ps-form-grid">'+
+      '<div class="field-group"><label class="field-label">Annual Revenue</label><select class="field-select" id="ps-revenue">'+revOpts+'</select></div>'+
+      '<div class="field-group"><label class="field-label">Employees</label><select class="field-select" id="ps-employees">'+empOpts+'</select></div>'+
+    '</div>'+
+    '<div style="margin-top:16px"><span class="ps-section-lbl">Primary Sourcing Regions</span>'+
+    '<div class="ps-chips-grid" id="ps-sourcingChips">'+chips+'</div></div>'+
+    '<div class="ps-form-grid" style="margin-top:16px">'+
+      '<div class="field-group"><label class="field-label">Products / Services</label><input class="field-input" id="ps-products" type="text" placeholder="Electronics components, textiles…" value="'+(userProfile.products||'')+'"></div>'+
+    '</div>'+
+    '<div class="ps-wiz-nav">'+
+      '<button class="ps-edit-btn" onclick="psPrevStep()">← Back</button>'+
+      '<button class="ps-submit-btn" style="width:auto;padding:12px 28px" onclick="psNextStep()">Next →</button>'+
+    '</div>';
+}
+
+function _psWizStep3(){
+  var concOpts='<option value="">Select concern…</option>'+
+    '<option value="geopolitical"'+(userProfile.concern==='geopolitical'?' selected':'')+'>Geopolitical Risk</option>'+
+    '<option value="disruption"'+(userProfile.concern==='disruption'?' selected':'')+'>Supply Disruption</option>'+
+    '<option value="tariffs"'+(userProfile.concern==='tariffs'?' selected':'')+'>Tariffs / Trade Policy</option>'+
+    '<option value="labor"'+(userProfile.concern==='labor'?' selected':'')+'>Labor &amp; ESG</option>'+
+    '<option value="climate"'+(userProfile.concern==='climate'?' selected':'')+'>Climate Risk</option>'+
+    '<option value="quality"'+(userProfile.concern==='quality'?' selected':'')+'>Quality Control</option>'+
+    '<option value="cost"'+(userProfile.concern==='cost'?' selected':'')+'>Cost Optimization</option>';
+  return '<div class="ps-title">Supply Chain<br><em>Context</em></div>'+
+    '<p class="ps-subtitle">Final details to complete your personalized risk profile.</p>'+
+    '<div class="ps-divider"></div>'+
+    '<div class="field-group"><label class="field-label">Top Suppliers (optional, comma-separated)</label>'+
+      '<input class="field-input" id="ps-suppliers" type="text" placeholder="TSMC, Samsung, Foxconn…" value="'+(userProfile.suppliers||'')+'"></div>'+
+    '<div class="field-group" style="margin-top:12px"><label class="field-label">Main Supply Chain Concern</label>'+
+      '<select class="field-select" id="ps-concern">'+concOpts+'</select></div>'+
+    '<div class="field-group" style="margin-top:12px"><label class="field-label">Additional Context (optional)</label>'+
+      '<textarea class="field-input" id="ps-context" rows="3" placeholder="Specific markets, products, or risks you\'re focused on…">'+(userProfile.context||'')+'</textarea></div>'+
+    '<div class="ps-wiz-nav">'+
+      '<button class="ps-edit-btn" onclick="psPrevStep()">← Back</button>'+
+      '<button class="ps-submit-btn" style="width:auto;padding:12px 28px" onclick="handlePSSubmit()">Complete Setup →</button>'+
+    '</div>';
+}
+
+function psNextStep(){
+  if(psWizardStep===1){
+    userProfile.companyName=(document.getElementById('ps-companyName')||{}).value||'';
+    userProfile.country=(document.getElementById('ps-homeCountry')||{}).value||'';
+    userProfile.type=(document.getElementById('ps-companyType')||{}).value||'';
+    userProfile.industry=(document.getElementById('ps-industry')||{}).value||'';
+  }else if(psWizardStep===2){
+    userProfile.revenue=(document.getElementById('ps-revenue')||{}).value||'';
+    userProfile.employees=(document.getElementById('ps-employees')||{}).value||'';
+    userProfile.products=(document.getElementById('ps-products')||{}).value||'';
+  }
+  if(psWizardStep<3){
+    psWizardStep++;
+    var inner=document.getElementById('psInner');
+    if(inner){
+      var stepHTML=psWizardStep===2?_psWizStep2():_psWizStep3();
+      inner.innerHTML=_psWizardShell(psWizardStep,stepHTML);
+      var body=document.getElementById('ps-wizard-body');
+      if(body)body.classList.add('ps-wiz-enter');
+      if(psWizardStep===2)initPSFormChips();
+    }
+  }
+}
+
+function psPrevStep(){
+  if(psWizardStep>1){
+    psWizardStep--;
+    var inner=document.getElementById('psInner');
+    if(inner){
+      var stepHTML=psWizardStep===1?_psWizStep1():_psWizStep2();
+      inner.innerHTML=_psWizardShell(psWizardStep,stepHTML);
+      var body=document.getElementById('ps-wizard-body');
+      if(body)body.classList.add('ps-wiz-enter-back');
+      if(psWizardStep===2)initPSFormChips();
+    }
+  }
+}
+
+function initPSFormChips(){
   var grid=document.getElementById('ps-sourcingChips');
   if(!grid) return;
-  // Re-select any already selected countries
   var chips=grid.querySelectorAll('.ps-sourcing-chip');
   for(var i=0;i<chips.length;i++){
     if(selectedSourcingCountries.indexOf(chips[i].getAttribute('data-country'))!==-1)
@@ -2397,22 +2519,23 @@ function initPSFormChips() {
   });
 }
 
-function handlePSSubmit() {
-  var type=(document.getElementById('ps-companyType')||{}).value||'';
-  var industry=(document.getElementById('ps-industry')||{}).value||'';
-  var revenue=(document.getElementById('ps-revenue')||{}).value||'';
-  if(industry) currentCategory=industry;
-  userProfile={type:type,country:'',regions:selectedSourcingCountries.join(', '),industry:industry,revenue:revenue};
+function handlePSSubmit(){
+  userProfile.suppliers=(document.getElementById('ps-suppliers')||{}).value||'';
+  userProfile.concern=(document.getElementById('ps-concern')||{}).value||'';
+  userProfile.context=(document.getElementById('ps-context')||{}).value||'';
+  userProfile.regions=selectedSourcingCountries.join(', ');
+  if(userProfile.industry) currentCategory=userProfile.industry;
   saveProfileToStorage();
-  var mtype=document.getElementById('companyType'); if(mtype&&type) mtype.value=type;
-  var mind=document.getElementById('industry'); if(mind&&industry) mind.value=industry;
-  var mrev=document.getElementById('annualRevenue'); if(mrev&&revenue) mrev.value=revenue;
+  var mtype=document.getElementById('companyType'); if(mtype&&userProfile.type) mtype.value=userProfile.type;
+  var mind=document.getElementById('industry'); if(mind&&userProfile.industry) mind.value=userProfile.industry;
+  var mrev=document.getElementById('annualRevenue'); if(mrev&&userProfile.revenue) mrev.value=userProfile.revenue;
   renderMarkers();
   updateHeroStats();
   renderProfileContent();
 }
 
-function editPSProfile() {
+function editPSProfile(){
+  psWizardStep=1;
   userProfile={};
   renderProfileContent();
 }
@@ -4053,6 +4176,16 @@ function jarvisResetButton(){
   }
 }
 
+function startJarvisListening(){
+  _jarvisIsListening=false;
+  updateJarvisButton('active');
+  if(_jarvisEnabled) setTimeout(function(){ jarvisListenOnce(); },300);
+}
+function stopJarvisListening(){
+  if(_jarvisRecognition){try{_jarvisRecognition.stop();}catch(e){} _jarvisRecognition=null;}
+  _jarvisIsListening=false;
+}
+
 // ===== JARVIS VOICE PREFERENCE =====
 var jarvisVoice=null;
 function _initJarvisVoice(){
@@ -4103,14 +4236,15 @@ function jarvisSpeak(text,callback){
     clearTimeout(speakTimeout);
     updateJarvisButton(_jarvisEnabled?'active':'off');
     if(!_jarvisEnabled&&border)border.classList.remove('jarvis-active');
-    if(callback)callback();
-    else if(_jarvisEnabled&&!_jarvisIsListening)jarvisListenOnce();
+    if(callback){callback();}
+    else if(_jarvisEnabled&&!_jarvisIsListening){setTimeout(function(){jarvisListenOnce();},400);}
   };
   utt.onerror=function(){
     clearTimeout(speakTimeout);
     updateJarvisButton(_jarvisEnabled?'active':'off');
     if(!_jarvisEnabled&&border)border.classList.remove('jarvis-active');
-    if(callback)callback();
+    if(callback){callback();}
+    else if(_jarvisEnabled){setTimeout(function(){jarvisListenOnce();},400);}
   };
   window.speechSynthesis.speak(utt);
 }
