@@ -875,6 +875,99 @@
     @keyframes glassShimmerIn { 0%{box-shadow:inset 0 1px 0 rgba(255,255,255,0.28),0 12px 48px rgba(0,0,0,0.5);} 100%{box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),0 12px 48px rgba(0,0,0,0.5);} }
     .am-shimmer-in { animation:glassShimmerIn 3s ease-out; }
 
+    /* ===== CUSTOM SUPPLIER SEARCH ===== */
+    .am-custom-search { padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .am-custom-search-input {
+      width:100%; box-sizing:border-box; padding:10px 14px;
+      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+      border-radius:10px; color:#fff; font-family:'Inter',sans-serif;
+      font-size:13px; outline:none; transition:border-color 0.3s;
+    }
+    .am-custom-search-input:focus { border-color:rgba(255,255,255,0.25); }
+    .am-custom-search-input::placeholder { color:rgba(255,255,255,0.2); }
+    .am-custom-search-hint { font-size:10px; color:rgba(255,255,255,0.2); margin-top:6px; font-family:'JetBrains Mono',monospace; letter-spacing:0.05em; }
+    .am-custom-search-ctx { margin-top:8px; display:none; }
+    .am-custom-search-ctx textarea {
+      width:100%; box-sizing:border-box; padding:8px 12px;
+      background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);
+      border-radius:8px; color:rgba(255,255,255,0.7); font-family:'Inter',sans-serif;
+      font-size:11px; outline:none; resize:vertical; min-height:60px;
+      transition:border-color 0.3s;
+    }
+    .am-custom-search-ctx textarea:focus { border-color:rgba(255,255,255,0.18); }
+    .am-custom-search-ctx textarea::placeholder { color:rgba(255,255,255,0.2); }
+
+    /* ===== CUSTOM AUDIT EXTRA SECTIONS ===== */
+    .am-confidence-badge {
+      display:inline-flex; align-items:center; gap:6px; padding:4px 12px;
+      border-radius:999px; font-family:'JetBrains Mono',monospace; font-size:9px;
+      letter-spacing:0.12em; text-transform:uppercase; font-weight:600; margin-top:6px;
+    }
+    .am-confidence-badge.high { background:rgba(100,255,140,0.08); border:1px solid rgba(100,255,140,0.22); color:rgba(100,255,140,0.9); }
+    .am-confidence-badge.medium { background:rgba(255,200,60,0.08); border:1px solid rgba(255,200,60,0.22); color:rgba(255,210,80,0.9); }
+    .am-confidence-badge.low { background:rgba(255,80,80,0.08); border:1px solid rgba(255,80,80,0.22); color:rgba(255,110,110,0.9); }
+    .am-confidence-dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+    .am-info-bar { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+    .am-info-pill {
+      padding:5px 12px; background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08); border-radius:999px;
+    }
+    .am-info-pill-lbl { font-family:'JetBrains Mono',monospace; font-size:7px; letter-spacing:0.14em; color:rgba(255,255,255,0.28); text-transform:uppercase; display:block; margin-bottom:2px; }
+    .am-info-pill-val { font-size:11px; color:rgba(255,255,255,0.75); font-weight:500; }
+
+    .am-recs { margin-bottom:18px; }
+    .am-recs-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-bottom:10px; display:block; }
+    .am-rec-card {
+      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+      border-radius:12px; padding:14px 15px; margin-bottom:8px;
+      transition:all 0.25s cubic-bezier(0.16,1,0.3,1);
+    }
+    .am-rec-card:hover { border-color:rgba(255,255,255,0.13); transform:translateY(-2px); }
+    .am-rec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; gap:10px; }
+    .am-rec-title { font-size:13px; font-weight:600; color:#fff; }
+    .am-rec-badges { display:flex; gap:5px; flex-shrink:0; }
+    .am-rec-priority, .am-rec-timeline {
+      padding:2px 8px; border-radius:999px; font-family:'JetBrains Mono',monospace;
+      font-size:7px; letter-spacing:0.1em; text-transform:uppercase; font-weight:600;
+    }
+    .am-rec-priority.high { background:rgba(255,80,80,0.1); border:1px solid rgba(255,80,80,0.2); color:rgba(255,110,110,0.9); }
+    .am-rec-priority.medium { background:rgba(255,200,60,0.1); border:1px solid rgba(255,200,60,0.2); color:rgba(255,210,80,0.9); }
+    .am-rec-priority.low { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.45); }
+    .am-rec-timeline { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); }
+    .am-rec-desc { font-size:12px; color:rgba(255,255,255,0.5); line-height:1.6; }
+
+    .am-custom-alts { margin-bottom:18px; }
+    .am-custom-alts-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.28); text-transform:uppercase; margin-bottom:10px; display:block; }
+    .am-custom-alt-card {
+      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);
+      border-radius:10px; padding:12px 14px; margin-bottom:6px;
+      transition:all 0.25s cubic-bezier(0.16,1,0.3,1);
+    }
+    .am-custom-alt-card:hover { border-color:rgba(255,255,255,0.14); transform:translateY(-2px); }
+    .am-custom-alt-name { font-size:13px; font-weight:600; color:#fff; margin-bottom:2px; }
+    .am-custom-alt-country { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.35); margin-bottom:5px; }
+    .am-custom-alt-reason { font-size:11px; color:rgba(255,255,255,0.42); line-height:1.5; }
+
+    .am-riskfactors { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+    .am-rf-panel { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px; }
+    .am-rf-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; text-transform:uppercase; margin-bottom:10px; display:block; }
+    .am-rf-label.risks { color:rgba(255,100,100,0.7); }
+    .am-rf-label.strengths { color:rgba(100,220,140,0.7); }
+    .am-rf-item { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:rgba(255,255,255,0.58); margin-bottom:7px; line-height:1.5; }
+    .am-rf-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+    .am-rf-dot.risk { background:rgba(255,80,80,0.8); }
+    .am-rf-dot.strength { background:rgba(100,255,140,0.8); }
+
+    .am-error-card {
+      background:rgba(255,255,255,0.03); border:1px solid rgba(255,80,80,0.15);
+      border-radius:14px; padding:28px; text-align:center; margin-top:20px;
+    }
+    .am-error-icon { font-size:28px; margin-bottom:14px; opacity:0.6; }
+    .am-error-msg { font-size:13px; color:rgba(255,255,255,0.5); line-height:1.65; margin-bottom:18px; }
+    .am-error-retry { padding:9px 22px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:8px; color:rgba(255,255,255,0.7); font-size:12px; cursor:pointer; font-family:'JetBrains Mono',monospace; letter-spacing:0.06em; transition:all 0.2s; }
+    .am-error-retry:hover { background:rgba(255,255,255,0.1); color:#fff; }
+
     /* ===== TERMINAL MODULE (SYS_03) ===== */
     #warRoomModule { position:fixed; inset:0; z-index:500; background:#000; display:none; flex-direction:column; overflow:hidden; }
     .wm-scanline { position:absolute; inset:0; z-index:1; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.008) 2px,rgba(255,255,255,0.008) 4px); }
@@ -1940,9 +2033,16 @@ window.addEventListener('keydown',__handleIntroKey,true);
     </div>
     <!-- Left -->
     <div class="am-left">
+      <div class="am-custom-search">
+        <input type="text" id="amCustomSearch" class="am-custom-search-input" placeholder="Search any supplier worldwide..." autocomplete="off">
+        <div id="amSearchContext" class="am-custom-search-ctx">
+          <textarea id="amContextInput" placeholder="Add details to improve accuracy (optional): location, products, years in business..."></textarea>
+        </div>
+        <div class="am-custom-search-hint">Search 10,000+ suppliers worldwide</div>
+      </div>
       <div class="am-search-wrap">
-        <span class="am-search-label">Supplier Intelligence Search</span>
-        <input type="text" id="amSearchInput" class="am-search-input" placeholder="Enter supplier name..." autocomplete="off" />
+        <span class="am-search-label">Featured Suppliers Search</span>
+        <input type="text" id="amSearchInput" class="am-search-input" placeholder="Filter featured suppliers..." autocomplete="off" />
         <div id="amAutocomplete" class="am-autocomplete"></div>
       </div>
       <div id="amSupplierCard" class="am-supplier-card">
@@ -2967,6 +3067,280 @@ document.addEventListener('DOMContentLoaded',function(){
   });
   document.addEventListener('click',function(e){if(inp&&!inp.contains(e.target)&&ac&&!ac.contains(e.target))ac.classList.remove('open');});
 });
+
+// ===== CUSTOM SUPPLIER AUDIT =====
+var _customAuditPending=false;
+
+document.addEventListener('DOMContentLoaded',function(){
+  var csi=document.getElementById('amCustomSearch');
+  if(!csi)return;
+  csi.addEventListener('keydown',function(e){
+    if(e.key!=='Enter')return;
+    var query=this.value.trim();
+    if(!query)return;
+    // Check pre-loaded suppliers first
+    var found=null;
+    for(var i=0;i<SUPPLIER_DATA.length;i++){
+      if(SUPPLIER_DATA[i].name.toLowerCase().indexOf(query.toLowerCase())!==-1){found=SUPPLIER_DATA[i];break;}
+    }
+    if(found){
+      selectSupplier(found.id);
+      return;
+    }
+    // Unknown — show context box and run AI audit
+    document.getElementById('amSearchContext').style.display='block';
+    runCustomAudit(query);
+  });
+});
+
+function runCustomAudit(supplierName){
+  if(_customAuditPending)return;
+  _customAuditPending=true;
+  var contextVal='';
+  var ctx=document.getElementById('amContextInput');
+  if(ctx)contextVal=ctx.value.trim();
+  var profile={};
+  try{
+    var saved=localStorage.getItem('risksim_profile');
+    if(saved){
+      var d=JSON.parse(saved);
+      profile={
+        industry:(d.userProfile&&d.userProfile.industry)||'',
+        sourcingCountries:d.selectedSourcingCountries||[]
+      };
+    }
+  }catch(e){}
+  showCustomAuditProgress(supplierName);
+  fetch('/api/audit-custom',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({supplierName:supplierName,context:contextVal,profile:profile})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    _customAuditPending=false;
+    if(data.error){showAuditError(data.error);return;}
+    renderCustomAudit(data.audit);
+  })
+  .catch(function(){
+    _customAuditPending=false;
+    showAuditError('Unable to generate audit. Please check your connection and try again.');
+  });
+}
+
+function showCustomAuditProgress(supplierName){
+  // Clear left panel supplier card selection
+  document.querySelectorAll('.am-sup-list-item').forEach(function(el){el.classList.remove('selected');});
+  document.getElementById('amSupplierCard').classList.remove('visible');
+  // Update status bar
+  document.getElementById('amStatusDot').classList.add('active');
+  document.getElementById('amStatusText').textContent='Analyzing '+supplierName+'...';
+  // Show progress panel, hide others
+  document.getElementById('amEmptyState').style.display='none';
+  document.getElementById('amResult').classList.remove('visible');
+  var pp=document.getElementById('amProgressPanel');
+  pp.classList.add('visible');
+  var stepsEl=document.getElementById('amProgressSteps');
+  stepsEl.innerHTML=AM_STEPS.map(function(step,i){
+    return'<div class="am-step" id="amstep-'+i+'"><div class="am-step-dot"></div><span>'+step+'</span></div>';
+  }).join('');
+  // Animate steps through (keeps cycling until API responds)
+  var delay=0;
+  for(var i=0;i<AM_STEPS.length;i++){
+    (function(idx){
+      setTimeout(function(){
+        if(idx>0){var prev=document.getElementById('amstep-'+(idx-1));if(prev){prev.classList.remove('active');prev.classList.add('done');}}
+        var el=document.getElementById('amstep-'+idx);if(el)el.classList.add('active');
+      },delay);
+    })(i);
+    delay+=900+Math.floor(Math.random()*400);
+  }
+}
+
+function hideCustomAuditProgress(supplierName){
+  var pp=document.getElementById('amProgressPanel');pp.classList.remove('visible');
+  document.getElementById('amStatusDot').classList.remove('active');
+  if(supplierName)document.getElementById('amStatusText').textContent='Deep Dive Complete — '+supplierName;
+}
+
+function showAuditError(message){
+  hideCustomAuditProgress('');
+  document.getElementById('amStatusText').textContent='Analysis failed';
+  var result=document.getElementById('amResult');
+  result.classList.add('visible');
+  result.innerHTML='<div class="am-error-card">'+
+    '<div class="am-error-icon">⚠</div>'+
+    '<div class="am-error-msg">'+message+'</div>'+
+    '<button class="am-error-retry" onclick="document.getElementById(\'amCustomSearch\').focus();document.getElementById(\'amResult\').classList.remove(\'visible\');document.getElementById(\'amEmptyState\').style.display=\'\';">Try Again</button>'+
+  '</div>';
+}
+
+function renderCustomAudit(audit){
+  hideCustomAuditProgress(audit.supplierName);
+  // Update left panel supplier card with AI data
+  var card=document.getElementById('amSupplierCard');
+  card.classList.add('visible');
+  var initials=(audit.supplierName||'?').split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+  document.getElementById('amSupLogo').textContent=initials;
+  document.getElementById('amSupName').textContent=audit.supplierName;
+  document.getElementById('amSupMeta').textContent=(audit.industry||'')+(audit.country?' · '+audit.country:'');
+  document.getElementById('amSupCountry').textContent=audit.country||'—';
+  document.getElementById('amSupFounded').textContent=audit.founded||'—';
+  document.getElementById('amSupRevenue').textContent='—';
+  document.getElementById('amSupIndustry').textContent=audit.industry||'—';
+  // Build result
+  var result=document.getElementById('amResult');
+  result.classList.add('visible');
+  // Confidence badge color
+  var conf=audit.confidence||'medium';
+  var confLabel=conf.toUpperCase()+' CONFIDENCE';
+  // Compliance-style badge from risk score
+  var rs=audit.riskScore||0;
+  var cc=rs<45?'good':rs<65?'warn':'risk';
+  var cl=rs<45?'✓ Manageable Risk':rs<65?'⚠ Elevated Risk':'✕ High Risk';
+  // Header
+  document.getElementById('amResultName').textContent=audit.supplierName;
+  document.getElementById('amResultMeta').innerHTML=
+    (audit.country||'')+(audit.founded?' · Est. '+audit.founded:'')+
+    '<span class="am-compliance-badge '+cc+'">'+cl+'</span>'+
+    '<br><span class="am-confidence-badge '+conf+'"><span class="am-confidence-dot"></span>'+confLabel+'</span>';
+  // Score circle
+  animateScoreCircle(rs);
+  // Metrics from AI
+  var m=audit.metrics||{};
+  var metricsEl=document.getElementById('amMetrics');
+  var metArr=[
+    {label:'Fraud Risk',value:(m.fraudRisk&&m.fraudRisk.score)||0,change:(m.fraudRisk&&m.fraudRisk.change)||0,summary:(m.fraudRisk&&m.fraudRisk.summary)||''},
+    {label:'Financial Stability',value:(m.financialStability&&m.financialStability.score)||0,change:(m.financialStability&&m.financialStability.change)||0,summary:(m.financialStability&&m.financialStability.summary)||''},
+    {label:'Supply Reliability',value:(m.supplyReliability&&m.supplyReliability.score)||0,change:(m.supplyReliability&&m.supplyReliability.change)||0,summary:(m.supplyReliability&&m.supplyReliability.summary)||''},
+    {label:'Compliance',value:(m.compliance&&m.compliance.score)||0,change:(m.compliance&&m.compliance.change)||0,summary:(m.compliance&&m.compliance.summary)||''}
+  ];
+  var isFraudDanger=function(v){return v>45;};
+  var isStabDanger=function(v){return v<40;};
+  var isRelDanger=function(v){return v<45;};
+  var isCompDanger=function(v){return v<50;};
+  var isFraudWarn=function(v){return v>25&&v<=45;};
+  var isStabWarn=function(v){return v>=40&&v<65;};
+  var isRelWarn=function(v){return v>=45&&v<65;};
+  var isCompWarn=function(v){return v>=50&&v<65;};
+  var metClsFns=[
+    function(v){return isFraudDanger(v)?'danger':isFraudWarn(v)?'warn':'';},
+    function(v){return isStabDanger(v)?'danger':isStabWarn(v)?'warn':'';},
+    function(v){return isRelDanger(v)?'danger':isRelWarn(v)?'warn':'';},
+    function(v){return isCompDanger(v)?'danger':isCompWarn(v)?'warn':'';}
+  ];
+  metricsEl.innerHTML=metArr.map(function(x,i){
+    var cls=metClsFns[i](x.value);
+    var chgSign=x.change>0?'+':'';
+    var chgHtml=x.change!==0?'<span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:'+(x.change>0?'rgba(255,200,60,0.8)':'rgba(100,200,140,0.8)')+'"> '+chgSign+x.change+'%</span>':'';
+    return'<div class="am-metric-card am-shimmer-in" title="'+x.summary+'">'+
+      '<div class="am-metric-lbl">'+x.label+'</div>'+
+      '<div class="am-metric-val '+cls+'">'+x.value+'%'+chgHtml+'</div>'+
+      '<div class="am-metric-bar"><div class="am-metric-bar-fill '+cls+'" style="width:0" data-target="'+x.value+'"></div></div>'+
+    '</div>';
+  }).join('');
+  setTimeout(function(){metricsEl.querySelectorAll('.am-metric-bar-fill').forEach(function(b){b.style.width=b.getAttribute('data-target')+'%';});},150);
+  // Company info bar
+  var infoBar='<div class="am-info-bar">';
+  if(audit.country)infoBar+='<div class="am-info-pill"><span class="am-info-pill-lbl">Country</span><span class="am-info-pill-val">'+audit.country+'</span></div>';
+  if(audit.industry)infoBar+='<div class="am-info-pill"><span class="am-info-pill-lbl">Industry</span><span class="am-info-pill-val">'+audit.industry+'</span></div>';
+  if(audit.founded)infoBar+='<div class="am-info-pill"><span class="am-info-pill-lbl">Founded</span><span class="am-info-pill-val">'+audit.founded+'</span></div>';
+  if(audit.employees)infoBar+='<div class="am-info-pill"><span class="am-info-pill-lbl">Employees</span><span class="am-info-pill-val">'+audit.employees+'</span></div>';
+  infoBar+='</div>';
+  // AI Summary
+  var summaryHtml='<div class="am-ai-summary">'+
+    '<div class="am-ai-summary-label"><span class="am-ai-dot"></span>AI Intelligence Summary</div>'+
+    '<div id="amSummaryText"></div>'+
+  '</div>';
+  // Recommendations
+  var recsHtml='';
+  if(audit.recommendations&&audit.recommendations.length){
+    recsHtml='<div class="am-recs"><span class="am-recs-label">Recommendations</span>';
+    recsHtml+=audit.recommendations.map(function(r,i){
+      return'<div class="am-rec-card am-shimmer-in" style="animation-delay:'+(i*0.1)+'s">'+
+        '<div class="am-rec-header">'+
+          '<div class="am-rec-title">'+r.title+'</div>'+
+          '<div class="am-rec-badges">'+
+            '<span class="am-rec-priority '+(r.priority||'medium')+'">'+((r.priority||'medium').toUpperCase())+'</span>'+
+            '<span class="am-rec-timeline">'+(r.timeline||'').replace(/-/g,' ')+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="am-rec-desc">'+r.description+'</div>'+
+      '</div>';
+    }).join('');
+    recsHtml+='</div>';
+  }
+  // Alternative suppliers
+  var altsHtml='';
+  if(audit.alternativeSuppliers&&audit.alternativeSuppliers.length){
+    altsHtml='<div class="am-custom-alts"><span class="am-custom-alts-label">Alternative Suppliers</span>';
+    altsHtml+=audit.alternativeSuppliers.map(function(a,i){
+      return'<div class="am-custom-alt-card am-shimmer-in" style="animation-delay:'+(i*0.08)+'s">'+
+        '<div class="am-custom-alt-name">'+a.name+'</div>'+
+        '<div class="am-custom-alt-country">'+a.country+'</div>'+
+        '<div class="am-custom-alt-reason">'+a.reason+'</div>'+
+      '</div>';
+    }).join('');
+    altsHtml+='</div>';
+  }
+  // Risk factors & strengths
+  var rfHtml='';
+  var hasRF=(audit.riskFactors&&audit.riskFactors.length)||(audit.strengths&&audit.strengths.length);
+  if(hasRF){
+    rfHtml='<div class="am-riskfactors">';
+    rfHtml+='<div class="am-rf-panel"><span class="am-rf-label risks">Risk Factors</span>';
+    if(audit.riskFactors)rfHtml+=audit.riskFactors.map(function(r){return'<div class="am-rf-item"><div class="am-rf-dot risk"></div><span>'+r+'</span></div>';}).join('');
+    rfHtml+='</div>';
+    rfHtml+='<div class="am-rf-panel"><span class="am-rf-label strengths">Strengths</span>';
+    if(audit.strengths)rfHtml+=audit.strengths.map(function(s){return'<div class="am-rf-item"><div class="am-rf-dot strength"></div><span>'+s+'</span></div>';}).join('');
+    rfHtml+='</div>';
+    rfHtml+='</div>';
+  }
+  // Compose full result
+  result.innerHTML=
+    '<div class="am-result-header">'+
+      '<div>'+
+        '<div class="am-result-name">'+audit.supplierName+'</div>'+
+        '<div class="am-result-meta" id="amResultMeta">'+
+          (audit.country||'')+(audit.founded?' · Est. '+audit.founded:'')+
+          '<span class="am-compliance-badge '+cc+'">'+cl+'</span>'+
+          '<br><span class="am-confidence-badge '+conf+'"><span class="am-confidence-dot"></span>'+confLabel+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="am-score-circle">'+
+        '<svg class="am-score-svg" viewBox="0 0 78 78">'+
+          '<circle class="am-score-bg" cx="39" cy="39" r="33"/>'+
+          '<circle class="am-score-fill" id="amScoreFill" cx="39" cy="39" r="33" stroke-dasharray="0 207.3" stroke-dashoffset="0"/>'+
+        '</svg>'+
+        '<div class="am-score-num"><span id="amScoreNum">0</span><span class="am-score-lbl">Risk</span></div>'+
+      '</div>'+
+    '</div>'+
+    infoBar+
+    '<div class="am-metrics" id="amMetrics"></div>'+
+    summaryHtml+
+    recsHtml+
+    altsHtml+
+    rfHtml;
+  // Re-render metrics now the elements are in DOM
+  var metricsEl2=document.getElementById('amMetrics');
+  metricsEl2.innerHTML=metArr.map(function(x,i){
+    var cls=metClsFns[i](x.value);
+    var chgSign=x.change>0?'+':'';
+    var chgHtml=x.change!==0?'<span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:'+(x.change>0?'rgba(255,200,60,0.8)':'rgba(100,200,140,0.8)')+'"> '+chgSign+x.change+'%</span>':'';
+    return'<div class="am-metric-card am-shimmer-in" title="'+x.summary+'">'+
+      '<div class="am-metric-lbl">'+x.label+'</div>'+
+      '<div class="am-metric-val '+cls+'">'+x.value+'%'+chgHtml+'</div>'+
+      '<div class="am-metric-bar"><div class="am-metric-bar-fill '+cls+'" style="width:0" data-target="'+x.value+'"></div></div>'+
+    '</div>';
+  }).join('');
+  setTimeout(function(){metricsEl2.querySelectorAll('.am-metric-bar-fill').forEach(function(b){b.style.width=b.getAttribute('data-target')+'%';});},150);
+  // Animate score circle
+  animateScoreCircle(rs);
+  // Stream summary text
+  var summaryEl=document.getElementById('amSummaryText');
+  if(summaryEl&&audit.summary)streamText(summaryEl,audit.summary);
+  document.getElementById('amAnalysisWrap').scrollTop=0;
+}
 </script>
 
 <!-- ===== TERMINAL MODULE (SYS_03) JS ===== -->

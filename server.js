@@ -83,4 +83,89 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
+app.post('/api/audit-custom', async (req, res) => {
+    try {
+        const { supplierName, context, profile } = req.body;
+
+        if (!supplierName || supplierName.trim().length === 0) {
+            return res.status(400).json({ error: 'Supplier name is required' });
+        }
+
+        const apiKey = process.env.CLAUDE_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
+
+        const client = new Anthropic({ apiKey });
+
+        const systemPrompt = `You are a supply chain risk intelligence analyst for RiskSim AI. You generate detailed supplier risk audits based on available information. You must ALWAYS respond with valid JSON only — no markdown, no backticks, no explanation text outside the JSON.
+
+Your analysis should be thorough, professional, and data-driven. When you have limited information about a supplier, use reasonable estimates based on the country, industry, company size, and general risk factors for that region. Be honest about confidence levels.
+
+Always respond in this exact JSON format:
+{
+  "supplierName": "Full Company Name",
+  "country": "Country of origin",
+  "industry": "Industry/sector",
+  "founded": "Year or estimate",
+  "employees": "Estimate range",
+  "riskScore": 45,
+  "confidence": "high/medium/low",
+  "metrics": {
+    "fraudRisk": { "score": 35, "change": -5, "summary": "Brief 1-sentence assessment" },
+    "financialStability": { "score": 62, "change": 3, "summary": "Brief 1-sentence assessment" },
+    "supplyReliability": { "score": 58, "change": -2, "summary": "Brief 1-sentence assessment" },
+    "compliance": { "score": 71, "change": 1, "summary": "Brief 1-sentence assessment" }
+  },
+  "summary": "A detailed 150-200 word executive summary analyzing the supplier's overall risk profile, key strengths, vulnerabilities, and contextual factors affecting their risk rating. Reference specific geopolitical, economic, or industry factors.",
+  "recommendations": [
+    { "title": "Title", "description": "2-3 sentence actionable recommendation", "priority": "high/medium/low", "timeline": "immediate/30-days/90-days" },
+    { "title": "Title", "description": "2-3 sentence actionable recommendation", "priority": "high/medium/low", "timeline": "immediate/30-days/90-days" },
+    { "title": "Title", "description": "2-3 sentence actionable recommendation", "priority": "high/medium/low", "timeline": "immediate/30-days/90-days" }
+  ],
+  "alternativeSuppliers": [
+    { "name": "Name", "country": "Country", "reason": "Why this is a good alternative" },
+    { "name": "Name", "country": "Country", "reason": "Why this is a good alternative" },
+    { "name": "Name", "country": "Country", "reason": "Why this is a good alternative" }
+  ],
+  "riskFactors": ["Specific risk factor 1", "Specific risk factor 2", "Specific risk factor 3"],
+  "strengths": ["Specific strength 1", "Specific strength 2"]
+}
+
+Risk score ranges: 0-14 Low risk, 15-29 Low-Medium, 30-44 Medium, 45-59 Medium-High, 60-79 High, 80-100 Critical.
+Score realistically based on country risk, industry, company size, and known information.`;
+
+        const userMessage = `Generate a comprehensive supply chain risk audit for this supplier:
+
+Supplier Name: ${supplierName.trim()}
+${context ? 'Additional Context: ' + context : ''}
+${profile && profile.industry ? 'Requesting Company Industry: ' + profile.industry : ''}
+${profile && profile.sourcingCountries ? 'Requesting Company Sourcing Countries: ' + profile.sourcingCountries.join(', ') : ''}
+
+Analyze this supplier thoroughly. If you have knowledge about this company, use it. If this is a smaller or unknown company, make reasonable assessments based on the country, industry, and any context provided.`;
+
+        const response = await client.messages.create({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 2000,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: userMessage }]
+        });
+
+        const rawText = response.content[0].text;
+
+        let auditData;
+        try {
+            const cleanText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            auditData = JSON.parse(cleanText);
+        } catch (parseError) {
+            console.error('Failed to parse audit JSON:', parseError);
+            return res.status(500).json({ error: 'Failed to parse audit data' });
+        }
+
+        res.json({ audit: auditData });
+
+    } catch (error) {
+        console.error('Custom audit error:', error);
+        res.status(500).json({ error: 'Failed to generate audit. Please try again.' });
+    }
+});
+
 app.listen(PORT, () => console.log(`RiskSim running on ${PORT}`));
