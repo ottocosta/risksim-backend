@@ -3920,14 +3920,205 @@ function initTerminalData(){
   var countries=profile.selectedSourcingCountries||[];
   var industry=up.industry||profile.currentCategory||'technology';
   buildStatsBar(countries,industry);
-  buildAlerts(generateMockAlerts(up,countries,industry));
-  var news=generateMockNews(up,countries,industry);
-  buildNewsFeed(news,countries);
+  // Try live data first, fall back to mock
+  fetchLiveAlerts(up, countries, industry);
   buildTariffTracker(countries);
   buildPortMonitor(countries);
   buildCommodities(industry);
   setTimeout(animateAllCounters,200);
 }
+
+function fetchLiveAlerts(up, countries, industry) {
+  fetch('/api/data/alerts')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data || !data.length || data.length === 0) {
+        // No live data — use mock
+        buildAlerts(generateMockAlerts(up, countries, industry));
+        var news = generateMockNews(up, countries, industry);
+        buildNewsFeed(news, countries);
+        return;
+      }
+      // We have live data — build both tabs from it
+      buildLiveAlerts(data.slice(0, 8));
+      buildLiveFeed(data, countries);
+    })
+    .catch(function(err) {
+      console.log('Live data fetch failed, using mock:', err);
+      buildAlerts(generateMockAlerts(up, countries, industry));
+      var news = generateMockNews(up, countries, industry);
+      buildNewsFeed(news, countries);
+    });
+}
+
+function buildLiveAlerts(items) {
+  var el = document.getElementById('wmAlerts');
+  if (!el) return;
+
+  function getSeverity(title) {
+    var t = (title || '').toLowerCase();
+    if (t.match(/war|crisis|critical|crash|collapse|shutdown|sanction|tariff.*hike|surge/)) return 'critical';
+    if (t.match(/risk|delay|disrupt|strike|shortage|port|congestion|recession|chaos/)) return 'high';
+    if (t.match(/change|update|new|review|concern|pressure|impact|slow/)) return 'medium';
+    return 'low';
+  }
+
+  function timeAgo(dateStr) {
+    if (!dateStr) return 'Recently';
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'Recently';
+    var diff = Date.now() - d.getTime();
+    var mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return mins + ' min ago';
+    var hours = Math.floor(mins / 60);
+    if (hours < 24) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
+    var days = Math.floor(hours / 24);
+    return days + ' day' + (days > 1 ? 's' : '') + ' ago';
+  }
+
+  function cleanSnippet(text) {
+    if (!text) return '';
+    var div = document.createElement('div');
+    div.innerHTML = text;
+    var clean = div.textContent || div.innerText || '';
+    return clean.length > 180 ? clean.substring(0, 177) + '...' : clean;
+  }
+
+  var h = '<span class="wm-section-label">PRIORITY ALERTS — LIVE INTELLIGENCE FEED</span><div class="wm-alerts-grid">';
+
+  items.forEach(function(item, i) {
+    var sev = getSeverity(item.title);
+    var sc = {
+      'critical': 'wm-severity-critical',
+      'high': 'wm-severity-high',
+      'medium': 'wm-severity-medium',
+      'low': 'wm-severity-low'
+    };
+    var dot = sev === 'critical' ? '<span class="wm-pulse-dot" style="width:6px;height:6px;margin-right:4px;"></span>' : '';
+    var snippet = cleanSnippet(item.contentSnippet || item.content || '');
+    var time = timeAgo(item.pubDate || item.isoDate);
+    var source = 'Live Feed';
+    var titleParts = (item.title || '').split(' - ');
+    var title = item.title || 'Untitled Alert';
+    if (titleParts.length > 1) {
+      source = titleParts[titleParts.length - 1].trim();
+      title = titleParts.slice(0, -1).join(' - ').trim();
+    }
+
+    h += '<div class="wm-alert-card sev-' + sev + '" style="animation-delay:' + (i * 0.08) + 's">';
+    h += '<div class="wm-alert-header">' + dot + '<span class="wm-severity ' + (sc[sev] || '') + '">' + sev.toUpperCase() + '</span>';
+    h += '<span class="wm-alert-title">' + title + '</span></div>';
+    if (snippet) {
+      h += '<div class="wm-alert-desc">' + snippet + '</div>';
+    }
+    h += '<div class="wm-alert-footer">';
+    h += '<span class="wm-alert-country">' + source + '</span>';
+    h += '<span class="wm-alert-time">' + time + '</span>';
+    if (item.link) {
+      h += '<a href="' + item.link + '" target="_blank" rel="noopener" class="wm-alert-action" style="text-decoration:none;">Read More →</a>';
+    }
+    h += '</div></div>';
+  });
+
+  h += '</div>';
+  el.innerHTML = h;
+}
+
+function buildLiveFeed(items, countries) {
+  var el = document.getElementById('wmFeed');
+  if (!el) return;
+
+  var sevColors = {
+    critical: 'rgba(255,60,60,0.9)',
+    high: 'rgba(255,160,40,0.9)',
+    medium: 'rgba(255,210,80,0.9)',
+    low: 'rgba(100,255,140,0.9)'
+  };
+
+  function getSeverity(title) {
+    var t = (title || '').toLowerCase();
+    if (t.match(/war|crisis|critical|crash|collapse|shutdown|sanction|tariff.*hike|surge/)) return 'critical';
+    if (t.match(/risk|delay|disrupt|strike|shortage|port|congestion|recession|chaos/)) return 'high';
+    if (t.match(/change|update|new|review|concern|pressure|impact|slow/)) return 'medium';
+    return 'low';
+  }
+
+  function timeAgo(dateStr) {
+    if (!dateStr) return 'Recently';
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'Recently';
+    var diff = Date.now() - d.getTime();
+    var mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return mins + ' min ago';
+    var hours = Math.floor(mins / 60);
+    if (hours < 24) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
+    var days = Math.floor(hours / 24);
+    return days + ' day' + (days > 1 ? 's' : '') + ' ago';
+  }
+
+  function extractSource(title) {
+    var parts = (title || '').split(' - ');
+    if (parts.length > 1) return parts[parts.length - 1].trim();
+    return 'Live Feed';
+  }
+
+  function extractTitle(title) {
+    var parts = (title || '').split(' - ');
+    if (parts.length > 1) return parts.slice(0, -1).join(' - ').trim();
+    return title || 'Untitled';
+  }
+
+  var sorted = items.slice().sort(function(a, b) {
+    return new Date(b.pubDate || b.isoDate || 0) - new Date(a.pubDate || a.isoDate || 0);
+  });
+
+  var half = Math.ceil(sorted.length / 2);
+  var col1 = sorted.slice(0, half);
+  var col2 = sorted.slice(half);
+
+  var tickerHtml = '<div class="wm-ticker">';
+  sorted.slice(0, 15).forEach(function(item) {
+    tickerHtml += '<span>' + extractTitle(item.title) + '</span>';
+  });
+  tickerHtml += '</div>';
+
+  var h = '<span class="wm-section-label">LIVE INTELLIGENCE FEED — POWERED BY n8n</span>';
+  h += '<div class="wm-ticker-wrap">' + tickerHtml + '</div>';
+  h += '<div class="wm-feed-columns">';
+
+  h += '<div class="wm-feed-column"><div class="wm-feed-sublabel">Supply Chain Intelligence</div>';
+  col1.forEach(function(item) {
+    var sev = getSeverity(item.title);
+    var src = extractSource(item.title);
+    var title = extractTitle(item.title);
+    h += '<div class="wm-news-item">';
+    h += '<div class="wm-news-dot" style="background:' + sevColors[sev] + '"></div>';
+    h += '<div class="wm-news-body">';
+    h += '<div class="wm-news-headline">' + (item.link ? '<a href="' + item.link + '" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">' + title + '</a>' : title) + '</div>';
+    h += '<div class="wm-news-meta"><span class="wm-news-time">' + timeAgo(item.pubDate || item.isoDate) + '</span><span class="wm-news-source">' + src + '</span></div>';
+    h += '</div></div>';
+  });
+  h += '</div>';
+
+  h += '<div class="wm-feed-column"><div class="wm-feed-sublabel">Global Developments</div>';
+  col2.forEach(function(item) {
+    var sev = getSeverity(item.title);
+    var src = extractSource(item.title);
+    var title = extractTitle(item.title);
+    h += '<div class="wm-news-item">';
+    h += '<div class="wm-news-dot" style="background:' + sevColors[sev] + '"></div>';
+    h += '<div class="wm-news-body">';
+    h += '<div class="wm-news-headline">' + (item.link ? '<a href="' + item.link + '" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">' + title + '</a>' : title) + '</div>';
+    h += '<div class="wm-news-meta"><span class="wm-news-time">' + timeAgo(item.pubDate || item.isoDate) + '</span><span class="wm-news-source">' + src + '</span></div>';
+    h += '</div></div>';
+  });
+  h += '</div></div>';
+
+  el.innerHTML = h;
+}
+
 
 // ===== ANIMATED COUNTERS =====
 function animateCounter(el,target,dur){
