@@ -15,6 +15,104 @@ app.use((req, res, next) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ============================================================
+// n8n DATA STORE — in-memory, resets on deploy
+// ============================================================
+const dataStore = {
+    alerts: [],
+    tariffs: [],
+    ports: [],
+    commodities: [],
+    currency: []
+};
+
+// Auth middleware for n8n POST routes
+function requireDataKey(req, res, next) {
+    const key = req.headers['x-api-key'];
+    if (!process.env.DATA_API_KEY || key !== process.env.DATA_API_KEY) {
+        return res.status(401).json({ error: 'Invalid or missing API key' });
+    }
+    next();
+}
+
+// ---------- POST routes (n8n pushes data here) ----------
+
+app.post('/api/data/alerts', requireDataKey, (req, res) => {
+    const items = Array.isArray(req.body) ? req.body : [req.body];
+    dataStore.alerts = items.slice(0, 100); // keep latest 100
+    console.log(`[n8n] Received ${items.length} alerts`);
+    res.json({ success: true, count: items.length });
+});
+
+app.post('/api/data/tariffs', requireDataKey, (req, res) => {
+    const items = Array.isArray(req.body) ? req.body : [req.body];
+    dataStore.tariffs = items.slice(0, 100);
+    console.log(`[n8n] Received ${items.length} tariffs`);
+    res.json({ success: true, count: items.length });
+});
+
+app.post('/api/data/ports', requireDataKey, (req, res) => {
+    const items = Array.isArray(req.body) ? req.body : [req.body];
+    dataStore.ports = items.slice(0, 50);
+    console.log(`[n8n] Received ${items.length} ports`);
+    res.json({ success: true, count: items.length });
+});
+
+app.post('/api/data/commodities', requireDataKey, (req, res) => {
+    const items = Array.isArray(req.body) ? req.body : [req.body];
+    dataStore.commodities = items.slice(0, 50);
+    console.log(`[n8n] Received ${items.length} commodities`);
+    res.json({ success: true, count: items.length });
+});
+
+app.post('/api/data/currency', requireDataKey, (req, res) => {
+    const items = Array.isArray(req.body) ? req.body : [req.body];
+    dataStore.currency = items.slice(0, 30);
+    console.log(`[n8n] Received ${items.length} currency rates`);
+    res.json({ success: true, count: items.length });
+});
+
+// ---------- GET routes (frontend reads from here) ----------
+
+app.get('/api/data/alerts', (req, res) => {
+    res.json(dataStore.alerts);
+});
+
+app.get('/api/data/tariffs', (req, res) => {
+    res.json(dataStore.tariffs);
+});
+
+app.get('/api/data/ports', (req, res) => {
+    res.json(dataStore.ports);
+});
+
+app.get('/api/data/commodities', (req, res) => {
+    res.json(dataStore.commodities);
+});
+
+app.get('/api/data/currency', (req, res) => {
+    res.json(dataStore.currency);
+});
+
+// Health check — also shows data status
+app.get('/api/data/status', (req, res) => {
+    res.json({
+        status: 'ok',
+        counts: {
+            alerts: dataStore.alerts.length,
+            tariffs: dataStore.tariffs.length,
+            ports: dataStore.ports.length,
+            commodities: dataStore.commodities.length,
+            currency: dataStore.currency.length
+        },
+        lastChecked: new Date().toISOString()
+    });
+});
+
+// ============================================================
+// EXISTING ROUTES — Chat + Audit
+// ============================================================
+
 function buildSystemPrompt(profile) {
     let prompt = 'You are Jarvis, the AI assistant inside RiskSim AI. You are a world-class supply chain intelligence system. ' +
 'Speak in short, natural sentences. Address the user as "sir" or "ma\'am" at all times. ' +
@@ -64,7 +162,6 @@ app.post('/api/chat', async (req, res) => {
 
         const client = new Anthropic({ apiKey });
 
-        // Build conversation history (max 20 messages = 10 pairs)
         const history = Array.isArray(messages) ? messages.slice(-20) : [];
         const allMessages = [...history, { role: 'user', content: message }];
 
