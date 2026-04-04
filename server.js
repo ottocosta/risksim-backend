@@ -23,7 +23,17 @@ const dataStore = {
     tariffs: [],
     ports: [],
     commodities: [],
-    currency: []
+    currency: [],
+    alertsByIndustry: {
+        technology: [],
+        textiles: [],
+        automotive: [],
+        food: [],
+        pharma: [],
+        rawMaterials: [],
+        consumerGoods: [],
+        general: []
+    }
 };
 
 // Auth middleware for n8n POST routes
@@ -39,9 +49,21 @@ function requireDataKey(req, res, next) {
 
 app.post('/api/data/alerts', requireDataKey, (req, res) => {
     const items = Array.isArray(req.body) ? req.body : [req.body];
-    dataStore.alerts = items.slice(0, 100); // keep latest 100
-    console.log(`[n8n] Received ${items.length} alerts`);
+    dataStore.alerts = items.slice(0, 100);
+    console.log(`[n8n] Received ${items.length} alerts (general)`);
     res.json({ success: true, count: items.length });
+});
+
+app.post('/api/data/alerts/:industry', requireDataKey, (req, res) => {
+    const industry = req.params.industry;
+    const valid = Object.keys(dataStore.alertsByIndustry);
+    if (!valid.includes(industry)) {
+        return res.status(400).json({ error: 'Invalid industry. Valid: ' + valid.join(', ') });
+    }
+    const items = Array.isArray(req.body) ? req.body : [req.body];
+    dataStore.alertsByIndustry[industry] = items.slice(0, 100);
+    console.log(`[n8n] Received ${items.length} alerts for: ${industry}`);
+    res.json({ success: true, count: items.length, industry });
 });
 
 app.post('/api/data/tariffs', requireDataKey, (req, res) => {
@@ -78,6 +100,19 @@ app.get('/api/data/alerts', (req, res) => {
     res.json(dataStore.alerts);
 });
 
+app.get('/api/data/alerts/:industry', (req, res) => {
+    const industry = req.params.industry;
+    const industryData = dataStore.alertsByIndustry[industry];
+    if (industryData && industryData.length > 0) {
+        return res.json(industryData);
+    }
+    // Fall back to general, then generic
+    if (dataStore.alertsByIndustry.general && dataStore.alertsByIndustry.general.length > 0) {
+        return res.json(dataStore.alertsByIndustry.general);
+    }
+    res.json(dataStore.alerts);
+});
+
 app.get('/api/data/tariffs', (req, res) => {
     res.json(dataStore.tariffs);
 });
@@ -94,12 +129,16 @@ app.get('/api/data/currency', (req, res) => {
     res.json(dataStore.currency);
 });
 
-// Health check — also shows data status
 app.get('/api/data/status', (req, res) => {
+    const industryCounts = {};
+    for (const [key, val] of Object.entries(dataStore.alertsByIndustry)) {
+        industryCounts[key] = val.length;
+    }
     res.json({
         status: 'ok',
         counts: {
             alerts: dataStore.alerts.length,
+            alertsByIndustry: industryCounts,
             tariffs: dataStore.tariffs.length,
             ports: dataStore.ports.length,
             commodities: dataStore.commodities.length,
