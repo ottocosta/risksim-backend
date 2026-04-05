@@ -3929,17 +3929,42 @@ function initTerminalData(){
 }
 
 function fetchLiveAlerts(up, countries, industry) {
-  fetch('/api/data/alerts')
+  // Map profile industry values to endpoint names
+  var industryMap = {
+    'technology': 'technology',
+    'textiles': 'textiles',
+    'automotive': 'automotive',
+    'food': 'food',
+    'pharma': 'pharma',
+    'rawMaterials': 'rawMaterials',
+    'consumerGoods': 'consumerGoods'
+  };
+  var endpoint = '/api/data/alerts';
+  if (industry && industryMap[industry]) {
+    endpoint = '/api/data/alerts/' + industryMap[industry];
+  }
+  console.log('[RiskSim] Fetching alerts from: ' + endpoint + ' (industry: ' + (industry || 'none') + ')');
+
+  fetch(endpoint)
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data || !data.length || data.length === 0) {
-        // No live data — use mock
+        // No industry data — try general fallback
+        if (endpoint !== '/api/data/alerts') {
+          console.log('[RiskSim] No industry data, trying general feed...');
+          return fetch('/api/data/alerts').then(function(r2) { return r2.json(); });
+        }
+        return [];
+      }
+      return data;
+    })
+    .then(function(data) {
+      if (!data || !data.length || data.length === 0) {
         buildAlerts(generateMockAlerts(up, countries, industry));
         var news = generateMockNews(up, countries, industry);
         buildNewsFeed(news, countries);
         return;
       }
-      // We have live data — build both tabs from it
       buildLiveAlerts(data.slice(0, 8));
       buildLiveFeed(data, countries);
     })
