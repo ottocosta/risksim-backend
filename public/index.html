@@ -3929,7 +3929,6 @@ function initTerminalData(){
 }
 
 function fetchLiveAlerts(up, countries, industry) {
-  // Map profile industry values to endpoint names
   var industryMap = {
     'technology': 'technology',
     'textiles': 'textiles',
@@ -3939,34 +3938,60 @@ function fetchLiveAlerts(up, countries, industry) {
     'rawMaterials': 'rawMaterials',
     'consumerGoods': 'consumerGoods'
   };
-  var endpoint = '/api/data/alerts';
-  if (industry && industryMap[industry]) {
-    endpoint = '/api/data/alerts/' + industryMap[industry];
-  }
-  console.log('[RiskSim] Fetching alerts from: ' + endpoint + ' (industry: ' + (industry || 'none') + ')');
 
-  fetch(endpoint)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data || !data.length || data.length === 0) {
-        // No industry data — try general fallback
-        if (endpoint !== '/api/data/alerts') {
-          console.log('[RiskSim] No industry data, trying general feed...');
-          return fetch('/api/data/alerts').then(function(r2) { return r2.json(); });
+  var industryEndpoint = null;
+  if (industry && industryMap[industry]) {
+    industryEndpoint = '/api/data/alerts/' + industryMap[industry];
+  }
+  var generalEndpoint = '/api/data/alerts/general';
+
+  console.log('[RiskSim] Fetching feeds — industry: ' + (industryEndpoint || 'none') + ', general: ' + generalEndpoint);
+
+  // Fetch both industry + general in parallel
+  var fetches = [
+    fetch(generalEndpoint).then(function(r) { return r.json(); }).catch(function() { return []; })
+  ];
+  if (industryEndpoint) {
+    fetches.push(
+      fetch(industryEndpoint).then(function(r) { return r.json(); }).catch(function() { return []; })
+    );
+  }
+
+  Promise.all(fetches)
+    .then(function(results) {
+      var generalData = results[0] || [];
+      var industryData = results[1] || [];
+
+      // Merge both feeds
+      var combined = industryData.concat(generalData);
+
+      // Remove duplicates by title
+      var seen = {};
+      var unique = [];
+      for (var i = 0; i < combined.length; i++) {
+        var key = (combined[i].title || '').toLowerCase().trim();
+        if (key && !seen[key]) {
+          seen[key] = true;
+          unique.push(combined[i]);
         }
-        return [];
       }
-      return data;
-    })
-    .then(function(data) {
-      if (!data || !data.length || data.length === 0) {
+
+      // Sort by date, newest first
+      unique.sort(function(a, b) {
+        return new Date(b.pubDate || b.isoDate || 0) - new Date(a.pubDate || a.isoDate || 0);
+      });
+
+      console.log('[RiskSim] Combined feed: ' + industryData.length + ' industry + ' + generalData.length + ' general = ' + unique.length + ' unique items');
+
+      if (unique.length === 0) {
         buildAlerts(generateMockAlerts(up, countries, industry));
         var news = generateMockNews(up, countries, industry);
         buildNewsFeed(news, countries);
         return;
       }
-      buildLiveAlerts(data.slice(0, 8));
-      buildLiveFeed(data, countries);
+
+      buildLiveAlerts(unique.slice(0, 10));
+      buildLiveFeed(unique, countries);
     })
     .catch(function(err) {
       console.log('Live data fetch failed, using mock:', err);
