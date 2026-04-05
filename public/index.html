@@ -4007,9 +4007,15 @@ function buildLiveAlerts(items) {
 
   function getSeverity(title) {
     var t = (title || '').toLowerCase();
-    if (t.match(/war|crisis|critical|crash|collapse|shutdown|sanction|tariff.*hike|surge/)) return 'critical';
-    if (t.match(/risk|delay|disrupt|strike|shortage|port|congestion|recession|chaos/)) return 'high';
-    if (t.match(/change|update|new|review|concern|pressure|impact|slow/)) return 'medium';
+    // CRITICAL: war, bombing, invasion, port shutdown, factory collapse, sanctions, 25%+ tariffs, natural disaster
+    if (t.match(/\bwar\b|bombing|invasion|attack(?:ed|s)?.*(?:port|factory|plant)|complete(?:ly)? shut|total shutdown|embargo|sanction(?:s|ed)|collaps(?:e|ed|ing)|devastat|catastroph|destroyed|seized|blockade|martial law/)) return 'critical';
+    if (t.match(/tariff.*(?:3[0-9]|[4-9][0-9]|1[0-9]{2})%|(?:3[0-9]|[4-9][0-9]|1[0-9]{2})%.*tariff/)) return 'critical';
+    // HIGH: major disruptions, strikes, significant delays, recession, 10-29% tariffs
+    if (t.match(/strike|shortage|recession|port.*congestion|major.*delay|disrupt(?:ion|ed|ing)|halt(?:ed|s)|suspend(?:ed|s)|crisis|chaos|freight.*surge|container.*short/)) return 'high';
+    if (t.match(/tariff.*(?:1[0-9]|2[0-9])%|(?:1[0-9]|2[0-9])%.*tariff/)) return 'high';
+    // MEDIUM: policy changes, reviews, moderate impacts, cost pressure
+    if (t.match(/tariff|trade.*policy|regulation|compliance|cost.*(?:rise|increase|pressure)|slow(?:down|ing)|review|investigation|probe|restructur/)) return 'medium';
+    // LOW: general news, updates, investments, improvements
     return 'low';
   }
 
@@ -4034,6 +4040,21 @@ function buildLiveAlerts(items) {
     var clean = div.textContent || div.innerText || '';
     return clean.length > 180 ? clean.substring(0, 177) + '...' : clean;
   }
+
+  // Sort: critical items from last 4 days first, then by date
+  var fourDaysAgo = Date.now() - (4 * 24 * 60 * 60 * 1000);
+  items.sort(function(a, b) {
+    var sevA = getSeverity(a.title);
+    var sevB = getSeverity(b.title);
+    var dateA = new Date(a.pubDate || a.isoDate || 0).getTime();
+    var dateB = new Date(b.pubDate || b.isoDate || 0).getTime();
+    var aCritRecent = (sevA === 'critical' && dateA > fourDaysAgo) ? 1 : 0;
+    var bCritRecent = (sevB === 'critical' && dateB > fourDaysAgo) ? 1 : 0;
+    if (aCritRecent !== bCritRecent) return bCritRecent - aCritRecent;
+    var sevOrder = {critical: 0, high: 1, medium: 2, low: 3};
+    if (sevOrder[sevA] !== sevOrder[sevB]) return sevOrder[sevA] - sevOrder[sevB];
+    return dateB - dateA;
+  });
 
   var h = '<span class="wm-section-label">PRIORITY ALERTS — LIVE INTELLIGENCE FEED</span><div class="wm-alerts-grid">';
 
@@ -4088,9 +4109,15 @@ function buildLiveFeed(items, countries) {
 
   function getSeverity(title) {
     var t = (title || '').toLowerCase();
-    if (t.match(/war|crisis|critical|crash|collapse|shutdown|sanction|tariff.*hike|surge/)) return 'critical';
-    if (t.match(/risk|delay|disrupt|strike|shortage|port|congestion|recession|chaos/)) return 'high';
-    if (t.match(/change|update|new|review|concern|pressure|impact|slow/)) return 'medium';
+    // CRITICAL: war, bombing, invasion, port shutdown, factory collapse, sanctions, 25%+ tariffs, natural disaster
+    if (t.match(/\bwar\b|bombing|invasion|attack(?:ed|s)?.*(?:port|factory|plant)|complete(?:ly)? shut|total shutdown|embargo|sanction(?:s|ed)|collaps(?:e|ed|ing)|devastat|catastroph|destroyed|seized|blockade|martial law/)) return 'critical';
+    if (t.match(/tariff.*(?:3[0-9]|[4-9][0-9]|1[0-9]{2})%|(?:3[0-9]|[4-9][0-9]|1[0-9]{2})%.*tariff/)) return 'critical';
+    // HIGH: major disruptions, strikes, significant delays, recession, 10-29% tariffs
+    if (t.match(/strike|shortage|recession|port.*congestion|major.*delay|disrupt(?:ion|ed|ing)|halt(?:ed|s)|suspend(?:ed|s)|crisis|chaos|freight.*surge|container.*short/)) return 'high';
+    if (t.match(/tariff.*(?:1[0-9]|2[0-9])%|(?:1[0-9]|2[0-9])%.*tariff/)) return 'high';
+    // MEDIUM: policy changes, reviews, moderate impacts, cost pressure
+    if (t.match(/tariff|trade.*policy|regulation|compliance|cost.*(?:rise|increase|pressure)|slow(?:down|ing)|review|investigation|probe|restructur/)) return 'medium';
+    // LOW: general news, updates, investments, improvements
     return 'low';
   }
 
