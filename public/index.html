@@ -3254,7 +3254,7 @@ function addUserMessage(t){var m=document.getElementById('chatMessages'),d=docum
 function addAIMessage(t){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.innerHTML='<span class="msg-label">RiskSim AI</span>'+t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function addTypingIndicator(){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.id='typing';d.innerHTML='<span class="msg-label">RiskSim AI</span><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function removeTypingIndicator(){var t=document.getElementById('typing');if(t)t.remove();}
-async function sendMessage(userText){addUserMessage(userText);addTypingIndicator();try{var profilePayload={companyType:PS_TYPE_LABELS[userProfile.type]||userProfile.type||'',homeCountry:userProfile.country||'',industry:PS_IND_LABELS[userProfile.industry]||userProfile.industry||'',sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||''};var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,profile:profilePayload})});var d=await r.json();removeTypingIndicator();addAIMessage(d.reply||d.error||'Unable to process.');}catch(e){removeTypingIndicator();addAIMessage('Connection error.');}}
+async function sendMessage(userText){addUserMessage(userText);addTypingIndicator();try{var profilePayload={companyType:PS_TYPE_LABELS[userProfile.type]||userProfile.type||'',homeCountry:userProfile.country||'',industry:PS_IND_LABELS[userProfile.industry]||userProfile.industry||'',sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||'',companyName:userProfile.companyName||'',products:userProfile.products||'',suppliers:userProfile.suppliers||'',concern:userProfile.concern||'',businessDescription:userProfile.context||''};var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,profile:profilePayload})});var d=await r.json();removeTypingIndicator();addAIMessage(d.reply||d.error||'Unable to process.');}catch(e){removeTypingIndicator();addAIMessage('Connection error.');}}
 
 document.addEventListener('DOMContentLoaded',function(){
   initMap();
@@ -4632,7 +4632,7 @@ async function cfSendMessage(userText){
   msgEl.scrollTop=msgEl.scrollHeight;
 
   try{
-    var profilePayload={companyType:(typeof PS_TYPE_LABELS!=='undefined'&&PS_TYPE_LABELS[userProfile.type])||userProfile.type||'',homeCountry:userProfile.country||'',industry:(typeof PS_IND_LABELS!=='undefined'&&PS_IND_LABELS[userProfile.industry])||userProfile.industry||'',sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||''};
+    var profilePayload={companyType:(typeof PS_TYPE_LABELS!=='undefined'&&PS_TYPE_LABELS[userProfile.type])||userProfile.type||'',homeCountry:userProfile.country||'',industry:(typeof PS_IND_LABELS!=='undefined'&&PS_IND_LABELS[userProfile.industry])||userProfile.industry||'',sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||'',companyName:userProfile.companyName||'',products:userProfile.products||'',suppliers:userProfile.suppliers||'',concern:userProfile.concern||'',businessDescription:userProfile.context||''};
     var contextPrefix=_cfChatSource==='terminal'?'[TERMINAL] ':'[MAP] ';
     if(userProfile.industry)contextPrefix+='Industry:'+(profilePayload.industry)+'. ';
     if(userProfile.type)contextPrefix+='CompanyType:'+(profilePayload.companyType)+'. ';
@@ -5501,7 +5501,7 @@ function sendJarvisToAPI(text,profile,honorific){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       message:'[JARVIS MODE] Answer in 2 SHORT sentences max, suitable for voice. Address user as "'+honorific+'" occasionally. Question: '+text,
-      profile:{companyType:profile.type,industry:profile.industry,sourcingCountries:profile.sourcingCountries,revenue:profile.revenue},
+      profile:{companyType:profile.type,industry:profile.industry,sourcingCountries:profile.sourcingCountries,revenue:profile.revenue,companyName:profile.companyName||'',products:profile.products||'',suppliers:profile.suppliers||'',concern:profile.concern||'',businessDescription:profile.context||''},
       source:'jarvis'
     })
   })
@@ -6067,7 +6067,20 @@ window.addEventListener('load',function(){
       setTimeout(function(){ var nav=document.getElementById('rsNav'); if(nav){nav.style.opacity='1';} }, 500);
       requestAnimationFrame(function(){
         if(map)map.invalidateSize();
-        if(window.showProfileSection)window.showProfileSection();
+        var savedProfile = localStorage.getItem('risksim_profile');
+        if (savedProfile) {
+          var btn = document.getElementById('psReopenBtn');
+          if (btn) btn.style.display = 'flex';
+          if(typeof showOnboardSlides==='function'){
+            if(localStorage.getItem('risksim_onboarding_done')==='1'){
+              if(typeof showDailyBriefing==='function')setTimeout(showDailyBriefing,900);
+            }else{
+              setTimeout(showOnboardSlides,900);
+            }
+          }
+        } else {
+          if(window.showProfileSection)window.showProfileSection();
+        }
       });
     }
     function onTransitionEnd(e){if(e.propertyName==='opacity')cleanup();}

@@ -175,6 +175,7 @@ function buildSystemPrompt(profile) {
 
     if (profile && (profile.companyType || profile.homeCountry || profile.industry)) {
         prompt += '\n\n## User Company Profile\n';
+        if (profile.companyName) prompt += `- **Company Name**: ${profile.companyName}\n`;
         if (profile.companyType) prompt += `- **Company Type**: ${profile.companyType}\n`;
         if (profile.homeCountry) prompt += `- **Home Country / HQ**: ${profile.homeCountry}\n`;
         if (profile.industry) prompt += `- **Industry**: ${profile.industry}\n`;
@@ -182,10 +183,13 @@ function buildSystemPrompt(profile) {
             prompt += `- **Primary Sourcing Countries**: ${profile.sourcingCountries.join(', ')}\n`;
         }
         if (profile.revenue) prompt += `- **Annual Revenue Range**: ${profile.revenue}\n`;
+        if (profile.products) prompt += `- **Products / Services**: ${profile.products}\n`;
+        if (profile.suppliers) prompt += `- **Key Suppliers**: ${profile.suppliers}\n`;
+        if (profile.concern) prompt += `- **Primary Risk Concern**: ${profile.concern}\n`;
         if (profile.businessDescription) prompt += `- **Business Description**: ${profile.businessDescription}\n`;
         prompt += '\nAlways tailor your analysis to this company\'s profile. Reference their specific industry, ' +
-            'home country, sourcing relationships, and any business description provided. Focus on cost savings and risk reduction recommendations ' +
-            'that are directly relevant to their situation.';
+            'home country, sourcing relationships, products, suppliers, risk concerns, and any business description provided. ' +
+            'Focus on cost savings and risk reduction recommendations that are directly relevant to their situation.';
     }
 
     return prompt;
