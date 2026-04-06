@@ -4318,38 +4318,131 @@ function buildNewsFeed(news,countries){
 // ===== TARIFF TRACKER =====
 function buildTariffTracker(countries){
   var el=document.getElementById('wmTariff');if(!el)return;
-  var tariffData=[
-    {name:'China',rate:25,change:'+3.5%',dir:'up',date:'Mar 2026'},
-    {name:'Vietnam',rate:6,change:'-1.2%',dir:'down',date:'Jan 2026'},
-    {name:'India',rate:10,change:'+2.0%',dir:'up',date:'Feb 2026'},
-    {name:'Bangladesh',rate:12,change:'+0.5%',dir:'up',date:'Mar 2026'},
-    {name:'Mexico',rate:2,change:'-0.8%',dir:'down',date:'Jan 2026'},
-    {name:'Thailand',rate:5,change:'+0.3%',dir:'up',date:'Feb 2026'},
-    {name:'Indonesia',rate:10,change:'+1.5%',dir:'up',date:'Mar 2026'},
-    {name:'South Korea',rate:3,change:'-0.5%',dir:'down',date:'Jan 2026'},
-    {name:'Taiwan',rate:5,change:'+1.0%',dir:'up',date:'Feb 2026'},
-    {name:'Germany',rate:3,change:'0.0%',dir:'down',date:'Jan 2026'},
-    {name:'Turkey',rate:5,change:'+2.2%',dir:'up',date:'Mar 2026'},
-    {name:'Brazil',rate:18,change:'+1.8%',dir:'up',date:'Feb 2026'}
-  ];
-  // Sort: user countries first
-  tariffData.sort(function(a,b){
-    var ai=countries.indexOf(a.name),bi=countries.indexOf(b.name);
-    if(ai!==-1&&bi===-1)return-1;if(ai===-1&&bi!==-1)return 1;return 0;
-  });
-  var h='<span class="wm-section-label">TARIFF & TRADE TRACKER</span><div class="wm-tariff-grid">';
-  tariffData.forEach(function(t,i){
-    var hi=countries.indexOf(t.name)!==-1?' wm-hi':'';
-    var flag=CFLAGS[t.name]||'\u{1F30D}';
-    h+='<div class="wm-tariff-card'+hi+'" style="animation-delay:'+(i*0.08)+'s">';
-    h+='<div class="wm-tariff-header"><span class="wm-tariff-flag">'+flag+'</span><span class="wm-tariff-name">'+t.name+'</span></div>';
-    h+='<div class="wm-tariff-rate">'+t.rate+'<span>%</span></div>';
-    h+='<div class="wm-tariff-change '+t.dir+'">'+(t.dir==='up'?'\u2191':'\u2193')+' '+t.change+'</div>';
-    h+='<div class="wm-tariff-date">Effective '+t.date+'</div>';
+
+  var profile=null;
+  try{profile=JSON.parse(localStorage.getItem('risksim_profile'));}catch(e){}
+  var up=profile?profile.userProfile||{}:{};
+  var homeCountry=up.country||'United States';
+  var industry=up.industry||'technology';
+  var sourcingCountries=profile?profile.selectedSourcingCountries||[]:[];
+
+  if(sourcingCountries.length===0){
+    var defaults={
+      'technology':['China','Taiwan','South Korea','Vietnam','Japan','Malaysia'],
+      'textiles':['Bangladesh','Vietnam','China','India','Turkey','Cambodia'],
+      'automotive':['Germany','Japan','Mexico','South Korea','Czech Republic','Thailand'],
+      'food':['Brazil','India','China','Thailand','Mexico','Vietnam'],
+      'pharma':['India','Ireland','Switzerland','China','Germany','Israel'],
+      'rawMaterials':['Australia','Brazil','China','South Africa','Chile','Indonesia'],
+      'consumerGoods':['China','Vietnam','India','Thailand','Indonesia','Mexico']
+    };
+    sourcingCountries=defaults[industry]||defaults['technology'];
+  }
+
+  var countryCodes={
+    'China':'CN','Taiwan':'TW','Vietnam':'VN','India':'IN','Bangladesh':'BD',
+    'South Korea':'KR','Japan':'JP','Germany':'DE','Mexico':'MX','Thailand':'TH',
+    'Turkey':'TR','Cambodia':'KH','Malaysia':'MY','Indonesia':'ID','Brazil':'BR',
+    'Ireland':'IE','Switzerland':'CH','Czech Republic':'CZ','South Africa':'ZA',
+    'Chile':'CL','Australia':'AU','Israel':'IL','United States':'US',
+    'United Kingdom':'GB','Canada':'CA','France':'FR','Italy':'IT','Spain':'ES',
+    'Netherlands':'NL','Belgium':'BE','Poland':'PL','Slovakia':'SK','Philippines':'PH',
+    'Pakistan':'PK','Sri Lanka':'LK','Myanmar':'MM','Ethiopia':'ET'
+  };
+
+  var tariffData={
+    'technology':{
+      'China':{rate:27,change:2.5,effective:'Mar 2026'},
+      'Taiwan':{rate:3,change:0,effective:'Jan 2026'},
+      'South Korea':{rate:2,change:-0.5,effective:'Jan 2026'},
+      'Vietnam':{rate:8,change:1.2,effective:'Feb 2026'},
+      'Japan':{rate:1,change:0,effective:'Jan 2026'},
+      'Malaysia':{rate:4,change:0.5,effective:'Jan 2026'},
+      'India':{rate:12,change:2.0,effective:'Feb 2026'},
+      'Mexico':{rate:0,change:0,effective:'USMCA'},
+      'Germany':{rate:2,change:0,effective:'Jan 2026'},
+      'Thailand':{rate:6,change:0.8,effective:'Jan 2026'}
+    },
+    'textiles':{
+      'Bangladesh':{rate:16,change:0.5,effective:'Jan 2026'},
+      'Vietnam':{rate:12,change:1.8,effective:'Feb 2026'},
+      'China':{rate:32,change:4.5,effective:'Mar 2026'},
+      'India':{rate:15,change:1.0,effective:'Feb 2026'},
+      'Turkey':{rate:10,change:-0.5,effective:'Jan 2026'},
+      'Cambodia':{rate:14,change:0.2,effective:'Jan 2026'},
+      'Pakistan':{rate:11,change:0,effective:'Jan 2026'},
+      'Indonesia':{rate:13,change:0.5,effective:'Jan 2026'}
+    },
+    'automotive':{
+      'Germany':{rate:3,change:0,effective:'Jan 2026'},
+      'Japan':{rate:3,change:0,effective:'Jan 2026'},
+      'Mexico':{rate:0,change:0,effective:'USMCA'},
+      'South Korea':{rate:0,change:0,effective:'KORUS'},
+      'China':{rate:27,change:2.5,effective:'Mar 2026'},
+      'Czech Republic':{rate:3,change:0,effective:'Jan 2026'},
+      'Thailand':{rate:5,change:0.5,effective:'Jan 2026'}
+    },
+    'food':{
+      'Brazil':{rate:5,change:0.2,effective:'Jan 2026'},
+      'India':{rate:8,change:1.0,effective:'Feb 2026'},
+      'China':{rate:25,change:3.0,effective:'Mar 2026'},
+      'Thailand':{rate:4,change:0,effective:'Jan 2026'},
+      'Mexico':{rate:0,change:0,effective:'USMCA'},
+      'Vietnam':{rate:6,change:0.5,effective:'Jan 2026'}
+    },
+    'pharma':{
+      'India':{rate:0,change:0,effective:'Jan 2026'},
+      'Ireland':{rate:0,change:0,effective:'Jan 2026'},
+      'Switzerland':{rate:0,change:0,effective:'Jan 2026'},
+      'China':{rate:25,change:2.5,effective:'Mar 2026'},
+      'Germany':{rate:0,change:0,effective:'Jan 2026'},
+      'Israel':{rate:0,change:0,effective:'FTA'}
+    },
+    'rawMaterials':{
+      'Australia':{rate:0,change:0,effective:'FTA'},
+      'Brazil':{rate:2,change:0.5,effective:'Jan 2026'},
+      'China':{rate:25,change:3.5,effective:'Mar 2026'},
+      'South Africa':{rate:1,change:0,effective:'AGOA'},
+      'Chile':{rate:0,change:0,effective:'FTA'},
+      'Indonesia':{rate:5,change:0.5,effective:'Jan 2026'}
+    },
+    'consumerGoods':{
+      'China':{rate:27,change:3.0,effective:'Mar 2026'},
+      'Vietnam':{rate:10,change:1.5,effective:'Feb 2026'},
+      'India':{rate:12,change:1.0,effective:'Feb 2026'},
+      'Thailand':{rate:5,change:0.3,effective:'Jan 2026'},
+      'Indonesia':{rate:7,change:0.5,effective:'Jan 2026'},
+      'Mexico':{rate:0,change:0,effective:'USMCA'}
+    }
+  };
+
+  var industryTariffs=tariffData[industry]||tariffData['technology'];
+
+  var h='<span class="wm-section-label">TARIFF & TRADE TRACKER \u2014 '+homeCountry.toUpperCase()+' IMPORTS</span>';
+  h+='<div class="wm-tariff-grid">';
+
+  sourcingCountries.forEach(function(country,i){
+    var code=countryCodes[country]||country.substring(0,2).toUpperCase();
+    var data=industryTariffs[country]||{rate:Math.round(3+Math.random()*15),change:Math.round((Math.random()*4-1)*10)/10,effective:'Jan 2026'};
+    var changeColor=data.change>0?'color:rgba(255,80,80,0.9)':(data.change<0?'color:rgba(100,255,140,0.9)':'color:rgba(255,255,255,0.4)');
+    var changePrefix=data.change>0?'\u2191 +':data.change<0?'\u2193 ':'';
+    var changeStr=data.change===0?'No change':changePrefix+data.change+'%';
+
+    h+='<div class="wm-tariff-card" style="animation-delay:'+(i*0.06)+'s">';
+    h+='<div class="wm-tariff-header"><span class="wm-tariff-flag" style="font-size:13px;font-family:\'JetBrains Mono\',monospace;letter-spacing:0.1em;color:rgba(255,255,255,0.4)">'+code+'</span><span class="wm-tariff-name">'+country+'</span></div>';
+    h+='<div class="wm-tariff-rate"><span style="font-size:0.55em;opacity:0.45;margin-right:1px">~</span><span class="wm-counter" data-target="'+data.rate+'">0</span><span>%</span></div>';
+    h+='<div class="wm-tariff-change" style="'+changeColor+'">'+changeStr+'</div>';
+    h+='<div class="wm-tariff-date">Effective '+data.effective+'</div>';
     h+='<span class="wm-tariff-detail">Details \u2192</span></div>';
   });
+
+  h+='</div>';
+  h+='<div style="margin-top:18px;padding:12px 16px;border:1px solid rgba(255,255,255,0.06);border-radius:8px;background:rgba(255,255,255,0.02);display:flex;align-items:center;gap:10px;">';
+  h+='<span style="color:rgba(255,210,80,0.8);font-size:11px;">\u26a1</span>';
+  h+='<span style="font-family:Inter,sans-serif;font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.3px;">Estimated rates \u2014 check <span onclick="switchTerminalTab(1)" style="color:rgba(255,255,255,0.7);cursor:pointer;text-decoration:underline;">Live Feed</span> for real-time tariff updates</span>';
   h+='</div>';
   el.innerHTML=h;
+  setTimeout(animateAllCounters,200);
 }
 
 // ===== PORT MONITOR =====
@@ -4396,27 +4489,100 @@ function generateSparklinePoints(trend,count){
 }
 function buildCommodities(industry){
   var el=document.getElementById('wmCommodities');if(!el)return;
-  var indCommodities={technology:['Lithium','Copper'],textiles:['Cotton'],automotive:['Steel (HRC)','Copper'],food:['Wheat'],pharma:['Oil (Brent)'],rawMaterials:['Steel (HRC)','Copper','Oil (Brent)'],consumerGoods:['Oil (Brent)','Cotton']};
-  var relevant=indCommodities[industry]||[];
-  var commodities=[
-    {name:'Oil (Brent)',price:'$78.42',change:'+1.8%',dir:1},
-    {name:'Steel (HRC)',price:'$612',change:'-2.3%',dir:-1},
-    {name:'Cotton',price:'$0.82/lb',change:'+3.1%',dir:1},
-    {name:'Copper',price:'$9,240',change:'+0.7%',dir:1},
-    {name:'Lithium',price:'$12,800',change:'-4.2%',dir:-1},
-    {name:'Wheat',price:'$5.94/bu',change:'-1.1%',dir:-1},
-    {name:'Shipping (BDI)',price:'1,842',change:'+5.6%',dir:1}
-  ];
-  var h='<span class="wm-section-label">COMMODITY PRICES</span><div class="wm-commodity-row">';
-  commodities.forEach(function(c,ci){
-    var hi=relevant.indexOf(c.name)!==-1?' wm-hi':'';
-    var cls=c.dir>0?'pos':'neg';
-    var pts=generateSparklinePoints(c.dir,12);
-    var gid='spkg'+ci;
-    h+='<div class="wm-commodity-card'+hi+'">';
-    h+='<div class="wm-commodity-name">'+c.name+'</div>';
-    h+='<div class="wm-commodity-price">'+c.price+'</div>';
-    h+='<div class="wm-commodity-change '+cls+'">'+(c.dir>0?'\u2191':'\u2193')+' '+c.change+'</div>';
+
+  var profile=null;
+  try{profile=JSON.parse(localStorage.getItem('risksim_profile'));}catch(e){}
+  var up=profile?profile.userProfile||{}:{};
+  var activeIndustry=up.industry||industry||'technology';
+
+  var commodityData={
+    'technology':[
+      {name:'Silicon Wafers',price:'$4,280/unit',change:'+2.1%',trend:'up'},
+      {name:'Copper',price:'$9,450/ton',change:'+3.8%',trend:'up'},
+      {name:'Lithium Carbonate',price:'$14,200/ton',change:'-5.2%',trend:'down'},
+      {name:'Gold (bonding wire)',price:'$2,340/oz',change:'+1.4%',trend:'up'},
+      {name:'Palladium',price:'$1,050/oz',change:'-2.8%',trend:'down'},
+      {name:'Neon Gas',price:'$28/L',change:'+12.5%',trend:'up'},
+      {name:'Gallium',price:'$320/kg',change:'+8.3%',trend:'up'},
+      {name:'Rare Earth Oxides',price:'$62/kg',change:'+4.1%',trend:'up'}
+    ],
+    'textiles':[
+      {name:'Raw Cotton',price:'$0.82/lb',change:'+1.5%',trend:'up'},
+      {name:'Polyester Fiber',price:'$1.15/kg',change:'-0.8%',trend:'down'},
+      {name:'Wool (merino)',price:'$12.40/kg',change:'+2.3%',trend:'up'},
+      {name:'Silk',price:'$48/kg',change:'+0.5%',trend:'up'},
+      {name:'Nylon Chips',price:'$2.30/kg',change:'-1.2%',trend:'down'},
+      {name:'Natural Rubber',price:'$1.85/kg',change:'+3.1%',trend:'up'},
+      {name:'Dye Chemicals',price:'$4.50/kg',change:'+0.9%',trend:'up'},
+      {name:'Linen Fiber',price:'$3.20/kg',change:'-0.3%',trend:'down'}
+    ],
+    'automotive':[
+      {name:'Steel (HRC)',price:'$680/ton',change:'+2.8%',trend:'up'},
+      {name:'Aluminum',price:'$2,520/ton',change:'+1.9%',trend:'up'},
+      {name:'Platinum',price:'$1,020/oz',change:'-1.5%',trend:'down'},
+      {name:'Natural Rubber',price:'$1.85/kg',change:'+3.1%',trend:'up'},
+      {name:'Lithium (EV)',price:'$14,200/ton',change:'-5.2%',trend:'down'},
+      {name:'Cobalt',price:'$33,500/ton',change:'+4.2%',trend:'up'},
+      {name:'Glass (automotive)',price:'$850/ton',change:'+0.5%',trend:'up'},
+      {name:'Copper Wire',price:'$9,800/ton',change:'+3.2%',trend:'up'}
+    ],
+    'food':[
+      {name:'Wheat',price:'$5.80/bu',change:'+2.1%',trend:'up'},
+      {name:'Corn',price:'$4.45/bu',change:'-1.3%',trend:'down'},
+      {name:'Soybeans',price:'$12.30/bu',change:'+0.8%',trend:'up'},
+      {name:'Coffee (Arabica)',price:'$4.85/lb',change:'+15.2%',trend:'up'},
+      {name:'Sugar',price:'$0.21/lb',change:'+3.5%',trend:'up'},
+      {name:'Palm Oil',price:'$920/ton',change:'-2.1%',trend:'down'},
+      {name:'Rice',price:'$18.50/cwt',change:'+1.8%',trend:'up'},
+      {name:'Cocoa',price:'$8,400/ton',change:'+22.1%',trend:'up'}
+    ],
+    'pharma':[
+      {name:'APIs (generic)',price:'Index: 142',change:'+3.5%',trend:'up'},
+      {name:'Gelatin Capsules',price:'$18/kg',change:'+1.2%',trend:'up'},
+      {name:'Cellulose',price:'$3.80/kg',change:'-0.5%',trend:'down'},
+      {name:'Titanium Dioxide',price:'$3,200/ton',change:'+2.8%',trend:'up'},
+      {name:'Ethanol (pharma)',price:'$1.65/gal',change:'-1.0%',trend:'down'},
+      {name:'Glass Vials',price:'$0.45/unit',change:'+5.2%',trend:'up'},
+      {name:'Packaging Film',price:'$2.10/kg',change:'+0.8%',trend:'up'},
+      {name:'Starch (pharma)',price:'$0.95/kg',change:'+0.3%',trend:'up'}
+    ],
+    'rawMaterials':[
+      {name:'Iron Ore',price:'$108/ton',change:'+1.5%',trend:'up'},
+      {name:'Copper',price:'$9,450/ton',change:'+3.8%',trend:'up'},
+      {name:'Aluminum',price:'$2,520/ton',change:'+1.9%',trend:'up'},
+      {name:'Zinc',price:'$2,680/ton',change:'-2.1%',trend:'down'},
+      {name:'Nickel',price:'$16,200/ton',change:'+4.5%',trend:'up'},
+      {name:'Tin',price:'$28,500/ton',change:'+2.3%',trend:'up'},
+      {name:'Coal (thermal)',price:'$135/ton',change:'-3.8%',trend:'down'},
+      {name:'Crude Oil (Brent)',price:'$72.40/bbl',change:'-1.2%',trend:'down'}
+    ],
+    'consumerGoods':[
+      {name:'Plastic Resin (PP)',price:'$1,280/ton',change:'+2.1%',trend:'up'},
+      {name:'Cardboard',price:'$750/ton',change:'+1.5%',trend:'up'},
+      {name:'Glass (container)',price:'$680/ton',change:'+0.8%',trend:'up'},
+      {name:'Aluminum (cans)',price:'$2,520/ton',change:'+1.9%',trend:'up'},
+      {name:'Cotton',price:'$0.82/lb',change:'+1.5%',trend:'up'},
+      {name:'Silicone',price:'$3.40/kg',change:'+3.2%',trend:'up'},
+      {name:'Wood Pulp',price:'$620/ton',change:'-0.5%',trend:'down'},
+      {name:'Tin Plate',price:'$2,800/ton',change:'+2.5%',trend:'up'}
+    ]
+  };
+
+  var items=commodityData[activeIndustry]||commodityData['technology'];
+  var industryLabel=(activeIndustry||'technology').toUpperCase().replace('RAWMATERIALS','RAW MATERIALS').replace('CONSUMERGOODS','CONSUMER GOODS');
+
+  var h='<span class="wm-section-label">KEY COMMODITIES \u2014 '+industryLabel+' SECTOR</span>';
+  h+='<div class="wm-commodity-row">';
+  items.forEach(function(item,i){
+    var trendColor=item.trend==='up'?'color:rgba(255,80,80,0.9)':'color:rgba(100,255,140,0.9)';
+    var arrow=item.trend==='up'?'\u2191':'\u2193';
+    var dir=item.trend==='up'?1:-1;
+    var pts=generateSparklinePoints(dir,12);
+    var gid='spkg'+i;
+    h+='<div class="wm-commodity-card" style="animation-delay:'+(i*0.06)+'s">';
+    h+='<div class="wm-commodity-name">'+item.name+'</div>';
+    h+='<div class="wm-commodity-price">'+item.price+'</div>';
+    h+='<div class="wm-commodity-change" style="'+trendColor+'">'+arrow+' '+item.change+'</div>';
     h+='<svg class="wm-sparkline" width="80" height="28" viewBox="0 0 80 28">';
     h+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.08)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient></defs>';
     h+='<polygon points="0,28 '+pts+' 80,28" fill="url(#'+gid+')" />';
