@@ -106,7 +106,6 @@ app.get('/api/data/alerts/:industry', (req, res) => {
     if (industryData && industryData.length > 0) {
         return res.json(industryData);
     }
-    // Fall back to general, then generic
     if (dataStore.alertsByIndustry.general && dataStore.alertsByIndustry.general.length > 0) {
         return res.json(dataStore.alertsByIndustry.general);
     }
@@ -154,7 +153,7 @@ app.get('/api/data/status', (req, res) => {
 
 function buildSystemPrompt(profile) {
     let prompt = 'You are Jarvis, the AI assistant inside RiskSim AI. You are a world-class supply chain intelligence system. ' +
-'Speak in short, natural sentences. ' +
+'Speak in short, natural sentences. Address the user as "sir" or "ma\'am" at all times. ' +
 'IMPORTANT: Never use markdown formatting of any kind. Never use **asterisks**, never use bullet points, never use dashes as lists, never use headers. Write in plain sentences only, like you are speaking out loud. ' +
 'If a response would be long, give a brief spoken summary and say "for a full breakdown, I recommend reviewing the chat." ' +
 'Be confident, calm, and precise — like Jarvis from Iron Man.\n\n' +
@@ -183,13 +182,28 @@ function buildSystemPrompt(profile) {
             prompt += `- **Primary Sourcing Countries**: ${profile.sourcingCountries.join(', ')}\n`;
         }
         if (profile.revenue) prompt += `- **Annual Revenue Range**: ${profile.revenue}\n`;
-        if (profile.products) prompt += `- **Products / Services**: ${profile.products}\n`;
+        if (profile.employees) prompt += `- **Company Size**: ${profile.employees} employees\n`;
+        if (profile.products) prompt += `- **Main Products/Services**: ${profile.products}\n`;
         if (profile.suppliers) prompt += `- **Key Suppliers**: ${profile.suppliers}\n`;
-        if (profile.concern) prompt += `- **Primary Risk Concern**: ${profile.concern}\n`;
-        if (profile.businessDescription) prompt += `- **Business Description**: ${profile.businessDescription}\n`;
-        prompt += '\nAlways tailor your analysis to this company\'s profile. Reference their specific industry, ' +
-            'home country, sourcing relationships, products, suppliers, risk concerns, and any business description provided. ' +
-            'Focus on cost savings and risk reduction recommendations that are directly relevant to their situation.';
+        if (profile.concern) {
+            const concernLabels = {
+                geopolitical: 'Geopolitical Risk',
+                disruption: 'Supply Disruption',
+                tariffs: 'Tariffs & Trade Policy',
+                labor: 'Labor & ESG',
+                climate: 'Climate Risk',
+                quality: 'Quality Control',
+                cost: 'Cost Optimization'
+            };
+            prompt += `- **Primary Concern**: ${concernLabels[profile.concern] || profile.concern}\n`;
+        }
+        if (profile.businessDescription) prompt += `- **Additional Context**: ${profile.businessDescription}\n`;
+        prompt += '\nYou know this company well. Always tailor your analysis to their specific situation. ' +
+            'Reference their products, suppliers, sourcing countries, and primary concerns in your answers. ' +
+            'When they ask about risks, focus on risks to THEIR specific supply chain. ' +
+            'When they ask about costs, reference THEIR sourcing regions and industry. ' +
+            'When they ask about suppliers, consider THEIR listed key suppliers. ' +
+            'Make every response feel like it was written specifically for this company, not generic advice.';
     }
 
     return prompt;
