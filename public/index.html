@@ -2136,6 +2136,173 @@
   .cs-sub br { display: none; }
 }
 
+  /* ===== LEFT SIDEBAR ===== */
+  #rsNav { display: none !important; }
+
+  .risksim-sidebar {
+    position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+    background: #0d0d0d; border-right: 1px solid rgba(255,255,255,0.06);
+    display: flex; flex-direction: column; z-index: 9999;
+    font-family: Inter, sans-serif; transition: transform 0.3s ease;
+  }
+  .risksim-sidebar.collapsed { transform: translateX(-260px); }
+  .sb-header {
+    padding: 16px 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .sb-logo { font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 3px; color: white; font-weight: 700; }
+  .sb-logo-badge { font-size: 9px; letter-spacing: 1px; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 3px; padding: 1px 5px; margin-left: 6px; vertical-align: middle; }
+  .sb-collapse-btn { background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 16px; padding: 4px; transition: color 0.15s; }
+  .sb-collapse-btn:hover { color: rgba(255,255,255,0.7); }
+  .sb-section-label { padding: 16px 16px 8px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); flex-shrink: 0; }
+  .sb-nav-item {
+    display: flex; align-items: center; padding: 10px 16px; cursor: pointer;
+    color: rgba(255,255,255,0.5); font-size: 13px; transition: all 0.15s;
+    border-left: 2px solid transparent; gap: 10px; user-select: none;
+  }
+  .sb-nav-item:hover { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.8); }
+  .sb-nav-item.active { background: rgba(255,255,255,0.06); color: white; border-left-color: white; }
+  .sb-nav-icon { width: 18px; text-align: center; font-size: 14px; flex-shrink: 0; }
+  .sb-nav-code { margin-left: auto; font-size: 9px; color: rgba(255,255,255,0.15); font-family: 'JetBrains Mono', monospace; }
+  .sb-history-section { flex: 1; overflow-y: auto; border-top: 1px solid rgba(255,255,255,0.06); min-height: 0; }
+  .sb-history-section::-webkit-scrollbar { width: 3px; }
+  .sb-history-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+  .sb-new-chat {
+    margin: 8px 12px; padding: 8px 12px; background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: rgba(255,255,255,0.6);
+    font-size: 12px; cursor: pointer; text-align: center; font-family: Inter, sans-serif;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .sb-new-chat:hover { background: rgba(255,255,255,0.1); color: white; }
+  .sb-history-item {
+    padding: 10px 16px; cursor: pointer; position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.15s;
+  }
+  .sb-history-item:hover { background: rgba(255,255,255,0.04); }
+  .sb-history-item:hover .sb-history-delete { opacity: 1; }
+  .sb-history-title { font-size: 12px; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 20px; }
+  .sb-history-meta { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 10px; color: rgba(255,255,255,0.25); }
+  .sb-history-badge { padding: 1px 6px; border-radius: 3px; font-size: 9px; letter-spacing: 0.5px; }
+  .sb-history-delete { position: absolute; right: 12px; top: 10px; color: rgba(255,255,255,0.3); font-size: 14px; opacity: 0; transition: opacity 0.15s; cursor: pointer; }
+  .sb-history-delete:hover { color: rgba(255,100,100,0.8); }
+  .sb-settings {
+    padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; gap: 10px; cursor: pointer;
+    color: rgba(255,255,255,0.4); font-size: 13px; transition: all 0.15s; flex-shrink: 0;
+  }
+  .sb-settings:hover { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.8); }
+
+  /* Layout shift for sidebar */
+  #auditModule { left: 260px !important; }
+  #warRoomModule { left: 260px !important; }
+  #simulatorModule { left: 260px !important; }
+  #chatPanel { left: 260px !important; }
+  #heroPanel { left: 276px !important; }
+  #chatMessages { left: calc(130px + 50%) !important; }
+  #jarvisBorder { left: 260px !important; }
+  #jarvisToggle { right: 24px; }
+  #pricingOverlay { left: 260px; }
+  #profileSection { left: 260px; }
+  #psReopenBtn { left: auto; right: 80px; }
+
+  /* Mobile hamburger */
+  #sbHamburger {
+    position: fixed; top: 14px; left: 14px; z-index: 10000;
+    background: rgba(13,13,13,0.95); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; width: 36px; height: 36px; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.7); font-size: 16px; transition: all 0.15s;
+  }
+  #sbHamburger:hover { color: white; border-color: rgba(255,255,255,0.2); }
+
+  /* Settings Modal */
+  .settings-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100000;
+    display: flex; align-items: center; justify-content: center; display: none;
+  }
+  .settings-overlay.open { display: flex; }
+  .settings-modal {
+    background: #111; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px;
+    width: 620px; max-width: calc(100vw - 40px); max-height: 85vh;
+    overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.8);
+  }
+  .settings-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
+  }
+  .settings-modal-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: white; }
+  .settings-close { background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 18px; padding: 4px; transition: color 0.15s; }
+  .settings-close:hover { color: white; }
+  .settings-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+  .settings-tab {
+    flex: 1; padding: 13px 14px; text-align: center; font-size: 11px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: rgba(255,255,255,0.35); cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; transition: all 0.15s; border-bottom: 2px solid transparent;
+  }
+  .settings-tab.active { color: white; border-bottom-color: white; }
+  .settings-tab:hover { color: rgba(255,255,255,0.7); }
+  .settings-content { padding: 24px; overflow-y: auto; flex: 1; }
+  .settings-field { margin-bottom: 16px; }
+  .settings-field label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.18em; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 6px; }
+  .settings-field input, .settings-field select, .settings-field textarea {
+    width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white;
+    font-family: Inter, sans-serif; font-size: 13px; padding: 10px 12px; outline: none; transition: border-color 0.2s;
+  }
+  .settings-field input:focus, .settings-field select, .settings-field textarea:focus { border-color: rgba(255,255,255,0.25); }
+  .settings-field select option { background: #1a1a1a; }
+  .settings-field textarea { resize: vertical; min-height: 70px; }
+  .settings-save-btn {
+    width: 100%; padding: 12px; background: #fff; border: none; border-radius: 10px;
+    color: #000; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.25s; margin-top: 8px;
+  }
+  .settings-save-btn:hover { background: rgba(255,255,255,0.88); }
+  .settings-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .settings-plan-card {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 16px; margin-bottom: 10px;
+  }
+  .settings-plan-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: white; margin-bottom: 4px; }
+  .settings-plan-price { font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 12px; }
+  .settings-plan-btn {
+    padding: 8px 20px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px; color: rgba(255,255,255,0.8); font-size: 12px; cursor: pointer; transition: all 0.2s;
+  }
+  .settings-plan-btn:hover { background: rgba(255,255,255,0.14); color: white; }
+  .settings-plan-btn.current { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.35); cursor: default; border-color: rgba(255,255,255,0.06); }
+  .settings-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .settings-toggle-row:last-child { border-bottom: none; }
+  .settings-toggle-label { font-size: 13px; color: rgba(255,255,255,0.65); }
+  .settings-toggle-sub { font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 2px; }
+  .settings-toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+  .settings-toggle input { opacity: 0; width: 0; height: 0; }
+  .settings-toggle-slider { position: absolute; inset: 0; background: rgba(255,255,255,0.1); border-radius: 11px; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.12); }
+  .settings-toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: rgba(255,255,255,0.5); border-radius: 50%; transition: all 0.2s; }
+  .settings-toggle input:checked + .settings-toggle-slider { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+  .settings-toggle input:checked + .settings-toggle-slider:before { transform: translateX(18px); background: white; }
+  .settings-section-title { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.18em; color: rgba(255,255,255,0.28); text-transform: uppercase; margin-bottom: 16px; display: block; }
+  .settings-billing-placeholder { padding: 18px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; text-align: center; color: rgba(255,255,255,0.25); font-size: 13px; margin-top: 16px; }
+
+  /* Coming soon toast */
+  #sbToast { position: fixed; bottom: 24px; left: 284px; background: rgba(20,20,20,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 18px; font-size: 13px; color: rgba(255,255,255,0.8); z-index: 100001; opacity: 0; transform: translateY(8px); transition: all 0.25s cubic-bezier(0.16,1,0.3,1); pointer-events: none; }
+  #sbToast.show { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    .risksim-sidebar { transform: translateX(-260px); }
+    .risksim-sidebar.open { transform: translateX(0); }
+    #sbHamburger { display: flex; }
+    #auditModule { left: 0 !important; }
+    #warRoomModule { left: 0 !important; }
+    #simulatorModule { left: 0 !important; }
+    #chatPanel { left: 0 !important; }
+    #heroPanel { left: 16px !important; }
+    #chatMessages { left: 50% !important; }
+    #jarvisBorder { left: 0 !important; }
+    #pricingOverlay { left: 0; }
+    #profileSection { left: 0; }
+  }
+
   </style>
 </head>
 <body>
@@ -2337,21 +2504,78 @@ function __handleIntroKey(e){
 document.addEventListener('keydown',__handleIntroKey,true);
 window.addEventListener('keydown',__handleIntroKey,true);
 </script>
-  <!-- ===== RS NAV ===== -->
-<nav id="rsNav" style="opacity:0">
-  <button class="rs-nav-btn active" onclick="switchModule('map')">
-    <span class="rs-nav-mod">SYS_01</span>Map
-  </button>
-  <button class="rs-nav-btn" onclick="switchModule('audit')">
-    <span class="rs-nav-mod">SYS_02</span>Audit
-  </button>
-  <button class="rs-nav-btn" onclick="switchModule('warroom')">
-    <span class="rs-nav-mod">SYS_03</span>Terminal
-  </button>
-  <button class="rs-nav-btn" id="navMod04" onclick="switchModule('simulator')">
-    <span class="rs-nav-mod">SYS_04</span>Simulator
-  </button>
+  <!-- ===== RS NAV (hidden, kept for JS compat) ===== -->
+<nav id="rsNav" style="display:none">
+  <button class="rs-nav-btn active" onclick="switchModule('map')"><span class="rs-nav-mod">SYS_01</span>Map</button>
+  <button class="rs-nav-btn" onclick="switchModule('audit')"><span class="rs-nav-mod">SYS_02</span>Audit</button>
+  <button class="rs-nav-btn" onclick="switchModule('warroom')"><span class="rs-nav-mod">SYS_03</span>Terminal</button>
+  <button class="rs-nav-btn" id="navMod04" onclick="switchModule('simulator')"><span class="rs-nav-mod">SYS_04</span>Simulator</button>
 </nav>
+
+<!-- ===== MOBILE HAMBURGER ===== -->
+<button id="sbHamburger" onclick="toggleSidebar()">☰</button>
+
+<!-- ===== LEFT SIDEBAR ===== -->
+<div class="risksim-sidebar" id="rsSidebar">
+  <!-- Header -->
+  <div class="sb-header">
+    <div>
+      <span class="sb-logo">RISKSIM</span>
+      <span class="sb-logo-badge">AI</span>
+    </div>
+    <button class="sb-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">☰</button>
+  </div>
+
+  <!-- Nav Modules -->
+  <div class="sb-section-label">Modules</div>
+  <div class="sb-nav-item active" id="sbnav-map" onclick="sbSwitchModule('map')">
+    <span class="sb-nav-icon">◉</span><span>Map</span><span class="sb-nav-code">SYS_01</span>
+  </div>
+  <div class="sb-nav-item" id="sbnav-audit" onclick="sbSwitchModule('audit')">
+    <span class="sb-nav-icon">◎</span><span>Audit</span><span class="sb-nav-code">SYS_02</span>
+  </div>
+  <div class="sb-nav-item" id="sbnav-warroom" onclick="sbSwitchModule('warroom')">
+    <span class="sb-nav-icon">▣</span><span>Terminal</span><span class="sb-nav-code">SYS_03</span>
+  </div>
+  <div class="sb-nav-item" id="sbnav-simulator" onclick="sbSwitchModule('simulator')">
+    <span class="sb-nav-icon">◈</span><span>Simulator</span><span class="sb-nav-code">SYS_04</span>
+  </div>
+  <div class="sb-nav-item" id="sbnav-priceintel" onclick="sbShowComingSoon()">
+    <span class="sb-nav-icon">◆</span><span>Price Intel</span><span class="sb-nav-code">SYS_05</span>
+  </div>
+
+  <!-- Chat History -->
+  <div class="sb-section-label" style="padding-top:12px">History</div>
+  <button class="sb-new-chat" onclick="sbNewChat()">+ New Chat</button>
+  <div class="sb-history-section">
+    <div id="sidebarHistory"></div>
+  </div>
+
+  <!-- Settings -->
+  <div class="sb-settings" onclick="openSettings()">
+    <span style="font-size:15px">⚙</span>
+    <span>Settings</span>
+  </div>
+</div>
+
+<!-- ===== SETTINGS MODAL ===== -->
+<div class="settings-overlay" id="settingsOverlay" onclick="if(event.target===this)closeSettings()">
+  <div class="settings-modal">
+    <div class="settings-modal-header">
+      <div class="settings-modal-title">Settings</div>
+      <button class="settings-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="settings-tabs">
+      <div class="settings-tab active" onclick="switchSettingsTab('profile',this)">Profile</div>
+      <div class="settings-tab" onclick="switchSettingsTab('billing',this)">Plans &amp; Billing</div>
+      <div class="settings-tab" onclick="switchSettingsTab('notifications',this)">Notifications</div>
+    </div>
+    <div class="settings-content" id="settingsContent"></div>
+  </div>
+</div>
+
+<!-- ===== COMING SOON TOAST ===== -->
+<div id="sbToast"></div>
 
 <!-- ===== INTRO ===== -->
 <div id="rs-intro">
@@ -3600,6 +3824,9 @@ function runCustomAudit(supplierName){
     _customAuditPending=false;
     if(data.error){showAuditError(data.error);return;}
     renderCustomAudit(data.audit);
+    if(typeof saveToHistory==='function'&&data.audit){
+      saveToHistory({id:'audit_'+Date.now(),type:'audit',title:'Audit: '+(data.audit.supplierName||supplierName),timestamp:new Date().toISOString(),data:{supplierName:supplierName,result:data.audit}});
+    }
   })
   .catch(function(){
     _customAuditPending=false;
@@ -3844,6 +4071,7 @@ function switchModule(name){
   for(var i=0;i<navBtns.length;i++)navBtns[i].classList.remove('active');
 
   _activeModule=name;
+  if(typeof updateSidebarActive==='function')updateSidebarActive(name);
   // Close fullscreen chat on module switch
   if(typeof closeChatFullscreen==='function')closeChatFullscreen();
   var va=document.getElementById('voiceAssistant');
@@ -4812,6 +5040,10 @@ async function cfSendMessage(userText){
     // Save AI message
     cfAddMessage(_cfActiveConv,'ai',reply);
     cfRenderMessages(_cfActiveConv);
+    // Save to sidebar history
+    if(typeof saveToHistory==='function'){
+      saveToHistory({id:'chat_'+_cfActiveConv,type:'chat',title:userText.substring(0,40),timestamp:new Date().toISOString(),data:{convId:_cfActiveConv}});
+    }
   }catch(e){
     var tp=document.getElementById('cfTyping');if(tp)tp.remove();
     cfAddMessage(_cfActiveConv,'ai','Connection error. Please try again.');
@@ -4839,6 +5071,292 @@ function analyzeAlert(title,desc){
   var msg='[Alert Analysis] '+title+': '+desc;
   openChatFullscreen(msg,'terminal');
 }
+
+// ===== SIDEBAR JS =====
+function sbSwitchModule(name){
+  switchModule(name);
+  updateSidebarActive(name);
+  // On mobile, close sidebar after nav
+  if(window.innerWidth<=768){
+    var sb=document.getElementById('rsSidebar');
+    if(sb)sb.classList.remove('open');
+  }
+}
+
+function updateSidebarActive(name){
+  var items=document.querySelectorAll('.sb-nav-item[id^="sbnav-"]');
+  items.forEach(function(el){el.classList.remove('active');});
+  var target=document.getElementById('sbnav-'+name);
+  if(target)target.classList.add('active');
+}
+
+function toggleSidebar(){
+  var sb=document.getElementById('rsSidebar');
+  if(!sb)return;
+  if(window.innerWidth<=768){
+    sb.classList.toggle('open');
+  }else{
+    sb.classList.toggle('collapsed');
+  }
+}
+
+function sbShowComingSoon(){
+  var t=document.getElementById('sbToast');
+  if(!t)return;
+  t.textContent='Price Intel (SYS_05) — Coming Soon';
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2800);
+}
+
+function sbNewChat(){
+  // Clear current conversation and open terminal chat
+  if(typeof cfCreateConversation==='function'){
+    _cfActiveConv=null;
+    switchModule('warroom');
+    updateSidebarActive('warroom');
+    if(typeof openChatFullscreen==='function')openChatFullscreen('','terminal');
+  }else{
+    switchModule('warroom');
+    updateSidebarActive('warroom');
+  }
+}
+
+// ===== CHAT HISTORY =====
+function formatTimeAgo(ts){
+  var now=new Date(),d=new Date(ts);
+  var diff=Math.floor((now-d)/1000);
+  if(diff<60)return'just now';
+  if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';
+  if(diff<172800)return'Yesterday';
+  var opts={month:'short',day:'numeric'};
+  return d.toLocaleDateString(undefined,opts);
+}
+
+function saveToHistory(item){
+  var history=JSON.parse(localStorage.getItem('risksim_chat_history')||'[]');
+  // Dedupe by updating existing same-id item
+  var idx=history.findIndex(function(h){return h.id===item.id;});
+  if(idx!==-1)history.splice(idx,1);
+  history.unshift(item);
+  if(history.length>50)history=history.slice(0,50);
+  localStorage.setItem('risksim_chat_history',JSON.stringify(history));
+  renderChatHistory();
+}
+
+function loadHistory(){
+  return JSON.parse(localStorage.getItem('risksim_chat_history')||'[]');
+}
+
+function deleteHistoryItem(id){
+  var history=loadHistory().filter(function(h){return h.id!==id;});
+  localStorage.setItem('risksim_chat_history',JSON.stringify(history));
+  renderChatHistory();
+}
+
+function renderChatHistory(){
+  var container=document.getElementById('sidebarHistory');
+  if(!container)return;
+  var history=loadHistory();
+  if(history.length===0){
+    container.innerHTML='<div style="padding:12px 16px;color:rgba(255,255,255,0.22);font-size:12px;font-family:Inter,sans-serif;">No conversations yet</div>';
+    return;
+  }
+  var h='';
+  history.forEach(function(item){
+    var badge=item.type==='chat'?'Chat':(item.type==='audit'?'Audit':'Sim');
+    var bc=item.type==='chat'?'rgba(255,255,255,0.12)':(item.type==='audit'?'rgba(100,180,255,0.14)':'rgba(255,200,100,0.14)');
+    var timeStr=formatTimeAgo(item.timestamp);
+    h+='<div class="sb-history-item" onclick="openHistoryItem(\''+item.id+'\')" data-id="'+item.id+'">';
+    h+='<div class="sb-history-title">'+(item.title||'Untitled')+'</div>';
+    h+='<div class="sb-history-meta"><span class="sb-history-badge" style="background:'+bc+'">'+badge+'</span><span>'+timeStr+'</span></div>';
+    h+='<div class="sb-history-delete" onclick="event.stopPropagation();deleteHistoryItem(\''+item.id+'\')">×</div>';
+    h+='</div>';
+  });
+  container.innerHTML=h;
+}
+
+function openHistoryItem(id){
+  var history=loadHistory();
+  var item=history.find(function(h){return h.id===id;});
+  if(!item)return;
+  if(item.type==='chat'){
+    switchModule('warroom');
+    updateSidebarActive('warroom');
+    if(item.data&&item.data.convId&&typeof cfLoadConversation==='function'){
+      cfLoadConversation(item.data.convId);
+    }else if(typeof openChatFullscreen==='function'){
+      openChatFullscreen('','terminal');
+    }
+  }else if(item.type==='audit'){
+    switchModule('audit');
+    updateSidebarActive('audit');
+    if(item.data&&item.data.result&&typeof renderCustomAudit==='function'){
+      setTimeout(function(){
+        if(!localStorage.getItem('am_paywall_bypassed')){bypassPaywall();}
+        renderCustomAudit(item.data.result);
+      },100);
+    }
+  }else if(item.type==='simulation'){
+    switchModule('simulator');
+    updateSidebarActive('simulator');
+  }
+  // On mobile close sidebar
+  if(window.innerWidth<=768){
+    var sb=document.getElementById('rsSidebar');
+    if(sb)sb.classList.remove('open');
+  }
+}
+
+// ===== SETTINGS MODAL =====
+var _settingsTab='profile';
+
+function openSettings(){
+  var overlay=document.getElementById('settingsOverlay');
+  if(overlay){overlay.classList.add('open');}
+  renderSettingsTab('profile');
+  // Reset tab UI
+  var tabs=document.querySelectorAll('.settings-tab');
+  tabs.forEach(function(t,i){t.classList.toggle('active',i===0);});
+}
+
+function closeSettings(){
+  var overlay=document.getElementById('settingsOverlay');
+  if(overlay)overlay.classList.remove('open');
+}
+
+function switchSettingsTab(tab,el){
+  _settingsTab=tab;
+  var tabs=document.querySelectorAll('.settings-tab');
+  tabs.forEach(function(t){t.classList.remove('active');});
+  if(el)el.classList.add('active');
+  renderSettingsTab(tab);
+}
+
+function renderSettingsTab(tab){
+  var c=document.getElementById('settingsContent');
+  if(!c)return;
+  if(tab==='profile'){c.innerHTML=buildSettingsProfile();}
+  else if(tab==='billing'){c.innerHTML=buildSettingsBilling();}
+  else if(tab==='notifications'){c.innerHTML=buildSettingsNotifications();}
+}
+
+function buildSettingsProfile(){
+  var p={};
+  try{var d=JSON.parse(localStorage.getItem('risksim_profile')||'{}');p=d.userProfile||{};}catch(e){}
+  var sc=[];
+  try{sc=JSON.parse(localStorage.getItem('risksim_profile')||'{}').selectedSourcingCountries||[];}catch(e){}
+  var indOpts=['','technology','textiles','automotive','food','pharma','rawMaterials','consumerGoods'].map(function(v){
+    var l={'':'Select...','technology':'Electronics / Tech','textiles':'Textiles / Apparel','automotive':'Automotive','food':'Food / Agriculture','pharma':'Pharmaceuticals','rawMaterials':'Raw Materials','consumerGoods':'Consumer Goods'}[v]||v;
+    return'<option value="'+v+'"'+(p.industry===v?' selected':'')+'>'+l+'</option>';
+  }).join('');
+  var typeOpts=['','manufacturer','retailer','distributor','logistics','other'].map(function(v){
+    var l={'':'Select...','manufacturer':'Manufacturer','retailer':'Retailer','distributor':'Distributor','logistics':'Logistics Provider','other':'Other'}[v]||v;
+    return'<option value="'+v+'"'+(p.type===v?' selected':'')+'>'+l+'</option>';
+  }).join('');
+  return '<span class="settings-section-title">Company Information</span>'+
+    '<div class="settings-row">'+
+      '<div class="settings-field"><label>Company Name</label><input id="sp-name" value="'+(p.companyName||'')+'" placeholder="Acme Corp"></div>'+
+      '<div class="settings-field"><label>Home Country</label><input id="sp-country" value="'+(p.country||'')+'" placeholder="United States"></div>'+
+    '</div>'+
+    '<div class="settings-row">'+
+      '<div class="settings-field"><label>Company Type</label><select id="sp-type">'+typeOpts+'</select></div>'+
+      '<div class="settings-field"><label>Industry</label><select id="sp-industry">'+indOpts+'</select></div>'+
+    '</div>'+
+    '<div class="settings-row">'+
+      '<div class="settings-field"><label>Annual Revenue</label><input id="sp-revenue" value="'+(p.revenue||'')+'" placeholder="$10M–$50M"></div>'+
+      '<div class="settings-field"><label>Employees</label><input id="sp-employees" value="'+(p.employees||'')+'" placeholder="51–200"></div>'+
+    '</div>'+
+    '<div class="settings-field"><label>Sourcing Countries (comma-separated)</label><input id="sp-sourcing" value="'+sc.join(', ')+'" placeholder="China, Vietnam, India"></div>'+
+    '<div class="settings-field"><label>Products / Services</label><input id="sp-products" value="'+(p.products||'')+'" placeholder="Electronics components..."></div>'+
+    '<div class="settings-field"><label>Top Suppliers</label><input id="sp-suppliers" value="'+(p.suppliers||'')+'" placeholder="TSMC, Samsung..."></div>'+
+    '<div class="settings-field"><label>Additional Context</label><textarea id="sp-context">'+(p.context||'')+'</textarea></div>'+
+    '<button class="settings-save-btn" onclick="saveSettingsProfile()">Save Changes</button>';
+}
+
+function saveSettingsProfile(){
+  var sourcing=(document.getElementById('sp-sourcing')||{}).value||'';
+  var sc=sourcing.split(',').map(function(s){return s.trim();}).filter(Boolean);
+  var p={
+    companyName:(document.getElementById('sp-name')||{}).value||'',
+    country:(document.getElementById('sp-country')||{}).value||'',
+    type:(document.getElementById('sp-type')||{}).value||'',
+    industry:(document.getElementById('sp-industry')||{}).value||'',
+    revenue:(document.getElementById('sp-revenue')||{}).value||'',
+    employees:(document.getElementById('sp-employees')||{}).value||'',
+    products:(document.getElementById('sp-products')||{}).value||'',
+    suppliers:(document.getElementById('sp-suppliers')||{}).value||'',
+    context:(document.getElementById('sp-context')||{}).value||''
+  };
+  var stored={userProfile:p,selectedSourcingCountries:sc};
+  localStorage.setItem('risksim_profile',JSON.stringify(stored));
+  if(typeof userProfile!=='undefined'){
+    for(var k in p)userProfile[k]=p[k];
+  }
+  if(typeof selectedSourcingCountries!=='undefined')selectedSourcingCountries=sc;
+  if(typeof renderMarkers==='function')renderMarkers();
+  if(typeof updateHeroStats==='function')updateHeroStats();
+  var btn=document.querySelector('.settings-save-btn');
+  if(btn){btn.textContent='Saved ✓';setTimeout(function(){btn.textContent='Save Changes';},1800);}
+}
+
+function buildSettingsBilling(){
+  var plans=[
+    {name:'Free',price:'$0/mo',features:['Map view','Basic alerts'],current:true},
+    {name:'Pro',price:'$49/mo',features:['Audit module','Terminal','Simulator'],link:'mailto:risksim.ai@gmail.com?subject=Pro%20Plan%20Inquiry'},
+    {name:'Enterprise',price:'$149/mo',features:['All modules','Custom integrations','Priority support'],link:'mailto:risksim.ai@gmail.com?subject=Enterprise%20Plan%20Inquiry'}
+  ];
+  var h='<span class="settings-section-title">Current Plan</span>';
+  plans.forEach(function(p){
+    h+='<div class="settings-plan-card">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between">';
+    h+='<div><div class="settings-plan-name">'+p.name+'</div><div class="settings-plan-price">'+p.price+'</div></div>';
+    if(p.current){
+      h+='<span class="settings-plan-btn current">Current Plan</span>';
+    }else{
+      h+='<button class="settings-plan-btn" onclick="window.open(\''+p.link+'\',\'_blank\')">Upgrade</button>';
+    }
+    h+='</div>';
+    h+='<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px">'+p.features.join(' · ')+'</div>';
+    h+='</div>';
+  });
+  h+='<div class="settings-billing-placeholder">No billing history yet</div>';
+  return h;
+}
+
+function buildSettingsNotifications(){
+  var prefs={};
+  try{prefs=JSON.parse(localStorage.getItem('risksim_notif_prefs')||'{}');}catch(e){}
+  function toggle(key,label,sub){
+    var checked=prefs[key]?'checked':'';
+    return'<div class="settings-toggle-row">'+
+      '<div><div class="settings-toggle-label">'+label+'</div><div class="settings-toggle-sub">'+sub+'</div></div>'+
+      '<label class="settings-toggle"><input type="checkbox" id="nt-'+key+'" '+checked+' onchange="saveSettingsNotifications()"><span class="settings-toggle-slider"></span></label>'+
+    '</div>';
+  }
+  return '<span class="settings-section-title">Notification Preferences</span>'+
+    toggle('email','Email alerts for critical events','Receive emails when critical supply chain events occur')+
+    toggle('briefing','Daily risk briefing','Morning summary of overnight risk changes')+
+    toggle('price','Price change alerts','Notified when commodity prices move significantly');
+}
+
+function saveSettingsNotifications(){
+  var prefs={
+    email:!!(document.getElementById('nt-email')||{}).checked,
+    briefing:!!(document.getElementById('nt-briefing')||{}).checked,
+    price:!!(document.getElementById('nt-price')||{}).checked
+  };
+  localStorage.setItem('risksim_notif_prefs',JSON.stringify(prefs));
+}
+
+// Init sidebar on page load
+window.addEventListener('load',function(){
+  renderChatHistory();
+  // Escape closes settings
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape')closeSettings();
+  });
+});
 </script>
 
 <!-- ===== SIMULATOR MODULE JS ===== -->
@@ -5003,6 +5521,9 @@ function runSimProgress(question){
       simCurrentScenarioId=id;
       loadSimScenarios();
       renderSimResults(results,question);
+      if(typeof saveToHistory==='function'){
+        saveToHistory({id:'sim_'+Date.now(),type:'simulation',title:'Sim: '+question.substring(0,40),timestamp:new Date().toISOString(),data:{scenario:question,result:results}});
+      }
       var scroll=document.getElementById('simCenterScroll');if(scroll)scroll.scrollTop=0;
     },350);
   },delay+200);
@@ -6230,7 +6751,7 @@ window.addEventListener('load',function(){
       document.body.style.width='';
       document.body.style.top='';
       document.documentElement.style.height='';
-      setTimeout(function(){ var nav=document.getElementById('rsNav'); if(nav){nav.style.opacity='1';} }, 500);
+      setTimeout(function(){ var sb=document.getElementById('rsSidebar'); if(sb)sb.style.opacity='1'; }, 500);
       requestAnimationFrame(function(){
         if(map)map.invalidateSize();
         var savedProfile = localStorage.getItem('risksim_profile');
