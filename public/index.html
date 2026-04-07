@@ -5341,6 +5341,7 @@ function toggleSidebar(){
   }else{
     sb.classList.toggle('collapsed');
     if(hb)hb.style.display=sb.classList.contains('collapsed')?'flex':'none';
+    document.body.classList.toggle('sidebar-collapsed');
   }
 }
 
