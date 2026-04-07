@@ -2192,19 +2192,29 @@
   }
   .sb-settings:hover { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.8); }
 
-  /* Layout shift for sidebar */
-  #auditModule { left: 260px !important; }
-  #warRoomModule { left: 260px !important; }
-  #simulatorModule { left: 260px !important; }
-  #priceIntelModule { left: 260px !important; }
-  #chatPanel { left: 260px !important; }
-  #heroPanel { left: 276px !important; }
-  #chatMessages { left: calc(130px + 50%) !important; }
-  #jarvisBorder { left: 260px !important; }
+ /* Layout shift for sidebar */
+  #auditModule { left: 260px !important; transition: left 0.3s ease; }
+  #warRoomModule { left: 260px !important; transition: left 0.3s ease; }
+  #simulatorModule { left: 260px !important; transition: left 0.3s ease; }
+  #priceIntelModule { left: 260px !important; transition: left 0.3s ease; }
+  #chatPanel { left: 260px !important; transition: left 0.3s ease; }
+  #heroPanel { left: 276px !important; transition: left 0.3s ease; }
+  #chatMessages { left: calc(130px + 50%) !important; transition: left 0.3s ease; }
+  #jarvisBorder { left: 260px !important; transition: left 0.3s ease; }
   #jarvisToggle { right: 24px; }
-  #pricingOverlay { left: 260px; }
-  #profileSection { left: 260px; }
+  #pricingOverlay { left: 260px; transition: left 0.3s ease; }
+  #profileSection { left: 260px; transition: left 0.3s ease; }
   #psReopenBtn { left: auto; right: 80px; }
+
+  body.sidebar-collapsed #auditModule { left: 0 !important; }
+  body.sidebar-collapsed #warRoomModule { left: 0 !important; }
+  body.sidebar-collapsed #simulatorModule { left: 0 !important; }
+  body.sidebar-collapsed #priceIntelModule { left: 0 !important; }
+  body.sidebar-collapsed #chatPanel { left: 0 !important; }
+  body.sidebar-collapsed #heroPanel { left: 16px !important; }
+  body.sidebar-collapsed #chatMessages { left: 50% !important; }
+  body.sidebar-collapsed #jarvisBorder { left: 0 !important; }
+  body.
 
   /* Hamburger — hidden by default, shown via JS when sidebar is collapsed */
   #sbHamburger {
