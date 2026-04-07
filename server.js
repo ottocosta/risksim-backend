@@ -4,7 +4,7 @@ const Anthropic = require('@anthropic-ai/sdk').default || require('@anthropic-ai
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '15mb' }));
 
 // Allow iframe embedding from Shopify
 app.use((req, res, next) => {
@@ -319,6 +319,118 @@ Analyze this supplier thoroughly. If you have knowledge about this company, use 
     } catch (error) {
         console.error('Custom audit error:', error);
         res.status(500).json({ error: 'Failed to generate audit. Please try again.' });
+    }
+});
+
+app.post('/api/price-extract', async (req, res) => {
+    try {
+        const { fileType, fileName, fileData, fileContent, mimeType } = req.body;
+
+        if (!fileType) return res.status(400).json({ error: 'fileType required' });
+
+        const apiKey = process.env.CLAUDE_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
+
+        const client = new Anthropic({ apiKey });
+
+        const systemPrompt = `You are a pricing data extraction specialist. Extract all pricing information from the provided document and return ONLY valid JSON — no markdown, no backticks, no text outside the JSON.
+
+Return this exact format:
+{
+  "manufacturer": "Company or brand name if identifiable, else null",
+  "effectiveDate": "Date string if found, else null",
+  "currency": "USD or detected currency",
+  "items": [
+    {
+      "partNumber": "Part or SKU number",
+      "description": "Item description",
+      "oldPrice": 0.00,
+      "newPrice": 0.00,
+      "unit": "each/kg/box/etc"
+    }
+  ],
+  "summary": {
+    "totalItems": 0,
+    "avgChangePercent": 0.0,
+    "largestIncrease": 0.0,
+    "smallestChange": 0.0,
+    "increasedCount": 0,
+    "decreasedCount": 0,
+    "unchangedCount": 0
+  }
+}
+
+If oldPrice is not present in the document, set oldPrice to null. Extract every line item you can find. Be thorough.`;
+
+        let messageContent;
+
+        if (fileType === 'pdf') {
+            messageContent = [
+                {
+                    type: 'document',
+                    source: {
+                        type: 'base64',
+                        media_type: 'application/pdf',
+                        data: fileData
+                    }
+                },
+                {
+                    type: 'text',
+                    text: `Extract all pricing data from this document: ${fileName}`
+                }
+            ];
+        } else if (fileType === 'csv' || fileType === 'text') {
+            messageContent = `Extract all pricing data from this file (${fileName}):\n\n${fileContent}`;
+        } else {
+            // Excel or other binary — send as base64 with description
+            messageContent = [
+                {
+                    type: 'document',
+                    source: {
+                        type: 'base64',
+                        media_type: mimeType || 'application/octet-stream',
+                        data: fileData
+                    }
+                },
+                {
+                    type: 'text',
+                    text: `Extract all pricing data from this spreadsheet: ${fileName}`
+                }
+            ];
+        }
+
+        const response = await client.messages.create({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 4000,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: messageContent }]
+        });
+
+        const rawText = response.content[0].text;
+
+        let extracted;
+        try {
+            const clean = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            extracted = JSON.parse(clean);
+        } catch (e) {
+            console.error('Price extract parse error:', e);
+            return res.status(500).json({ error: 'Failed to parse extracted data' });
+        }
+
+        // Compute change percents server-side
+        if (extracted.items) {
+            extracted.items = extracted.items.map(item => {
+                const change = (item.oldPrice != null && item.oldPrice !== 0)
+                    ? ((item.newPrice - item.oldPrice) / item.oldPrice * 100)
+                    : null;
+                return { ...item, changePercent: change !== null ? parseFloat(change.toFixed(2)) : null };
+            });
+        }
+
+        res.json({ data: extracted });
+    } catch (error) {
+        console.error('Price extract error:', error);
+        res.status(500).json({ error: 'Failed to extract pricing data. Please try again.' });
     }
 });
 

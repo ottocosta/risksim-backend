@@ -2196,6 +2196,7 @@
   #auditModule { left: 260px !important; }
   #warRoomModule { left: 260px !important; }
   #simulatorModule { left: 260px !important; }
+  #priceIntelModule { left: 260px !important; }
   #chatPanel { left: 260px !important; }
   #heroPanel { left: 276px !important; }
   #chatMessages { left: calc(130px + 50%) !important; }
@@ -2205,7 +2206,7 @@
   #profileSection { left: 260px; }
   #psReopenBtn { left: auto; right: 80px; }
 
-  /* Mobile hamburger */
+  /* Hamburger — hidden by default, shown via JS when sidebar is collapsed */
   #sbHamburger {
     position: fixed; top: 14px; left: 14px; z-index: 10000;
     background: rgba(13,13,13,0.95); border: 1px solid rgba(255,255,255,0.1);
@@ -2214,6 +2215,13 @@
     color: rgba(255,255,255,0.7); font-size: 16px; transition: all 0.15s;
   }
   #sbHamburger:hover { color: white; border-color: rgba(255,255,255,0.2); }
+
+  /* Hide redundant module topbars — sidebar replaces them */
+  .am-topbar { display: none !important; }
+  .am-left { padding-top: 20px !important; }
+  .am-right { padding-top: 20px !important; }
+  .wm-topbar { display: none !important; }
+  .sim-topbar-brand { display: none !important; }
 
   /* Settings Modal */
   .settings-overlay {
@@ -2295,12 +2303,174 @@
     #auditModule { left: 0 !important; }
     #warRoomModule { left: 0 !important; }
     #simulatorModule { left: 0 !important; }
+    #priceIntelModule { left: 0 !important; }
     #chatPanel { left: 0 !important; }
     #heroPanel { left: 16px !important; }
     #chatMessages { left: 50% !important; }
     #jarvisBorder { left: 0 !important; }
     #pricingOverlay { left: 0; }
     #profileSection { left: 0; }
+  }
+
+  /* ===== SYS_05 PRICE INTELLIGENCE ===== */
+  #priceIntelModule {
+    position: fixed; inset: 0; background: #080808;
+    display: none; flex-direction: column; z-index: 8000;
+  }
+  .pi-header {
+    padding: 20px 28px 0; flex-shrink: 0;
+  }
+  .pi-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.25em;
+    color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .pi-heading {
+    font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: white;
+    letter-spacing: -0.01em; margin-bottom: 4px;
+  }
+  .pi-sub {
+    font-size: 13px; color: rgba(255,255,255,0.35); margin-bottom: 24px;
+  }
+  .pi-body {
+    flex: 1; overflow-y: auto; padding: 0 28px 40px;
+  }
+  .pi-body::-webkit-scrollbar { width: 4px; }
+  .pi-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+  /* Upload zone */
+  .pi-upload-zone {
+    border: 1px dashed rgba(255,255,255,0.14); border-radius: 14px;
+    padding: 52px 24px; text-align: center; cursor: pointer;
+    transition: all 0.2s; background: rgba(255,255,255,0.02);
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .pi-upload-zone:hover, .pi-upload-zone.drag-over {
+    border-color: rgba(255,255,255,0.32); background: rgba(255,255,255,0.04);
+  }
+  .pi-upload-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .pi-upload-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.6); text-transform: uppercase;
+  }
+  .pi-upload-sub {
+    font-size: 12px; color: rgba(255,255,255,0.25);
+  }
+  .pi-browse-btn {
+    padding: 8px 20px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
+    background: transparent; color: rgba(255,255,255,0.65); font-size: 12px;
+    cursor: pointer; transition: all 0.2s; font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px;
+  }
+  .pi-browse-btn:hover { border-color: rgba(255,255,255,0.3); color: white; }
+  #piFileInput { display: none; }
+
+  /* Processing steps */
+  .pi-progress {
+    display: none; padding: 40px 0;
+  }
+  .pi-progress-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 24px; text-align: center;
+  }
+  .pi-step {
+    display: flex; align-items: center; gap: 14px; padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 12px; color: rgba(255,255,255,0.25);
+    font-family: 'JetBrains Mono', monospace; transition: color 0.3s;
+  }
+  .pi-step.active { color: rgba(255,255,255,0.75); }
+  .pi-step.done { color: rgba(255,255,255,0.4); }
+  .pi-step-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.08);
+    flex-shrink: 0; transition: all 0.3s;
+  }
+  .pi-step.active .pi-step-dot { background: white; box-shadow: 0 0 8px rgba(255,255,255,0.5); animation: rsBlink 1s infinite; }
+  .pi-step.done .pi-step-dot { background: rgba(255,255,255,0.3); }
+
+  /* Summary cards */
+  .pi-summary-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px;
+  }
+  .pi-summary-card {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px; padding: 16px;
+  }
+  .pi-card-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.28); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .pi-card-value {
+    font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: white;
+  }
+  .pi-card-sub {
+    font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 3px;
+  }
+  .pi-card-value.up { color: rgba(255,120,80,0.9); }
+  .pi-card-value.down { color: rgba(100,220,140,0.9); }
+
+  /* Table */
+  .pi-table-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; flex-wrap: wrap; gap: 10px;
+  }
+  .pi-table-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.28); text-transform: uppercase;
+  }
+  .pi-filter-input {
+    padding: 7px 12px; background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+    color: white; font-size: 12px; font-family: Inter, sans-serif; outline: none;
+    width: 200px; transition: border-color 0.2s;
+  }
+  .pi-filter-input:focus { border-color: rgba(255,255,255,0.25); }
+  .pi-filter-input::placeholder { color: rgba(255,255,255,0.2); }
+  .pi-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.07); }
+  .pi-table {
+    width: 100%; border-collapse: collapse; font-size: 12px;
+  }
+  .pi-table th {
+    padding: 11px 14px; text-align: left; font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.07); cursor: pointer;
+    white-space: nowrap; user-select: none;
+  }
+  .pi-table th:hover { color: rgba(255,255,255,0.55); }
+  .pi-table td {
+    padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.7); white-space: nowrap; vertical-align: middle;
+  }
+  .pi-table tr:last-child td { border-bottom: none; }
+  .pi-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .pi-status-up { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 9px; font-family: 'JetBrains Mono', monospace; font-weight: 700; background: rgba(255,100,80,0.1); border: 1px solid rgba(255,100,80,0.25); color: rgba(255,120,80,0.9); }
+  .pi-status-down { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 9px; font-family: 'JetBrains Mono', monospace; font-weight: 700; background: rgba(100,220,140,0.1); border: 1px solid rgba(100,220,140,0.25); color: rgba(100,220,140,0.9); }
+  .pi-status-flat { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 9px; font-family: 'JetBrains Mono', monospace; font-weight: 700; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
+
+  /* Action bar */
+  .pi-action-bar {
+    display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;
+  }
+  .pi-action-btn {
+    padding: 9px 18px; border-radius: 9px; font-size: 12px; cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.7); font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em; text-transform: uppercase; transition: all 0.2s;
+  }
+  .pi-action-btn:hover { border-color: rgba(255,255,255,0.25); color: white; background: rgba(255,255,255,0.08); }
+  .pi-action-btn.primary { background: white; color: black; border-color: white; }
+  .pi-action-btn.primary:hover { background: rgba(255,255,255,0.88); }
+
+  /* Error */
+  .pi-error {
+    display: none; padding: 16px 20px; border-radius: 10px; margin-top: 16px;
+    background: rgba(255,80,80,0.06); border: 1px solid rgba(255,80,80,0.2);
+    color: rgba(255,120,100,0.9); font-size: 12px; font-family: 'JetBrains Mono', monospace;
   }
 
   </style>
@@ -2523,25 +2693,25 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <span class="sb-logo">RISKSIM</span>
       <span class="sb-logo-badge">AI</span>
     </div>
-    <button class="sb-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">☰</button>
+    <button class="sb-collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">&#x2715;</button>
   </div>
 
   <!-- Nav Modules -->
   <div class="sb-section-label">Modules</div>
   <div class="sb-nav-item active" id="sbnav-map" onclick="sbSwitchModule('map')">
-    <span class="sb-nav-icon">◉</span><span>Map</span><span class="sb-nav-code">SYS_01</span>
+    <span>Map</span><span class="sb-nav-code">SYS_01</span>
   </div>
   <div class="sb-nav-item" id="sbnav-audit" onclick="sbSwitchModule('audit')">
-    <span class="sb-nav-icon">◎</span><span>Audit</span><span class="sb-nav-code">SYS_02</span>
+    <span>Audit</span><span class="sb-nav-code">SYS_02</span>
   </div>
   <div class="sb-nav-item" id="sbnav-warroom" onclick="sbSwitchModule('warroom')">
-    <span class="sb-nav-icon">▣</span><span>Terminal</span><span class="sb-nav-code">SYS_03</span>
+    <span>Terminal</span><span class="sb-nav-code">SYS_03</span>
   </div>
   <div class="sb-nav-item" id="sbnav-simulator" onclick="sbSwitchModule('simulator')">
-    <span class="sb-nav-icon">◈</span><span>Simulator</span><span class="sb-nav-code">SYS_04</span>
+    <span>Simulator</span><span class="sb-nav-code">SYS_04</span>
   </div>
-  <div class="sb-nav-item" id="sbnav-priceintel" onclick="sbShowComingSoon()">
-    <span class="sb-nav-icon">◆</span><span>Price Intel</span><span class="sb-nav-code">SYS_05</span>
+  <div class="sb-nav-item" id="sbnav-priceintel" onclick="sbSwitchModule('priceintel')">
+    <span>Price Intel</span><span class="sb-nav-code">SYS_05</span>
   </div>
 
   <!-- Chat History -->
@@ -2553,8 +2723,65 @@ window.addEventListener('keydown',__handleIntroKey,true);
 
   <!-- Settings -->
   <div class="sb-settings" onclick="openSettings()">
-    <span style="font-size:15px">⚙</span>
     <span>Settings</span>
+  </div>
+</div>
+
+<!-- ===== SYS_05 PRICE INTELLIGENCE MODULE ===== -->
+<div id="priceIntelModule">
+  <div class="pi-header">
+    <div class="pi-title">SYS_05</div>
+    <div class="pi-heading">Price Intelligence</div>
+    <div class="pi-sub">Upload a supplier price list to extract and analyze pricing changes.</div>
+  </div>
+  <div class="pi-body" id="piBody">
+    <!-- Upload state -->
+    <div id="piUploadState">
+      <div class="pi-upload-zone" id="piDropZone"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="piHandleDrop(event)">
+        <div class="pi-upload-icon">+</div>
+        <div class="pi-upload-label">Drop your price list here</div>
+        <div class="pi-upload-sub">PDF, Excel (.xlsx / .xls) or CSV — max 10 MB</div>
+        <button class="pi-browse-btn" onclick="document.getElementById('piFileInput').click()">Browse File</button>
+      </div>
+      <input type="file" id="piFileInput" accept=".pdf,.xlsx,.xls,.csv" onchange="piHandleFile(this.files[0])">
+      <div class="pi-error" id="piError"></div>
+    </div>
+    <!-- Processing state -->
+    <div class="pi-progress" id="piProgress">
+      <div class="pi-progress-title">Extracting Pricing Data</div>
+      <div id="piSteps"></div>
+    </div>
+    <!-- Results state -->
+    <div id="piResults" style="display:none">
+      <div class="pi-summary-grid" id="piSummaryGrid"></div>
+      <div class="pi-table-header">
+        <div class="pi-table-title" id="piTableTitle">Extracted Items</div>
+        <input type="text" class="pi-filter-input" placeholder="Filter items..." oninput="piFilterTable(this.value)" id="piFilterInput">
+      </div>
+      <div class="pi-table-wrap">
+        <table class="pi-table" id="piTable">
+          <thead>
+            <tr>
+              <th onclick="piSortTable('partNumber')">Part #</th>
+              <th onclick="piSortTable('description')">Description</th>
+              <th onclick="piSortTable('oldPrice')">Old Price</th>
+              <th onclick="piSortTable('newPrice')">New Price</th>
+              <th onclick="piSortTable('changePercent')">Change %</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="piTableBody"></tbody>
+        </table>
+      </div>
+      <div class="pi-action-bar">
+        <button class="pi-action-btn primary" onclick="piDownloadCSV()">Download CSV</button>
+        <button class="pi-action-btn" onclick="piCopyClipboard()">Copy to Clipboard</button>
+        <button class="pi-action-btn" onclick="piReset()">New Upload</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -4064,9 +4291,11 @@ function switchModule(name){
   mapEls.forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   overlays.forEach(function(el){el.style.display='none';});
   var sim=document.getElementById('simulatorModule');
+  var pi=document.getElementById('priceIntelModule');
   if(wr)wr.style.display='none';
   if(am)am.style.display='none';
   if(sim)sim.style.display='none';
+  if(pi)pi.style.display='none';
   if(oldNav)oldNav.style.display='none';
   for(var i=0;i<navBtns.length;i++)navBtns[i].classList.remove('active');
 
@@ -4075,7 +4304,7 @@ function switchModule(name){
   // Close fullscreen chat on module switch
   if(typeof closeChatFullscreen==='function')closeChatFullscreen();
   var va=document.getElementById('voiceAssistant');
-  if(va)va.style.display=(name==='audit')?'none':'';
+  if(va)va.style.display=(name==='audit'||name==='priceintel')?'none':'';
   if(name==='map'){
     mapEls.forEach(function(id){var el=document.getElementById(id);if(!el)return;if(id==='chatPanel'||id==='chatMessages')el.style.display='flex';else if(id==='psReopenBtn')el.style.display='flex';else el.style.display='';});
     overlays.forEach(function(el){el.style.display='';});
@@ -4105,6 +4334,8 @@ function switchModule(name){
       if(typeof initSimulatorData==='function')initSimulatorData();
     }
     if(navBtns[3])navBtns[3].classList.add('active');
+  }else if(name==='priceintel'){
+    if(pi){pi.style.display='flex';pi.style.flexDirection='column';}
   }
 }
 
@@ -5092,11 +5323,14 @@ function updateSidebarActive(name){
 
 function toggleSidebar(){
   var sb=document.getElementById('rsSidebar');
+  var hb=document.getElementById('sbHamburger');
   if(!sb)return;
   if(window.innerWidth<=768){
     sb.classList.toggle('open');
+    if(hb)hb.style.display=sb.classList.contains('open')?'none':'flex';
   }else{
     sb.classList.toggle('collapsed');
+    if(hb)hb.style.display=sb.classList.contains('collapsed')?'flex':'none';
   }
 }
 
@@ -5164,8 +5398,8 @@ function renderChatHistory(){
   }
   var h='';
   history.forEach(function(item){
-    var badge=item.type==='chat'?'Chat':(item.type==='audit'?'Audit':'Sim');
-    var bc=item.type==='chat'?'rgba(255,255,255,0.12)':(item.type==='audit'?'rgba(100,180,255,0.14)':'rgba(255,200,100,0.14)');
+    var badge=item.type==='chat'?'Chat':(item.type==='audit'?'Audit':(item.type==='price'?'Price':'Sim'));
+    var bc=item.type==='chat'?'rgba(255,255,255,0.12)':(item.type==='audit'?'rgba(100,180,255,0.14)':(item.type==='price'?'rgba(180,255,180,0.12)':'rgba(255,200,100,0.14)'));
     var timeStr=formatTimeAgo(item.timestamp);
     h+='<div class="sb-history-item" onclick="openHistoryItem(\''+item.id+'\')" data-id="'+item.id+'">';
     h+='<div class="sb-history-title">'+(item.title||'Untitled')+'</div>';
@@ -5200,6 +5434,12 @@ function openHistoryItem(id){
   }else if(item.type==='simulation'){
     switchModule('simulator');
     updateSidebarActive('simulator');
+  }else if(item.type==='price'){
+    switchModule('priceintel');
+    updateSidebarActive('priceintel');
+    if(item.data&&item.data.result&&typeof piRenderResults==='function'){
+      setTimeout(function(){piRenderResults(item.data.result);},100);
+    }
   }
   // On mobile close sidebar
   if(window.innerWidth<=768){
@@ -5300,27 +5540,95 @@ function saveSettingsProfile(){
   if(btn){btn.textContent='Saved ✓';setTimeout(function(){btn.textContent='Save Changes';},1800);}
 }
 
+var _billingAnnual=false;
 function buildSettingsBilling(){
   var plans=[
-    {name:'Free',price:'$0/mo',features:['Map view','Basic alerts'],current:true},
-    {name:'Pro',price:'$49/mo',features:['Audit module','Terminal','Simulator'],link:'mailto:risksim.ai@gmail.com?subject=Pro%20Plan%20Inquiry'},
-    {name:'Enterprise',price:'$149/mo',features:['All modules','Custom integrations','Priority support'],link:'mailto:risksim.ai@gmail.com?subject=Enterprise%20Plan%20Inquiry'}
-  ];
-  var h='<span class="settings-section-title">Current Plan</span>';
-  plans.forEach(function(p){
-    h+='<div class="settings-plan-card">';
-    h+='<div style="display:flex;align-items:center;justify-content:space-between">';
-    h+='<div><div class="settings-plan-name">'+p.name+'</div><div class="settings-plan-price">'+p.price+'</div></div>';
-    if(p.current){
-      h+='<span class="settings-plan-btn current">Current Plan</span>';
-    }else{
-      h+='<button class="settings-plan-btn" onclick="window.open(\''+p.link+'\',\'_blank\')">Upgrade</button>';
+    {
+      id:'pro',name:'Pro',
+      monthlyPrice:249,annualPrice:207,
+      monthlyFounder:174,annualFounder:145,
+      link:'mailto:risksim.ai@gmail.com?subject=Pro%20Plan%20Inquiry',
+      features:[
+        {label:'Full supplier audit module',yes:true},
+        {label:'Scenario simulator',yes:true},
+        {label:'AI chat (Jarvis)',yes:true},
+        {label:'Real-time alerts',yes:true},
+        {label:'Price Intelligence',yes:true},
+        {label:'Custom integrations',yes:false},
+        {label:'Priority support',yes:false},
+        {label:'API access',yes:false}
+      ]
+    },
+    {
+      id:'enterprise',name:'Enterprise',
+      monthlyPrice:799,annualPrice:666,
+      monthlyFounder:559,annualFounder:466,
+      link:'mailto:risksim.ai@gmail.com?subject=Enterprise%20Plan%20Inquiry',
+      features:[
+        {label:'Everything in Pro',yes:true},
+        {label:'Custom integrations',yes:true},
+        {label:'Priority support',yes:true},
+        {label:'API access',yes:true},
+        {label:'5 team seats',yes:true},
+        {label:'Dedicated account manager',yes:false},
+        {label:'Custom workflows',yes:false},
+        {label:'SLA guarantee',yes:false}
+      ]
+    },
+    {
+      id:'custom',name:'Custom',
+      monthlyPrice:1299,annualPrice:1082,
+      monthlyFounder:909,annualFounder:758,
+      link:'mailto:risksim.ai@gmail.com?subject=Custom%20Plan%20Inquiry',
+      features:[
+        {label:'Everything in Enterprise',yes:true},
+        {label:'Dedicated account manager',yes:true},
+        {label:'Custom workflows',yes:true},
+        {label:'Unlimited team seats',yes:true},
+        {label:'SLA guarantee',yes:true},
+        {label:'On-premise deployment option',yes:true},
+        {label:'Custom AI model fine-tuning',yes:true},
+        {label:'White-label available',yes:true}
+      ]
     }
+  ];
+  var isAnnual=_billingAnnual;
+  var h='';
+  // Founder banner
+  h+='<div style="background:rgba(100,220,140,0.08);border:1px solid rgba(100,220,140,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:rgba(120,230,160,0.9);font-family:\'JetBrains Mono\',monospace;letter-spacing:0.06em;">';
+  h+='First 15 founders get 30% off — forever</div>';
+  // Toggle
+  h+='<div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:4px;margin-bottom:16px;width:fit-content;">';
+  h+='<button onclick="_billingAnnual=false;renderSettingsTab(\'billing\')" style="padding:6px 16px;border-radius:6px;border:none;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.1em;cursor:pointer;transition:all 0.15s;background:'+(isAnnual?'transparent':'rgba(255,255,255,0.1)')+';color:'+(isAnnual?'rgba(255,255,255,0.35)':'white')+';">Monthly</button>';
+  h+='<button onclick="_billingAnnual=true;renderSettingsTab(\'billing\')" style="padding:6px 16px;border-radius:6px;border:none;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.1em;cursor:pointer;transition:all 0.15s;background:'+(isAnnual?'rgba(255,255,255,0.1)':'transparent')+';color:'+(isAnnual?'white':'rgba(255,255,255,0.35)')+';">Annual <span style="color:rgba(120,230,160,0.8);font-size:9px;">Save 17%</span></button>';
+  h+='</div>';
+  // Plan cards
+  plans.forEach(function(p){
+    var price=isAnnual?p.annualPrice:p.monthlyPrice;
+    var origPrice=isAnnual?p.monthlyPrice:null;
+    var founderPrice=isAnnual?p.annualFounder:p.monthlyFounder;
+    h+='<div class="settings-plan-card" style="margin-bottom:12px;">';
+    h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">';
+    h+='<div>';
+    h+='<div class="settings-plan-name">'+p.name+'</div>';
+    h+='<div style="margin-top:4px;">';
+    if(origPrice){h+='<span style="font-size:11px;color:rgba(255,255,255,0.25);text-decoration:line-through;margin-right:6px;">$'+origPrice+'/mo</span>';}
+    h+='<span style="font-size:20px;font-weight:800;color:white;font-family:\'Syne\',sans-serif;">$'+price+'</span><span style="font-size:11px;color:rgba(255,255,255,0.35);"> /mo</span>';
     h+='</div>';
-    h+='<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px">'+p.features.join(' · ')+'</div>';
+    h+='<div style="font-size:10px;color:rgba(120,230,160,0.7);margin-top:3px;font-family:\'JetBrains Mono\',monospace;">$'+founderPrice+'/mo with founder pricing</div>';
+    if(isAnnual){h+='<div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:2px;">Billed $'+(price*12)+'/year</div>';}
+    h+='</div>';
+    h+='<button class="settings-plan-btn" onclick="window.open(\''+p.link+'\',\'_blank\')">Upgrade</button>';
+    h+='</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">';
+    p.features.forEach(function(f){
+      h+='<div style="font-size:11px;color:'+(f.yes?'rgba(255,255,255,0.55)':'rgba(255,255,255,0.2)')+';">';
+      h+='<span style="color:'+(f.yes?'rgba(120,230,160,0.8)':'rgba(255,255,255,0.18)')+';margin-right:5px;">'+(f.yes?'&#10003;':'&#215;')+'</span>';
+      h+=f.label+'</div>';
+    });
+    h+='</div>';
     h+='</div>';
   });
-  h+='<div class="settings-billing-placeholder">No billing history yet</div>';
   return h;
 }
 
@@ -5357,6 +5665,236 @@ window.addEventListener('load',function(){
     if(e.key==='Escape')closeSettings();
   });
 });
+</script>
+
+<!-- ===== SYS_05 PRICE INTELLIGENCE JS ===== -->
+<script>
+var _piAllItems=[];
+var _piSortCol='changePercent';
+var _piSortDir=-1;
+var _piCurrentData=null;
+
+var PI_STEPS=[
+  'Reading file structure...',
+  'Identifying pricing columns...',
+  'Extracting line items...',
+  'Computing price changes...',
+  'Building summary report...'
+];
+
+function piHandleDrop(e){
+  e.preventDefault();
+  document.getElementById('piDropZone').classList.remove('drag-over');
+  var f=e.dataTransfer.files[0];
+  if(f)piHandleFile(f);
+}
+
+function piHandleFile(file){
+  if(!file)return;
+  var maxMB=10;
+  if(file.size>maxMB*1024*1024){
+    piShowError('File too large. Maximum size is '+maxMB+' MB.');
+    return;
+  }
+  var ext=file.name.split('.').pop().toLowerCase();
+  var allowed=['pdf','xlsx','xls','csv'];
+  if(!allowed.includes(ext)){
+    piShowError('Unsupported file type. Please upload PDF, Excel, or CSV.');
+    return;
+  }
+  piShowError('');
+  piShowProgress();
+  var reader=new FileReader();
+  if(ext==='csv'){
+    reader.onload=function(ev){
+      piSendToAPI({fileType:'csv',fileName:file.name,fileContent:ev.target.result});
+    };
+    reader.readAsText(file);
+  }else{
+    reader.onload=function(ev){
+      var b64=ev.target.result.split(',')[1];
+      var mimeMap={pdf:'application/pdf',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',xls:'application/vnd.ms-excel'};
+      piSendToAPI({fileType:ext==='pdf'?'pdf':'excel',fileName:file.name,fileData:b64,mimeType:mimeMap[ext]||'application/octet-stream'});
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function piShowProgress(){
+  document.getElementById('piUploadState').style.display='none';
+  var prog=document.getElementById('piProgress');
+  prog.style.display='block';
+  document.getElementById('piResults').style.display='none';
+  var stepsEl=document.getElementById('piSteps');
+  stepsEl.innerHTML=PI_STEPS.map(function(s,i){
+    return'<div class="pi-step" id="pistep-'+i+'"><div class="pi-step-dot"></div><span>'+s+'</span></div>';
+  }).join('');
+  var delay=0;
+  for(var i=0;i<PI_STEPS.length;i++){
+    (function(idx){
+      setTimeout(function(){
+        if(idx>0){var p=document.getElementById('pistep-'+(idx-1));if(p){p.classList.remove('active');p.classList.add('done');}}
+        var el=document.getElementById('pistep-'+idx);if(el)el.classList.add('active');
+      },delay);
+    })(i);
+    delay+=800+Math.floor(Math.random()*400);
+  }
+}
+
+function piSendToAPI(payload){
+  fetch('/api/price-extract',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  })
+  .then(function(r){return r.json();})
+  .then(function(resp){
+    document.getElementById('piProgress').style.display='none';
+    if(resp.error){piShowUpload();piShowError(resp.error);return;}
+    _piCurrentData=resp.data;
+    piRenderResults(resp.data);
+    if(typeof saveToHistory==='function'){
+      saveToHistory({id:'price_'+Date.now(),type:'price',title:'Price: '+(payload.fileName||'Upload'),timestamp:new Date().toISOString(),data:{result:resp.data}});
+    }
+  })
+  .catch(function(){
+    document.getElementById('piProgress').style.display='none';
+    piShowUpload();
+    piShowError('Could not reach the server. Please try again.');
+  });
+}
+
+function piRenderResults(data){
+  _piCurrentData=data;
+  var items=data.items||[];
+  _piAllItems=items;
+  // Summary cards
+  var sum=data.summary||{};
+  var totalItems=sum.totalItems||items.length;
+  var avgChange=(sum.avgChangePercent!=null?sum.avgChangePercent:0).toFixed(1);
+  var largest=(sum.largestIncrease!=null?sum.largestIncrease:0).toFixed(1);
+  var smallest=(sum.smallestChange!=null?Math.abs(sum.smallestChange):0).toFixed(1);
+  var grid=document.getElementById('piSummaryGrid');
+  grid.innerHTML=[
+    {label:'Items Extracted',value:totalItems,sub:data.manufacturer||'',valClass:''},
+    {label:'Avg Price Change',value:(avgChange>0?'+':'')+avgChange+'%',sub:'across all items',valClass:avgChange>0?'up':(avgChange<0?'down':'')},
+    {label:'Largest Increase',value:'+'+largest+'%',sub:'single item',valClass:'up'},
+    {label:'Smallest Change',value:smallest+'%',sub:'closest to unchanged',valClass:''}
+  ].map(function(c){
+    return'<div class="pi-summary-card">'+
+      '<div class="pi-card-label">'+c.label+'</div>'+
+      '<div class="pi-card-value '+c.valClass+'">'+c.value+'</div>'+
+      '<div class="pi-card-sub">'+c.sub+'</div>'+
+    '</div>';
+  }).join('');
+  // Table title
+  var tbl=document.getElementById('piTableTitle');
+  if(tbl)tbl.textContent=totalItems+' Items'+(data.effectiveDate?' — Effective '+data.effectiveDate:'')+(data.currency?' ('+data.currency+')':'');
+  // Render table
+  piRenderTable(items);
+  document.getElementById('piUploadState').style.display='none';
+  document.getElementById('piProgress').style.display='none';
+  document.getElementById('piResults').style.display='block';
+}
+
+function piRenderTable(items){
+  var sorted=items.slice().sort(function(a,b){
+    var av=a[_piSortCol],bv=b[_piSortCol];
+    if(av==null)av=_piSortDir>0?Infinity:-Infinity;
+    if(bv==null)bv=_piSortDir>0?Infinity:-Infinity;
+    return _piSortDir*(av>bv?1:av<bv?-1:0);
+  });
+  var tbody=document.getElementById('piTableBody');
+  if(!tbody)return;
+  tbody.innerHTML=sorted.map(function(item){
+    var chg=item.changePercent;
+    var chgStr=chg!=null?(chg>0?'+':'')+chg.toFixed(1)+'%':'—';
+    var status=chg==null?'<span class="pi-status-flat">Unknown</span>':(chg>0.05?'<span class="pi-status-up">Up</span>':(chg<-0.05?'<span class="pi-status-down">Down</span>':'<span class="pi-status-flat">Flat</span>'));
+    var oldP=item.oldPrice!=null?'$'+parseFloat(item.oldPrice).toFixed(2):'—';
+    var newP=item.newPrice!=null?'$'+parseFloat(item.newPrice).toFixed(2):'—';
+    return'<tr>'+
+      '<td style="font-family:\'JetBrains Mono\',monospace;font-size:11px;">'+escHtml(item.partNumber||'—')+'</td>'+
+      '<td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;color:rgba(255,255,255,0.8)">'+escHtml(item.description||'—')+'</td>'+
+      '<td>'+oldP+'</td>'+
+      '<td style="font-weight:600;color:white;">'+newP+'</td>'+
+      '<td style="font-family:\'JetBrains Mono\',monospace;color:'+(chg!=null&&chg>0?'rgba(255,120,80,0.9)':(chg!=null&&chg<0?'rgba(100,220,140,0.9)':'rgba(255,255,255,0.4)'))+';font-weight:700;">'+chgStr+'</td>'+
+      '<td>'+status+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function piSortTable(col){
+  if(_piSortCol===col)_piSortDir*=-1;
+  else{_piSortCol=col;_piSortDir=-1;}
+  var filtered=_piCurrentFilter?_piAllItems.filter(function(i){
+    var q=_piCurrentFilter.toLowerCase();
+    return(i.partNumber||'').toLowerCase().includes(q)||(i.description||'').toLowerCase().includes(q);
+  }):_piAllItems;
+  piRenderTable(filtered);
+}
+
+var _piCurrentFilter='';
+function piFilterTable(q){
+  _piCurrentFilter=q;
+  var filtered=q?_piAllItems.filter(function(i){
+    var lq=q.toLowerCase();
+    return(i.partNumber||'').toLowerCase().includes(lq)||(i.description||'').toLowerCase().includes(lq);
+  }):_piAllItems;
+  piRenderTable(filtered);
+}
+
+function piDownloadCSV(){
+  if(!_piAllItems.length)return;
+  var rows=[['Part #','Description','Old Price','New Price','Change %','Status']];
+  _piAllItems.forEach(function(i){
+    var chg=i.changePercent;
+    var status=chg==null?'Unknown':(chg>0.05?'Up':(chg<-0.05?'Down':'Flat'));
+    rows.push([i.partNumber||'',i.description||'',i.oldPrice!=null?i.oldPrice:'',i.newPrice!=null?i.newPrice:'',chg!=null?chg.toFixed(2)+'%':'',status]);
+  });
+  var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob([csv],{type:'text/csv'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='price-extract-'+Date.now()+'.csv';
+  a.click();
+}
+
+function piCopyClipboard(){
+  if(!_piAllItems.length)return;
+  var lines=_piAllItems.map(function(i){
+    return[i.partNumber||'',i.description||'',i.oldPrice!=null?'$'+i.oldPrice:'',i.newPrice!=null?'$'+i.newPrice:'',(i.changePercent!=null?i.changePercent.toFixed(2)+'%':'')].join('\t');
+  });
+  var text='Part #\tDescription\tOld Price\tNew Price\tChange %\n'+lines.join('\n');
+  navigator.clipboard.writeText(text).then(function(){
+    var btn=document.querySelector('.pi-action-btn:not(.primary)');
+    if(btn){var old=btn.textContent;btn.textContent='Copied!';setTimeout(function(){btn.textContent=old;},1800);}
+  });
+}
+
+function piShowUpload(){
+  document.getElementById('piUploadState').style.display='block';
+  document.getElementById('piProgress').style.display='none';
+  document.getElementById('piResults').style.display='none';
+}
+
+function piReset(){
+  _piAllItems=[];_piCurrentData=null;_piCurrentFilter='';
+  document.getElementById('piFilterInput').value='';
+  document.getElementById('piFileInput').value='';
+  piShowUpload();
+  piShowError('');
+}
+
+function piShowError(msg){
+  var el=document.getElementById('piError');
+  if(!el)return;
+  if(msg){el.textContent=msg;el.style.display='block';}
+  else{el.style.display='none';}
+}
 </script>
 
 <!-- ===== SIMULATOR MODULE JS ===== -->
