@@ -2192,7 +2192,7 @@
   }
   .sb-settings:hover { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.8); }
 
- /* Layout shift for sidebar */
+  /* Layout shift for sidebar — all fixed modules */
   #auditModule { left: 260px !important; transition: left 0.3s ease; }
   #warRoomModule { left: 260px !important; transition: left 0.3s ease; }
   #simulatorModule { left: 260px !important; transition: left 0.3s ease; }
@@ -2206,6 +2206,7 @@
   #profileSection { left: 260px; transition: left 0.3s ease; }
   #psReopenBtn { left: auto; right: 80px; }
 
+  /* When sidebar is collapsed — shift all content to full width */
   body.sidebar-collapsed #auditModule { left: 0 !important; }
   body.sidebar-collapsed #warRoomModule { left: 0 !important; }
   body.sidebar-collapsed #simulatorModule { left: 0 !important; }
@@ -2214,17 +2215,22 @@
   body.sidebar-collapsed #heroPanel { left: 16px !important; }
   body.sidebar-collapsed #chatMessages { left: 50% !important; }
   body.sidebar-collapsed #jarvisBorder { left: 0 !important; }
-  body.
+  body.sidebar-collapsed #pricingOverlay { left: 0; }
+  body.sidebar-collapsed #profileSection { left: 0; }
 
-  /* Hamburger — hidden by default, shown via JS when sidebar is collapsed */
+  /* Hamburger — hidden by default, shown via JS when sidebar is collapsed; z-index above all modules */
   #sbHamburger {
-    position: fixed; top: 14px; left: 14px; z-index: 10000;
+    position: fixed; top: 14px; left: 14px; z-index: 100002;
     background: rgba(13,13,13,0.95); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px; width: 36px; height: 36px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+    display: none; align-items: center; justify-content: center;
     color: rgba(255,255,255,0.7); font-size: 16px; transition: all 0.15s;
   }
   #sbHamburger:hover { color: white; border-color: rgba(255,255,255,0.2); }
+
+  /* Remove jarvis blue/teal border completely */
+  #jarvisBorder { border: none !important; box-shadow: none !important; }
+  #jarvisBorder.jarvis-active { opacity: 0 !important; }
 
   /* Hide redundant module topbars — sidebar replaces them */
   .am-topbar { display: none !important; }
@@ -2232,6 +2238,11 @@
   .am-right { padding-top: 20px !important; }
   .wm-topbar { display: none !important; }
   .sim-topbar-brand { display: none !important; }
+
+  /* Simulator — hide left scenario column; use History dropdown instead */
+  .sim-sidebar { display: none !important; }
+  .sim-body { padding-top: 0 !important; }
+  .sim-topbar { position: relative !important; }
 
   /* Settings Modal */
   .settings-overlay {
@@ -3067,7 +3078,14 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <div class="sim-topbar">
       <div class="sim-topbar-brand"><span>RiskSim</span> / Scenario Simulator</div>
       <div class="sim-topbar-right">
-        <button class="sim-compare-toggle" id="simCompareToggle" onclick="toggleSimCompare()">⊞ Compare Mode</button>
+        <div style="position:relative;display:inline-block;">
+          <button class="sim-compare-toggle" id="simHistoryBtn" onclick="toggleSimHistory()">History</button>
+          <div id="simHistoryDropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:280px;background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:10px;z-index:9999;max-height:340px;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.7);">
+            <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.18em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Past Scenarios</div>
+            <div id="simHistoryList"></div>
+          </div>
+        </div>
+        <button class="sim-compare-toggle" id="simCompareToggle" onclick="toggleSimCompare()">Compare Mode</button>
         <div class="sim-topbar-status">
           <div id="simStatusDot"></div>
           <span id="simStatusText">Ready</span>
@@ -5337,11 +5355,14 @@ function toggleSidebar(){
   if(!sb)return;
   if(window.innerWidth<=768){
     sb.classList.toggle('open');
-    if(hb)hb.style.display=sb.classList.contains('open')?'none':'flex';
+    var isOpen=sb.classList.contains('open');
+    if(hb)hb.style.display=isOpen?'none':'flex';
+    document.body.classList.toggle('sidebar-collapsed',!isOpen);
   }else{
     sb.classList.toggle('collapsed');
-    if(hb)hb.style.display=sb.classList.contains('collapsed')?'flex':'none';
-    document.body.classList.toggle('sidebar-collapsed');
+    var isCollapsed=sb.classList.contains('collapsed');
+    if(hb)hb.style.display=isCollapsed?'flex':'none';
+    document.body.classList.toggle('sidebar-collapsed',isCollapsed);
   }
 }
 
@@ -5926,6 +5947,7 @@ function bypassSimulatorPaywall(){
 
 function initSimulatorData(){
   loadSimScenarios();
+  renderSimHistoryDropdown();
   renderSimTrending();
 }
 
@@ -5945,6 +5967,8 @@ function saveSimScenario(question,results){
   scenarios.unshift({id:id,question:question,createdAt:Date.now(),delta:delta,results:results});
   if(scenarios.length>20)scenarios=scenarios.slice(0,20);
   saveSimScenariosList(scenarios);
+  loadSimScenarios();
+  if(typeof renderSimHistoryDropdown==='function')renderSimHistoryDropdown();
   return id;
 }
 
@@ -5965,7 +5989,57 @@ function loadSimScenarios(){
 function loadSimScenario(id){
   var sc=getSimScenarios().find(function(s){return s.id===id;});if(!sc)return;
   simCurrentScenarioId=id;loadSimScenarios();
+  renderSimHistoryDropdown();
+  closeSimHistory();
   showSimAnalysisView(sc.question,sc.results,false);
+}
+
+function toggleSimHistory(){
+  var dd=document.getElementById('simHistoryDropdown');
+  if(!dd)return;
+  var isOpen=dd.style.display!=='none';
+  if(isOpen){closeSimHistory();}
+  else{
+    renderSimHistoryDropdown();
+    dd.style.display='block';
+    setTimeout(function(){document.addEventListener('click',closeSimHistoryOutside,{once:true,capture:true});},10);
+  }
+}
+
+function closeSimHistory(){
+  var dd=document.getElementById('simHistoryDropdown');
+  if(dd)dd.style.display='none';
+}
+
+function closeSimHistoryOutside(e){
+  var btn=document.getElementById('simHistoryBtn');
+  var dd=document.getElementById('simHistoryDropdown');
+  if(dd&&btn&&!dd.contains(e.target)&&!btn.contains(e.target)){closeSimHistory();}
+  else if(dd&&dd.style.display!=='none'){
+    document.addEventListener('click',closeSimHistoryOutside,{once:true,capture:true});
+  }
+}
+
+function renderSimHistoryDropdown(){
+  var list=document.getElementById('simHistoryList');if(!list)return;
+  var scenarios=getSimScenarios();
+  if(!scenarios.length){
+    list.innerHTML='<div style="padding:14px 16px;font-size:12px;color:rgba(255,255,255,0.3);">No scenarios yet</div>';
+    return;
+  }
+  list.innerHTML=scenarios.map(function(s){
+    var dSign=s.delta>=0?'+':'';
+    var dColor=s.delta>=0?'rgba(255,100,80,0.8)':'rgba(100,220,140,0.8)';
+    var date=new Date(s.createdAt);
+    var ds=date.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    var q=s.question.length>58?s.question.slice(0,58)+'...':s.question;
+    return'<div onclick="loadSimScenario(\''+s.id+'\')" style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.04)\'" onmouseout="this.style.background=\'\'">'
+      +'<div style="font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:4px;line-height:1.45;">'+q+'</div>'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;font-family:\'JetBrains Mono\',monospace;font-size:9px;color:rgba(255,255,255,0.25);">'
+      +'<span>'+ds+'</span>'
+      +'<span style="color:'+dColor+'">'+dSign+s.delta+' risk pts</span>'
+      +'</div></div>';
+  }).join('');
 }
 
 function showSimEmpty(){
