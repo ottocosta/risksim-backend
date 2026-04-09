@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const Anthropic = require('@anthropic-ai/sdk').default || require('@anthropic-ai/sdk');
+const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -431,6 +432,178 @@ If oldPrice is not present in the document, set oldPrice to null. Extract every 
     } catch (error) {
         console.error('Price extract error:', error);
         res.status(500).json({ error: 'Failed to extract pricing data. Please try again.' });
+    }
+});
+
+// ============================================================
+// SYS_06 COST ENGINE — Exchange Rates + Landed Cost Calculator
+// ============================================================
+
+const FX_FALLBACK = {
+    USD:1, EUR:0.92, GBP:0.79, CNY:7.24, JPY:149.5, KRW:1380, INR:84.5,
+    VND:25400, THB:34.8, MXN:17.2, BRL:5.15, TWD:32.5, BDT:121, TRY:36.5,
+    CAD:1.37, AUD:1.55, CHF:0.88, SGD:1.35, MYR:4.72, IDR:15800,
+    PHP:56.5, PKR:278, CZK:23.5, ZAR:18.2, CLP:950, ILS:3.65,
+    PLN:4.05, SEK:10.5, NOK:10.8, DKK:6.88, HKD:7.82, NZD:1.68
+};
+
+app.get('/api/exchange-rates', async (req, res) => {
+    try {
+        const response = await axios.get('https://api.exchangerate-api.com/v4/latest/USD', { timeout: 4000 });
+        res.json({ rates: response.data.rates, base: 'USD', updated: response.data.date });
+    } catch (error) {
+        res.json({ rates: FX_FALLBACK, base: 'USD', updated: new Date().toISOString().split('T')[0], fallback: true });
+    }
+});
+
+app.post('/api/landed-cost', async (req, res) => {
+    try {
+        const {
+            productName, unitPrice, unitCurrency, quantity,
+            weightPerUnit, weightUnit, hsCode, productCategory,
+            containerType, shippingMode, incoterms,
+            destinationCountry, originCountries,
+            insuranceRate, brokerFee, hmfRate, mpfRate,
+            inlandTransport, resultCurrency
+        } = req.body;
+
+        if (!unitPrice || !originCountries || originCountries.length === 0) {
+            return res.status(400).json({ error: 'Unit price and at least one origin country required' });
+        }
+
+        let rates = FX_FALLBACK;
+        try {
+            const fxRes = await axios.get('https://api.exchangerate-api.com/v4/latest/USD', { timeout: 3000 });
+            rates = fxRes.data.rates;
+        } catch (e) { /* use fallback */ }
+
+        const SHIPPING_RATES = {
+            sea:  { Asia:0.15, Europe:0.18, Americas:0.12, Africa:0.22, default:0.17 },
+            air:  { Asia:3.50, Europe:3.80, Americas:2.80, Africa:4.50, default:3.50 },
+            rail: { Asia:0.45, Europe:0.55, Americas:0.40, Africa:null,  default:0.50 },
+            road: { Asia:0.35, Europe:0.30, Americas:0.25, Africa:0.45, default:0.35 }
+        };
+        const TRANSIT = {
+            sea:  { Asia:28, Europe:18, Americas:8,  Africa:32, default:25 },
+            air:  { Asia:4,  Europe:3,  Americas:2,  Africa:5,  default:4  },
+            rail: { Asia:18, Europe:14, Americas:5,  Africa:null,default:15},
+            road: { Asia:null,Europe:8, Americas:4,  Africa:null,default:6 }
+        };
+        const REGIONS = {
+            China:'Asia',Taiwan:'Asia',Vietnam:'Asia',India:'Asia','South Korea':'Asia',
+            Japan:'Asia',Thailand:'Asia',Malaysia:'Asia',Indonesia:'Asia',Bangladesh:'Asia',
+            Cambodia:'Asia',Philippines:'Asia',Myanmar:'Asia',Pakistan:'Asia','Sri Lanka':'Asia',
+            Germany:'Europe',France:'Europe',Italy:'Europe',Spain:'Europe',Netherlands:'Europe',
+            Belgium:'Europe',Poland:'Europe','Czech Republic':'Europe',Slovakia:'Europe',
+            Turkey:'Europe',Ireland:'Europe',Switzerland:'Europe','United Kingdom':'Europe',
+            Sweden:'Europe',Norway:'Europe',Israel:'Europe',
+            Mexico:'Americas',Brazil:'Americas',Canada:'Americas',Chile:'Americas',
+            Colombia:'Americas',Argentina:'Americas',
+            'South Africa':'Africa',Ethiopia:'Africa',Nigeria:'Africa',
+            Australia:'Asia'
+        };
+        const TARIFFS = {
+            technology:{ China:{mfn:3.4,add:25,ad:0},Taiwan:{mfn:2.8,add:0,ad:0},'South Korea':{mfn:0,add:0,ad:0},Vietnam:{mfn:3.2,add:5,ad:0},Japan:{mfn:0,add:0,ad:0},Malaysia:{mfn:2.5,add:0,ad:0},India:{mfn:3.8,add:10,ad:0},Germany:{mfn:1.5,add:0,ad:0},Mexico:{mfn:0,add:0,ad:0},Thailand:{mfn:3.0,add:3,ad:0},Bangladesh:{mfn:4,add:0,ad:0},Indonesia:{mfn:3.5,add:0,ad:0} },
+            textiles:{ China:{mfn:12,add:25,ad:0},Bangladesh:{mfn:16,add:0,ad:0},Vietnam:{mfn:12,add:0,ad:0},India:{mfn:14,add:5,ad:0},Turkey:{mfn:10,add:0,ad:0},Cambodia:{mfn:14,add:0,ad:0},Indonesia:{mfn:13,add:0,ad:0},Pakistan:{mfn:11,add:0,ad:0} },
+            automotive:{ China:{mfn:2.5,add:25,ad:0},Germany:{mfn:2.5,add:0,ad:0},Japan:{mfn:2.5,add:0,ad:0},Mexico:{mfn:0,add:0,ad:0},'South Korea':{mfn:0,add:0,ad:0},'Czech Republic':{mfn:2.5,add:0,ad:0},Thailand:{mfn:2.5,add:2.5,ad:0} },
+            food:{ China:{mfn:8,add:25,ad:0},Brazil:{mfn:5,add:0,ad:0},India:{mfn:8,add:5,ad:0},Thailand:{mfn:4,add:0,ad:0},Mexico:{mfn:0,add:0,ad:0},Vietnam:{mfn:6,add:0,ad:0} },
+            pharma:{ China:{mfn:3,add:25,ad:0},India:{mfn:0,add:0,ad:0},Ireland:{mfn:0,add:0,ad:0},Switzerland:{mfn:0,add:0,ad:0},Germany:{mfn:0,add:0,ad:0},Israel:{mfn:0,add:0,ad:0} },
+            rawMaterials:{ China:{mfn:2,add:25,ad:5},Australia:{mfn:0,add:0,ad:0},Brazil:{mfn:2,add:0,ad:0},'South Africa':{mfn:0,add:0,ad:0},Chile:{mfn:0,add:0,ad:0},Indonesia:{mfn:3,add:2,ad:0} },
+            consumerGoods:{ China:{mfn:5,add:25,ad:0},Vietnam:{mfn:8,add:2,ad:0},India:{mfn:7,add:5,ad:0},Thailand:{mfn:4,add:1,ad:0},Indonesia:{mfn:5,add:2,ad:0},Mexico:{mfn:0,add:0,ad:0} }
+        };
+        const RISK = {
+            China:{risk:42,sourcing:95,reliability:'High'},Taiwan:{risk:35,sourcing:95,reliability:'High'},
+            Vietnam:{risk:38,sourcing:55,reliability:'Medium'},India:{risk:45,sourcing:72,reliability:'Medium'},
+            Bangladesh:{risk:58,sourcing:88,reliability:'Medium'},'South Korea':{risk:18,sourcing:88,reliability:'High'},
+            Japan:{risk:12,sourcing:88,reliability:'High'},Germany:{risk:8,sourcing:78,reliability:'High'},
+            Mexico:{risk:48,sourcing:78,reliability:'Medium'},Thailand:{risk:32,sourcing:55,reliability:'Medium'},
+            Turkey:{risk:52,sourcing:70,reliability:'Medium'},Cambodia:{risk:55,sourcing:65,reliability:'Low'},
+            Malaysia:{risk:25,sourcing:60,reliability:'Medium'},Indonesia:{risk:40,sourcing:45,reliability:'Medium'},
+            Brazil:{risk:42,sourcing:55,reliability:'Medium'},Ireland:{risk:6,sourcing:88,reliability:'High'},
+            Switzerland:{risk:4,sourcing:85,reliability:'High'},'Czech Republic':{risk:12,sourcing:72,reliability:'High'},
+            'South Africa':{risk:48,sourcing:40,reliability:'Low'},Chile:{risk:22,sourcing:45,reliability:'Medium'},
+            Australia:{risk:8,sourcing:50,reliability:'High'},Israel:{risk:55,sourcing:65,reliability:'Medium'},
+            Canada:{risk:6,sourcing:65,reliability:'High'},'United Kingdom':{risk:8,sourcing:70,reliability:'High'},
+            Philippines:{risk:42,sourcing:50,reliability:'Medium'},Pakistan:{risk:62,sourcing:45,reliability:'Low'}
+        };
+
+        const catMap = { electronics:'technology',textiles:'textiles',automotive:'automotive',food:'food',pharma:'pharma',rawMaterials:'rawMaterials',consumerGoods:'consumerGoods',industrial:'technology',chemicals:'rawMaterials',other:'consumerGoods' };
+        const cat = catMap[productCategory] || catMap[(productCategory||'').toLowerCase()] || 'technology';
+        const unitCurrCode = unitCurrency || 'USD';
+        const priceUSD = unitCurrCode === 'USD' ? parseFloat(unitPrice) : parseFloat(unitPrice) / (rates[unitCurrCode] || 1);
+        const qty = parseInt(quantity) || 1000;
+        const wtKg = (weightUnit === 'lbs' ? parseFloat(weightPerUnit||0.5) * 0.453592 : parseFloat(weightPerUnit||0.5));
+        const resCurr = resultCurrency || 'USD';
+        const resRate = rates[resCurr] || 1;
+        const toRes = v => Math.round(v * resRate * 100) / 100;
+        const r2 = v => Math.round(v * 100) / 100;
+
+        const modesToCalc = (!shippingMode || shippingMode === 'auto') ? ['sea','air','rail','road'] : [shippingMode];
+        const results = {};
+        let lowestCost = Infinity, optimalCountry = '', optimalMode = '';
+
+        for (const country of originCountries) {
+            const region = REGIONS[country] || 'default';
+            const countryTariff = (TARIFFS[cat] || {})[country] || { mfn:5, add:0, ad:0 };
+            const riskData = RISK[country] || { risk:50, sourcing:50, reliability:'Medium' };
+            const countryResults = {};
+
+            for (const mode of modesToCalc) {
+                const modeRates = SHIPPING_RATES[mode] || {};
+                const modeTimes = TRANSIT[mode] || {};
+                const freightPerKg = modeRates[region] != null ? modeRates[region] : modeRates.default;
+                const transit = modeTimes[region] != null ? modeTimes[region] : modeTimes.default;
+                if (freightPerKg == null || transit == null) continue;
+
+                const shipCostPerUnit = freightPerKg * wtKg;
+                const effTariffRate = (countryTariff.mfn + countryTariff.add + countryTariff.ad) / 100;
+                const tariffPerUnit = priceUSD * effTariffRate;
+
+                const cargoVal = priceUSD * qty;
+                const ins = cargoVal * ((insuranceRate || 0.5) / 100);
+                const broker = parseFloat(brokerFee || 150);
+                const hmf = cargoVal * ((hmfRate || 0.125) / 100);
+                const mpfRaw = cargoVal * ((mpfRate || 0.3464) / 100);
+                const mpf = Math.min(Math.max(mpfRaw, 31.67), 614.35);
+                const inland = parseFloat(inlandTransport || 0);
+                const totalFees = ins + broker + hmf + mpf + inland;
+                const feesPerUnit = totalFees / qty;
+
+                let unitsPerCont = null, contNeeded = null;
+                const contCap = { '20ft':{ kg:28200 }, '40ft':{ kg:28800 }, '40hc':{ kg:28600 } };
+                if (containerType && contCap[containerType]) {
+                    unitsPerCont = wtKg > 0 ? Math.floor(contCap[containerType].kg / wtKg) : null;
+                    if (unitsPerCont) contNeeded = Math.ceil(qty / unitsPerCont);
+                }
+
+                const totalPerUnit = priceUSD + shipCostPerUnit + tariffPerUnit + feesPerUnit;
+                const costIncrease = r2(((totalPerUnit - priceUSD) / priceUSD) * 100);
+
+                countryResults[mode] = {
+                    mode, transit,
+                    product: { unitPriceOriginal:parseFloat(unitPrice), unitCurrency:unitCurrCode, unitPriceUSD:r2(priceUSD), unitPriceResult:toRes(priceUSD), fxRate:r2((rates[unitCurrCode]||1)), quantity:qty, subtotal:toRes(priceUSD*qty) },
+                    shipping: { freightPerKg:r2(freightPerKg), freightPerUnit:toRes(shipCostPerUnit), freightTotal:toRes(shipCostPerUnit*qty), mode, transitDays:transit, containerType:containerType||'N/A', unitsPerContainer:unitsPerCont, containersNeeded:contNeeded },
+                    tariffs: { hsCode:hsCode||'N/A', mfnRate:countryTariff.mfn, additionalDuty:countryTariff.add, antidumping:countryTariff.ad, effectiveRate:r2(countryTariff.mfn+countryTariff.add+countryTariff.ad), costPerUnit:toRes(tariffPerUnit), costTotal:toRes(tariffPerUnit*qty) },
+                    fees: { insurance:toRes(ins), brokerFee:toRes(broker), hmf:toRes(hmf), mpf:toRes(mpf), inland:toRes(inland), subtotal:toRes(totalFees), perUnit:toRes(feesPerUnit) },
+                    total: { perUnit:toRes(totalPerUnit), perShipment:toRes(totalPerUnit*qty), costIncrease, effectiveMarkup:costIncrease },
+                    risk: { countryRiskScore:riskData.risk, sourcingScore:riskData.sourcing, reliability:riskData.reliability, leadTimeDays:transit },
+                    resultCurrency:resCurr
+                };
+
+                if (totalPerUnit < lowestCost) { lowestCost = totalPerUnit; optimalCountry = country; optimalMode = mode; }
+            }
+            if (Object.keys(countryResults).length) results[country] = countryResults;
+        }
+
+        res.json({
+            results,
+            optimal: { country:optimalCountry, mode:optimalMode, costPerUnit:toRes(lowestCost), currency:resCurr },
+            meta: { productName, quantity:qty, calculatedAt:new Date().toISOString(), resultCurrency:resCurr }
+        });
+
+    } catch (error) {
+        console.error('Landed cost error:', error);
+        res.status(500).json({ error: 'Calculation failed. Please try again.' });
     }
 });
 

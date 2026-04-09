@@ -2197,6 +2197,7 @@
   #warRoomModule { left: 260px !important; transition: left 0.3s ease; }
   #simulatorModule { left: 260px !important; transition: left 0.3s ease; }
   #priceIntelModule { left: 260px !important; transition: left 0.3s ease; }
+  #costEngineModule { left: 260px !important; transition: left 0.3s ease; }
   #chatPanel { left: 260px !important; transition: left 0.3s ease; }
   #heroPanel { left: 276px !important; transition: left 0.3s ease; }
   #chatMessages { left: calc(130px + 50%) !important; transition: left 0.3s ease; }
@@ -2211,6 +2212,7 @@
   body.sidebar-collapsed #warRoomModule { left: 0 !important; }
   body.sidebar-collapsed #simulatorModule { left: 0 !important; }
   body.sidebar-collapsed #priceIntelModule { left: 0 !important; }
+  body.sidebar-collapsed #costEngineModule { left: 0 !important; }
   body.sidebar-collapsed #chatPanel { left: 0 !important; }
   body.sidebar-collapsed #heroPanel { left: 16px !important; }
   body.sidebar-collapsed #chatMessages { left: 50% !important; }
@@ -2325,6 +2327,7 @@
     #warRoomModule { left: 0 !important; }
     #simulatorModule { left: 0 !important; }
     #priceIntelModule { left: 0 !important; }
+    #costEngineModule { left: 0 !important; }
     #chatPanel { left: 0 !important; }
     #heroPanel { left: 16px !important; }
     #chatMessages { left: 50% !important; }
@@ -2492,6 +2495,236 @@
     display: none; padding: 16px 20px; border-radius: 10px; margin-top: 16px;
     background: rgba(255,80,80,0.06); border: 1px solid rgba(255,80,80,0.2);
     color: rgba(255,120,100,0.9); font-size: 12px; font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ===== SYS_06 COST ENGINE ===== */
+  #costEngineModule {
+    position: fixed; inset: 0; background: #080808;
+    display: none; flex-direction: column; z-index: 8000; overflow: hidden;
+  }
+  .lc-header {
+    padding: 18px 28px 14px; flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .lc-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 400;
+    letter-spacing: 0.2em; color: rgba(255,255,255,0.28); text-transform: uppercase;
+  }
+  .lc-heading {
+    font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800;
+    color: white; letter-spacing: -0.01em;
+  }
+  .lc-sub {
+    font-size: 12px; color: rgba(255,255,255,0.32); font-family: Inter, sans-serif; margin-left: auto;
+    max-width: 380px; text-align: right; line-height: 1.45;
+  }
+  .lc-body {
+    display: flex; flex: 1; overflow: hidden;
+  }
+  /* Input Panel */
+  .lc-input-panel {
+    width: 340px; min-width: 280px; flex-shrink: 0;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    padding: 20px 20px 20px 24px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent;
+  }
+  .lc-section-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 400;
+    letter-spacing: 0.2em; color: rgba(255,255,255,0.25); text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .lc-field-row {
+    display: flex; gap: 10px; margin-bottom: 10px;
+  }
+  .lc-field {
+    display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 0;
+  }
+  .lc-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.32); text-transform: uppercase;
+  }
+  .lc-input, .lc-select {
+    padding: 8px 11px; background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09); border-radius: 8px;
+    color: white; font-size: 12px; font-family: Inter, sans-serif;
+    outline: none; transition: border-color 0.2s; width: 100%;
+    appearance: none; -webkit-appearance: none;
+  }
+  .lc-input:focus, .lc-select:focus { border-color: rgba(255,255,255,0.25); }
+  .lc-input::placeholder { color: rgba(255,255,255,0.18); }
+  .lc-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; cursor: pointer; }
+  .lc-select option { background: #111; }
+  .lc-countries-grid {
+    display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;
+  }
+  .lc-country-row {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .lc-country-input {
+    flex: 1; padding: 7px 10px; background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09); border-radius: 7px;
+    color: white; font-size: 12px; font-family: Inter, sans-serif; outline: none;
+    transition: border-color 0.2s;
+  }
+  .lc-country-input:focus { border-color: rgba(255,255,255,0.25); }
+  .lc-remove-country {
+    width: 24px; height: 24px; background: none; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px; color: rgba(255,255,255,0.3); cursor: pointer;
+    font-size: 13px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .lc-remove-country:hover { border-color: rgba(255,100,100,0.4); color: rgba(255,100,100,0.7); }
+  .lc-add-country-btn {
+    width: 100%; padding: 7px; background: none; border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 7px; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 11px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.08em; transition: all 0.15s;
+    margin-bottom: 14px;
+  }
+  .lc-add-country-btn:hover { border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.6); }
+  .lc-advanced-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; cursor: pointer; color: rgba(255,255,255,0.3);
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase; border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 6px; transition: color 0.15s;
+  }
+  .lc-advanced-toggle:hover { color: rgba(255,255,255,0.6); }
+  #lcAdvancedPanel { padding-top: 12px; }
+  .lc-calc-btn {
+    width: 100%; padding: 12px; margin-top: 18px;
+    background: white; color: black; border: none; border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .lc-calc-btn:hover { opacity: 0.88; }
+  .lc-calc-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  /* Results Panel */
+  .lc-results-panel {
+    flex: 1; overflow-y: auto; padding: 20px 24px;
+    scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent;
+  }
+  .lc-empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; gap: 12px; opacity: 0.35;
+  }
+  .lc-empty-icon {
+    font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; color: white;
+  }
+  .lc-empty-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: white;
+  }
+  .lc-empty-sub {
+    font-size: 12px; color: rgba(255,255,255,0.5); text-align: center;
+    max-width: 320px; line-height: 1.5;
+  }
+  .lc-loading {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; gap: 16px;
+  }
+  .lc-loading-spinner {
+    width: 36px; height: 36px; border: 2px solid rgba(255,255,255,0.08);
+    border-top-color: rgba(255,255,255,0.6); border-radius: 50%;
+    animation: lcSpin 0.8s linear infinite;
+  }
+  @keyframes lcSpin { to { transform: rotate(360deg); } }
+  .lc-loading-text {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.35); text-transform: uppercase;
+  }
+  /* Summary bar */
+  .lc-summary-bar {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px; margin-bottom: 22px;
+  }
+  .lc-summary-card {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .lc-card-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.28); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .lc-card-value {
+    font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: white;
+  }
+  .lc-card-sub {
+    font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 2px;
+  }
+  .lc-card-badge {
+    display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 9px;
+    font-family: 'JetBrains Mono', monospace; font-weight: 700; margin-top: 4px;
+  }
+  .lc-badge-optimal { background: rgba(100,220,140,0.12); border: 1px solid rgba(100,220,140,0.3); color: rgba(100,220,140,0.9); }
+  .lc-badge-risk-low { background: rgba(100,220,140,0.1); border: 1px solid rgba(100,220,140,0.25); color: rgba(100,220,140,0.8); }
+  .lc-badge-risk-med { background: rgba(255,200,80,0.1); border: 1px solid rgba(255,200,80,0.25); color: rgba(255,200,80,0.8); }
+  .lc-badge-risk-high { background: rgba(255,100,80,0.1); border: 1px solid rgba(255,100,80,0.25); color: rgba(255,100,80,0.8); }
+  /* Comparison table */
+  .lc-table-section { margin-bottom: 22px; }
+  .lc-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); }
+  .lc-table {
+    width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap;
+  }
+  .lc-table th {
+    padding: 10px 13px; text-align: right; font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .lc-table th:first-child { text-align: left; }
+  .lc-table th:nth-child(2) { text-align: left; }
+  .lc-table td {
+    padding: 10px 13px; border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.65); text-align: right; vertical-align: middle;
+  }
+  .lc-table td:first-child { text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.8); }
+  .lc-table td:nth-child(2) { text-align: left; }
+  .lc-table tr:last-child td { border-bottom: none; }
+  .lc-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .lc-table .lc-total-cell { color: white; font-weight: 600; }
+  .lc-row-optimal td { background: rgba(100,220,140,0.03) !important; }
+  .lc-row-optimal td:first-child { color: rgba(100,220,140,0.9) !important; }
+  /* Waterfall */
+  .lc-chart-section { margin-bottom: 22px; }
+  .lc-waterfall-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .lc-wf-row {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .lc-wf-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4);
+    text-transform: uppercase; letter-spacing: 0.1em; width: 90px; flex-shrink: 0; text-align: right;
+  }
+  .lc-wf-bar-wrap { flex: 1; background: rgba(255,255,255,0.04); border-radius: 4px; height: 22px; position: relative; overflow: hidden; }
+  .lc-wf-bar { height: 100%; border-radius: 4px; transition: width 0.6s cubic-bezier(0.16,1,0.3,1); }
+  .lc-wf-value {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.55);
+    width: 80px; flex-shrink: 0; text-align: left;
+  }
+  /* Export bar */
+  .lc-export-bar { display: flex; gap: 10px; margin-top: 6px; }
+  .lc-export-btn {
+    padding: 9px 18px; border-radius: 9px; font-size: 11px; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase;
+    transition: all 0.2s; background: white; color: black; border: none;
+  }
+  .lc-export-btn:hover { opacity: 0.85; }
+  .lc-export-btn.secondary { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.12); }
+  .lc-export-btn.secondary:hover { border-color: rgba(255,255,255,0.25); color: white; background: rgba(255,255,255,0.08); }
+  /* AI bar */
+  .lc-ai-bar {
+    flex-shrink: 0; display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 24px; border-top: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.015);
+  }
+  .lc-ai-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.3); text-transform: uppercase; padding-top: 2px; flex-shrink: 0;
+  }
+  .lc-ai-text {
+    font-size: 12px; color: rgba(255,255,255,0.65); font-family: Inter, sans-serif;
+    line-height: 1.55;
   }
 
   </style>
@@ -2734,6 +2967,9 @@ window.addEventListener('keydown',__handleIntroKey,true);
   <div class="sb-nav-item" id="sbnav-priceintel" onclick="sbSwitchModule('priceintel')">
     <span>Price Intel</span><span class="sb-nav-code">SYS_05</span>
   </div>
+  <div class="sb-nav-item" id="sbnav-costengine" onclick="sbSwitchModule('costengine')">
+    <span>Cost Engine</span><span class="sb-nav-code">SYS_06</span>
+  </div>
 
   <!-- Chat History -->
   <div class="sb-section-label" style="padding-top:12px">History</div>
@@ -2803,6 +3039,183 @@ window.addEventListener('keydown',__handleIntroKey,true);
         <button class="pi-action-btn" onclick="piReset()">New Upload</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ===== SYS_06 COST ENGINE MODULE ===== -->
+<div id="costEngineModule">
+  <div class="lc-header">
+    <div class="lc-title">SYS_06</div>
+    <div class="lc-heading">Cost Engine</div>
+    <div class="lc-sub">True landed cost from any origin — tariffs, shipping, duties, insurance, and currency conversion included.</div>
+  </div>
+  <div class="lc-body">
+    <!-- INPUT PANEL -->
+    <div class="lc-input-panel" id="lcInputPanel">
+      <div class="lc-section-label">Product</div>
+      <div class="lc-field-row">
+        <div class="lc-field">
+          <label class="lc-label">Product Name</label>
+          <input class="lc-input" id="lcProductName" placeholder="e.g. Electronic Components">
+        </div>
+      </div>
+      <div class="lc-field-row">
+        <div class="lc-field">
+          <label class="lc-label">Unit Price</label>
+          <input class="lc-input" id="lcUnitPrice" type="number" min="0" step="0.01" placeholder="0.00">
+        </div>
+        <div class="lc-field">
+          <label class="lc-label">Currency</label>
+          <select class="lc-select" id="lcUnitCurrency">
+            <option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option>
+            <option value="CNY">CNY</option><option value="JPY">JPY</option><option value="KRW">KRW</option><option value="INR">INR</option>
+          </select>
+        </div>
+      </div>
+      <div class="lc-field-row">
+        <div class="lc-field">
+          <label class="lc-label">Quantity</label>
+          <input class="lc-input" id="lcQuantity" type="number" min="1" placeholder="1000">
+        </div>
+        <div class="lc-field">
+          <label class="lc-label">HS Code (optional)</label>
+          <input class="lc-input" id="lcHsCode" placeholder="e.g. 8542.31">
+        </div>
+      </div>
+      <div class="lc-field-row">
+        <div class="lc-field">
+          <label class="lc-label">Product Category</label>
+          <select class="lc-select" id="lcCategory">
+            <option value="technology">Technology / Electronics</option>
+            <option value="textiles">Textiles / Apparel</option>
+            <option value="automotive">Automotive / Parts</option>
+            <option value="food">Food / Agriculture</option>
+            <option value="pharma">Pharma / Medical</option>
+            <option value="rawMaterials">Raw Materials</option>
+            <option value="consumerGoods">Consumer Goods</option>
+          </select>
+        </div>
+      </div>
+      <div class="lc-field-row">
+        <div class="lc-field">
+          <label class="lc-label">Weight / Unit (kg)</label>
+          <input class="lc-input" id="lcWeight" type="number" min="0" step="0.01" placeholder="0.5">
+        </div>
+        <div class="lc-field">
+          <label class="lc-label">Container Type</label>
+          <select class="lc-select" id="lcContainer">
+            <option value="lcl">LCL (Shared)</option>
+            <option value="20ft">20ft FCL</option>
+            <option value="40ft">40ft FCL</option>
+            <option value="40hc">40ft HC FCL</option>
+          </select>
+        </div>
+      </div>
+      <div class="lc-section-label" style="margin-top:18px">Shipment</div>
+      <div class="lc-field-row">
+        <div class="lc-field">
+          <label class="lc-label">Shipping Mode</label>
+          <select class="lc-select" id="lcShippingMode">
+            <option value="sea">Sea (Ocean)</option>
+            <option value="air">Air</option>
+            <option value="rail">Rail</option>
+            <option value="road">Road</option>
+          </select>
+        </div>
+        <div class="lc-field">
+          <label class="lc-label">Incoterms</label>
+          <select class="lc-select" id="lcIncoterms">
+            <option value="FOB">FOB</option>
+            <option value="CIF">CIF</option>
+            <option value="EXW">EXW</option>
+            <option value="DDP">DDP</option>
+            <option value="DAP">DAP</option>
+          </select>
+        </div>
+      </div>
+      <div class="lc-field-row">
+        <div class="lc-field">
+          <label class="lc-label">Destination Country</label>
+          <input class="lc-input" id="lcDestination" placeholder="United States">
+        </div>
+        <div class="lc-field">
+          <label class="lc-label">Result Currency</label>
+          <select class="lc-select" id="lcResultCurrency">
+            <option value="USD">USD</option><option value="EUR">EUR</option>
+            <option value="GBP">GBP</option><option value="JPY">JPY</option>
+            <option value="CAD">CAD</option><option value="AUD">AUD</option>
+          </select>
+        </div>
+      </div>
+      <div class="lc-section-label" style="margin-top:18px">Origin Countries to Compare</div>
+      <div class="lc-countries-grid" id="lcCountriesGrid"></div>
+      <button class="lc-add-country-btn" onclick="lcAddCountry()">+ Add Country</button>
+      <div class="lc-advanced-toggle" onclick="lcToggleAdvanced()">
+        <span>Advanced Options</span>
+        <span id="lcAdvancedArrow">&#9656;</span>
+      </div>
+      <div id="lcAdvancedPanel" style="display:none">
+        <div class="lc-field-row" style="margin-top:12px">
+          <div class="lc-field">
+            <label class="lc-label">Insurance Rate (%)</label>
+            <input class="lc-input" id="lcInsuranceRate" type="number" value="0.5" step="0.1">
+          </div>
+          <div class="lc-field">
+            <label class="lc-label">Broker Fee (USD)</label>
+            <input class="lc-input" id="lcBrokerFee" type="number" value="250">
+          </div>
+        </div>
+        <div class="lc-field-row">
+          <div class="lc-field">
+            <label class="lc-label">HMF Rate (%)</label>
+            <input class="lc-input" id="lcHmfRate" type="number" value="0.125" step="0.001">
+          </div>
+          <div class="lc-field">
+            <label class="lc-label">MPF Rate (%)</label>
+            <input class="lc-input" id="lcMpfRate" type="number" value="0.3464" step="0.001">
+          </div>
+        </div>
+        <div class="lc-field-row">
+          <div class="lc-field">
+            <label class="lc-label">Inland Transport (USD)</label>
+            <input class="lc-input" id="lcInlandTransport" type="number" value="350">
+          </div>
+        </div>
+      </div>
+      <button class="lc-calc-btn" id="lcCalcBtn" onclick="lcCalculate()">Calculate Landed Cost</button>
+    </div>
+    <!-- RESULTS PANEL -->
+    <div class="lc-results-panel" id="lcResultsPanel">
+      <div class="lc-empty-state" id="lcEmptyState">
+        <div class="lc-empty-icon">$</div>
+        <div class="lc-empty-title">Configure &amp; Calculate</div>
+        <div class="lc-empty-sub">Fill in product details, select origin countries to compare, and hit Calculate.</div>
+      </div>
+      <div class="lc-loading" id="lcLoading" style="display:none">
+        <div class="lc-loading-spinner"></div>
+        <div class="lc-loading-text">Calculating landed costs...</div>
+      </div>
+      <div id="lcResults" style="display:none">
+        <div class="lc-summary-bar" id="lcSummaryBar"></div>
+        <div class="lc-table-section">
+          <div class="lc-section-label" style="margin-bottom:10px">Cost Breakdown by Origin &amp; Mode</div>
+          <div class="lc-table-wrap" id="lcTableWrap"></div>
+        </div>
+        <div class="lc-chart-section">
+          <div class="lc-section-label" style="margin-bottom:10px">Cost Components — Optimal Route</div>
+          <div id="lcWaterfall" class="lc-waterfall-wrap"></div>
+        </div>
+        <div class="lc-export-bar">
+          <button class="lc-export-btn" onclick="lcExportPDF()">Export PDF</button>
+          <button class="lc-export-btn secondary" onclick="lcDownloadCSV()">Download CSV</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- AI RECOMMENDATION BAR -->
+  <div class="lc-ai-bar" id="lcAiBar" style="display:none">
+    <div class="lc-ai-label">Jarvis</div>
+    <div class="lc-ai-text" id="lcAiText">Analyzing...</div>
   </div>
 </div>
 
@@ -4320,10 +4733,12 @@ function switchModule(name){
   overlays.forEach(function(el){el.style.display='none';});
   var sim=document.getElementById('simulatorModule');
   var pi=document.getElementById('priceIntelModule');
+  var ce=document.getElementById('costEngineModule');
   if(wr)wr.style.display='none';
   if(am)am.style.display='none';
   if(sim)sim.style.display='none';
   if(pi)pi.style.display='none';
+  if(ce)ce.style.display='none';
   if(oldNav)oldNav.style.display='none';
   for(var i=0;i<navBtns.length;i++)navBtns[i].classList.remove('active');
 
@@ -4332,7 +4747,7 @@ function switchModule(name){
   // Close fullscreen chat on module switch
   if(typeof closeChatFullscreen==='function')closeChatFullscreen();
   var va=document.getElementById('voiceAssistant');
-  if(va)va.style.display=(name==='audit'||name==='priceintel')?'none':'';
+  if(va)va.style.display=(name==='audit'||name==='priceintel'||name==='costengine')?'none':'';
   if(name==='map'){
     mapEls.forEach(function(id){var el=document.getElementById(id);if(!el)return;if(id==='chatPanel'||id==='chatMessages')el.style.display='flex';else if(id==='psReopenBtn')el.style.display='flex';else el.style.display='';});
     overlays.forEach(function(el){el.style.display='';});
@@ -4364,6 +4779,9 @@ function switchModule(name){
     if(navBtns[3])navBtns[3].classList.add('active');
   }else if(name==='priceintel'){
     if(pi){pi.style.display='flex';pi.style.flexDirection='column';}
+  }else if(name==='costengine'){
+    if(ce){ce.style.display='flex';ce.style.flexDirection='column';}
+    if(typeof lcOnShow==='function')lcOnShow();
   }
 }
 
@@ -5430,8 +5848,8 @@ function renderChatHistory(){
   }
   var h='';
   history.forEach(function(item){
-    var badge=item.type==='chat'?'Chat':(item.type==='audit'?'Audit':(item.type==='price'?'Price':'Sim'));
-    var bc=item.type==='chat'?'rgba(255,255,255,0.12)':(item.type==='audit'?'rgba(100,180,255,0.14)':(item.type==='price'?'rgba(180,255,180,0.12)':'rgba(255,200,100,0.14)'));
+    var badge=item.type==='chat'?'Chat':(item.type==='audit'?'Audit':(item.type==='price'?'Price':(item.type==='cost'?'Cost':'Sim')));
+    var bc=item.type==='chat'?'rgba(255,255,255,0.12)':(item.type==='audit'?'rgba(100,180,255,0.14)':(item.type==='price'?'rgba(180,255,180,0.12)':(item.type==='cost'?'rgba(255,220,100,0.14)':'rgba(255,200,100,0.14)')));
     var timeStr=formatTimeAgo(item.timestamp);
     h+='<div class="sb-history-item" onclick="openHistoryItem(\''+item.id+'\')" data-id="'+item.id+'">';
     h+='<div class="sb-history-title">'+(item.title||'Untitled')+'</div>';
@@ -5471,6 +5889,18 @@ function openHistoryItem(id){
     updateSidebarActive('priceintel');
     if(item.data&&item.data.result&&typeof piRenderResults==='function'){
       setTimeout(function(){piRenderResults(item.data.result);},100);
+    }
+  }else if(item.type==='cost'){
+    switchModule('costengine');
+    updateSidebarActive('costengine');
+    if(item.data&&item.data.results&&typeof lcRenderResults==='function'){
+      setTimeout(function(){
+        _lcResults=item.data;
+        document.getElementById('lcEmptyState').style.display='none';
+        document.getElementById('lcLoading').style.display='none';
+        document.getElementById('lcResults').style.display='block';
+        lcRenderResults(item.data,item.data.payload||{quantity:1,resultCurrency:'USD',productName:''});
+      },100);
     }
   }
   // On mobile close sidebar
@@ -7563,6 +7993,348 @@ function toggleBilling(isAnnual) {
 document.getElementById('pricingOverlay').addEventListener('click', function(e) {
   if (e.target === this) closePricing();
 });
+</script>
+
+<!-- ===== SYS_06 COST ENGINE JS ===== -->
+<script>
+// State
+var _lcCountries=['China','Vietnam','Mexico','India'];
+var _lcResults=null;
+var _lcRates=null;
+var _lcAdvancedOpen=false;
+
+// Init on show
+function lcOnShow(){
+  lcRenderCountryInputs();
+  if(!_lcRates)lcFetchRates();
+  lcLoadLastValues();
+}
+
+function lcFetchRates(){
+  fetch('/api/exchange-rates').then(function(r){return r.json();}).then(function(d){_lcRates=d.rates||null;}).catch(function(){});
+}
+
+// Country management
+function lcRenderCountryInputs(){
+  var grid=document.getElementById('lcCountriesGrid');
+  if(!grid)return;
+  grid.innerHTML=_lcCountries.map(function(c,i){
+    return '<div class="lc-country-row">'+
+      '<input class="lc-country-input" placeholder="Country name" value="'+lcEsc(c)+'" oninput="_lcCountries['+i+']=this.value">'+
+      (_lcCountries.length>1?'<button class="lc-remove-country" onclick="lcRemoveCountry('+i+')">&#215;</button>':'')+
+    '</div>';
+  }).join('');
+}
+
+function lcAddCountry(){
+  _lcCountries.push('');
+  lcRenderCountryInputs();
+  var inputs=document.querySelectorAll('.lc-country-input');
+  if(inputs.length)inputs[inputs.length-1].focus();
+}
+
+function lcRemoveCountry(i){
+  _lcCountries.splice(i,1);
+  lcRenderCountryInputs();
+}
+
+function lcToggleAdvanced(){
+  _lcAdvancedOpen=!_lcAdvancedOpen;
+  var panel=document.getElementById('lcAdvancedPanel');
+  var arrow=document.getElementById('lcAdvancedArrow');
+  if(panel)panel.style.display=_lcAdvancedOpen?'block':'none';
+  if(arrow)arrow.innerHTML=_lcAdvancedOpen?'&#9662;':'&#9656;';
+}
+
+// Persist last values
+function lcSaveCurrentValues(){
+  try{
+    var vals={
+      productName:(document.getElementById('lcProductName')||{}).value||'',
+      unitPrice:(document.getElementById('lcUnitPrice')||{}).value||'',
+      currency:(document.getElementById('lcUnitCurrency')||{}).value||'USD',
+      quantity:(document.getElementById('lcQuantity')||{}).value||'',
+      weight:(document.getElementById('lcWeight')||{}).value||'',
+      hsCode:(document.getElementById('lcHsCode')||{}).value||'',
+      category:(document.getElementById('lcCategory')||{}).value||'technology',
+      container:(document.getElementById('lcContainer')||{}).value||'lcl',
+      mode:(document.getElementById('lcShippingMode')||{}).value||'sea',
+      incoterms:(document.getElementById('lcIncoterms')||{}).value||'FOB',
+      destination:(document.getElementById('lcDestination')||{}).value||'',
+      resultCurrency:(document.getElementById('lcResultCurrency')||{}).value||'USD',
+      countries:_lcCountries.slice()
+    };
+    localStorage.setItem('lc_last_values',JSON.stringify(vals));
+  }catch(e){}
+}
+
+function lcLoadLastValues(){
+  try{
+    var s=localStorage.getItem('lc_last_values');
+    if(!s)return;
+    var v=JSON.parse(s);
+    var set=function(id,val){var el=document.getElementById(id);if(el&&val!==undefined)el.value=val;};
+    set('lcProductName',v.productName);set('lcUnitPrice',v.unitPrice);set('lcUnitCurrency',v.currency);
+    set('lcQuantity',v.quantity);set('lcWeight',v.weight);set('lcHsCode',v.hsCode);
+    set('lcCategory',v.category);set('lcContainer',v.container);set('lcShippingMode',v.mode);
+    set('lcIncoterms',v.incoterms);set('lcDestination',v.destination);set('lcResultCurrency',v.resultCurrency);
+    if(v.countries&&v.countries.length){_lcCountries=v.countries;lcRenderCountryInputs();}
+  }catch(e){}
+}
+
+// Main calculate
+function lcCalculate(){
+  // Sync country array from inputs
+  var inputs=document.querySelectorAll('.lc-country-input');
+  _lcCountries=[];
+  inputs.forEach(function(inp){var v=inp.value.trim();if(v)_lcCountries.push(v);});
+  if(!_lcCountries.length){lcShowToast('Add at least one origin country.');return;}
+
+  var unitPrice=parseFloat((document.getElementById('lcUnitPrice')||{}).value||'0');
+  var quantity=parseInt((document.getElementById('lcQuantity')||{}).value||'0');
+  if(!unitPrice||unitPrice<=0){lcShowToast('Enter a valid unit price.');return;}
+  if(!quantity||quantity<=0){lcShowToast('Enter a valid quantity.');return;}
+
+  lcSaveCurrentValues();
+
+  var payload={
+    productName:(document.getElementById('lcProductName')||{}).value||'Product',
+    unitPrice:unitPrice,
+    unitCurrency:(document.getElementById('lcUnitCurrency')||{}).value||'USD',
+    quantity:quantity,
+    weightPerUnit:parseFloat((document.getElementById('lcWeight')||{}).value||'1')||1,
+    weightUnit:'kg',
+    hsCode:(document.getElementById('lcHsCode')||{}).value||'',
+    productCategory:(document.getElementById('lcCategory')||{}).value||'technology',
+    containerType:(document.getElementById('lcContainer')||{}).value||'lcl',
+    shippingMode:(document.getElementById('lcShippingMode')||{}).value||'sea',
+    incoterms:(document.getElementById('lcIncoterms')||{}).value||'FOB',
+    destinationCountry:(document.getElementById('lcDestination')||{}).value||'United States',
+    originCountries:_lcCountries,
+    insuranceRate:parseFloat((document.getElementById('lcInsuranceRate')||{}).value||'0.5')||0.5,
+    brokerFee:parseFloat((document.getElementById('lcBrokerFee')||{}).value||'250')||250,
+    hmfRate:parseFloat((document.getElementById('lcHmfRate')||{}).value||'0.125')||0.125,
+    mpfRate:parseFloat((document.getElementById('lcMpfRate')||{}).value||'0.3464')||0.3464,
+    inlandTransport:parseFloat((document.getElementById('lcInlandTransport')||{}).value||'350')||350,
+    resultCurrency:(document.getElementById('lcResultCurrency')||{}).value||'USD'
+  };
+
+  // Show loading
+  document.getElementById('lcEmptyState').style.display='none';
+  document.getElementById('lcResults').style.display='none';
+  document.getElementById('lcLoading').style.display='flex';
+  document.getElementById('lcAiBar').style.display='none';
+  var btn=document.getElementById('lcCalcBtn');
+  if(btn){btn.disabled=true;btn.textContent='Calculating...';}
+
+  fetch('/api/landed-cost',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  .then(function(r){if(!r.ok)throw new Error('Server error '+r.status);return r.json();})
+  .then(function(data){
+    _lcResults=data;
+    document.getElementById('lcLoading').style.display='none';
+    document.getElementById('lcResults').style.display='block';
+    lcRenderResults(data,payload);
+    lcSaveToHistory(data,payload);
+    lcGetAIAnalysis(data,payload);
+  })
+  .catch(function(err){
+    document.getElementById('lcLoading').style.display='none';
+    document.getElementById('lcEmptyState').style.display='flex';
+    lcShowToast('Calculation failed: '+err.message);
+  })
+  .finally(function(){
+    if(btn){btn.disabled=false;btn.textContent='Calculate Landed Cost';}
+  });
+}
+
+function lcRenderResults(data,payload){
+  var opt=data.optimal||{};
+  var cur=payload.resultCurrency||'USD';
+  var results=data.results||{};
+
+  // Summary cards
+  var summaryBar=document.getElementById('lcSummaryBar');
+  if(summaryBar){
+    var optLabel=opt.country?opt.country+' via '+opt.mode:'N/A';
+    var saving=0;
+    if(opt.costPerUnit){
+      var allCosts=[];
+      Object.keys(results).forEach(function(ctry){
+        Object.keys(results[ctry]).forEach(function(mode){
+          var r=results[ctry][mode];
+          if(r&&r.total)allCosts.push(r.total/payload.quantity);
+        });
+      });
+      if(allCosts.length>1){
+        var maxCost=Math.max.apply(null,allCosts);
+        saving=Math.round((1-opt.costPerUnit/maxCost)*100);
+      }
+    }
+    summaryBar.innerHTML=
+      '<div class="lc-summary-card"><div class="lc-card-label">Optimal Route</div><div class="lc-card-value" style="font-size:15px">'+lcEsc(optLabel)+'</div><div class="lc-card-sub"><span class="lc-card-badge lc-badge-optimal">Best Cost</span></div></div>'+
+      '<div class="lc-summary-card"><div class="lc-card-label">Cost / Unit</div><div class="lc-card-value">'+lcFmt(opt.costPerUnit||0,cur)+'</div><div class="lc-card-sub">'+lcEsc(cur)+' landed</div></div>'+
+      '<div class="lc-summary-card"><div class="lc-card-label">Total Order Cost</div><div class="lc-card-value">'+lcFmtLarge((opt.costPerUnit||0)*payload.quantity,cur)+'</div><div class="lc-card-sub">'+payload.quantity+' units</div></div>'+
+      (saving>0?'<div class="lc-summary-card"><div class="lc-card-label">Savings vs Worst</div><div class="lc-card-value">'+saving+'%</div><div class="lc-card-sub">vs highest-cost option</div></div>':'')+
+      (opt.country&&results[opt.country]?'<div class="lc-summary-card"><div class="lc-card-label">Risk Level</div><div class="lc-card-value" style="font-size:14px">'+lcEsc(lcRiskLabel(results[opt.country][opt.mode]))+'</div><div class="lc-card-sub"><span class="lc-card-badge '+lcRiskBadge(results[opt.country][opt.mode])+'">'+lcEsc(lcRiskLabel(results[opt.country][opt.mode]))+'</span></div></div>':'');
+  }
+
+  // Table
+  lcRenderTable(results,payload,opt,cur);
+
+  // Waterfall
+  if(opt.country&&opt.mode&&results[opt.country]&&results[opt.country][opt.mode]){
+    lcRenderWaterfall(results[opt.country][opt.mode],payload,cur);
+  }
+}
+
+function lcRenderTable(results,payload,opt,cur){
+  var wrap=document.getElementById('lcTableWrap');
+  if(!wrap)return;
+  var countries=Object.keys(results);
+  var modes=['sea','air','rail','road'];
+  // Collect all mode columns that have data
+  var activeModes=[];
+  modes.forEach(function(m){
+    var hasData=countries.some(function(c){return results[c]&&results[c][m]&&results[c][m].total;});
+    if(hasData)activeModes.push(m);
+  });
+  var thead='<tr><th>Origin</th><th>Risk</th>'+activeModes.map(function(m){return'<th>'+m.charAt(0).toUpperCase()+m.slice(1)+'</th>';}).join('')+'</tr>';
+  var tbody=countries.map(function(ctry){
+    var isOpt=(ctry===opt.country);
+    var riskData=results[ctry]&&results[ctry][activeModes[0]]?results[ctry][activeModes[0]]:{};
+    var cells=activeModes.map(function(m){
+      var r=results[ctry]&&results[ctry][m];
+      if(!r||!r.total)return'<td style="color:rgba(255,255,255,0.18)">—</td>';
+      var perUnit=r.total/payload.quantity;
+      var isOptCell=(isOpt&&m===opt.mode);
+      return'<td class="lc-total-cell" style="'+(isOptCell?'color:rgba(100,220,140,0.9)':'')+'">'+lcFmt(perUnit,cur)+'<span style="display:block;font-size:9px;color:rgba(255,255,255,0.3);font-family:JetBrains Mono,monospace;margin-top:1px">'+lcEsc(r.transitDays?r.transitDays+'d transit':'')+'</span></td>';
+    }).join('');
+    return'<tr class="'+(isOpt?'lc-row-optimal':'')+'">'+
+      '<td>'+lcEsc(ctry)+(isOpt?' <span class="lc-card-badge lc-badge-optimal" style="font-size:8px">OPTIMAL</span>':'')+'</td>'+
+      '<td><span class="lc-card-badge '+lcRiskBadge(riskData)+'">'+lcEsc(lcRiskLabel(riskData))+'</span></td>'+
+      cells+'</tr>';
+  }).join('');
+  wrap.innerHTML='<table class="lc-table"><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table>';
+}
+
+function lcRenderWaterfall(r,payload,cur){
+  var wrap=document.getElementById('lcWaterfall');
+  if(!wrap)return;
+  var components=[
+    {label:'Product',value:r.product||0,color:'rgba(160,160,255,0.7)'},
+    {label:'Shipping',value:r.shipping||0,color:'rgba(100,180,255,0.7)'},
+    {label:'Tariffs',value:r.tariffs||0,color:'rgba(255,180,80,0.7)'},
+    {label:'Fees',value:r.fees||0,color:'rgba(255,120,80,0.7)'}
+  ];
+  var total=r.total||1;
+  wrap.innerHTML=components.map(function(c){
+    var pct=Math.max(2,Math.round((c.value/total)*100));
+    var perUnit=c.value/payload.quantity;
+    return'<div class="lc-wf-row">'+
+      '<div class="lc-wf-label">'+lcEsc(c.label)+'</div>'+
+      '<div class="lc-wf-bar-wrap"><div class="lc-wf-bar" style="width:'+pct+'%;background:'+c.color+'"></div></div>'+
+      '<div class="lc-wf-value">'+lcFmt(perUnit,cur)+' <span style="color:rgba(255,255,255,0.28);font-size:9px">('+pct+'%)</span></div>'+
+    '</div>';
+  }).join('');
+}
+
+function lcGetAIAnalysis(data,payload){
+  var bar=document.getElementById('lcAiBar');
+  var txt=document.getElementById('lcAiText');
+  if(!bar||!txt)return;
+  bar.style.display='flex';
+  txt.textContent='Analyzing cost structure and sourcing risk...';
+  var opt=data.optimal||{};
+  var countries=Object.keys(data.results||{});
+  var prompt='Landed cost analysis for '+payload.productName+' ('+payload.quantity+' units). '+
+    'Destination: '+payload.destinationCountry+'. Origin countries compared: '+countries.join(', ')+'. '+
+    'Optimal: '+opt.country+' via '+opt.mode+' at '+lcFmt(opt.costPerUnit||0,'USD')+'/unit. '+
+    'Category: '+payload.productCategory+'. Incoterms: '+payload.incoterms+'. '+
+    'In 2 sentences: what is the key cost driver and one actionable sourcing recommendation?';
+  fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,history:[],profile:{}})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var reply=(d.response||d.message||'').trim();
+    if(reply)txt.textContent=reply;
+    else txt.textContent='Cost Engine analysis complete. Review the breakdown above for sourcing decisions.';
+  })
+  .catch(function(){
+    txt.textContent='Cost Engine analysis complete. Review the breakdown above for sourcing decisions.';
+  });
+}
+
+function lcSaveToHistory(data,payload){
+  try{
+    var opt=data.optimal||{};
+    var item={
+      id:'cost_'+Date.now(),
+      type:'cost',
+      title:'Cost: '+payload.productName+' → '+payload.destinationCountry,
+      timestamp:new Date().toISOString(),
+      data:{results:data,payload:payload}
+    };
+    var h=[];try{h=JSON.parse(localStorage.getItem('risksim_chat_history')||'[]');}catch(e){}
+    h.unshift(item);if(h.length>50)h=h.slice(0,50);
+    localStorage.setItem('risksim_chat_history',JSON.stringify(h));
+    if(typeof renderChatHistory==='function')renderChatHistory();
+  }catch(e){}
+}
+
+function lcDownloadCSV(){
+  if(!_lcResults)return;
+  var results=_lcResults.results||{};
+  var payload={quantity:parseInt((document.getElementById('lcQuantity')||{}).value||'1'),resultCurrency:(document.getElementById('lcResultCurrency')||{}).value||'USD'};
+  var rows=[['Origin','Mode','Product','Shipping','Tariffs','Fees','Total','Per Unit','Transit Days','Risk']];
+  Object.keys(results).forEach(function(ctry){
+    Object.keys(results[ctry]).forEach(function(mode){
+      var r=results[ctry][mode];
+      if(!r||!r.total)return;
+      rows.push([ctry,mode,r.product||0,r.shipping||0,r.tariffs||0,r.fees||0,r.total||0,(r.total/payload.quantity).toFixed(2),r.transitDays||'',r.risk||'']);
+    });
+  });
+  var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob([csv],{type:'text/csv'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='landed-cost-'+Date.now()+'.csv';
+  a.click();
+}
+
+function lcExportPDF(){
+  lcShowToast('PDF export — open your browser Print dialog (Ctrl+P / Cmd+P) and select "Save as PDF".');
+}
+
+// Helpers
+function lcFmt(val,cur){
+  if(val==null||isNaN(val))return'—';
+  return(cur||'USD')+' '+Number(val).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function lcFmtLarge(val,cur){
+  if(val==null||isNaN(val))return'—';
+  if(val>=1000000)return(cur||'USD')+' '+(val/1000000).toFixed(2)+'M';
+  if(val>=1000)return(cur||'USD')+' '+(val/1000).toFixed(1)+'K';
+  return lcFmt(val,cur);
+}
+function lcRiskLabel(r){
+  var risk=(r&&r.risk)||'';
+  if(!risk)return'Unknown';
+  return risk.charAt(0).toUpperCase()+risk.slice(1);
+}
+function lcRiskBadge(r){
+  var risk=(r&&r.risk)||'';
+  if(risk==='low')return'lc-badge-risk-low';
+  if(risk==='high')return'lc-badge-risk-high';
+  return'lc-badge-risk-med';
+}
+function lcEsc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function lcShowToast(msg){
+  var t=document.getElementById('sbToast');
+  if(!t)return;
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3500);
+}
 </script>
 
 <iframe id="jarvisFrame" src="https://risksim-backend.onrender.com/voice.html" style="display:none;width:0;height:0;border:none;position:absolute;" allow="microphone"></iframe>
