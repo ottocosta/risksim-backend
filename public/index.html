@@ -188,10 +188,9 @@
     .leaflet-container { background:var(--bg)!important; width:100%!important; height:100%!important; margin:0!important; padding:0!important; }
     .leaflet-tile-pane { filter: brightness(0.85) saturate(0.7) contrast(1.1); }
     .leaflet-popup-content-wrapper {
-      background: rgba(8,12,20,0.95)!important; color:#fff!important; border-radius:16px!important;
-      border:1px solid var(--glass-border)!important; border-left:3px solid var(--accent)!important;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.8)!important;
-      backdrop-filter:blur(24px)!important;
+      background: #111111!important; color:#fff!important; border-radius:16px!important;
+      border:1px solid rgba(255,255,255,0.1)!important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6)!important;
     }
     .leaflet-popup-tip-container { display:none!important; }
     .leaflet-popup-content { margin:0!important; }
@@ -345,7 +344,7 @@
     .popup-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
     .popup-country { font-size:15px; font-weight:700; color:#fff; }
     .popup-risk-badge { font-size:9px; font-weight:700; padding:3px 8px; border-radius:20px; letter-spacing:0.08em; font-family:var(--font-mono); }
-    .popup-divider { height:1px; background:linear-gradient(90deg,rgba(45,212,191,0.2),transparent); margin-bottom:10px; }
+    .popup-divider { height:1px; background:linear-gradient(90deg,rgba(255,255,255,0.08),transparent); margin-bottom:10px; }
     .popup-row { display:flex; justify-content:space-between; padding:5px 0; font-size:11px; border-bottom:1px solid rgba(255,255,255,0.04); }
     .popup-row:last-of-type { border-bottom:none; }
     .popup-label { color:var(--muted); }
@@ -357,11 +356,12 @@
     .popup-bar-label { font-size:9px; font-family:var(--font-mono); color:var(--muted); width:26px; text-align:right; }
     .popup-deepdive-btn {
       display:block; width:100%; margin-top:14px; padding:10px;
-      background:rgba(45,212,191,0.06); border:1px solid rgba(45,212,191,0.15);
-      border-radius:8px; color:var(--accent); font-family:var(--font-mono); font-size:10px;
+      background:white; border:none;
+      border-radius:8px; color:black; font-family:var(--font-mono); font-size:10px;
       letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; text-align:center; transition:all 0.2s;
+      font-weight:700;
     }
-    .popup-deepdive-btn:hover { background:rgba(45,212,191,0.12); border-color:rgba(45,212,191,0.3); }
+    .popup-deepdive-btn:hover { opacity:0.88; }
 
     /* ===== HERO PANEL ===== */
     #heroPanel {
@@ -3730,7 +3730,7 @@ function buildLegend(layer){var cfg=LAYER_CONFIG[layer];if(!cfg)return;var t=doc
 
 function updateMapLayer(layer){currentLayer=layer;var btnMap={risk:'btnRisk',shipping:'btnShipping',labor:'btnLabor',cost:'btnCost',sourcing:'btnSourcing'};for(var k in btnMap){var b=document.getElementById(btnMap[k]);if(b)b.classList.toggle('active',k===layer);}var cfg=LAYER_CONFIG[layer];if(cfg){var n=document.getElementById('overlayName'),s=document.getElementById('overlaySub');if(n)n.textContent=cfg.name;if(s)s.textContent=cfg.sub;}renderMarkers();buildLegend(layer);}
 
-function deepDive(name){var c=COUNTRY_MAP[name];if(!c)return;sendMessage('Deep dive analysis of '+name+'. Risk:'+c.risk+'/100, Tariff:'+c.tariff+'%, Infra:'+c.infra+'/10.');}
+function deepDive(name){var c=COUNTRY_MAP[name];if(!c)return;openChatFullscreen('Deep dive analysis of '+name+'. Risk:'+c.risk+'/100, Tariff:'+c.tariff+'%, Infra:'+c.infra+'/10. Sourcing:'+((c.sourcing&&c.sourcing[currentCategory])||0)+'/100. Shipping:'+c.shipping+'/10, Labor:'+c.labor+'/10.','map');}
 
 document.addEventListener('DOMContentLoaded',function(){var cg=document.getElementById('sourcingChips');if(cg)cg.addEventListener('click',function(e){var chip=e.target.closest('.chip-option');if(!chip)return;chip.classList.toggle('selected');selectedSourcingCountries=[];var sel=cg.querySelectorAll('.chip-option.selected');for(var i=0;i<sel.length;i++)selectedSourcingCountries.push(sel[i].getAttribute('data-country'));});});
 
