@@ -8162,7 +8162,7 @@ function lcRenderResults(data,payload){
       Object.keys(results).forEach(function(ctry){
         Object.keys(results[ctry]).forEach(function(mode){
           var r=results[ctry][mode];
-          if(r&&r.total)allCosts.push(r.total/payload.quantity);
+          if(r&&r.total&&r.total.perUnit!=null)allCosts.push(r.total.perUnit);
         });
       });
       if(allCosts.length>1){
@@ -8195,7 +8195,7 @@ function lcRenderTable(results,payload,opt,cur){
   // Collect all mode columns that have data
   var activeModes=[];
   modes.forEach(function(m){
-    var hasData=countries.some(function(c){return results[c]&&results[c][m]&&results[c][m].total;});
+    var hasData=countries.some(function(c){return results[c]&&results[c][m]&&results[c][m].total&&results[c][m].total.perUnit;});
     if(hasData)activeModes.push(m);
   });
   var thead='<tr><th>Origin</th><th>Risk</th>'+activeModes.map(function(m){return'<th>'+m.charAt(0).toUpperCase()+m.slice(1)+'</th>';}).join('')+'</tr>';
@@ -8204,10 +8204,11 @@ function lcRenderTable(results,payload,opt,cur){
     var riskData=results[ctry]&&results[ctry][activeModes[0]]?results[ctry][activeModes[0]]:{};
     var cells=activeModes.map(function(m){
       var r=results[ctry]&&results[ctry][m];
-      if(!r||!r.total)return'<td style="color:rgba(255,255,255,0.18)">—</td>';
-      var perUnit=r.total/payload.quantity;
+      if(!r||!r.total||r.total.perUnit==null)return'<td style="color:rgba(255,255,255,0.18)">—</td>';
+      var perUnit=r.total.perUnit;
+      var transit=(r.shipping&&r.shipping.transitDays)||r.transitDays||'';
       var isOptCell=(isOpt&&m===opt.mode);
-      return'<td class="lc-total-cell" style="'+(isOptCell?'color:rgba(100,220,140,0.9)':'')+'">'+lcFmt(perUnit,cur)+'<span style="display:block;font-size:9px;color:rgba(255,255,255,0.3);font-family:JetBrains Mono,monospace;margin-top:1px">'+lcEsc(r.transitDays?r.transitDays+'d transit':'')+'</span></td>';
+      return'<td class="lc-total-cell" style="'+(isOptCell?'color:rgba(100,220,140,0.9)':'')+'">'+lcFmt(perUnit,cur)+'<span style="display:block;font-size:9px;color:rgba(255,255,255,0.3);font-family:JetBrains Mono,monospace;margin-top:1px">'+lcEsc(transit?transit+'d transit':'')+'</span></td>';
     }).join('');
     return'<tr class="'+(isOpt?'lc-row-optimal':'')+'">'+
       '<td>'+lcEsc(ctry)+(isOpt?' <span class="lc-card-badge lc-badge-optimal" style="font-size:8px">OPTIMAL</span>':'')+'</td>'+
@@ -8220,20 +8221,23 @@ function lcRenderTable(results,payload,opt,cur){
 function lcRenderWaterfall(r,payload,cur){
   var wrap=document.getElementById('lcWaterfall');
   if(!wrap)return;
+  var productPerUnit=(r.product&&r.product.unitPriceResult)||0;
+  var shippingPerUnit=(r.shipping&&r.shipping.freightPerUnit)||0;
+  var tariffsPerUnit=(r.tariffs&&r.tariffs.costPerUnit)||0;
+  var feesPerUnit=(r.fees&&r.fees.perUnit)||0;
+  var totalPerUnit=(r.total&&r.total.perUnit)||1;
   var components=[
-    {label:'Product',value:r.product||0,color:'rgba(160,160,255,0.7)'},
-    {label:'Shipping',value:r.shipping||0,color:'rgba(100,180,255,0.7)'},
-    {label:'Tariffs',value:r.tariffs||0,color:'rgba(255,180,80,0.7)'},
-    {label:'Fees',value:r.fees||0,color:'rgba(255,120,80,0.7)'}
+    {label:'Product',value:productPerUnit,color:'rgba(160,160,255,0.7)'},
+    {label:'Shipping',value:shippingPerUnit,color:'rgba(100,180,255,0.7)'},
+    {label:'Tariffs',value:tariffsPerUnit,color:'rgba(255,180,80,0.7)'},
+    {label:'Fees',value:feesPerUnit,color:'rgba(255,120,80,0.7)'}
   ];
-  var total=r.total||1;
   wrap.innerHTML=components.map(function(c){
-    var pct=Math.max(2,Math.round((c.value/total)*100));
-    var perUnit=c.value/payload.quantity;
+    var pct=Math.max(2,Math.round((c.value/totalPerUnit)*100));
     return'<div class="lc-wf-row">'+
       '<div class="lc-wf-label">'+lcEsc(c.label)+'</div>'+
       '<div class="lc-wf-bar-wrap"><div class="lc-wf-bar" style="width:'+pct+'%;background:'+c.color+'"></div></div>'+
-      '<div class="lc-wf-value">'+lcFmt(perUnit,cur)+' <span style="color:rgba(255,255,255,0.28);font-size:9px">('+pct+'%)</span></div>'+
+      '<div class="lc-wf-value">'+lcFmt(c.value,cur)+' <span style="color:rgba(255,255,255,0.28);font-size:9px">('+pct+'%)</span></div>'+
     '</div>';
   }).join('');
 }
@@ -8289,7 +8293,14 @@ function lcDownloadCSV(){
     Object.keys(results[ctry]).forEach(function(mode){
       var r=results[ctry][mode];
       if(!r||!r.total)return;
-      rows.push([ctry,mode,r.product||0,r.shipping||0,r.tariffs||0,r.fees||0,r.total||0,(r.total/payload.quantity).toFixed(2),r.transitDays||'',r.risk||'']);
+      var rProd=(r.product&&r.product.unitPriceResult)||0;
+      var rShip=(r.shipping&&r.shipping.freightPerUnit)||0;
+      var rTariff=(r.tariffs&&r.tariffs.costPerUnit)||0;
+      var rFees=(r.fees&&r.fees.perUnit)||0;
+      var rTotal=(r.total&&r.total.perUnit)||0;
+      var rTransit=(r.shipping&&r.shipping.transitDays)||'';
+      var rRisk=(r.risk&&r.risk.reliability)||'';
+      rows.push([ctry,mode,rProd,rShip,rTariff,rFees,(r.total&&r.total.perShipment)||0,rTotal.toFixed(2),rTransit,rRisk]);
     });
   });
   var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
@@ -8316,14 +8327,19 @@ function lcFmtLarge(val,cur){
   return lcFmt(val,cur);
 }
 function lcRiskLabel(r){
-  var risk=(r&&r.risk)||'';
+  var risk=r&&r.risk;
   if(!risk)return'Unknown';
-  return risk.charAt(0).toUpperCase()+risk.slice(1);
+  // reliability: 'High' = reliable sourcing, 'Low' = unreliable
+  var rel=risk.reliability||'';
+  if(rel)return rel;
+  var score=risk.countryRiskScore||50;
+  return score<25?'High':score<50?'Medium':'Low';
 }
 function lcRiskBadge(r){
-  var risk=(r&&r.risk)||'';
-  if(risk==='low')return'lc-badge-risk-low';
-  if(risk==='high')return'lc-badge-risk-high';
+  var label=lcRiskLabel(r);
+  // reliability 'High' = good = low-risk badge (green)
+  if(label==='High')return'lc-badge-risk-low';
+  if(label==='Low')return'lc-badge-risk-high';
   return'lc-badge-risk-med';
 }
 function lcEsc(s){
