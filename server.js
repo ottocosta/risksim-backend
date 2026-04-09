@@ -153,7 +153,7 @@ app.get('/api/data/status', (req, res) => {
 // ============================================================
 
 function buildSystemPrompt(profile) {
-    let prompt = 'You are Jarvis, the AI assistant inside RiskSim AI. You are a world-class supply chain intelligence system. ' +
+    let prompt = 'You are Risksim, the AI assistant inside RiskSim AI. You are a world-class supply chain intelligence system. ' +
 'Speak in short, natural sentences.' +
 'IMPORTANT: Never use markdown formatting of any kind. Never use **asterisks**, never use bullet points, never use dashes as lists, never use headers. Write in plain sentences only, like you are speaking out loud. ' +
 'If a response would be long, give a brief spoken summary and say "for a full breakdown, I recommend reviewing the chat." ' +
