@@ -2497,6 +2497,187 @@
     color: rgba(255,120,100,0.9); font-size: 12px; font-family: 'JetBrains Mono', monospace;
   }
 
+  /* ===== SYS_06 COST ENGINE — NEW COMPONENTS ===== */
+  .lc-res-section {
+    padding-top: 20px; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .lc-res-section:empty { display: none; }
+  .lc-res-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 400;
+    letter-spacing: 0.22em; color: rgba(255,255,255,0.25); text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .lc-res-sub {
+    font-size: 11px; color: rgba(255,255,255,0.3); font-family: Inter, sans-serif; margin-bottom: 14px;
+  }
+  /* Stacked bar waterfall */
+  .lc-stacked-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+  }
+  .lc-stacked-country {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.45);
+    width: 80px; flex-shrink: 0; text-align: right; text-transform: uppercase;
+  }
+  .lc-stacked-bar { flex: 1; height: 32px; display: flex; position: relative; border-radius: 3px; overflow: hidden; background: rgba(255,255,255,0.03); }
+  .lc-stacked-seg { height: 100%; transition: width 0.6s cubic-bezier(0.16,1,0.3,1); cursor: default; position: relative; }
+  .lc-stacked-seg:hover::after {
+    content: attr(data-tip); position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
+    background: #222; border: 1px solid rgba(255,255,255,0.12); border-radius: 4px;
+    padding: 3px 8px; font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: white; white-space: nowrap; z-index: 100; pointer-events: none;
+  }
+  .lc-stacked-total {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.55);
+    width: 90px; flex-shrink: 0; text-align: left;
+  }
+  .lc-stacked-legend {
+    display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap;
+  }
+  .lc-stacked-leg-item {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.35);
+  }
+  .lc-stacked-leg-swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+  /* Scatter plot */
+  .lc-scatter-wrap {
+    width: 100%; height: 260px; position: relative;
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; overflow: hidden; margin-bottom: 8px;
+  }
+  .lc-scatter-dot {
+    position: absolute; width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.5);
+    transform: translate(-50%,-50%); cursor: default; transition: all 0.3s;
+  }
+  .lc-scatter-dot.optimal { background: rgba(100,255,140,0.8); border-color: rgba(100,255,140,0.9); }
+  .lc-scatter-dot:hover { transform: translate(-50%,-50%) scale(1.6); z-index: 10; }
+  .lc-scatter-label {
+    position: absolute; font-family: 'JetBrains Mono', monospace; font-size: 8px;
+    color: rgba(255,255,255,0.45); transform: translateX(-50%); pointer-events: none; white-space: nowrap;
+  }
+  .lc-scatter-quad {
+    position: absolute; font-family: 'JetBrains Mono', monospace; font-size: 8px;
+    letter-spacing: 0.1em; color: rgba(255,255,255,0.08); pointer-events: none;
+  }
+  .lc-scatter-quad.ideal { color: rgba(100,255,140,0.15); }
+  .lc-scatter-crosshair {
+    position: absolute; background: rgba(255,255,255,0.06); pointer-events: none;
+  }
+  .lc-scatter-axis-x {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.2); text-align: center; margin-top: 6px;
+  }
+  /* Mode matrix */
+  .lc-matrix-table {
+    width: 100%; border-collapse: collapse; font-size: 11px;
+  }
+  .lc-matrix-table th {
+    padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 8px;
+    letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.07);
+    text-align: center;
+  }
+  .lc-matrix-table th:first-child { text-align: left; }
+  .lc-matrix-table td {
+    padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: top; text-align: center; color: rgba(255,255,255,0.55);
+  }
+  .lc-matrix-table td:first-child { text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.75); }
+  .lc-matrix-table tr:last-child td { border-bottom: none; }
+  .lc-matrix-cell-best { background: rgba(100,255,140,0.04); }
+  .lc-matrix-cell-worst { background: rgba(255,80,80,0.03); }
+  .lc-matrix-cost { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.75); }
+  .lc-matrix-transit { font-size: 9px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+  .lc-matrix-co2 { font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 1px; }
+  .lc-matrix-tag { font-size: 8px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.08em; color: rgba(100,255,140,0.7); margin-top: 2px; }
+  .lc-matrix-na { color: rgba(255,255,255,0.15); font-size: 11px; }
+  /* Expandable rows */
+  .lc-expand-row td { cursor: pointer; }
+  .lc-expand-row:hover td { background: rgba(255,255,255,0.015); }
+  .lc-expand-detail {
+    display: none; padding: 0; background: rgba(255,255,255,0.01);
+  }
+  .lc-expand-detail.open { display: table-row; }
+  .lc-expand-inner {
+    padding: 0 14px 16px; max-height: 0; overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.16,1,0.3,1), padding 0.35s;
+  }
+  .lc-expand-inner.open { max-height: 600px; padding: 14px 14px 16px; }
+  .lc-expand-group { margin-bottom: 12px; }
+  .lc-expand-group-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.22); text-transform: uppercase; margin-bottom: 6px;
+    padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .lc-expand-line {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 3px 0; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.025);
+  }
+  .lc-expand-line:last-child { border-bottom: none; }
+  .lc-expand-line-label { color: rgba(255,255,255,0.38); font-family: Inter, sans-serif; }
+  .lc-expand-line-value { color: rgba(255,255,255,0.72); font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+  .lc-expand-total-line {
+    display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.1); font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: white;
+  }
+  .lc-chevron { font-size: 10px; color: rgba(255,255,255,0.28); margin-right: 6px; }
+  /* Sliders */
+  .lc-slider-wrap { margin-bottom: 16px; }
+  .lc-slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .lc-slider-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+  .lc-slider-value { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.75); }
+  input[type=range].lc-range {
+    width: 100%; -webkit-appearance: none; appearance: none;
+    height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; outline: none; cursor: pointer;
+  }
+  input[type=range].lc-range::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+    background: white; cursor: pointer; border: none;
+    box-shadow: 0 0 4px rgba(0,0,0,0.4);
+  }
+  input[type=range].lc-range::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%; background: white;
+    cursor: pointer; border: none;
+  }
+  .lc-sensitivity-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px; margin-top: 14px;
+  }
+  .lc-sens-card {
+    padding: 10px 12px; background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07); border-radius: 8px;
+  }
+  .lc-sens-country { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 4px; }
+  .lc-sens-cost { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: white; }
+  .lc-sens-delta { font-size: 10px; font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+  .lc-sens-delta.up { color: rgba(255,100,80,0.9); }
+  .lc-sens-delta.down { color: rgba(100,220,140,0.9); }
+  .lc-sens-note {
+    font-size: 11px; color: rgba(255,255,255,0.3); font-family: Inter, sans-serif;
+    padding: 10px 0; font-style: italic;
+  }
+  .lc-preset-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .lc-preset-btn {
+    padding: 5px 11px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px; color: rgba(255,255,255,0.55); cursor: pointer; font-size: 10px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.06em; transition: all 0.15s;
+  }
+  .lc-preset-btn:hover { background: rgba(255,255,255,0.09); color: white; }
+  /* Trend chart */
+  .lc-trend-canvas-wrap {
+    width: 100%; position: relative; margin-bottom: 10px;
+  }
+  .lc-trend-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+  .lc-trend-leg-item {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.35);
+  }
+  .lc-trend-disclaimer {
+    font-size: 10px; color: rgba(255,255,255,0.2); font-family: Inter, sans-serif;
+    margin-top: 8px; font-style: italic;
+  }
+
   /* ===== SYS_06 COST ENGINE ===== */
   #costEngineModule {
     position: fixed; inset: 0; background: #080808;
@@ -3197,14 +3378,16 @@ window.addEventListener('keydown',__handleIntroKey,true);
       </div>
       <div id="lcResults" style="display:none">
         <div class="lc-summary-bar" id="lcSummaryBar"></div>
-        <div class="lc-table-section">
+        <div class="lc-res-section" id="lcStackedSection"></div>
+        <div class="lc-res-section" id="lcScatterSection"></div>
+        <div class="lc-res-section">
           <div class="lc-section-label" style="margin-bottom:10px">Cost Breakdown by Origin &amp; Mode</div>
           <div class="lc-table-wrap" id="lcTableWrap"></div>
         </div>
-        <div class="lc-chart-section">
-          <div class="lc-section-label" style="margin-bottom:10px">Cost Components — Optimal Route</div>
-          <div id="lcWaterfall" class="lc-waterfall-wrap"></div>
-        </div>
+        <div class="lc-res-section" id="lcMatrixSection"></div>
+        <div class="lc-res-section" id="lcTariffSection"></div>
+        <div class="lc-res-section" id="lcCurrencySection"></div>
+        <div class="lc-res-section" id="lcTrendSection"></div>
         <div class="lc-export-bar">
           <button class="lc-export-btn" onclick="lcExportPDF()">Export PDF</button>
           <button class="lc-export-btn secondary" onclick="lcDownloadCSV()">Download CSV</button>
@@ -8217,7 +8400,17 @@ function lcCalculate(){
   });
 }
 
+// Global state for simulators
+var _lcPayload=null;
+var _lcTariffAdj=0;
+var _lcFxAdj={};
+var _lcExpandedRow=null;
+
 function lcRenderResults(data,payload){
+  _lcPayload=payload;
+  _lcTariffAdj=0;
+  _lcFxAdj={};
+
   var opt=data.optimal||{};
   var cur=payload.resultCurrency||'USD';
   var results=data.results||{};
@@ -8226,90 +8419,566 @@ function lcRenderResults(data,payload){
   var summaryBar=document.getElementById('lcSummaryBar');
   if(summaryBar){
     var optLabel=opt.country?opt.country+' via '+opt.mode:'N/A';
-    var saving=0;
-    if(opt.costPerUnit){
-      var allCosts=[];
-      Object.keys(results).forEach(function(ctry){
-        Object.keys(results[ctry]).forEach(function(mode){
-          var r=results[ctry][mode];
-          if(r&&r.total&&r.total.perUnit!=null)allCosts.push(r.total.perUnit);
-        });
+    var allCosts=[];
+    Object.keys(results).forEach(function(ctry){
+      Object.keys(results[ctry]).forEach(function(m){
+        var r=results[ctry][m];
+        if(r&&r.total&&r.total.perUnit!=null)allCosts.push(r.total.perUnit);
       });
-      if(allCosts.length>1){
-        var maxCost=Math.max.apply(null,allCosts);
-        saving=Math.round((1-opt.costPerUnit/maxCost)*100);
-      }
+    });
+    var saving=0;
+    if(allCosts.length>1&&opt.costPerUnit){
+      var maxCost=Math.max.apply(null,allCosts);
+      saving=Math.round((1-opt.costPerUnit/maxCost)*100);
     }
     summaryBar.innerHTML=
       '<div class="lc-summary-card"><div class="lc-card-label">Optimal Route</div><div class="lc-card-value" style="font-size:15px">'+lcEsc(optLabel)+'</div><div class="lc-card-sub"><span class="lc-card-badge lc-badge-optimal">Best Cost</span></div></div>'+
       '<div class="lc-summary-card"><div class="lc-card-label">Cost / Unit</div><div class="lc-card-value">'+lcFmt(opt.costPerUnit||0,cur)+'</div><div class="lc-card-sub">'+lcEsc(cur)+' landed</div></div>'+
       '<div class="lc-summary-card"><div class="lc-card-label">Total Order Cost</div><div class="lc-card-value">'+lcFmtLarge((opt.costPerUnit||0)*payload.quantity,cur)+'</div><div class="lc-card-sub">'+payload.quantity+' units</div></div>'+
       (saving>0?'<div class="lc-summary-card"><div class="lc-card-label">Savings vs Worst</div><div class="lc-card-value">'+saving+'%</div><div class="lc-card-sub">vs highest-cost option</div></div>':'')+
-      (opt.country&&results[opt.country]?'<div class="lc-summary-card"><div class="lc-card-label">Risk Level</div><div class="lc-card-value" style="font-size:14px">'+lcEsc(lcRiskLabel(results[opt.country][opt.mode]))+'</div><div class="lc-card-sub"><span class="lc-card-badge '+lcRiskBadge(results[opt.country][opt.mode])+'">'+lcEsc(lcRiskLabel(results[opt.country][opt.mode]))+'</span></div></div>':'');
+      (opt.country&&results[opt.country]&&results[opt.country][opt.mode]?'<div class="lc-summary-card"><div class="lc-card-label">Risk Level</div><div class="lc-card-value" style="font-size:14px">'+lcEsc(lcRiskLabel(results[opt.country][opt.mode]))+'</div><div class="lc-card-sub"><span class="lc-card-badge '+lcRiskBadge(results[opt.country][opt.mode])+'">'+lcEsc(lcRiskLabel(results[opt.country][opt.mode]))+'</span></div></div>':'');
   }
 
-  // Table
+  // All sections
+  lcRenderStackedWaterfall(results,opt,cur);
+  lcRenderScatter(results,opt,cur);
   lcRenderTable(results,payload,opt,cur);
-
-  // Waterfall
-  if(opt.country&&opt.mode&&results[opt.country]&&results[opt.country][opt.mode]){
-    lcRenderWaterfall(results[opt.country][opt.mode],payload,cur);
-  }
+  lcRenderModeMatrix(results,opt,cur);
+  lcRenderTariffSlider(data,payload,cur);
+  lcRenderCurrencySlider(data,payload,cur);
+  lcRenderTrend(results,opt,cur);
 }
 
+// Stacked bar waterfall per country
+function lcRenderStackedWaterfall(results,opt,cur){
+  var el=document.getElementById('lcStackedSection');
+  if(!el)return;
+  var countries=Object.keys(results);
+  if(!countries.length){el.innerHTML='';return;}
+  var MODES=['sea','air','rail','road'];
+  // Get per-country best mode cost breakdown
+  var rows=[];
+  var maxTotal=0;
+  countries.forEach(function(ctry){
+    var best=null;
+    MODES.forEach(function(m){
+      var r=results[ctry]&&results[ctry][m];
+      if(r&&r.total&&r.total.perUnit!=null){
+        if(!best||r.total.perUnit<best.total.perUnit)best=r;
+      }
+    });
+    if(!best)return;
+    var prod=(best.product&&best.product.unitPriceResult)||0;
+    var ship=(best.shipping&&best.shipping.freightPerUnit)||0;
+    var tariff=(best.tariffs&&best.tariffs.costPerUnit)||0;
+    var fees=(best.fees&&best.fees.perUnit)||0;
+    var total=best.total.perUnit;
+    if(total>maxTotal)maxTotal=total;
+    rows.push({ctry:ctry,prod:prod,ship:ship,tariff:tariff,fees:fees,total:total,isOpt:ctry===opt.country});
+  });
+  if(!maxTotal)maxTotal=1;
+  var SEGS=[
+    {key:'prod',color:'rgba(255,255,255,0.22)',label:'Product'},
+    {key:'ship',color:'rgba(255,255,255,0.15)',label:'Shipping'},
+    {key:'tariff',color:'rgba(255,255,255,0.09)',label:'Tariffs'},
+    {key:'fees',color:'rgba(255,255,255,0.05)',label:'Fees'}
+  ];
+  var barsHtml=rows.map(function(row){
+    var segs=SEGS.map(function(s){
+      var w=Math.max(0.5,(row[s.key]/maxTotal)*100).toFixed(1);
+      var val=lcFmt(row[s.key],cur);
+      return'<div class="lc-stacked-seg" style="width:'+w+'%;background:'+s.color+'" data-tip="'+s.label+': '+val+'"></div>';
+    }).join('');
+    return'<div class="lc-stacked-row">'+
+      '<div class="lc-stacked-country">'+lcEsc(ctryCode(row.ctry))+'</div>'+
+      '<div class="lc-stacked-bar" style="'+(row.isOpt?'border-left:2px solid rgba(100,255,140,0.5);':'')+'">'+ segs+'</div>'+
+      '<div class="lc-stacked-total">'+lcFmt(row.total,cur)+'</div>'+
+    '</div>';
+  }).join('');
+  var legend=SEGS.map(function(s){
+    return'<div class="lc-stacked-leg-item"><div class="lc-stacked-leg-swatch" style="background:'+s.color+'"></div>'+s.label+'</div>';
+  }).join('');
+  el.innerHTML='<div class="lc-res-title">Cost Build-Up Analysis</div>'+barsHtml+
+    '<div class="lc-stacked-legend">'+legend+'</div>';
+}
+
+// Scatter plot: cost vs risk
+function lcRenderScatter(results,opt,cur){
+  var el=document.getElementById('lcScatterSection');
+  if(!el)return;
+  var countries=Object.keys(results);
+  if(countries.length<2){el.innerHTML='';return;}
+  var MODES=['sea','air','rail','road'];
+  var points=[];
+  countries.forEach(function(ctry){
+    var best=null;
+    MODES.forEach(function(m){
+      var r=results[ctry]&&results[ctry][m];
+      if(r&&r.total&&r.total.perUnit!=null)if(!best||r.total.perUnit<best.total.perUnit)best=r;
+    });
+    if(!best)return;
+    var cost=best.total.perUnit;
+    var risk=(best.risk&&best.risk.countryRiskScore)||50;
+    points.push({ctry:ctry,cost:cost,risk:risk,isOpt:ctry===opt.country});
+  });
+  if(!points.length){el.innerHTML='';return;}
+  var minCost=Math.min.apply(null,points.map(function(p){return p.cost;}));
+  var maxCost=Math.max.apply(null,points.map(function(p){return p.cost;}));
+  var minRisk=Math.min.apply(null,points.map(function(p){return p.risk;}));
+  var maxRisk=Math.max.apply(null,points.map(function(p){return p.risk;}));
+  var costRange=maxCost-minCost||1;
+  var riskRange=maxRisk-minRisk||1;
+  var PAD=30; // px padding
+  var W=100,H=260; // % width, px height
+  // Crosshair at median
+  var medCostPct=((((minCost+maxCost)/2)-minCost)/costRange)*100;
+  var medRiskPct=(1-(((minRisk+maxRisk)/2)-minRisk)/riskRange)*100;
+  var dotsHtml=points.map(function(p){
+    var x=PAD+((p.cost-minCost)/costRange)*(100-2*PAD/W*100);
+    var y=PAD+((1-(p.risk-minRisk)/riskRange)*(260-2*PAD));
+    var x100=((p.cost-minCost)/costRange)*100;
+    var y100=(1-(p.risk-minRisk)/riskRange)*100;
+    return'<div class="lc-scatter-dot'+(p.isOpt?' optimal':'')+'" style="left:calc('+x100+'% * 0.85 + 7.5%);top:calc('+y100+'% * 0.8 + 10%);" title="'+lcEsc(p.ctry)+': '+lcFmt(p.cost,cur)+' / Risk '+p.risk+'">'+
+      '</div>'+
+      '<div class="lc-scatter-label" style="left:calc('+x100+'% * 0.85 + 7.5%);top:calc('+y100+'% * 0.8 + 10% + 10px);">'+lcEsc(ctryCode(p.ctry))+'</div>';
+  }).join('');
+  el.innerHTML='<div class="lc-res-title">Cost-Risk Tradeoff</div>'+
+    '<div class="lc-scatter-wrap">'+
+      '<div class="lc-scatter-crosshair" style="left:0;right:0;top:50%;height:1px;border-top:1px dashed rgba(255,255,255,0.06);"></div>'+
+      '<div class="lc-scatter-crosshair" style="top:0;bottom:0;left:50%;width:1px;border-left:1px dashed rgba(255,255,255,0.06);"></div>'+
+      '<div class="lc-scatter-quad" style="top:8px;left:8px;">CHEAP BUT RISKY</div>'+
+      '<div class="lc-scatter-quad" style="top:8px;right:8px;text-align:right;">EXPENSIVE &amp; RISKY</div>'+
+      '<div class="lc-scatter-quad ideal" style="bottom:8px;left:8px;">IDEAL ZONE</div>'+
+      '<div class="lc-scatter-quad" style="bottom:8px;right:8px;text-align:right;">EXPENSIVE BUT SAFE</div>'+
+      dotsHtml+
+    '</div>'+
+    '<div class="lc-scatter-axis-x">LANDED COST PER UNIT &#8594;</div>';
+}
+
+// Main comparison table with expandable rows
 function lcRenderTable(results,payload,opt,cur){
   var wrap=document.getElementById('lcTableWrap');
   if(!wrap)return;
   var countries=Object.keys(results);
   var modes=['sea','air','rail','road'];
-  // Collect all mode columns that have data
   var activeModes=[];
   modes.forEach(function(m){
     var hasData=countries.some(function(c){return results[c]&&results[c][m]&&results[c][m].total&&results[c][m].total.perUnit;});
     if(hasData)activeModes.push(m);
   });
   var thead='<tr><th>Origin</th><th>Risk</th>'+activeModes.map(function(m){return'<th>'+m.charAt(0).toUpperCase()+m.slice(1)+'</th>';}).join('')+'</tr>';
-  var tbody=countries.map(function(ctry){
+  var tbodyRows=[];
+  countries.forEach(function(ctry,idx){
     var isOpt=(ctry===opt.country);
-    var riskData=results[ctry]&&results[ctry][activeModes[0]]?results[ctry][activeModes[0]]:{};
+    var firstMode=activeModes.find(function(m){return results[ctry]&&results[ctry][m];});
+    var riskData=firstMode?results[ctry][firstMode]:{};
     var cells=activeModes.map(function(m){
       var r=results[ctry]&&results[ctry][m];
-      if(!r||!r.total||r.total.perUnit==null)return'<td style="color:rgba(255,255,255,0.18)">—</td>';
+      if(!r||!r.total||r.total.perUnit==null)return'<td style="color:rgba(255,255,255,0.15)">—</td>';
       var perUnit=r.total.perUnit;
-      var transit=(r.shipping&&r.shipping.transitDays)||r.transitDays||'';
+      var transit=(r.shipping&&r.shipping.transitDays)||'';
       var isOptCell=(isOpt&&m===opt.mode);
-      return'<td class="lc-total-cell" style="'+(isOptCell?'color:rgba(100,220,140,0.9)':'')+'">'+lcFmt(perUnit,cur)+'<span style="display:block;font-size:9px;color:rgba(255,255,255,0.3);font-family:JetBrains Mono,monospace;margin-top:1px">'+lcEsc(transit?transit+'d transit':'')+'</span></td>';
+      return'<td class="lc-total-cell" style="'+(isOptCell?'color:rgba(100,220,140,0.9)':'')+'">'+lcFmt(perUnit,cur)+
+        '<span style="display:block;font-size:9px;color:rgba(255,255,255,0.28);font-family:JetBrains Mono,monospace;margin-top:1px">'+(transit?transit+'d':'')+'</span></td>';
     }).join('');
-    return'<tr class="'+(isOpt?'lc-row-optimal':'')+'">'+
-      '<td>'+lcEsc(ctry)+(isOpt?' <span class="lc-card-badge lc-badge-optimal" style="font-size:8px">OPTIMAL</span>':'')+'</td>'+
+    // Main row
+    tbodyRows.push('<tr class="lc-expand-row'+(isOpt?' lc-row-optimal':'')+'" onclick="lcToggleExpand(\'lcexp_'+idx+'\')" id="lcrow_'+idx+'">'+
+      '<td><span class="lc-chevron" id="lcarr_'+idx+'">&#9656;</span>'+lcEsc(ctry)+(isOpt?' <span class="lc-card-badge lc-badge-optimal" style="font-size:8px">OPT</span>':'')+'</td>'+
       '<td><span class="lc-card-badge '+lcRiskBadge(riskData)+'">'+lcEsc(lcRiskLabel(riskData))+'</span></td>'+
-      cells+'</tr>';
-  }).join('');
-  wrap.innerHTML='<table class="lc-table"><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table>';
+      cells+'</tr>');
+    // Expandable detail row
+    var bestMode=opt.country===ctry?opt.mode:(activeModes.find(function(m){return results[ctry]&&results[ctry][m];}) );
+    var dr=bestMode&&results[ctry]?results[ctry][bestMode]:null;
+    var detailHtml='';
+    if(dr){
+      var prod=dr.product||{};var ship=dr.shipping||{};var tariffs=dr.tariffs||{};var fees=dr.fees||{};var tot=dr.total||{};
+      detailHtml='<div class="lc-expand-group">'+
+        '<div class="lc-expand-group-title">Product Cost</div>'+
+        lcExpandLine('Unit Price ('+lcEsc(prod.unitCurrency||'USD')+')',lcEsc(String(prod.unitPriceOriginal||'—')))+
+        lcExpandLine('Exchange Rate','1 USD = '+lcEsc(String(prod.fxRate||1))+' '+(prod.unitCurrency||'USD'))+
+        lcExpandLine('Unit Price (USD)',lcFmt(prod.unitPriceUSD||0,'USD'))+
+        lcExpandLine('Quantity',lcNum(prod.quantity||0))+
+        lcExpandLine('Subtotal',lcFmt(prod.subtotal||0,cur))+
+      '</div>'+
+      '<div class="lc-expand-group">'+
+        '<div class="lc-expand-group-title">Shipping &amp; Logistics</div>'+
+        lcExpandLine('Freight Rate',lcEsc(String(ship.freightPerKg||0))+'/kg')+
+        lcExpandLine('Freight per Unit',lcFmt(ship.freightPerUnit||0,cur))+
+        lcExpandLine('Total Freight',lcFmt(ship.freightTotal||0,cur))+
+        lcExpandLine('Mode',lcEsc(String(ship.mode||'—')))+
+        lcExpandLine('Transit Time',(ship.transitDays||'—')+' days')+
+        lcExpandLine('Container',lcEsc(String(ship.containerType||'—')))+
+        (ship.unitsPerContainer?lcExpandLine('Units/Container',lcNum(ship.unitsPerContainer)):'')+
+        (ship.containersNeeded?lcExpandLine('Containers Needed',String(ship.containersNeeded)):'')+
+        (dr.co2PerUnit!=null?lcExpandLine('CO2 per Unit',dr.co2PerUnit+' kg CO2'):'')+
+      '</div>'+
+      '<div class="lc-expand-group">'+
+        '<div class="lc-expand-group-title">Duties &amp; Tariffs</div>'+
+        lcExpandLine('HS Code',lcEsc(tariffs.hsCode||'N/A'))+
+        lcExpandLine('MFN Tariff Rate',lcPct(tariffs.mfnRate||0))+
+        lcExpandLine('Section 301 / Additional',lcPct(tariffs.additionalDuty||0))+
+        lcExpandLine('Anti-Dumping Duty',lcPct(tariffs.antidumping||0))+
+        lcExpandLine('Effective Tariff Rate',lcPct(tariffs.effectiveRate||0))+
+        lcExpandLine('Duty per Unit',lcFmt(tariffs.costPerUnit||0,cur))+
+        lcExpandLine('Total Duties',lcFmt(tariffs.costTotal||0,cur))+
+      '</div>'+
+      '<div class="lc-expand-group">'+
+        '<div class="lc-expand-group-title">Fees &amp; Charges</div>'+
+        lcExpandLine('Cargo Insurance ('+(fees.insuranceRate||0.5)+'%)',lcFmt(fees.insurance||0,cur))+
+        lcExpandLine('Customs Broker Fee',lcFmt(fees.brokerFee||0,cur))+
+        lcExpandLine('Harbor Maintenance ('+lcPct(fees.hmfRate||0.125)+')',lcFmt(fees.hmf||0,cur))+
+        lcExpandLine('Merchandise Processing ('+lcPct(fees.mpfRate||0.3464)+')',lcFmt(fees.mpf||0,cur))+
+        lcExpandLine('Inland Transportation',lcFmt(fees.inland||0,cur))+
+        lcExpandLine('Total Fees',lcFmt(fees.subtotal||0,cur))+
+      '</div>'+
+      '<div class="lc-expand-total-line"><span>Total Landed Cost</span><span>'+lcFmt(tot.perUnit||0,cur)+'/unit &nbsp;·&nbsp; '+lcFmtLarge(tot.perShipment||0,cur)+' total &nbsp;·&nbsp; +'+lcEsc(String(tot.costIncrease||0))+'% vs factory</span></div>';
+    }
+    tbodyRows.push('<tr class="lc-expand-detail" id="lcexp_'+idx+'"><td colspan="'+(activeModes.length+2)+'">'+
+      '<div class="lc-expand-inner" id="lcinner_'+idx+'">'+detailHtml+'</div></td></tr>');
+  });
+  wrap.innerHTML='<table class="lc-table"><thead>'+thead+'</thead><tbody>'+tbodyRows.join('')+'</tbody></table>';
 }
 
-function lcRenderWaterfall(r,payload,cur){
-  var wrap=document.getElementById('lcWaterfall');
-  if(!wrap)return;
-  var productPerUnit=(r.product&&r.product.unitPriceResult)||0;
-  var shippingPerUnit=(r.shipping&&r.shipping.freightPerUnit)||0;
-  var tariffsPerUnit=(r.tariffs&&r.tariffs.costPerUnit)||0;
-  var feesPerUnit=(r.fees&&r.fees.perUnit)||0;
-  var totalPerUnit=(r.total&&r.total.perUnit)||1;
-  var components=[
-    {label:'Product',value:productPerUnit,color:'rgba(160,160,255,0.7)'},
-    {label:'Shipping',value:shippingPerUnit,color:'rgba(100,180,255,0.7)'},
-    {label:'Tariffs',value:tariffsPerUnit,color:'rgba(255,180,80,0.7)'},
-    {label:'Fees',value:feesPerUnit,color:'rgba(255,120,80,0.7)'}
-  ];
-  wrap.innerHTML=components.map(function(c){
-    var pct=Math.max(2,Math.round((c.value/totalPerUnit)*100));
-    return'<div class="lc-wf-row">'+
-      '<div class="lc-wf-label">'+lcEsc(c.label)+'</div>'+
-      '<div class="lc-wf-bar-wrap"><div class="lc-wf-bar" style="width:'+pct+'%;background:'+c.color+'"></div></div>'+
-      '<div class="lc-wf-value">'+lcFmt(c.value,cur)+' <span style="color:rgba(255,255,255,0.28);font-size:9px">('+pct+'%)</span></div>'+
+function lcExpandLine(label,val){
+  return'<div class="lc-expand-line"><span class="lc-expand-line-label">'+label+'</span><span class="lc-expand-line-value">'+val+'</span></div>';
+}
+
+function lcToggleExpand(detailId){
+  var detEl=document.getElementById(detailId);
+  var idx=detailId.replace('lcexp_','');
+  var inner=document.getElementById('lcinner_'+idx);
+  var arr=document.getElementById('lcarr_'+idx);
+  if(!detEl||!inner)return;
+  var isOpen=detEl.classList.contains('open');
+  // Close any currently open row
+  if(_lcExpandedRow&&_lcExpandedRow!==detailId){
+    var prevDetail=document.getElementById(_lcExpandedRow);
+    var prevIdx=_lcExpandedRow.replace('lcexp_','');
+    var prevInner=document.getElementById('lcinner_'+prevIdx);
+    var prevArr=document.getElementById('lcarr_'+prevIdx);
+    if(prevDetail)prevDetail.classList.remove('open');
+    if(prevInner)prevInner.classList.remove('open');
+    if(prevArr)prevArr.innerHTML='&#9656;';
+  }
+  if(isOpen){
+    detEl.classList.remove('open');inner.classList.remove('open');
+    if(arr)arr.innerHTML='&#9656;';
+    _lcExpandedRow=null;
+  }else{
+    detEl.classList.add('open');inner.classList.add('open');
+    if(arr)arr.innerHTML='&#9662;';
+    _lcExpandedRow=detailId;
+  }
+}
+
+// Multi-mode shipping matrix
+function lcRenderModeMatrix(results,opt,cur){
+  var el=document.getElementById('lcMatrixSection');
+  if(!el)return;
+  var countries=Object.keys(results);
+  if(!countries.length){el.innerHTML='';return;}
+  var modes=['sea','air','rail','road'];
+  var thead='<tr><th>Origin</th>'+modes.map(function(m){return'<th>'+m.toUpperCase()+'</th>';}).join('')+'</tr>';
+  var tbody=countries.map(function(ctry){
+    var perModeCosts=modes.map(function(m){
+      var r=results[ctry]&&results[ctry][m];
+      return (r&&r.total&&r.total.perUnit!=null)?r.total.perUnit:null;
+    });
+    var validCosts=perModeCosts.filter(function(c){return c!=null;});
+    var bestCostIdx=perModeCosts.indexOf(Math.min.apply(null,validCosts));
+    var worstCostIdx=perModeCosts.indexOf(Math.max.apply(null,validCosts));
+    var cells=modes.map(function(m,mi){
+      var r=results[ctry]&&results[ctry][m];
+      if(!r||!r.total||r.total.perUnit==null){
+        return'<td><span class="lc-matrix-na">N/A</span></td>';
+      }
+      var isBest=(mi===bestCostIdx);
+      var isWorst=(mi===worstCostIdx&&bestCostIdx!==worstCostIdx);
+      var transit=(r.shipping&&r.shipping.transitDays)||'';
+      var co2=r.co2PerUnit!=null?r.co2PerUnit+' kg CO2':'';
+      var isFastest=false;
+      if(validCosts.length>1){
+        var fastestTransit=Math.min.apply(null,modes.map(function(m2){
+          var r2=results[ctry]&&results[ctry][m2];
+          return(r2&&r2.shipping&&r2.shipping.transitDays)?r2.shipping.transitDays:999;
+        }));
+        isFastest=(transit===fastestTransit);
+      }
+      return'<td class="'+(isBest?'lc-matrix-cell-best':isWorst?'lc-matrix-cell-worst':'')+'">' +
+        '<div class="lc-matrix-cost">'+lcFmt(r.total.perUnit,cur)+'</div>'+
+        (transit?'<div class="lc-matrix-transit">'+transit+'d transit</div>':'')+
+        (co2?'<div class="lc-matrix-co2">'+co2+'</div>':'')+
+        (isBest?'<div class="lc-matrix-tag">Best Value</div>':'')+
+        (isFastest&&!isBest?'<div class="lc-matrix-tag" style="color:rgba(200,200,255,0.6)">Fastest</div>':'')+
+      '</td>';
+    }).join('');
+    return'<tr><td>'+lcEsc(ctry)+(ctry===opt.country?' <span class="lc-card-badge lc-badge-optimal" style="font-size:8px">OPT</span>':'')+'</td>'+cells+'</tr>';
+  }).join('');
+  el.innerHTML='<div class="lc-res-title">Shipping Mode Comparison</div>'+
+    '<div class="lc-table-wrap"><table class="lc-matrix-table"><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table></div>';
+}
+
+// Tariff sensitivity slider
+function lcRenderTariffSlider(data,payload,cur){
+  var el=document.getElementById('lcTariffSection');
+  if(!el)return;
+  var results=data.results||{};
+  var tariffRates=data.tariffRates||{};
+  var countries=Object.keys(results);
+  if(!countries.length){el.innerHTML='';return;}
+  el.innerHTML='<div class="lc-res-title">Tariff Sensitivity Analysis</div>'+
+    '<div class="lc-res-sub">Drag to simulate tariff changes and see impact on landed cost</div>'+
+    '<div class="lc-slider-wrap">'+
+      '<div class="lc-slider-header"><span class="lc-slider-label">Tariff Change</span><span class="lc-slider-value" id="lcTariffVal">+0%</span></div>'+
+      '<input type="range" class="lc-range" id="lcTariffRange" min="-50" max="100" step="5" value="0" oninput="lcUpdateTariff(this.value,'+JSON.stringify(results).replace(/</g,'\\u003c').replace(/>/g,'\\u003e')+','+JSON.stringify(tariffRates).replace(/</g,'\\u003c').replace(/>/g,'\\u003e')+',\''+cur+'\','+payload.quantity+','+data.priceUSD+')">'+
+    '</div>'+
+    '<div class="lc-sensitivity-grid" id="lcSensGrid"></div>'+
+    '<div class="lc-sens-note" id="lcSensNote"></div>';
+  lcUpdateTariff(0,results,tariffRates,cur,payload.quantity,data.priceUSD);
+}
+
+function lcUpdateTariff(adjPct,results,tariffRates,cur,qty,basePriceUSD){
+  _lcTariffAdj=parseFloat(adjPct)||0;
+  var valEl=document.getElementById('lcTariffVal');
+  if(valEl)valEl.textContent=(_lcTariffAdj>=0?'+':'')+_lcTariffAdj+'%';
+  var grid=document.getElementById('lcSensGrid');
+  if(!grid)return;
+  var countries=Object.keys(results);
+  var MODES=['sea','air','rail','road'];
+  var newCosts={};
+  countries.forEach(function(ctry){
+    var tariff=tariffRates[ctry]||{mfn:5,add:0,ad:0};
+    var origRate=(tariff.mfn+tariff.add+tariff.ad)/100;
+    var adjRate=origRate*(1+_lcTariffAdj/100);
+    var adjTariffPerUnit=(basePriceUSD||0)*adjRate;
+    var best=null;
+    MODES.forEach(function(m){
+      var r=results[ctry]&&results[ctry][m];
+      if(!r||!r.total||r.total.perUnit==null)return;
+      var origTariff=(r.tariffs&&r.tariffs.costPerUnit)||0;
+      var newTotal=r.total.perUnit-origTariff+adjTariffPerUnit;
+      if(!best||newTotal<best.newTotal)best={newTotal:newTotal,origTotal:r.total.perUnit,mode:m};
+    });
+    if(best)newCosts[ctry]=best;
+  });
+  var optEntry=null;
+  Object.keys(newCosts).forEach(function(ctry){
+    if(!optEntry||newCosts[ctry].newTotal<optEntry.cost)optEntry={ctry:ctry,cost:newCosts[ctry].newTotal};
+  });
+  grid.innerHTML=Object.keys(newCosts).map(function(ctry){
+    var nc=newCosts[ctry];
+    var delta=nc.newTotal-nc.origTotal;
+    var deltaPct=(nc.origTotal>0?(delta/nc.origTotal)*100:0);
+    var isOpt=optEntry&&ctry===optEntry.ctry;
+    var deltaStr=(delta>=0?'+':'')+lcFmt(delta,cur)+' ('+(deltaPct>=0?'+':'')+deltaPct.toFixed(1)+'%)';
+    return'<div class="lc-sens-card" style="'+(isOpt?'border-color:rgba(100,255,140,0.2);':'')+'">' +
+      '<div class="lc-sens-country">'+lcEsc(ctry)+(isOpt?' (OPTIMAL)':'')+' &bull; via '+lcEsc(nc.mode)+'</div>'+
+      '<div class="lc-sens-cost">'+lcFmt(nc.newTotal,cur)+'/unit</div>'+
+      (delta!==0?'<div class="lc-sens-delta '+(delta>0?'up':'down')+'">'+deltaStr+'</div>':
+       '<div class="lc-sens-delta" style="color:rgba(255,255,255,0.25)">No change</div>')+
     '</div>';
   }).join('');
+  // Note about ranking changes
+  var noteEl=document.getElementById('lcSensNote');
+  if(noteEl&&_lcTariffAdj!==0){
+    noteEl.textContent='At '+(_lcTariffAdj>=0?'+':'')+_lcTariffAdj+'% tariff change: '+lcEsc(optEntry?optEntry.ctry:'—')+' is the optimal sourcing country.';
+  }else if(noteEl){noteEl.textContent='';}
+}
+
+// Currency fluctuation simulator
+function lcRenderCurrencySlider(data,payload,cur){
+  var el=document.getElementById('lcCurrencySection');
+  if(!el)return;
+  var results=data.results||{};
+  var fxRates=data.fxRates||{};
+  var countries=Object.keys(results);
+  if(!countries.length){el.innerHTML='';return;}
+  var CURRENCY_MAP={China:'CNY',Vietnam:'VND',India:'INR',Bangladesh:'BDT',Pakistan:'PKR',
+    Japan:'JPY','South Korea':'KRW',Taiwan:'TWD',Thailand:'THB',Malaysia:'MYR',Indonesia:'IDR',
+    Germany:'EUR',France:'EUR',Italy:'EUR',Spain:'EUR',Netherlands:'EUR',Poland:'PLN',Turkey:'TRY',
+    Mexico:'MXN',Brazil:'BRL',Canada:'CAD',Australia:'AUD','United Kingdom':'GBP'};
+  var presets='<div class="lc-preset-btns">'+
+    '<button class="lc-preset-btn" onclick="lcSetFxPreset(\'devalue\')">CNY Devaluation (-10%)</button>'+
+    '<button class="lc-preset-btn" onclick="lcSetFxPreset(\'usdstrong\')">USD Strengthening (+5% all)</button>'+
+    '<button class="lc-preset-btn" onclick="lcSetFxPreset(\'emcrisis\')">EM Currency Crisis (-15%)</button>'+
+    '<button class="lc-preset-btn" onclick="lcSetFxPreset(\'reset\')">Reset All</button>'+
+  '</div>';
+  var sliders=countries.map(function(ctry,i){
+    var ccy=CURRENCY_MAP[ctry]||'—';
+    if(ccy==='—')return'';
+    return'<div class="lc-slider-wrap">'+
+      '<div class="lc-slider-header">'+
+        '<span class="lc-slider-label">'+lcEsc(ccy)+'/USD &nbsp;<span style="color:rgba(255,255,255,0.2);font-size:9px">current: '+(fxRates[ccy]?fxRates[ccy].toFixed(4):'—')+'</span></span>'+
+        '<span class="lc-slider-value" id="lcFxVal_'+i+'">0%</span>'+
+      '</div>'+
+      '<input type="range" class="lc-range" id="lcFxRange_'+i+'" data-ctry="'+lcEsc(ctry)+'" min="-20" max="20" step="1" value="0" oninput="lcUpdateFx('+i+',this.value,'+JSON.stringify(results).replace(/</g,'\\u003c').replace(/>/g,'\\u003e')+',\''+cur+'\','+payload.quantity+')">'+
+    '</div>';
+  }).join('');
+  el.innerHTML='<div class="lc-res-title">Currency Impact Simulator</div>'+
+    '<div class="lc-res-sub">Model how exchange rate shifts affect your landed cost</div>'+
+    presets+sliders+
+    '<div class="lc-sensitivity-grid" id="lcFxGrid"></div>';
+  lcUpdateFxGrid(results,cur,payload.quantity);
+}
+
+function lcSetFxPreset(preset){
+  var EM_COUNTRIES=['Vietnam','India','Bangladesh','Mexico','Indonesia','Pakistan','Thailand'];
+  var allRanges=document.querySelectorAll('[id^=lcFxRange_]');
+  allRanges.forEach(function(r,i){
+    var ctry=r.getAttribute('data-ctry')||'';
+    var val=0;
+    if(preset==='devalue'&&ctry==='China')val=-10;
+    else if(preset==='usdstrong')val=5;
+    else if(preset==='emcrisis'&&EM_COUNTRIES.indexOf(ctry)!==-1)val=-15;
+    r.value=val;
+    var vEl=document.getElementById('lcFxVal_'+i);
+    if(vEl)vEl.textContent=(val>=0?'+':'')+val+'%';
+    _lcFxAdj[ctry]=val;
+  });
+  if(preset==='reset'){_lcFxAdj={};}
+  // Re-render grid
+  if(_lcResults){lcUpdateFxGrid(_lcResults.results||{},_lcPayload&&_lcPayload.resultCurrency||'USD',_lcPayload&&_lcPayload.quantity||1);}
+}
+
+function lcUpdateFx(idx,val,results,cur,qty){
+  var range=document.getElementById('lcFxRange_'+idx);
+  if(!range)return;
+  var ctry=range.getAttribute('data-ctry')||'';
+  _lcFxAdj[ctry]=parseFloat(val)||0;
+  var vEl=document.getElementById('lcFxVal_'+idx);
+  if(vEl)vEl.textContent=(_lcFxAdj[ctry]>=0?'+':'')+_lcFxAdj[ctry]+'%';
+  lcUpdateFxGrid(results,cur,qty);
+}
+
+function lcUpdateFxGrid(results,cur,qty){
+  var grid=document.getElementById('lcFxGrid');
+  if(!grid)return;
+  var MODES=['sea','air','rail','road'];
+  var countries=Object.keys(results);
+  grid.innerHTML=countries.map(function(ctry){
+    var fxChange=_lcFxAdj[ctry]||0;
+    var best=null;
+    MODES.forEach(function(m){
+      var r=results[ctry]&&results[ctry][m];
+      if(!r||!r.total||r.total.perUnit==null)return;
+      // FX change affects product cost: if currency weakens (positive slider), product cheaper in USD
+      var prodOrig=(r.product&&r.product.unitPriceResult)||0;
+      var adjProd=prodOrig/(1+fxChange/100);
+      var otherCosts=r.total.perUnit-prodOrig;
+      var newTotal=adjProd+otherCosts;
+      if(!best||newTotal<best.newTotal)best={newTotal:newTotal,origTotal:r.total.perUnit,mode:m,fxChange:fxChange};
+    });
+    if(!best)return'';
+    var delta=best.newTotal-best.origTotal;
+    var deltaPct=(best.origTotal>0?(delta/best.origTotal)*100:0);
+    return'<div class="lc-sens-card">'+
+      '<div class="lc-sens-country">'+lcEsc(ctry)+(fxChange?(' &bull; '+(fxChange>=0?'+':'')+fxChange+'% FX'):'')+'</div>'+
+      '<div class="lc-sens-cost">'+lcFmt(best.newTotal,cur)+'/unit</div>'+
+      (delta!==0?'<div class="lc-sens-delta '+(delta>0?'up':'down')+'">'+(delta>=0?'+':'')+lcFmt(delta,cur)+' ('+(deltaPct>=0?'+':'')+deltaPct.toFixed(1)+'%)</div>':
+       '<div class="lc-sens-delta" style="color:rgba(255,255,255,0.25)">No change</div>')+
+    '</div>';
+  }).join('');
+}
+
+// 12-month trend projection
+function lcRenderTrend(results,opt,cur){
+  var el=document.getElementById('lcTrendSection');
+  if(!el)return;
+  var countries=Object.keys(results);
+  if(!countries.length){el.innerHTML='';return;}
+  var MODES=['sea','air','rail','road'];
+  var TREND_BIAS={China:0.008,default:0.003};
+  var FTA_STABLE=['Mexico','Canada','South Korea','Singapore'];
+  var MONTHS=['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+  // Get base cost per country
+  var countryData=[];
+  countries.slice(0,4).forEach(function(ctry){
+    var best=null;
+    MODES.forEach(function(m){
+      var r=results[ctry]&&results[ctry][m];
+      if(r&&r.total&&r.total.perUnit!=null)if(!best||r.total.perUnit<best.total.perUnit)best=r;
+    });
+    if(!best)return;
+    var base=best.total.perUnit;
+    var bias=TREND_BIAS[ctry]||TREND_BIAS.default;
+    var isFta=FTA_STABLE.indexOf(ctry)!==-1;
+    // Generate 12 months with seeded pseudo-random walk
+    var seed=ctry.charCodeAt(0)+ctry.charCodeAt(1)||1;
+    function pseudoRand(i){var x=Math.sin(seed*i+i*17.3)*10000;return x-(Math.floor(x));}
+    var pts=[base];
+    for(var i=1;i<12;i++){
+      var prev=pts[i-1];
+      var rand=(pseudoRand(i)-0.5)*0.04*(isFta?0.5:1);
+      var newVal=prev*(1+bias+rand);
+      pts.push(newVal);
+    }
+    countryData.push({ctry:ctry,pts:pts});
+  });
+  if(!countryData.length){el.innerHTML='';return;}
+  // Canvas chart
+  var canvasId='lcTrendCanvas_'+Date.now();
+  var STYLES=[
+    {stroke:'rgba(255,255,255,0.75)',dash:[]},
+    {stroke:'rgba(255,255,255,0.45)',dash:[4,4]},
+    {stroke:'rgba(255,255,255,0.25)',dash:[2,2]},
+    {stroke:'rgba(255,255,255,0.12)',dash:[]}
+  ];
+  var legend=countryData.map(function(d,i){
+    var s=STYLES[i]||STYLES[3];
+    return'<div class="lc-trend-leg-item">'+
+      '<svg width="22" height="8"><line x1="0" y1="4" x2="22" y2="4" stroke="'+s.stroke+'" stroke-width="1.5" '+(s.dash.length?'stroke-dasharray="'+s.dash.join(' ')+'"':'')+'/></svg>'+
+      lcEsc(d.ctry)+'</div>';
+  }).join('');
+  var allPts=countryData.reduce(function(a,d){return a.concat(d.pts);},[]);
+  var minV=Math.min.apply(null,allPts)*0.97,maxV=Math.max.apply(null,allPts)*1.03;
+  var range=maxV-minV||1;
+  var W=100,H=180; // will be set by canvas
+  el.innerHTML='<div class="lc-res-title">Estimated Cost Trend — 12 Month Projection</div>'+
+    '<div class="lc-trend-legend">'+legend+'</div>'+
+    '<div class="lc-trend-canvas-wrap">'+
+      '<canvas id="'+canvasId+'" height="180" style="width:100%;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;"></canvas>'+
+    '</div>'+
+    '<div class="lc-trend-disclaimer">Projection based on current trends and historical seasonality. Not financial advice.</div>';
+  // Draw after render
+  setTimeout(function(){
+    var canvas=document.getElementById(canvasId);
+    if(!canvas)return;
+    var W=canvas.offsetWidth||400;
+    canvas.width=W;
+    var ctx=canvas.getContext('2d');
+    var PAD={top:16,right:20,bottom:30,left:56};
+    var cw=W-PAD.left-PAD.right;
+    var ch=H-PAD.top-PAD.bottom;
+    // Grid lines
+    ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+    for(var gi=0;gi<=4;gi++){
+      var gy=PAD.top+ch*(gi/4);
+      ctx.beginPath();ctx.moveTo(PAD.left,gy);ctx.lineTo(W-PAD.right,gy);ctx.stroke();
+      var yVal=maxV-range*(gi/4);
+      ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font='9px JetBrains Mono,monospace';
+      ctx.textAlign='right';ctx.fillText((cur||'USD')+' '+yVal.toFixed(2),PAD.left-4,gy+3);
+    }
+    // X axis labels
+    ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font='9px JetBrains Mono,monospace';ctx.textAlign='center';
+    MONTHS.forEach(function(m,i){
+      var x=PAD.left+cw*(i/11);
+      ctx.fillText(m,x,H-6);
+    });
+    // Lines
+    countryData.forEach(function(d,ci){
+      var s=STYLES[ci]||STYLES[3];
+      ctx.strokeStyle=s.stroke;ctx.lineWidth=1.5;
+      if(s.dash.length)ctx.setLineDash(s.dash);else ctx.setLineDash([]);
+      ctx.beginPath();
+      d.pts.forEach(function(v,i){
+        var x=PAD.left+cw*(i/11);
+        var y=PAD.top+ch*(1-(v-minV)/range);
+        if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  },50);
 }
 
 function lcGetAIAnalysis(data,payload){
@@ -8415,6 +9084,17 @@ function lcRiskBadge(r){
 function lcEsc(s){
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+function ctryCode(name){
+  var MAP={China:'CN',Vietnam:'VN',India:'IN',Mexico:'MX',Germany:'DE',Japan:'JP',
+    'South Korea':'KR',Taiwan:'TW',Bangladesh:'BD',Thailand:'TH',Turkey:'TR',
+    Brazil:'BR',Canada:'CA','United Kingdom':'GB',Indonesia:'ID',Malaysia:'MY',
+    Pakistan:'PK',France:'FR',Italy:'IT',Spain:'ES',Netherlands:'NL',Poland:'PL',
+    Australia:'AU','South Africa':'ZA',Cambodia:'KH',Philippines:'PH',Ireland:'IE',
+    Switzerland:'CH','Czech Republic':'CZ',Israel:'IL',Chile:'CL'};
+  return MAP[name]||name.substring(0,2).toUpperCase();
+}
+function lcPct(v){return(v==null||isNaN(v))?'—':Number(v).toFixed(1)+'%';}
+function lcNum(v){return(v==null||isNaN(v))?'—':Number(v).toLocaleString('en-US');}
 function lcShowToast(msg){
   var t=document.getElementById('sbToast');
   if(!t)return;

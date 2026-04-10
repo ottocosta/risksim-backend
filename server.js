@@ -533,6 +533,21 @@ app.post('/api/landed-cost', async (req, res) => {
             Philippines:{risk:42,sourcing:50,reliability:'Medium'},Pakistan:{risk:62,sourcing:45,reliability:'Low'}
         };
 
+        const DISTANCES = {
+            China:{sea:19000,air:12000,rail:null,road:null},Vietnam:{sea:17500,air:14000,rail:null,road:null},
+            India:{sea:15000,air:13000,rail:null,road:null},Mexico:{sea:3200,air:3000,rail:3200,road:3500},
+            Germany:{sea:8500,air:7500,rail:null,road:null},Japan:{sea:16500,air:10500,rail:null,road:null},
+            'South Korea':{sea:17000,air:11000,rail:null,road:null},Taiwan:{sea:17500,air:12500,rail:null,road:null},
+            Bangladesh:{sea:16000,air:13500,rail:null,road:null},Thailand:{sea:16000,air:14000,rail:null,road:null},
+            Turkey:{sea:10500,air:9000,rail:null,road:null},Brazil:{sea:8500,air:8000,rail:null,road:null},
+            Canada:{sea:2000,air:1500,rail:2500,road:2500},'United Kingdom':{sea:6500,air:6000,rail:null,road:null},
+            Indonesia:{sea:17000,air:15000,rail:null,road:null},Malaysia:{sea:17500,air:14500,rail:null,road:null},
+            Pakistan:{sea:14000,air:12000,rail:null,road:null},Spain:{sea:7500,air:7000,rail:null,road:null},
+            Italy:{sea:8000,air:7200,rail:null,road:null},France:{sea:7800,air:7000,rail:null,road:null},
+            Poland:{sea:8200,air:7500,rail:null,road:null},Netherlands:{sea:7800,air:7000,rail:null,road:null},
+        };
+        const CO2_FACTORS = { sea:0.015, air:0.500, rail:0.025, road:0.065 };
+
         const catMap = { electronics:'technology',textiles:'textiles',automotive:'automotive',food:'food',pharma:'pharma',rawMaterials:'rawMaterials',consumerGoods:'consumerGoods',industrial:'technology',chemicals:'rawMaterials',other:'consumerGoods' };
         const cat = catMap[productCategory] || catMap[(productCategory||'').toLowerCase()] || 'technology';
         const unitCurrCode = unitCurrency || 'USD';
@@ -544,7 +559,7 @@ app.post('/api/landed-cost', async (req, res) => {
         const toRes = v => Math.round(v * resRate * 100) / 100;
         const r2 = v => Math.round(v * 100) / 100;
 
-        const modesToCalc = (!shippingMode || shippingMode === 'auto') ? ['sea','air','rail','road'] : [shippingMode];
+        const modesToCalc = ['sea','air','rail','road']; // always calculate all modes
         const results = {};
         let lowestCost = Infinity, optimalCountry = '', optimalMode = '';
 
@@ -585,14 +600,18 @@ app.post('/api/landed-cost', async (req, res) => {
                 const totalPerUnit = priceUSD + shipCostPerUnit + tariffPerUnit + feesPerUnit;
                 const costIncrease = r2(((totalPerUnit - priceUSD) / priceUSD) * 100);
 
+                const distKm = (DISTANCES[country] || {})[mode] || null;
+                const co2PerUnit = (distKm && wtKg > 0) ? r2((wtKg / 1000) * distKm * (CO2_FACTORS[mode] || 0)) : null;
+
                 countryResults[mode] = {
                     mode, transit,
                     product: { unitPriceOriginal:parseFloat(unitPrice), unitCurrency:unitCurrCode, unitPriceUSD:r2(priceUSD), unitPriceResult:toRes(priceUSD), fxRate:r2((rates[unitCurrCode]||1)), quantity:qty, subtotal:toRes(priceUSD*qty) },
-                    shipping: { freightPerKg:r2(freightPerKg), freightPerUnit:toRes(shipCostPerUnit), freightTotal:toRes(shipCostPerUnit*qty), mode, transitDays:transit, containerType:containerType||'N/A', unitsPerContainer:unitsPerCont, containersNeeded:contNeeded },
+                    shipping: { freightPerKg:r2(freightPerKg), freightPerUnit:toRes(shipCostPerUnit), freightTotal:toRes(shipCostPerUnit*qty), mode, transitDays:transit, containerType:containerType||'N/A', unitsPerContainer:unitsPerCont, containersNeeded:contNeeded, distanceKm:distKm },
                     tariffs: { hsCode:hsCode||'N/A', mfnRate:countryTariff.mfn, additionalDuty:countryTariff.add, antidumping:countryTariff.ad, effectiveRate:r2(countryTariff.mfn+countryTariff.add+countryTariff.ad), costPerUnit:toRes(tariffPerUnit), costTotal:toRes(tariffPerUnit*qty) },
-                    fees: { insurance:toRes(ins), brokerFee:toRes(broker), hmf:toRes(hmf), mpf:toRes(mpf), inland:toRes(inland), subtotal:toRes(totalFees), perUnit:toRes(feesPerUnit) },
+                    fees: { insurance:toRes(ins), brokerFee:toRes(broker), hmf:toRes(hmf), mpf:toRes(mpf), inland:toRes(inland), subtotal:toRes(totalFees), perUnit:toRes(feesPerUnit), insuranceRate:insuranceRate||0.5, hmfRate:hmfRate||0.125, mpfRate:mpfRate||0.3464 },
                     total: { perUnit:toRes(totalPerUnit), perShipment:toRes(totalPerUnit*qty), costIncrease, effectiveMarkup:costIncrease },
                     risk: { countryRiskScore:riskData.risk, sourcingScore:riskData.sourcing, reliability:riskData.reliability, leadTimeDays:transit },
+                    co2PerUnit,
                     resultCurrency:resCurr
                 };
 
@@ -601,10 +620,20 @@ app.post('/api/landed-cost', async (req, res) => {
             if (Object.keys(countryResults).length) results[country] = countryResults;
         }
 
+        // Collect tariff rates used (for frontend sensitivity slider)
+        const tariffRates = {};
+        for (const country of originCountries) {
+            tariffRates[country] = (TARIFFS[cat] || {})[country] || { mfn:5, add:0, ad:0 };
+        }
+
         res.json({
             results,
             optimal: { country:optimalCountry, mode:optimalMode, costPerUnit:toRes(lowestCost), currency:resCurr },
-            meta: { productName, quantity:qty, calculatedAt:new Date().toISOString(), resultCurrency:resCurr }
+            meta: { productName, quantity:qty, calculatedAt:new Date().toISOString(), resultCurrency:resCurr },
+            tariffRates,
+            fxRates: rates,
+            unitCurrency: unitCurrCode,
+            priceUSD: r2(priceUSD)
         });
 
     } catch (error) {
