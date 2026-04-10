@@ -5940,7 +5940,7 @@ function renderSettingsTab(tab){
   if(!c)return;
   if(tab==='profile'){c.innerHTML=buildSettingsProfile();}
   else if(tab==='billing'){c.innerHTML=buildSettingsBilling();}
-  else if(tab==='notifications'){c.innerHTML=buildSettingsNotifications();}
+  else if(tab==='notifications'){c.innerHTML=buildSettingsNotifications();loadNotifPreferences();}
 }
 
 function buildSettingsProfile(){
@@ -6095,28 +6095,98 @@ function buildSettingsBilling(){
 }
 
 function buildSettingsNotifications(){
-  var prefs={};
-  try{prefs=JSON.parse(localStorage.getItem('risksim_notif_prefs')||'{}');}catch(e){}
-  function toggle(key,label,sub){
-    var checked=prefs[key]?'checked':'';
+  var p={};try{p=JSON.parse(localStorage.getItem('risksim_profile')||'{}');}catch(e){}
+  var prof=p.userProfile||{};
+  var savedEmail=localStorage.getItem('risksim_notif_email')||prof.email||'';
+  var savedEmail2=localStorage.getItem('risksim_notif_email2')||'';
+  var prefs={weeklyDigest:true,criticalAlerts:true};
+  try{var sp=JSON.parse(localStorage.getItem('risksim_notif_prefs')||'{}');if(sp.weeklyDigest!=null)prefs.weeklyDigest=sp.weeklyDigest;if(sp.criticalAlerts!=null)prefs.criticalAlerts=sp.criticalAlerts;}catch(e){}
+  function toggle(id,label,sub,checked){
     return'<div class="settings-toggle-row">'+
       '<div><div class="settings-toggle-label">'+label+'</div><div class="settings-toggle-sub">'+sub+'</div></div>'+
-      '<label class="settings-toggle"><input type="checkbox" id="nt-'+key+'" '+checked+' onchange="saveSettingsNotifications()"><span class="settings-toggle-slider"></span></label>'+
+      '<label class="settings-toggle"><input type="checkbox" id="'+id+'" '+(checked?'checked':'')+'>'+
+      '<span class="settings-toggle-slider"></span></label>'+
     '</div>';
   }
-  return '<span class="settings-section-title">Notification Preferences</span>'+
-    toggle('email','Email alerts for critical events','Receive emails when critical supply chain events occur')+
-    toggle('briefing','Daily risk briefing','Morning summary of overnight risk changes')+
-    toggle('price','Price change alerts','Notified when commodity prices move significantly');
+  var h='<span class="settings-section-title">Email Notifications</span>';
+  h+='<div class="settings-field"><label>Primary Email</label><input id="nt-email" value="'+escHtmlSettings(savedEmail)+'" placeholder="your@email.com"></div>';
+  h+='<div id="nt-email2-wrap" style="'+(savedEmail2?'':'display:none')+'"><div class="settings-field"><label>Additional Email (optional)</label><input id="nt-email2" value="'+escHtmlSettings(savedEmail2)+'" placeholder="colleague@company.com"></div></div>';
+  h+='<div style="margin-bottom:16px;"><a href="#" onclick="notifShowEmail2();return false;" id="nt-add-email-link" style="font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.3);text-decoration:none;'+(savedEmail2?'display:none':'')+'">+ Add Another Email</a></div>';
+  h+=toggle('nt-weekly','Weekly Risk Digest','Every Monday morning — top alerts, tariff changes, and market summary for your industry',prefs.weeklyDigest);
+  h+=toggle('nt-critical','Critical Alert Notifications','Immediate email when critical events affect your sourcing countries (war, sanctions, major shutdowns)',prefs.criticalAlerts);
+  h+='<button class="settings-save-btn" style="margin-top:16px" onclick="saveNotifPreferences()">Save Notification Preferences</button>';
+  h+='<div id="nt-success" style="display:none;margin-top:10px;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.1em;color:rgba(100,220,140,0.8);">Preferences saved.</div>';
+  h+='<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);"><a href="#" onclick="notifUnsubscribeAll();return false;" style="font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:0.1em;color:rgba(255,255,255,0.2);text-decoration:none;">Unsubscribe from all emails</a></div>';
+  return h;
 }
 
-function saveSettingsNotifications(){
-  var prefs={
-    email:!!(document.getElementById('nt-email')||{}).checked,
-    briefing:!!(document.getElementById('nt-briefing')||{}).checked,
-    price:!!(document.getElementById('nt-price')||{}).checked
+function escHtmlSettings(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function notifShowEmail2(){
+  document.getElementById('nt-email2-wrap').style.display='block';
+  document.getElementById('nt-add-email-link').style.display='none';
+}
+
+async function saveNotifPreferences(){
+  var email=(document.getElementById('nt-email')||{}).value||'';
+  var email2=(document.getElementById('nt-email2')||{}).value||'';
+  var weekly=!!(document.getElementById('nt-weekly')||{}).checked;
+  var critical=!!(document.getElementById('nt-critical')||{}).checked;
+  if(!email||!email.includes('@')){
+    var s=document.getElementById('nt-success');
+    if(s){s.textContent='Please enter a valid email address.';s.style.color='rgba(255,120,100,0.9)';s.style.display='block';setTimeout(function(){s.style.display='none';},3000);}
+    return;
+  }
+  localStorage.setItem('risksim_notif_email',email);
+  if(email2)localStorage.setItem('risksim_notif_email2',email2);
+  localStorage.setItem('risksim_notif_prefs',JSON.stringify({weeklyDigest:weekly,criticalAlerts:critical}));
+  var p={};try{p=JSON.parse(localStorage.getItem('risksim_profile')||'{}');}catch(e){}
+  var prof=p.userProfile||{};
+  var payload={
+    email:email,
+    industry:prof.industry||'technology',
+    sourcingCountries:selectedSourcingCountries||[],
+    companyName:prof.companyName||'',
+    preferences:{weeklyDigest:weekly,criticalAlerts:critical}
   };
-  localStorage.setItem('risksim_notif_prefs',JSON.stringify(prefs));
+  try{
+    await fetch('/api/email/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(email2&&email2.includes('@')){
+      await fetch('/api/email/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({},payload,{email:email2}))});
+    }
+    var s=document.getElementById('nt-success');
+    if(s){s.textContent='Preferences saved.';s.style.color='rgba(100,220,140,0.8)';s.style.display='block';setTimeout(function(){s.style.display='none';},2500);}
+  }catch(err){
+    var s=document.getElementById('nt-success');
+    if(s){s.textContent='Could not save — please try again.';s.style.color='rgba(255,120,100,0.9)';s.style.display='block';setTimeout(function(){s.style.display='none';},3000);}
+  }
+}
+
+async function notifUnsubscribeAll(){
+  var email=(document.getElementById('nt-email')||{}).value||localStorage.getItem('risksim_notif_email')||'';
+  var email2=(document.getElementById('nt-email2')||{}).value||localStorage.getItem('risksim_notif_email2')||'';
+  if(email)await fetch('/api/email/unsubscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email})});
+  if(email2)await fetch('/api/email/unsubscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email2})});
+  var weekly=document.getElementById('nt-weekly');
+  var critical=document.getElementById('nt-critical');
+  if(weekly)weekly.checked=false;
+  if(critical)critical.checked=false;
+  localStorage.setItem('risksim_notif_prefs',JSON.stringify({weeklyDigest:false,criticalAlerts:false}));
+  var s=document.getElementById('nt-success');
+  if(s){s.textContent='Unsubscribed from all emails.';s.style.color='rgba(255,255,255,0.4)';s.style.display='block';setTimeout(function(){s.style.display='none';},2500);}
+}
+
+// Load existing preferences when notifications tab opens
+async function loadNotifPreferences(){
+  var email=localStorage.getItem('risksim_notif_email');
+  if(!email)return;
+  try{
+    var r=await fetch('/api/email/preferences/'+encodeURIComponent(email));
+    var d=await r.json();
+    if(d.subscribed){
+      localStorage.setItem('risksim_notif_prefs',JSON.stringify(d.preferences));
+    }
+  }catch(e){}
 }
 
 // Init sidebar on page load

@@ -37,6 +37,12 @@ const dataStore = {
     }
 };
 
+// ============================================================
+// EMAIL SUBSCRIBER STORE — in-memory, resets on deploy
+// ============================================================
+const emailSubscribers = {};
+// Format: { "user@email.com": { email, industry, sourcingCountries, companyName, preferences: { weeklyDigest, criticalAlerts }, subscribedAt, updatedAt } }
+
 // Auth middleware for n8n POST routes
 function requireDataKey(req, res, next) {
     const key = req.headers['x-api-key'];
@@ -605,6 +611,124 @@ app.post('/api/landed-cost', async (req, res) => {
         console.error('Landed cost error:', error);
         res.status(500).json({ error: 'Calculation failed. Please try again.' });
     }
+});
+
+// ============================================================
+// EMAIL SUBSCRIBER ENDPOINTS
+// ============================================================
+
+// Subscribe / update preferences
+app.post('/api/email/subscribe', (req, res) => {
+    const { email, industry, sourcingCountries, companyName, preferences } = req.body;
+    if (!email || !email.includes('@')) {
+        return res.status(400).json({ error: 'Valid email required' });
+    }
+    const key = email.toLowerCase();
+    emailSubscribers[key] = {
+        email: key,
+        industry: industry || 'technology',
+        sourcingCountries: sourcingCountries || [],
+        companyName: companyName || '',
+        preferences: {
+            weeklyDigest: preferences?.weeklyDigest !== false,
+            criticalAlerts: preferences?.criticalAlerts !== false
+        },
+        subscribedAt: emailSubscribers[key]?.subscribedAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    };
+    console.log('[Email] Subscriber updated:', key);
+    res.json({ success: true, subscriber: emailSubscribers[key] });
+});
+
+// Unsubscribe
+app.post('/api/email/unsubscribe', (req, res) => {
+    const email = (req.body.email || req.query.email || '').toLowerCase();
+    if (email && emailSubscribers[email]) {
+        delete emailSubscribers[email];
+        console.log('[Email] Unsubscribed:', email);
+    }
+    res.json({ success: true });
+});
+
+// GET unsubscribe (for email link clicks)
+app.get('/api/email/unsubscribe', (req, res) => {
+    const email = (req.query.email || '').toLowerCase();
+    if (email && emailSubscribers[email]) {
+        delete emailSubscribers[email];
+        console.log('[Email] Unsubscribed via link:', email);
+    }
+    res.send('<html><body style="background:#111;color:#fff;font-family:monospace;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;"><div style="text-align:center"><div style="font-size:14px;letter-spacing:3px;margin-bottom:16px;">RISKSIM</div><div style="color:rgba(255,255,255,0.5);font-size:13px;">You have been unsubscribed.</div></div></body></html>');
+});
+
+// Get all subscribers — n8n uses this (protected)
+app.get('/api/email/subscribers', requireDataKey, (req, res) => {
+    const type = req.query.type;
+    let subs = Object.values(emailSubscribers);
+    if (type) subs = subs.filter(s => s.preferences[type] === true);
+    res.json(subs);
+});
+
+// Get preferences for one email — frontend uses this
+app.get('/api/email/preferences/:email', (req, res) => {
+    const sub = emailSubscribers[req.params.email.toLowerCase()];
+    if (!sub) return res.json({ subscribed: false, preferences: { weeklyDigest: false, criticalAlerts: false } });
+    res.json({ subscribed: true, preferences: sub.preferences });
+});
+
+// Critical alert check — n8n uses this (protected)
+app.get('/api/email/critical-check', requireDataKey, (req, res) => {
+    const criticalKeywords = /\bwar\b|bombing|invasion|sanction|embargo|shutdown|collaps|devastat|catastroph|blockade|martial law/i;
+    const criticalAlerts = [];
+    for (const [industry, alerts] of Object.entries(dataStore.alertsByIndustry)) {
+        for (const alert of alerts) {
+            const title = alert.title || '';
+            if (criticalKeywords.test(title)) {
+                const pubDate = new Date(alert.pubDate || alert.isoDate || 0);
+                const hoursSince = (Date.now() - pubDate.getTime()) / (1000 * 60 * 60);
+                if (hoursSince <= 6) {
+                    criticalAlerts.push({
+                        title,
+                        industry,
+                        pubDate: alert.pubDate || alert.isoDate,
+                        link: alert.link,
+                        source: (title.split(' - ').pop() || '').trim()
+                    });
+                }
+            }
+        }
+    }
+    res.json({ hasCritical: criticalAlerts.length > 0, alerts: criticalAlerts });
+});
+
+// Weekly digest data — n8n uses this (protected)
+app.get('/api/email/digest-data', requireDataKey, (req, res) => {
+    const industry = req.query.industry || 'general';
+    const industryAlerts = dataStore.alertsByIndustry[industry] || [];
+    const generalAlerts = dataStore.alertsByIndustry.general || [];
+    const combined = [...industryAlerts, ...generalAlerts];
+    const topStories = combined.slice(0, 10).map(a => ({
+        title: (a.title || '').split(' - ').slice(0, -1).join(' - ').trim() || a.title,
+        source: (a.title || '').split(' - ').pop().trim(),
+        link: a.link,
+        pubDate: a.pubDate || a.isoDate
+    }));
+    const criticalRe = /\bwar\b|bombing|invasion|sanction|embargo|shutdown|collaps/i;
+    const highRe = /strike|shortage|recession|congestion|disrupt|halt|suspend|crisis/i;
+    let criticalCount = 0, highCount = 0, mediumCount = 0, lowCount = 0;
+    combined.forEach(a => {
+        const t = (a.title || '').toLowerCase();
+        if (criticalRe.test(t)) criticalCount++;
+        else if (highRe.test(t)) highCount++;
+        else if (/tariff|regulation|compliance|cost.*rise|review|probe/i.test(t)) mediumCount++;
+        else lowCount++;
+    });
+    res.json({
+        industry,
+        totalAlerts: combined.length,
+        severity: { critical: criticalCount, high: highCount, medium: mediumCount, low: lowCount },
+        topStories,
+        generatedAt: new Date().toISOString()
+    });
 });
 
 app.listen(PORT, () => console.log(`RiskSim running on ${PORT}`));
