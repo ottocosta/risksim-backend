@@ -364,7 +364,8 @@
     .popup-deepdive-btn:hover { opacity:0.88; }
 
     /* ===== HERO PANEL ===== */
-    #heroPanel {
+    #heroPanel { display: none !important; }
+    #heroPanel-DISABLED {
       position:fixed; top:80px; left:16px; z-index:100; width:340px;
       animation: panelIn 0.6s cubic-bezier(0.16,1,0.3,1) 0.5s both;
     }
@@ -587,35 +588,35 @@
 
     .ct-wrap {
       width: 100%; max-width: 1020px; max-height: 90vh; overflow-y: auto;
-      background: rgba(8,12,20,0.75);
+      background: rgba(17,17,17,0.97);
       backdrop-filter: blur(32px) saturate(1.5); -webkit-backdrop-filter: blur(32px) saturate(1.5);
-      border: 1px solid rgba(45,212,191,0.16); border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
       box-shadow: 0 32px 100px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.04);
       position: relative; animation: psCardIn 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
     }
     .ct-wrap::-webkit-scrollbar { width: 4px; }
-    .ct-wrap::-webkit-scrollbar-thumb { background: rgba(45,212,191,0.1); border-radius: 4px; }
-    .ct-shimmer-top { position: absolute; top: 0; left: 0; right: 0; height: 1px; border-radius: 24px 24px 0 0; background: linear-gradient(90deg, transparent, rgba(45,212,191,0.4), transparent); background-size: 400px 1px; animation: psShimmer 3s linear infinite; }
+    .ct-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+    .ct-shimmer-top { position: absolute; top: 0; left: 0; right: 0; height: 1px; border-radius: 24px 24px 0 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent); background-size: 400px 1px; animation: psShimmer 3s linear infinite; }
     .ct-inner { padding: 30px 34px; }
     @media (max-width:700px) { .ct-inner { padding: 20px 18px; } }
 
     .ct-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
     .ct-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
-    .ct-title span { color: var(--accent); font-size: 12px; font-family: var(--font-mono); letter-spacing: 0.1em; vertical-align: middle; margin-left: 10px; }
+    .ct-title span { color: rgba(255,255,255,0.45); font-size: 12px; font-family: var(--font-mono); letter-spacing: 0.1em; vertical-align: middle; margin-left: 10px; background: rgba(255,255,255,0.08); padding: 2px 7px; border-radius: 4px; }
     .ct-close { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07); color: var(--muted); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
     .ct-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
     .ct-selectors { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: end; margin-bottom: 26px; }
     .ct-sel-lbl { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 7px; }
-    .ct-vs { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--accent); text-align: center; letter-spacing: 0.1em; padding-bottom: 10px; }
+    .ct-vs { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.4); text-align: center; letter-spacing: 0.1em; padding-bottom: 10px; }
     @media (max-width:600px) { .ct-selectors { grid-template-columns: 1fr; } .ct-vs { display: none; } }
 
     .ct-results { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
     @media (max-width:600px) { .ct-results { grid-template-columns: 1fr; } }
     .ct-empty { grid-column: 1/-1; text-align: center; padding: 50px 20px; color: var(--muted); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; }
 
-    .ct-country-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(45,212,191,0.08); border-radius: 16px; padding: 20px; transition: all 0.3s; }
-    .ct-country-card:hover { border-color: rgba(45,212,191,0.18); transform: translateY(-2px); box-shadow: 0 10px 36px rgba(45,212,191,0.07); }
+    .ct-country-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; transition: all 0.3s; }
+    .ct-country-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); box-shadow: 0 10px 36px rgba(0,0,0,0.4); }
     .ct-cname { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px; }
     .ct-risk-badge { display: inline-block; font-family: var(--font-mono); font-size: 9px; font-weight: 700; padding: 3px 9px; border-radius: 999px; letter-spacing: 0.08em; margin-bottom: 14px; }
     .ct-metric { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 11px; }
@@ -626,24 +627,50 @@
     .ct-bar-track { height: 3px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
     .ct-bar-fill { height: 100%; border-radius: 3px; transition: width 0.7s ease; }
 
-    .ct-news { margin-top: 14px; padding: 12px 13px; background: rgba(45,212,191,0.03); border: 1px dashed rgba(45,212,191,0.14); border-radius: 10px; }
-    .ct-news-label { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.15em; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+    .ct-news { margin-top: 14px; padding: 12px 13px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.08); border-radius: 10px; }
+    .ct-news-label { font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.15em; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 8px; }
     .ct-news-item { font-size: 10px; color: #64748b; line-height: 1.55; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
     .ct-news-item:last-of-type { border-bottom: none; }
     .ct-news-powered { font-size: 8px; color: rgba(100,116,139,0.4); margin-top: 7px; font-family: var(--font-mono); letter-spacing: 0.04em; }
 
     /* Compare button in hero */
-    .btn-compare { width: 100%; margin-top: 10px; padding: 9px 14px; background: rgba(45,212,191,0.06); border: 1px solid rgba(45,212,191,0.16); border-radius: 9px; color: var(--accent); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.25s; }
-    .btn-compare:hover { background: rgba(45,212,191,0.1); border-color: rgba(45,212,191,0.3); }
+    .btn-compare { width: 100%; margin-top: 10px; padding: 9px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 9px; color: rgba(255,255,255,0.7); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.25s; }
+    .btn-compare:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+
+    /* ===== CROSSHAIR/LOCATE BUTTON ===== */
+    .leaflet-control-locate { display: none !important; }
+
+    /* ===== SIMULATOR FLEX HEIGHT FIX ===== */
+    .sim-center-scroll { min-height: 0; }
+    #simAnalysisView { min-height: 0; }
 
     /* ===== MOBILE ===== */
     @media (max-width:768px) {
-      #heroPanel { top:auto; bottom:160px; left:8px; right:8px; width:auto; max-height:50vh; overflow-y:auto; }
+      /* Sidebar: overlay mode on mobile */
+      #rsSidebar { position:fixed !important; left:0 !important; top:0 !important; height:100vh !important; z-index:950 !important; transform:translateX(-260px); transition:transform 0.3s ease; }
+      #rsSidebar.open { transform:translateX(0); }
+      #rsSidebar.open ~ * { pointer-events:none; }
+      body.sidebar-collapsed #rsSidebar { transform:translateX(-260px) !important; }
+      /* All modules go full width */
+      #auditModule, #warRoomModule, #simulatorModule, #priceIntelModule,
+      #costEngineModule, #chatPanel, #jarvisBorder { left: 0 !important; }
+      /* Chat input full width */
+      #chatInputWrap { max-width:calc(100% - 32px); }
+      #chatMessages { left: 0 !important; width: 100% !important; }
+      /* Terminal stats bar: horizontal scroll */
+      .wm-stats-bar { overflow-x: auto; flex-wrap: nowrap; }
+      /* Cost Engine: stack vertically */
+      .lc-panels { flex-direction: column; }
+      .lc-panel-left, .lc-panel-right { width: 100% !important; min-width: 0 !important; }
+      /* Country tooltip: fit screen */
+      .leaflet-popup-content-wrapper { max-width: 90vw !important; }
+      /* Price Intel upload zone */
+      .pi-upload-zone { padding: 24px 16px !important; }
+      /* Map overlays */
       .layer-controls { top:8px; }
       .map-overlay-header { display:none; }
-      .map-legend { bottom:170px; left:8px; }
+      .map-legend { bottom:90px; left:8px; }
       #onboardingPanel { right:8px; left:8px; width:auto; }
-      #chatInputWrap { max-width:calc(100% - 32px); }
     }
 
 
@@ -3494,7 +3521,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <button class="btn-primary" onclick="showPricing()">Claim Founder Access</button>
       <button class="btn-secondary" onclick="document.getElementById('heroPanel').style.display='none'">Explore Map</button>
     </div>
-    <div class="hero-founder-line">First 10 founders get 30% off forever.</div>
+    <div class="hero-founder-line">First 15 founders get 30% off forever.</div>
   </div>
 </div>
 
@@ -5309,7 +5336,10 @@ function animateAllCounters(){
 // ===== STATS BAR =====
 function buildStatsBar(countries,industry){
   var bar=document.getElementById('wmStatsBar');if(!bar)return;
-  var ac=6,cc=countries.length||12,te=Math.round(15+Math.random()*20),pd=Math.round(2+Math.random()*5),ai=Math.round(82+Math.random()*12);
+  var profile=JSON.parse(localStorage.getItem('risksim_profile')||'{}');
+  var profileCountries=profile.selectedSourcingCountries||[];
+  var countryCount=profileCountries.length>0?profileCountries.length:(countries.length>0?countries.length:1);
+  var ac=6,cc=countryCount,te=Math.round(15+Math.random()*20),pd=Math.round(2+Math.random()*5),ai=Math.round(82+Math.random()*12);
   var rl=countries.length>3?'HIGH':countries.length>0?'MED':'LOW';
   var rc=rl==='HIGH'?'wm-severity-high':rl==='MED'?'wm-severity-medium':'wm-severity-low';
   bar.innerHTML='<div class="wm-stat-card"><div class="wm-stat-label">Active Alerts</div><div class="wm-stat-value"><span class="wm-counter" data-target="'+ac+'">0</span><span class="wm-pulse-dot"></span></div></div>'+
@@ -5525,8 +5555,7 @@ function buildTariffTracker(countries){
   });
 
   h+='</div>';
-  h+='<div style="margin-top:18px;padding:12px 16px;border:1px solid rgba(255,255,255,0.06);border-radius:8px;background:rgba(255,255,255,0.02);display:flex;align-items:center;gap:10px;">';
-  h+='<span style="color:rgba(255,210,80,0.8);font-size:11px;">\u26a1</span>';
+  h+='<div style="margin-top:18px;padding:12px 16px;border:1px solid rgba(255,255,255,0.06);border-radius:8px;background:rgba(255,255,255,0.02);">';
   h+='<span style="font-family:Inter,sans-serif;font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.3px;">Estimated rates \u2014 check <span onclick="switchTerminalTab(1)" style="color:rgba(255,255,255,0.7);cursor:pointer;text-decoration:underline;">Live Feed</span> for real-time tariff updates</span>';
   h+='</div>';
   el.innerHTML=h;
@@ -8104,7 +8133,7 @@ window.addEventListener('load',function(){
 
     <!-- Founder Banner -->
     <div class="po-founder-banner">
-      <span class="po-founder-text">◈ Founder Pricing — First 10 customers get 30% off forever</span>
+      <span class="po-founder-text">◈ Founder Pricing — First 15 customers get 30% off forever</span>
     </div>
 
     <!-- Billing Toggle -->
