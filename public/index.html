@@ -564,8 +564,9 @@
     .field-input::placeholder { color:rgba(255,255,255,0.2); }
     textarea.field-input { resize:vertical; min-height:72px; }
 
-    /* Reopen button */
-    #psReopenBtn {
+    /* Reopen button — hidden (looks like map crosshair) */
+    #psReopenBtn { display: none !important; }
+    #psReopenBtn-DISABLED {
       position: fixed; bottom: 88px; right: 16px; z-index: 200;
       width: 38px; height: 38px; border-radius: 50%;
       background: rgba(8,12,20,0.85); backdrop-filter: blur(16px);
@@ -6096,6 +6097,14 @@ function openHistoryItem(id){
   }else if(item.type==='simulation'){
     switchModule('simulator');
     updateSidebarActive('simulator');
+    if(item.data){
+      var simQ=item.data.scenario||item.data.question||'';
+      var simR=item.data.result||null;
+      setTimeout(function(){
+        if(!localStorage.getItem('simulator_paywall_bypassed')&&typeof bypassSimulatorPaywall==='function'){bypassSimulatorPaywall();}
+        if(simQ&&typeof showSimAnalysisView==='function'){showSimAnalysisView(simQ,simR,false);}
+      },150);
+    }
   }else if(item.type==='price'){
     switchModule('priceintel');
     updateSidebarActive('priceintel');
@@ -6857,7 +6866,7 @@ function runSimProgress(question){
       loadSimScenarios();
       renderSimResults(results,question);
       if(typeof saveToHistory==='function'){
-        saveToHistory({id:'sim_'+Date.now(),type:'simulation',title:'Sim: '+question.substring(0,40),timestamp:new Date().toISOString(),data:{scenario:question,result:results}});
+        saveToHistory({id:'sim_'+Date.now(),type:'simulation',title:question.substring(0,60),timestamp:new Date().toISOString(),data:{scenario:question,result:results}});
       }
       var scroll=document.getElementById('simCenterScroll');if(scroll)scroll.scrollTop=0;
     },350);
