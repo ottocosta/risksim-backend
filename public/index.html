@@ -3704,7 +3704,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <div class="sim-topbar-right">
         <div style="position:relative;display:inline-block;">
           <button class="sim-compare-toggle" id="simHistoryBtn" onclick="toggleSimHistory()">History</button>
-          <div id="simHistoryDropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:280px;background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:10px;z-index:9999;max-height:340px;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.7);">
+          <div id="simHistoryDropdown" style="display:none;position:fixed;width:380px;background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:12px;z-index:9000;max-height:450px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.7);">
             <div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.18em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Past Scenarios</div>
             <div id="simHistoryList"></div>
           </div>
@@ -6717,11 +6717,29 @@ function loadSimScenario(id){
 
 function toggleSimHistory(){
   var dd=document.getElementById('simHistoryDropdown');
-  if(!dd)return;
+  var btn=document.getElementById('simHistoryBtn');
+  if(!dd||!btn)return;
   var isOpen=dd.style.display!=='none';
   if(isOpen){closeSimHistory();}
   else{
     renderSimHistoryDropdown();
+    // Use position:fixed with viewport coords so it's never behind the sidebar
+    var rect=btn.getBoundingClientRect();
+    var dropW=380;
+    var sidebarW=document.body.classList.contains('sidebar-collapsed')?8:268;
+    var viewW=window.innerWidth;
+    // Prefer right-aligned to button; if that would go behind sidebar, left-align instead
+    var rightEdge=rect.right;
+    var leftEdge=rightEdge-dropW;
+    if(leftEdge<sidebarW+8){
+      leftEdge=sidebarW+8;
+      rightEdge=leftEdge+dropW;
+    }
+    // Clamp to viewport right
+    if(rightEdge>viewW-8){rightEdge=viewW-8;leftEdge=rightEdge-dropW;}
+    dd.style.top=(rect.bottom+6)+'px';
+    dd.style.left=leftEdge+'px';
+    dd.style.right='auto';
     dd.style.display='block';
     setTimeout(function(){document.addEventListener('click',closeSimHistoryOutside,{once:true,capture:true});},10);
   }
@@ -6753,9 +6771,8 @@ function renderSimHistoryDropdown(){
     var dColor=s.delta>=0?'rgba(255,100,80,0.8)':'rgba(100,220,140,0.8)';
     var date=new Date(s.createdAt);
     var ds=date.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    var q=s.question.length>58?s.question.slice(0,58)+'...':s.question;
     return'<div onclick="loadSimScenario(\''+s.id+'\')" style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.04)\'" onmouseout="this.style.background=\'\'">'
-      +'<div style="font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:4px;line-height:1.45;">'+q+'</div>'
+      +'<div style="font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+s.question+'</div>'
       +'<div style="display:flex;align-items:center;justify-content:space-between;font-family:\'JetBrains Mono\',monospace;font-size:9px;color:rgba(255,255,255,0.25);">'
       +'<span>'+ds+'</span>'
       +'<span style="color:'+dColor+'">'+dSign+s.delta+' risk pts</span>'
