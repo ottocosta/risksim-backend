@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us — RiskSim AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --glass-bg: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.08);
+      --text-muted: rgba(255,255,255,0.6);
+      --text-dim: rgba(255,255,255,0.35);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== BACK BUTTON ===== */
+    .back-btn {
+      position: fixed;
+      top: 1.5rem;
+      left: 1.5rem;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      transition: color 0.2s;
+      padding: 0.5rem 0;
+    }
+    .back-btn:hover { color: #fff; }
+    .back-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ===== MAIN LAYOUT ===== */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      padding: 5rem 0 6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .hero-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(3.5rem, 9vw, 7rem);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+    .hero-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      color: var(--text-muted);
+      font-weight: 300;
+      max-width: 540px;
+      line-height: 1.6;
+    }
+
+    /* ===== SECTION ===== */
+    .section {
+      padding: 5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .section:last-of-type { border-bottom: none; }
+
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1.2rem;
+    }
+    .section h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: #fff;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .section p {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+      color: var(--text-muted);
+      line-height: 1.75;
+      max-width: 680px;
+      font-weight: 400;
+    }
+
+    /* ===== TEAM ===== */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+    }
+    @media (max-width: 768px) {
+      .team-grid { grid-template-columns: 1fr; }
+    }
+
+    .team-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(60px);
+      -webkit-backdrop-filter: blur(60px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .team-initial {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: #fff;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .team-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #fff;
+      margin-bottom: 0.2rem;
+    }
+    .team-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .team-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .team-footer {
+      margin-top: 2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 2.5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-copy {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+    .footer-links a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: #fff; }
+
+    /* ===== FADE-IN ON SCROLL ===== */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fade-in-delay-1 { transition-delay: 0.1s; }
+    .fade-in-delay-2 { transition-delay: 0.2s; }
+    .fade-in-delay-3 { transition-delay: 0.3s; }
+
+    /* Hero doesn't need scroll observer — visible on load */
+    .hero .hero-label,
+    .hero h1,
+    .hero .hero-sub {
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards;
+    }
+    .hero h1 { animation-delay: 0.15s; }
+    .hero .hero-sub { animation-delay: 0.3s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="/" class="back-btn">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M10 3L5 8l5 5"/>
+    </svg>
+    Back
+  </a>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-label">About RiskSim AI</div>
+      <h1>Built different.</h1>
+      <p class="hero-sub">Three founders under 18. No funding. No office. Just a problem worth solving.</p>
+    </section>
+
+    <!-- MISSION -->
+    <section class="section">
+      <div class="fade-in">
+        <div class="section-label">Mission</div>
+        <h2>Why we built this</h2>
+        <p>Mid-market companies importing globally have always been flying blind. The tools that actually work — real-time risk intelligence, landed cost modeling, AI supplier audits — cost $50,000+ a year and were built for Fortune 500 enterprises with dedicated analyst teams. Everyone else was stuck with spreadsheets, Google alerts, and gut instinct. We built RiskSim AI to close that gap. Palantir-level supply chain intelligence, rebuilt from the ground up for the companies that actually need it.</p>
+      </div>
+    </section>
+
+    <!-- VISION -->
+    <section class="section">
+      <div class="fade-in">
+        <div class="section-label">Vision</div>
+        <h2>Where we're going</h2>
+        <p>Supply chain disruptions cost mid-market companies billions every year — not because the risks weren't there, but because nobody saw them coming in time. We're building the platform that changes that. Every importer, every sourcing team, every procurement manager deserves the same intelligence that the world's largest companies take for granted. That's what RiskSim AI is becoming.</p>
+      </div>
+    </section>
+
+    <!-- TEAM -->
+    <section class="section">
+      <div class="fade-in">
+        <div class="section-label">People</div>
+        <h2>The team</h2>
+      </div>
+      <div class="team-grid">
+        <div class="team-card fade-in fade-in-delay-1">
+          <div class="team-initial">O</div>
+          <div>
+            <div class="team-name">Otto Costa</div>
+            <div class="team-title">CEO &amp; Co-Founder</div>
+          </div>
+          <p class="team-desc">Leads product development, strategy, and company direction. Built the core platform from the ground up and drives everything from architecture decisions to go-to-market.</p>
+        </div>
+        <div class="team-card fade-in fade-in-delay-2">
+          <div class="team-initial">K</div>
+          <div>
+            <div class="team-name">Kai</div>
+            <div class="team-title">CTO &amp; Co-Founder</div>
+          </div>
+          <p class="team-desc">Owns the technical backbone. Built and maintains the backend infrastructure, API architecture, and trained the AI models that power RiskSim's intelligence engine.</p>
+        </div>
+        <div class="team-card fade-in fade-in-delay-3">
+          <div class="team-initial">L</div>
+          <div>
+            <div class="team-name">Luukas</div>
+            <div class="team-title">COO &amp; Co-Founder</div>
+          </div>
+          <p class="team-desc">Drives growth, marketing, and content. Manages outreach, brand presence, and makes sure the right people find RiskSim.</p>
+        </div>
+      </div>
+      <p class="team-footer fade-in">Founded 2025 · Helsinki, Finland &amp; Singapore</p>
+    </section>
+
+  </main>
+
+  <footer>
+    <span class="footer-copy">© 2026 RiskSim AI · Helsinki, Finland</span>
+    <div class="footer-links">
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll fade-in
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

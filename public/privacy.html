@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — RiskSim AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --glass-bg: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.08);
+      --text-muted: rgba(255,255,255,0.6);
+      --text-dim: rgba(255,255,255,0.35);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== BACK BUTTON ===== */
+    .back-btn {
+      position: fixed;
+      top: 1.5rem;
+      left: 1.5rem;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      transition: color 0.2s;
+      padding: 0.5rem 0;
+    }
+    .back-btn:hover { color: #fff; }
+    .back-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ===== MAIN LAYOUT ===== */
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      padding: 5rem 0 4rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .hero-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0s forwards;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: #fff;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.1s forwards;
+    }
+    .hero-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.2s forwards;
+    }
+
+    /* ===== POLICY SECTIONS ===== */
+    .policy-body {
+      padding: 1rem 0 2rem;
+    }
+
+    .policy-section {
+      padding: 3rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .policy-section:last-child { border-bottom: none; }
+
+    .policy-section h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+      color: #fff;
+      margin-bottom: 1.2rem;
+      letter-spacing: -0.01em;
+    }
+
+    .policy-section p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.975rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 0.85rem;
+    }
+    .policy-section p:last-child { margin-bottom: 0; }
+
+    .policy-section ul {
+      list-style: none;
+      margin: 0.75rem 0;
+      padding: 0;
+    }
+    .policy-section ul li {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.975rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      padding: 0.35rem 0 0.35rem 1.2rem;
+      position: relative;
+    }
+    .policy-section ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.8rem;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+    }
+
+    .policy-section a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.2s;
+    }
+    .policy-section a:hover { color: #fff; }
+
+    .policy-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.6rem;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 2.5rem 2rem;
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-copy {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+    .footer-links a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: #fff; }
+
+    /* ===== FADE-IN ON SCROLL ===== */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="/" class="back-btn">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M10 3L5 8l5 5"/>
+    </svg>
+    Back
+  </a>
+
+  <main>
+
+    <section class="hero">
+      <div class="hero-label">Legal</div>
+      <h1>Privacy Policy</h1>
+      <div class="hero-meta">Last updated: April 2026</div>
+    </section>
+
+    <div class="policy-body">
+
+      <div class="policy-section fade-in">
+        <div class="policy-label">01 — Introduction</div>
+        <h2>Who we are</h2>
+        <p>RiskSim AI is a supply chain intelligence platform built and operated by a small founding team based in Helsinki, Finland. This Privacy Policy explains how we collect, use, and protect your information when you use our platform at risksimAI and related services.</p>
+        <p>If you have any questions about this policy, you can reach us at <a href="mailto:risksim.ai@gmail.com">risksim.ai@gmail.com</a>.</p>
+      </div>
+
+      <div class="policy-section fade-in">
+        <div class="policy-label">02 — Data Collection</div>
+        <h2>Information we collect</h2>
+        <p>We collect information you provide directly, as well as data generated through your use of the platform.</p>
+        <ul>
+          <li><strong style="color:rgba(255,255,255,0.85)">Account information</strong> — name, email address, and password when you create an account.</li>
+          <li><strong style="color:rgba(255,255,255,0.85)">Profile data</strong> — your industry, sourcing countries, company name, and supply chain configuration you provide to personalize the platform.</li>
+          <li><strong style="color:rgba(255,255,255,0.85)">Usage data</strong> — pages visited, features used, queries submitted, and interaction patterns to improve the product.</li>
+          <li><strong style="color:rgba(255,255,255,0.85)">Payment information</strong> — billing is handled entirely by Shopify. We do not store your card details, card numbers, or payment credentials on our servers.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section fade-in">
+        <div class="policy-label">03 — Usage</div>
+        <h2>How we use your information</h2>
+        <p>We use the information we collect to operate and improve RiskSim AI. Specifically:</p>
+        <ul>
+          <li>To personalize the platform to your industry and sourcing regions</li>
+          <li>To power AI-generated risk analyses, supplier assessments, and cost simulations</li>
+          <li>To send you relevant alerts and intelligence briefings based on your supply chain profile</li>
+          <li>To communicate with you about your account, subscription, and product updates</li>
+          <li>To identify and fix bugs, improve performance, and develop new features</li>
+        </ul>
+        <p>We do not sell your data to third parties. We do not use your data for advertising.</p>
+      </div>
+
+      <div class="policy-section fade-in">
+        <div class="policy-label">04 — Security</div>
+        <h2>Data storage &amp; security</h2>
+        <p>Your data is stored on secure servers hosted by Render. We apply industry-standard security practices including encrypted connections (HTTPS/TLS), access controls, and secure environment variable management.</p>
+        <p>API keys and sensitive credentials are never exposed client-side. All sensitive configuration is stored as server-side environment variables and never included in frontend code.</p>
+      </div>
+
+      <div class="policy-section fade-in">
+        <div class="policy-label">05 — Third Parties</div>
+        <h2>Third-party services</h2>
+        <p>RiskSim AI uses the following third-party services to operate the platform. Each is bound by their own privacy practices:</p>
+        <ul>
+          <li><strong style="color:rgba(255,255,255,0.85)">Anthropic</strong> — AI processing. Queries you submit may be processed by Anthropic's Claude models to generate intelligence responses.</li>
+          <li><strong style="color:rgba(255,255,255,0.85)">Shopify</strong> — Payment processing. All billing is handled by Shopify's secure checkout infrastructure.</li>
+          <li><strong style="color:rgba(255,255,255,0.85)">Render</strong> — Cloud hosting for backend infrastructure and data storage.</li>
+          <li><strong style="color:rgba(255,255,255,0.85)">n8n</strong> — Workflow automation used for internal data pipelines and processing.</li>
+          <li><strong style="color:rgba(255,255,255,0.85)">Google News RSS</strong> — Public news feeds used to surface relevant supply chain news and alerts.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section fade-in">
+        <div class="policy-label">06 — Your Rights</div>
+        <h2>Your rights</h2>
+        <p>You have the right to access, correct, or request deletion of the personal data we hold about you. To exercise any of these rights, contact us at <a href="mailto:risksim.ai@gmail.com">risksim.ai@gmail.com</a> and we will respond within a reasonable timeframe.</p>
+        <p>If you are located in the European Economic Area, you may also have additional rights under GDPR, including the right to data portability and the right to lodge a complaint with a supervisory authority.</p>
+      </div>
+
+      <div class="policy-section fade-in">
+        <div class="policy-label">07 — Cookies</div>
+        <h2>Cookies &amp; local storage</h2>
+        <p>RiskSim AI uses browser <code style="font-family:'JetBrains Mono',monospace;font-size:0.85em;color:rgba(255,255,255,0.7)">localStorage</code> to store your session data, preferences, and platform configuration. This keeps you logged in and personalizes your experience between visits.</p>
+        <p>We do not use advertising cookies, tracking pixels, or third-party analytics cookies. We do not participate in cross-site tracking.</p>
+      </div>
+
+      <div class="policy-section fade-in">
+        <div class="policy-label">08 — Children</div>
+        <h2>Children's privacy</h2>
+        <p>RiskSim AI is a professional business intelligence platform not intended for use by individuals under the age of 16. We do not knowingly collect personal information from children under 16. If you believe we have inadvertently collected such information, please contact us immediately at <a href="mailto:risksim.ai@gmail.com">risksim.ai@gmail.com</a>.</p>
+      </div>
+
+      <div class="policy-section fade-in">
+        <div class="policy-label">09 — Updates</div>
+        <h2>Changes to this policy</h2>
+        <p>We may update this Privacy Policy from time to time. When we make material changes, we will notify users via email or a notice within the platform. The "Last updated" date at the top of this page reflects the most recent revision.</p>
+        <p>Continued use of the platform after changes are posted constitutes acceptance of the updated policy.</p>
+      </div>
+
+      <div class="policy-section fade-in">
+        <div class="policy-label">10 — Contact</div>
+        <h2>Get in touch</h2>
+        <p>For any privacy-related questions or requests:</p>
+        <p><a href="mailto:risksim.ai@gmail.com">risksim.ai@gmail.com</a><br>Helsinki, Finland</p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    <span class="footer-copy">© 2026 RiskSim AI · Helsinki, Finland</span>
+    <div class="footer-links">
+      <a href="/about.html">About Us</a>
+      <a href="/contact.html">Contact</a>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

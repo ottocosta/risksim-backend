@@ -156,6 +156,20 @@
       opacity: 0; animation: fadeIn 1.5s ease 0.2s forwards;
     }
 
+    /* Intro nav links — top-left, only visible on intro screen */
+    .intro-nav {
+      position: absolute; top: 1.6rem; left: 1.8rem; z-index: 20;
+      display: flex; align-items: center; gap: 1.8rem;
+      opacity: 0; animation: fadeIn 0.8s ease 1.8s forwards;
+    }
+    .intro-nav-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .intro-nav-link:hover { color: rgba(255,255,255,0.85); }
+
     /* Vignette */
     .intro-vignette {
       position: absolute; inset: 0; z-index: 5; pointer-events: none;
@@ -3453,6 +3467,11 @@ window.addEventListener('keydown',__handleIntroKey,true);
 <div id="rs-intro">
   <canvas id="introGlobe"></canvas>
   <div class="intro-vignette"></div>
+  <nav class="intro-nav" id="introNav">
+    <a href="/about.html" class="intro-nav-link">About</a>
+    <a href="/privacy.html" class="intro-nav-link">Privacy Policy</a>
+    <a href="/contact.html" class="intro-nav-link">Contact</a>
+  </nav>
   <div class="intro-wordmark">RISKSIM</div>
   <div class="intro-subtitle">Supply Chain Intelligence</div>
   <div class="intro-hint">
@@ -8136,6 +8155,9 @@ window.addEventListener('load',function(){
     setTimeout(cleanup,1800);
   }
   window.__dismissIntro=dismiss;
+  // Prevent nav links from triggering dismiss
+  var introNav=document.getElementById('introNav');
+  if(introNav)introNav.addEventListener('click',function(e){e.stopPropagation();});
   intro.addEventListener('click',dismiss);
   // Block scroll while intro is up
   intro.addEventListener('wheel',function(e){e.preventDefault();dismiss();},{passive:false});
