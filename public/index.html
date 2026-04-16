@@ -1852,6 +1852,10 @@
     }
     .po-cta-featured:hover { background: #e2e8f0; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(255,255,255,0.15); }
 
+    .po-trial-text {
+      font-size: 11px; color: rgba(255,255,255,0.3); text-align: center; margin-top: 8px;
+      font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em;
+    }
     .po-bottom-text {
       font-size: 11px; color: rgba(255,255,255,0.25); text-align: center; margin-top: 24px;
     }
@@ -3962,7 +3966,7 @@ function buildLegend(layer){var cfg=LAYER_CONFIG[layer];if(!cfg)return;var t=doc
 
 function updateMapLayer(layer){currentLayer=layer;var btnMap={risk:'btnRisk',shipping:'btnShipping',labor:'btnLabor',cost:'btnCost',sourcing:'btnSourcing'};for(var k in btnMap){var b=document.getElementById(btnMap[k]);if(b)b.classList.toggle('active',k===layer);}var cfg=LAYER_CONFIG[layer];if(cfg){var n=document.getElementById('overlayName'),s=document.getElementById('overlaySub');if(n)n.textContent=cfg.name;if(s)s.textContent=cfg.sub;}renderMarkers();buildLegend(layer);}
 
-function deepDive(name){var c=COUNTRY_MAP[name];if(!c)return;openChatFullscreen('Deep dive analysis of '+name+'. Risk:'+c.risk+'/100, Tariff:'+c.tariff+'%, Infra:'+c.infra+'/10. Sourcing:'+((c.sourcing&&c.sourcing[currentCategory])||0)+'/100. Shipping:'+c.shipping+'/10, Labor:'+c.labor+'/10.','map');}
+function deepDive(name){if(!checkPaywall())return;var c=COUNTRY_MAP[name];if(!c)return;openChatFullscreen('Deep dive analysis of '+name+'. Risk:'+c.risk+'/100, Tariff:'+c.tariff+'%, Infra:'+c.infra+'/10. Sourcing:'+((c.sourcing&&c.sourcing[currentCategory])||0)+'/100. Shipping:'+c.shipping+'/10, Labor:'+c.labor+'/10.','map');}
 
 document.addEventListener('DOMContentLoaded',function(){var cg=document.getElementById('sourcingChips');if(cg)cg.addEventListener('click',function(e){var chip=e.target.closest('.chip-option');if(!chip)return;chip.classList.toggle('selected');selectedSourcingCountries=[];var sel=cg.querySelectorAll('.chip-option.selected');for(var i=0;i<sel.length;i++)selectedSourcingCountries.push(sel[i].getAttribute('data-country'));});});
 
@@ -4378,7 +4382,7 @@ function addUserMessage(t){var m=document.getElementById('chatMessages'),d=docum
 function addAIMessage(t){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.innerHTML='<span class="msg-label">RiskSim AI</span>'+t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function addTypingIndicator(){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.id='typing';d.innerHTML='<span class="msg-label">RiskSim AI</span><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function removeTypingIndicator(){var t=document.getElementById('typing');if(t)t.remove();}
-async function sendMessage(userText){addUserMessage(userText);addTypingIndicator();try{var profilePayload={companyType:PS_TYPE_LABELS[userProfile.type]||userProfile.type||'',homeCountry:userProfile.country||'',industry:PS_IND_LABELS[userProfile.industry]||userProfile.industry||'',sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||'',companyName:userProfile.companyName||'',products:userProfile.products||'',suppliers:userProfile.suppliers||'',concern:userProfile.concern||'',businessDescription:userProfile.context||''};var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,profile:profilePayload})});var d=await r.json();removeTypingIndicator();addAIMessage(d.reply||d.error||'Unable to process.');}catch(e){removeTypingIndicator();addAIMessage('Connection error.');}}
+async function sendMessage(userText){if(!checkPaywall())return;addUserMessage(userText);addTypingIndicator();try{var profilePayload={companyType:PS_TYPE_LABELS[userProfile.type]||userProfile.type||'',homeCountry:userProfile.country||'',industry:PS_IND_LABELS[userProfile.industry]||userProfile.industry||'',sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||'',companyName:userProfile.companyName||'',products:userProfile.products||'',suppliers:userProfile.suppliers||'',concern:userProfile.concern||'',businessDescription:userProfile.context||''};var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,profile:profilePayload})});var d=await r.json();removeTypingIndicator();addAIMessage(d.reply||d.error||'Unable to process.');}catch(e){removeTypingIndicator();addAIMessage('Connection error.');}}
 
 document.addEventListener('DOMContentLoaded',function(){
   initMap();
@@ -4697,6 +4701,7 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 function runCustomAudit(supplierName){
+  if(!checkPaywall())return;
   if(_customAuditPending)return;
   _customAuditPending=true;
   var contextVal='';
@@ -5919,6 +5924,7 @@ function cfSwitchConv(id){
 
 // ===== SEND MESSAGE =====
 async function cfSendMessage(userText){
+  if(!checkPaywall())return;
   if(!_cfActiveConv){
     var conv=cfCreateConversation(null,_cfChatSource);
     _cfActiveConv=conv.id;
@@ -6464,6 +6470,7 @@ function piHandleDrop(e){
 }
 
 function piHandleFile(file){
+  if(!checkPaywall())return;
   if(!file)return;
   var maxMB=10;
   if(file.size>maxMB*1024*1024){
@@ -6871,6 +6878,7 @@ function showSimAnalysisView(question,results,runAnalysis){
 }
 
 function runSimProgress(question){
+  if(!checkPaywall())return;
   var pp=document.getElementById('simProgressPanel');
   var stepsEl=document.getElementById('simProgressSteps');if(!pp||!stepsEl)return;
   document.getElementById('simStatusDot').classList.add('active');
@@ -7234,6 +7242,24 @@ function closePricing(){
   var nav=document.getElementById('rsNav');
   if(nav)nav.style.display='';
 }
+// ===== PAYWALL GATE =====
+function checkPaywall(){
+  var isPaid=localStorage.getItem('risksim_paid');
+  if(!isPaid){showPricing();return false;}
+  return true;
+}
+// Detect return from Shopify checkout with ?payment=success
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  if(params.get('payment')==='success'){
+    var plan=params.get('plan')||'pro';
+    localStorage.setItem('risksim_paid','true');
+    localStorage.setItem('risksim_plan',plan);
+    // Clean URL without reload
+    var clean=window.location.pathname;
+    window.history.replaceState({},'',clean);
+  }
+})();
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){
     closePricing();
@@ -8181,9 +8207,9 @@ window.addEventListener('load',function(){
     <div class="po-title">Choose Your Plan</div>
     <div class="po-subtitle">Unlock the full power of AI-driven supply chain intelligence</div>
 
-    <!-- Founder Banner -->
+    <!-- Beta Banner -->
     <div class="po-founder-banner">
-      <span class="po-founder-text">◈ Founder Pricing — First 15 customers get 30% off forever</span>
+      <span class="po-founder-text">◈ BETA30 — 30% off automatically applied at checkout — limited to 15 users</span>
     </div>
 
     <!-- Billing Toggle -->
@@ -8219,7 +8245,8 @@ window.addEventListener('load',function(){
           <li class="po-feature po-locked"><span class="po-feature-check">✕</span> Voice Assistant</li>
           <li class="po-feature po-locked"><span class="po-feature-check">✕</span> Priority email alerts</li>
         </ul>
-        <button class="po-cta" onclick="window.open('mailto:risksim.ai@gmail.com?subject=Pro%20Plan%20Inquiry','_blank')">Subscribe — Pro</button>
+        <button class="po-cta" onclick="window.open('https://risksim-ai.myshopify.com/cart/10727526236498:1?discount=BETA30','_blank')">Subscribe — Pro</button>
+        <div class="po-trial-text">7-day free trial · Cancel anytime</div>
       </div>
 
       <!-- ENTERPRISE -->
@@ -8242,7 +8269,8 @@ window.addEventListener('load',function(){
           <li class="po-feature"><span class="po-feature-check">✓</span> Priority email alerts</li>
           <li class="po-feature"><span class="po-feature-check">✓</span> Advanced risk modeling</li>
         </ul>
-        <button class="po-cta po-cta-featured" onclick="window.open('mailto:risksim.ai@gmail.com?subject=Enterprise%20Plan%20Inquiry','_blank')">Subscribe — Enterprise</button>
+        <button class="po-cta po-cta-featured" onclick="window.open('https://risksim-ai.myshopify.com/cart/10727528628562:1?discount=BETA30','_blank')">Subscribe — Enterprise</button>
+        <div class="po-trial-text">7-day free trial · Cancel anytime</div>
       </div>
 
       <!-- CUSTOM -->
@@ -8416,6 +8444,7 @@ function lcLoadLastValues(){
 
 // Main calculate
 function lcCalculate(){
+  if(!checkPaywall())return;
   // Sync country array from inputs
   var inputs=document.querySelectorAll('.lc-country-input');
   _lcCountries=[];
