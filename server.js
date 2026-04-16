@@ -2,10 +2,44 @@ const express = require('express');
 const path = require('path');
 const Anthropic = require('@anthropic-ai/sdk').default || require('@anthropic-ai/sdk');
 const axios = require('axios');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json({ limit: '15mb' }));
+// Security headers
+app.use(helmet({
+    contentSecurityPolicy: false, // managed below per-route
+    crossOriginEmbedderPolicy: false
+}));
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// Rate limiting — Claude endpoints (cost money if abused)
+const claudeLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20,
+    message: { error: 'Too many requests, please try again later.' }
+});
+app.use('/api/audit-custom', claudeLimiter);
+app.use('/api/price-extract', claudeLimiter);
+app.use('/api/chat', claudeLimiter);
+
+// General rate limit on all routes
+const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100
+});
+app.use(generalLimiter);
+
+// Input sanitisation helper — strips HTML tags
+function stripHtml(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/<[^>]*>/g, '').trim();
+}
+
+const MAX_INPUT = 5000;
 
 // Allow iframe embedding from Shopify
 app.use((req, res, next) => {
@@ -218,8 +252,12 @@ function buildSystemPrompt(profile) {
 
 app.post('/api/chat', async (req, res) => {
     try {
-        const { message, messages, profile } = req.body;
-        if (!message) return res.status(400).json({ error: 'Message required' });
+        let { message, messages, profile } = req.body;
+        if (!message || typeof message !== 'string' || message.trim().length === 0)
+            return res.status(400).json({ error: 'Message required' });
+        if (message.length > MAX_INPUT)
+            return res.status(400).json({ error: 'Input exceeds maximum allowed length.' });
+        message = stripHtml(message);
 
         const apiKey = process.env.CLAUDE_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
@@ -246,10 +284,17 @@ app.post('/api/chat', async (req, res) => {
 
 app.post('/api/audit-custom', async (req, res) => {
     try {
-        const { supplierName, context, profile } = req.body;
+        let { supplierName, context, profile } = req.body;
 
-        if (!supplierName || supplierName.trim().length === 0) {
+        if (!supplierName || typeof supplierName !== 'string' || supplierName.trim().length === 0)
             return res.status(400).json({ error: 'Supplier name is required' });
+        if (supplierName.length > MAX_INPUT)
+            return res.status(400).json({ error: 'Input exceeds maximum allowed length.' });
+        supplierName = stripHtml(supplierName);
+        if (context) {
+            if (context.length > MAX_INPUT)
+                return res.status(400).json({ error: 'Input exceeds maximum allowed length.' });
+            context = stripHtml(context);
         }
 
         const apiKey = process.env.CLAUDE_API_KEY;
@@ -331,9 +376,17 @@ Analyze this supplier thoroughly. If you have knowledge about this company, use 
 
 app.post('/api/price-extract', async (req, res) => {
     try {
-        const { fileType, fileName, fileData, fileContent, mimeType } = req.body;
+        let { fileType, fileName, fileData, fileContent, mimeType } = req.body;
 
-        if (!fileType) return res.status(400).json({ error: 'fileType required' });
+        if (!fileType || typeof fileType !== 'string' || fileType.trim().length === 0)
+            return res.status(400).json({ error: 'fileType required' });
+        fileType = stripHtml(fileType);
+        if (fileName) fileName = stripHtml(fileName);
+        if (fileContent) {
+            if (fileContent.length > MAX_INPUT)
+                return res.status(400).json({ error: 'Input exceeds maximum allowed length.' });
+            fileContent = stripHtml(fileContent);
+        }
 
         const apiKey = process.env.CLAUDE_API_KEY;
         if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
