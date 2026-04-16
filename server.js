@@ -16,22 +16,31 @@ app.use(helmet({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// Rate limiting — Claude endpoints (cost money if abused)
+// Heavy Claude endpoints — audit and price extraction
 const claudeLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000,
     max: 20,
     message: { error: 'Too many requests, please try again later.' }
 });
-app.use('/api/audit-custom', claudeLimiter);
-app.use('/api/price-extract', claudeLimiter);
-app.use('/api/chat', claudeLimiter);
 
-// General rate limit on all routes
+// Chat endpoint — needs more room for conversations
+const chatLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 60,
+    message: { error: 'Too many requests, please try again later.' }
+});
+
+// General limit on all routes
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100
+    max: 100,
+    message: { error: 'Too many requests, please try again later.' }
 });
+
 app.use(generalLimiter);
+app.use('/api/audit-custom', claudeLimiter);
+app.use('/api/price-extract', claudeLimiter);
+app.use('/api/chat', chatLimiter);
 
 // Input sanitisation helper — strips HTML tags
 function stripHtml(str) {
