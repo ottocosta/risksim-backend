@@ -8268,14 +8268,14 @@ window.addEventListener('load',function(){
       <div class="po-card">
         <div class="po-tier">PRO</div>
         <div class="po-price-wrap">
-          <div class="po-price-strike" id="poProStrike">$249/mo</div>
+          <div class="po-price-strike" id="poProStrike">€249/mo</div>
           <div>
-            <span class="po-price" id="poProPrice">$174</span>
+            <span class="po-price" id="poProPrice">€174</span>
             <span class="po-price-period">/mo</span>
           </div>
-          <div class="po-founder-note" id="poProNote">Founder pricing · normally $249/mo</div>
+          <div class="po-founder-note" id="poProNote">Founder pricing · normally €249/mo</div>
         </div>
-        <div class="po-savings" id="poProSavings">Save $504/year</div>
+        <div class="po-savings" id="poProSavings">Save €504/year</div>
         <div class="po-seats">Up to 3 users</div>
         <ul class="po-features">
           <li class="po-feature"><span class="po-feature-check">✓</span> Intelligence Map — all layers</li>
@@ -8297,14 +8297,14 @@ window.addEventListener('load',function(){
         <div class="po-best-value">BEST VALUE</div>
         <div class="po-tier">ENTERPRISE</div>
         <div class="po-price-wrap">
-          <div class="po-price-strike" id="poEntStrike">$799/mo</div>
+          <div class="po-price-strike" id="poEntStrike">€799/mo</div>
           <div>
-            <span class="po-price" id="poEntPrice">$559</span>
+            <span class="po-price" id="poEntPrice">€559</span>
             <span class="po-price-period">/mo</span>
           </div>
-          <div class="po-founder-note" id="poEntNote">Founder pricing · normally $799/mo</div>
+          <div class="po-founder-note" id="poEntNote">Founder pricing · normally €799/mo</div>
         </div>
-        <div class="po-savings" id="poEntSavings">Save $1,596/year</div>
+        <div class="po-savings" id="poEntSavings">Save €1,596/year</div>
         <div class="po-seats">Up to 8 users</div>
         <ul class="po-features">
           <li class="po-feature"><span class="po-feature-check">✓</span> Everything in Pro</li>
@@ -8322,14 +8322,14 @@ window.addEventListener('load',function(){
       <div class="po-card">
         <div class="po-tier">CUSTOM</div>
         <div class="po-price-wrap">
-          <div class="po-price-strike" id="poCustStrike">$1,299/mo</div>
+          <div class="po-price-strike" id="poCustStrike">€1,299/mo</div>
           <div>
-            <span class="po-price" id="poCustPrice">$909</span>
+            <span class="po-price" id="poCustPrice">€909</span>
             <span class="po-price-period">/mo</span>
           </div>
-          <div class="po-founder-note" id="poCustNote">Founder pricing · normally $1,299/mo</div>
+          <div class="po-founder-note" id="poCustNote">Founder pricing · normally €1,299/mo</div>
         </div>
-        <div class="po-savings" id="poCustSavings">Save $2,604/year</div>
+        <div class="po-savings" id="poCustSavings">Save €2,604/year</div>
         <div class="po-seats">Negotiated</div>
         <ul class="po-features">
           <li class="po-feature"><span class="po-feature-check">✓</span> Everything in Enterprise</li>
@@ -8359,17 +8359,17 @@ function toggleBilling(isAnnual) {
     btnMonthly.classList.remove('po-active');
     btnAnnual.classList.add('po-active');
     // Strikethrough originals (annual list price)
-    document.getElementById('poProStrike').textContent = '$207/mo';
-    document.getElementById('poEntStrike').textContent = '$666/mo';
-    document.getElementById('poCustStrike').textContent = '$1,082/mo';
+    document.getElementById('poProStrike').textContent = '€207/mo';
+    document.getElementById('poEntStrike').textContent = '€666/mo';
+    document.getElementById('poCustStrike').textContent = '€1,082/mo';
     // Main price = founder annual price
-    document.getElementById('poProPrice').textContent = '$145';
-    document.getElementById('poEntPrice').textContent = '$466';
-    document.getElementById('poCustPrice').textContent = '$758';
+    document.getElementById('poProPrice').textContent = '€145';
+    document.getElementById('poEntPrice').textContent = '€466';
+    document.getElementById('poCustPrice').textContent = '€758';
     // Founder notes
-    document.getElementById('poProNote').textContent = 'Founder pricing · normally $207/mo';
-    document.getElementById('poEntNote').textContent = 'Founder pricing · normally $666/mo';
-    document.getElementById('poCustNote').textContent = 'Founder pricing · normally $1,082/mo';
+    document.getElementById('poProNote').textContent = 'Founder pricing · normally €207/mo';
+    document.getElementById('poEntNote').textContent = 'Founder pricing · normally €666/mo';
+    document.getElementById('poCustNote').textContent = 'Founder pricing · normally €1,082/mo';
     // Show annual savings line
     document.getElementById('poProSavings').style.display = 'block';
     document.getElementById('poEntSavings').style.display = 'block';
@@ -8378,17 +8378,17 @@ function toggleBilling(isAnnual) {
     btnAnnual.classList.remove('po-active');
     btnMonthly.classList.add('po-active');
     // Strikethrough originals (monthly list price)
-    document.getElementById('poProStrike').textContent = '$249/mo';
-    document.getElementById('poEntStrike').textContent = '$799/mo';
-    document.getElementById('poCustStrike').textContent = '$1,299/mo';
+    document.getElementById('poProStrike').textContent = '€249/mo';
+    document.getElementById('poEntStrike').textContent = '€799/mo';
+    document.getElementById('poCustStrike').textContent = '€1,299/mo';
     // Main price = founder monthly price
-    document.getElementById('poProPrice').textContent = '$174';
-    document.getElementById('poEntPrice').textContent = '$559';
-    document.getElementById('poCustPrice').textContent = '$909';
+    document.getElementById('poProPrice').textContent = '€174';
+    document.getElementById('poEntPrice').textContent = '€559';
+    document.getElementById('poCustPrice').textContent = '€909';
     // Founder notes
-    document.getElementById('poProNote').textContent = 'Founder pricing · normally $249/mo';
-    document.getElementById('poEntNote').textContent = 'Founder pricing · normally $799/mo';
-    document.getElementById('poCustNote').textContent = 'Founder pricing · normally $1,299/mo';
+    document.getElementById('poProNote').textContent = 'Founder pricing · normally €249/mo';
+    document.getElementById('poEntNote').textContent = 'Founder pricing · normally €799/mo';
+    document.getElementById('poCustNote').textContent = 'Founder pricing · normally €1,299/mo';
     // Hide annual savings line
     document.getElementById('poProSavings').style.display = 'none';
     document.getElementById('poEntSavings').style.display = 'none';
