@@ -3079,18 +3079,26 @@ function showSecretInput() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  // 2A — Check if returning from Shopify checkout with payment confirmation
-  var urlParams = new URLSearchParams(window.location.search);
-  var paidPlan = urlParams.get('paid');
-  if (paidPlan) {
-    localStorage.setItem('risksim_paid', 'true');
-    localStorage.setItem('risksim_plan', paidPlan);
-    window.history.replaceState({}, document.title, window.location.pathname);
-    setTimeout(function() {
-      showNotification('Welcome to RiskSim ' + paidPlan.charAt(0).toUpperCase() + paidPlan.slice(1) + '! Your account is now active.', 'success');
-    }, 1500);
-  }
-  // 2D — Show plan badge if already paid
+  // Detect payment return from Shopify
+  (function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var paidPlan = urlParams.get('paid');
+    if (paidPlan) {
+      localStorage.setItem('risksim_paid', 'true');
+      localStorage.setItem('risksim_plan', paidPlan);
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Show success notification after app loads
+      setTimeout(function() {
+        var msg = document.createElement('div');
+        msg.style.cssText = 'position:fixed;top:20px;right:20px;z-index:999999;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:16px 24px;font-family:JetBrains Mono,monospace;font-size:12px;color:#fff;letter-spacing:1px;backdrop-filter:blur(20px);';
+        msg.textContent = '◈ WELCOME TO RISKSIM ' + paidPlan.toUpperCase() + ' — ACCESS UNLOCKED';
+        document.body.appendChild(msg);
+        setTimeout(function() { msg.remove(); }, 5000);
+      }, 2000);
+    }
+  })();
+  // Show plan badge if already paid
   if (typeof updatePlanBadge === 'function') updatePlanBadge();
 
   var codeInput = document.getElementById('secretCode');
@@ -7254,9 +7262,6 @@ function closePricing(){
   if(o){o.style.display='none';}
   var nav=document.getElementById('rsNav');
   if(nav)nav.style.display='';
-  // Remove any paywall context message so it doesn't persist across reopens
-  var msg=document.getElementById('paywallContextMsg');
-  if(msg)msg.remove();
 }
 
 // ===== PAYWALL GATE =====
@@ -7265,18 +7270,6 @@ function checkPaywall(featureName) {
   var hasBypass = localStorage.getItem('risksim_bypass') === 'junior';
   if (isPaid || hasBypass) return true;
   showPricing();
-  // Insert context message inside the pricing container
-  var existingMsg = document.getElementById('paywallContextMsg');
-  if (!existingMsg) {
-    var container = document.querySelector('#pricingOverlay .po-container');
-    if (container) {
-      var msg = document.createElement('div');
-      msg.id = 'paywallContextMsg';
-      msg.style.cssText = 'text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:16px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);';
-      msg.textContent = featureName ? '— ' + featureName.toUpperCase() + ' REQUIRES A SUBSCRIPTION —' : '— SUBSCRIPTION REQUIRED —';
-      container.insertBefore(msg, container.firstChild);
-    }
-  }
   return false;
 }
 
