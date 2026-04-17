@@ -1818,6 +1818,10 @@
       color: rgba(255,255,255,0.4); margin-bottom: 16px; text-transform: uppercase;
     }
     .po-price-wrap { margin-bottom: 4px; }
+    .po-price-strike {
+      font-size: 14px; color: rgba(255,255,255,0.3); text-decoration: line-through;
+      margin-bottom: 4px; font-family: 'Inter', sans-serif;
+    }
     .po-price {
       font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; color: #fff;
       display: inline;
@@ -1830,6 +1834,10 @@
     .po-savings { font-size: 11px; color: rgba(100,255,140,0.8); display: none; margin-bottom: 4px; }
     .po-founder-price {
       font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 6px;
+    }
+    .po-founder-note {
+      font-size: 11px; color: rgba(255,255,255,0.4); font-family: 'Inter', sans-serif;
+      margin-top: 4px; margin-bottom: 8px;
     }
     .po-seats { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 20px; }
 
@@ -8260,12 +8268,14 @@ window.addEventListener('load',function(){
       <div class="po-card">
         <div class="po-tier">PRO</div>
         <div class="po-price-wrap">
-          <span class="po-price" id="poProPrice">$249</span>
-          <span class="po-price-original" id="poProOrig">$249</span>
-          <span class="po-price-period">/month</span>
+          <div class="po-price-strike" id="poProStrike">€249/mo</div>
+          <div>
+            <span class="po-price" id="poProPrice">€174</span>
+            <span class="po-price-period">/mo</span>
+          </div>
+          <div class="po-founder-note" id="poProNote">Founder pricing · normally €249/mo</div>
         </div>
-        <div class="po-savings" id="poProSavings">Save $504/year</div>
-        <div class="po-founder-price" id="poProFounder">$174/mo with founder pricing</div>
+        <div class="po-savings" id="poProSavings">Save €504/year</div>
         <div class="po-seats">Up to 3 users</div>
         <ul class="po-features">
           <li class="po-feature"><span class="po-feature-check">✓</span> Intelligence Map — all layers</li>
@@ -8278,7 +8288,7 @@ window.addEventListener('load',function(){
           <li class="po-feature po-locked"><span class="po-feature-check">✕</span> Voice Assistant</li>
           <li class="po-feature po-locked"><span class="po-feature-check">✕</span> Priority email alerts</li>
         </ul>
-        <button class="po-cta" onclick="window.open('https://risksim.ai/products/risksim-pro','_blank')">Subscribe — Pro</button>
+        <button class="po-cta" onclick="window.open('https://risksim-ai.myshopify.com/checkout?selling_plan=692427948370&id=53221724029266','_blank')">Subscribe — Pro</button>
         <div class="po-trial-text">7-day free trial · Cancel anytime</div>
       </div>
 
@@ -8287,12 +8297,14 @@ window.addEventListener('load',function(){
         <div class="po-best-value">BEST VALUE</div>
         <div class="po-tier">ENTERPRISE</div>
         <div class="po-price-wrap">
-          <span class="po-price" id="poEntPrice">$799</span>
-          <span class="po-price-original" id="poEntOrig">$799</span>
-          <span class="po-price-period">/month</span>
+          <div class="po-price-strike" id="poEntStrike">€799/mo</div>
+          <div>
+            <span class="po-price" id="poEntPrice">€559</span>
+            <span class="po-price-period">/mo</span>
+          </div>
+          <div class="po-founder-note" id="poEntNote">Founder pricing · normally €799/mo</div>
         </div>
-        <div class="po-savings" id="poEntSavings">Save $1,596/year</div>
-        <div class="po-founder-price" id="poEntFounder">$559/mo with founder pricing</div>
+        <div class="po-savings" id="poEntSavings">Save €1,596/year</div>
         <div class="po-seats">Up to 8 users</div>
         <ul class="po-features">
           <li class="po-feature"><span class="po-feature-check">✓</span> Everything in Pro</li>
@@ -8302,7 +8314,7 @@ window.addEventListener('load',function(){
           <li class="po-feature"><span class="po-feature-check">✓</span> Priority email alerts</li>
           <li class="po-feature"><span class="po-feature-check">✓</span> Advanced risk modeling</li>
         </ul>
-        <button class="po-cta po-cta-featured" onclick="window.open('https://risksim.ai/products/risksim-enterprise','_blank')">Subscribe — Enterprise</button>
+        <button class="po-cta po-cta-featured" onclick="window.open('https://risksim-ai.myshopify.com/checkout?selling_plan=692427981138&id=53221730910546','_blank')">Subscribe — Enterprise</button>
         <div class="po-trial-text">7-day free trial · Cancel anytime</div>
       </div>
 
@@ -8310,12 +8322,14 @@ window.addEventListener('load',function(){
       <div class="po-card">
         <div class="po-tier">CUSTOM</div>
         <div class="po-price-wrap">
-          <span class="po-price" id="poCustPrice">$1,299</span>
-          <span class="po-price-original" id="poCustOrig">$1,299</span>
-          <span class="po-price-period">/month</span>
+          <div class="po-price-strike" id="poCustStrike">€1,299/mo</div>
+          <div>
+            <span class="po-price" id="poCustPrice">€909</span>
+            <span class="po-price-period">/mo</span>
+          </div>
+          <div class="po-founder-note" id="poCustNote">Founder pricing · normally €1,299/mo</div>
         </div>
-        <div class="po-savings" id="poCustSavings">Save $2,604/year</div>
-        <div class="po-founder-price" id="poCustFounder">$909/mo with founder pricing</div>
+        <div class="po-savings" id="poCustSavings">Save €2,604/year</div>
         <div class="po-seats">Negotiated</div>
         <ul class="po-features">
           <li class="po-feature"><span class="po-feature-check">✓</span> Everything in Enterprise</li>
@@ -8338,47 +8352,47 @@ window.addEventListener('load',function(){
 <script>
 // ===== BILLING TOGGLE & PRICING CLICK HANDLER =====
 function toggleBilling(isAnnual) {
-  const btnMonthly = document.getElementById('poBtnMonthly');
-  const btnAnnual = document.getElementById('poBtnAnnual');
+  var btnMonthly = document.getElementById('poBtnMonthly');
+  var btnAnnual = document.getElementById('poBtnAnnual');
 
   if (isAnnual) {
     btnMonthly.classList.remove('po-active');
     btnAnnual.classList.add('po-active');
-    // Prices
-    document.getElementById('poProPrice').textContent = '$207';
-    document.getElementById('poEntPrice').textContent = '$666';
-    document.getElementById('poCustPrice').textContent = '$1,082';
-    // Show crossed-out originals
-    document.getElementById('poProOrig').style.display = 'inline';
-    document.getElementById('poEntOrig').style.display = 'inline';
-    document.getElementById('poCustOrig').style.display = 'inline';
-    // Show savings
+    // Strikethrough originals (annual list price)
+    document.getElementById('poProStrike').textContent = '€207/mo';
+    document.getElementById('poEntStrike').textContent = '€666/mo';
+    document.getElementById('poCustStrike').textContent = '€1,082/mo';
+    // Main price = founder annual price
+    document.getElementById('poProPrice').textContent = '€145';
+    document.getElementById('poEntPrice').textContent = '€466';
+    document.getElementById('poCustPrice').textContent = '€758';
+    // Founder notes
+    document.getElementById('poProNote').textContent = 'Founder pricing · normally €207/mo';
+    document.getElementById('poEntNote').textContent = 'Founder pricing · normally €666/mo';
+    document.getElementById('poCustNote').textContent = 'Founder pricing · normally €1,082/mo';
+    // Show annual savings line
     document.getElementById('poProSavings').style.display = 'block';
     document.getElementById('poEntSavings').style.display = 'block';
     document.getElementById('poCustSavings').style.display = 'block';
-    // Founder prices
-    document.getElementById('poProFounder').textContent = '$145/mo with founder pricing';
-    document.getElementById('poEntFounder').textContent = '$466/mo with founder pricing';
-    document.getElementById('poCustFounder').textContent = '$758/mo with founder pricing';
   } else {
     btnAnnual.classList.remove('po-active');
     btnMonthly.classList.add('po-active');
-    // Prices
-    document.getElementById('poProPrice').textContent = '$249';
-    document.getElementById('poEntPrice').textContent = '$799';
-    document.getElementById('poCustPrice').textContent = '$1,299';
-    // Hide crossed-out originals
-    document.getElementById('poProOrig').style.display = 'none';
-    document.getElementById('poEntOrig').style.display = 'none';
-    document.getElementById('poCustOrig').style.display = 'none';
-    // Hide savings
+    // Strikethrough originals (monthly list price)
+    document.getElementById('poProStrike').textContent = '€249/mo';
+    document.getElementById('poEntStrike').textContent = '€799/mo';
+    document.getElementById('poCustStrike').textContent = '€1,299/mo';
+    // Main price = founder monthly price
+    document.getElementById('poProPrice').textContent = '€174';
+    document.getElementById('poEntPrice').textContent = '€559';
+    document.getElementById('poCustPrice').textContent = '€909';
+    // Founder notes
+    document.getElementById('poProNote').textContent = 'Founder pricing · normally €249/mo';
+    document.getElementById('poEntNote').textContent = 'Founder pricing · normally €799/mo';
+    document.getElementById('poCustNote').textContent = 'Founder pricing · normally €1,299/mo';
+    // Hide annual savings line
     document.getElementById('poProSavings').style.display = 'none';
     document.getElementById('poEntSavings').style.display = 'none';
     document.getElementById('poCustSavings').style.display = 'none';
-    // Founder prices
-    document.getElementById('poProFounder').textContent = '$174/mo with founder pricing';
-    document.getElementById('poEntFounder').textContent = '$559/mo with founder pricing';
-    document.getElementById('poCustFounder').textContent = '$909/mo with founder pricing';
   }
 }
 
