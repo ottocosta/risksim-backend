@@ -3049,22 +3049,36 @@
 
 <script>
 function goToCheckout(variantId, sellingPlanId) {
-  fetch('https://risksim.ai/cart/add.js', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({
-      id: variantId,
-      quantity: 1,
-      selling_plan: sellingPlanId
-    })
-  })
-  .then(function(response) {
-    window.location.href = 'https://risksim-ai.myshopify.com/checkout';
-  })
-  .catch(function() {
-    window.location.href = 'https://risksim-ai.myshopify.com/checkout?selling_plan=' + sellingPlanId + '&id=' + variantId;
-  });
+  var form = document.createElement('form');
+  form.action = '/cart/add';
+  form.method = 'POST';
+
+  var idInput = document.createElement('input');
+  idInput.type = 'hidden';
+  idInput.name = 'id';
+  idInput.value = variantId;
+
+  var planInput = document.createElement('input');
+  planInput.type = 'hidden';
+  planInput.name = 'selling_plan';
+  planInput.value = sellingPlanId;
+
+  var qtyInput = document.createElement('input');
+  qtyInput.type = 'hidden';
+  qtyInput.name = 'quantity';
+  qtyInput.value = '1';
+
+  var returnInput = document.createElement('input');
+  returnInput.type = 'hidden';
+  returnInput.name = 'return_to';
+  returnInput.value = 'https://risksim-ai.myshopify.com/checkout';
+
+  form.appendChild(idInput);
+  form.appendChild(planInput);
+  form.appendChild(qtyInput);
+  form.appendChild(returnInput);
+  document.body.appendChild(form);
+  form.submit();
 }
 </script>
 
