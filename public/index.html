@@ -3063,7 +3063,7 @@ function goToCheckout(variantId, sellingPlanId) {
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if (data.url) {
-      window.location.href = data.url;
+      window.open(data.url, '_blank');
     } else {
       alert('Checkout error: ' + (data.error || 'Unknown error'));
       if (btn) { btn.textContent = 'Subscribe'; btn.disabled = false; }
