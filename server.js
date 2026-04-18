@@ -716,6 +716,79 @@ app.post('/api/landed-cost', async (req, res) => {
 });
 
 // ============================================================
+// SHOPIFY CHECKOUT
+// ============================================================
+
+app.post('/api/shopify-checkout', async (req, res) => {
+  try {
+    const { variantId, sellingPlanId } = req.body;
+
+    const mutation = `
+      mutation checkoutCreate($input: CheckoutCreateInput!) {
+        checkoutCreate(input: $input) {
+          checkout {
+            webUrl
+            id
+          }
+          checkoutUserErrors {
+            code
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const variables = {
+      input: {
+        lineItems: [
+          {
+            variantId: `gid://shopify/ProductVariant/${variantId}`,
+            quantity: 1,
+            sellingPlanId: `gid://shopify/SellingPlan/${sellingPlanId}`
+          }
+        ],
+        allowPartialAddresses: true
+      }
+    };
+
+    const response = await fetch('https://risksim-ai.myshopify.com/api/2024-01/graphql.json', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_TOKEN
+      },
+      body: JSON.stringify({ query: mutation, variables })
+    });
+
+    const data = await response.json();
+
+    if (data.errors) {
+      console.error('GraphQL errors:', data.errors);
+      return res.status(500).json({ error: 'GraphQL error', details: data.errors });
+    }
+
+    const checkout = data?.data?.checkoutCreate?.checkout;
+    const errors = data?.data?.checkoutCreate?.checkoutUserErrors;
+
+    if (errors && errors.length > 0) {
+      console.error('Checkout user errors:', errors);
+      return res.status(400).json({ error: errors[0].message });
+    }
+
+    if (!checkout?.webUrl) {
+      return res.status(500).json({ error: 'No checkout URL returned' });
+    }
+
+    res.json({ url: checkout.webUrl });
+
+  } catch (err) {
+    console.error('Checkout creation error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ============================================================
 // EMAIL SUBSCRIBER ENDPOINTS
 // ============================================================
 

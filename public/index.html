@@ -3049,8 +3049,31 @@
 
 <script>
 function goToCheckout(variantId, sellingPlanId) {
-  var checkoutUrl = 'https://risksim-ai.myshopify.com/cart/' + variantId + ':1?selling_plan=' + sellingPlanId + '&checkout=true';
-  window.location.replace(checkoutUrl);
+  var btn = event && event.target;
+  if (btn) {
+    btn.textContent = 'Loading...';
+    btn.disabled = true;
+  }
+
+  fetch('/api/shopify-checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ variantId: variantId, sellingPlanId: sellingPlanId })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Checkout error: ' + (data.error || 'Unknown error'));
+      if (btn) { btn.textContent = 'Subscribe'; btn.disabled = false; }
+    }
+  })
+  .catch(function(err) {
+    console.error('Checkout error:', err);
+    alert('Could not open checkout. Please try again.');
+    if (btn) { btn.textContent = 'Subscribe'; btn.disabled = false; }
+  });
 }
 </script>
 
