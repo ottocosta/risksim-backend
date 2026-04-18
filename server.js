@@ -745,14 +745,18 @@ app.post('/api/shopify-checkout', async (req, res) => {
           {
             variantId: `gid://shopify/ProductVariant/${variantId}`,
             quantity: 1,
-            sellingPlanId: `gid://shopify/SellingPlan/${sellingPlanId}`
+            ...(sellingPlanId ? { sellingPlanId: `gid://shopify/SellingPlan/${sellingPlanId}` } : {})
           }
         ],
         allowPartialAddresses: true
       }
     };
 
-    const response = await fetch('https://risksim-ai.myshopify.com/api/2024-01/graphql.json', {
+    console.log('[Checkout] variantId:', variantId, 'sellingPlanId:', sellingPlanId);
+    console.log('[Checkout] Token present:', !!process.env.SHOPIFY_STOREFRONT_TOKEN);
+    console.log('[Checkout] Variables:', JSON.stringify(variables, null, 2));
+
+    const response = await fetch('https://risksim-ai.myshopify.com/api/2023-10/graphql.json', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -761,7 +765,9 @@ app.post('/api/shopify-checkout', async (req, res) => {
       body: JSON.stringify({ query: mutation, variables })
     });
 
-    const data = await response.json();
+    const rawText = await response.text();
+    console.log('[Checkout] Raw Shopify response:', rawText);
+    const data = JSON.parse(rawText);
 
     if (data.errors) {
       console.error('GraphQL errors:', data.errors);
