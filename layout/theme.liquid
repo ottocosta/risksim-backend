@@ -253,5 +253,14 @@
       })();
     </script>
 
+    <!-- ═══ Checkout postMessage handler ═══ -->
+    <script>
+      window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'CHECKOUT' && e.data.url) {
+          window.location.href = e.data.url;
+        }
+      });
+    </script>
+
   </body>
 </html>
