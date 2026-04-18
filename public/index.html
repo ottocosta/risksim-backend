@@ -3049,7 +3049,8 @@
 
 <script>
 function goToCheckout(variantId, sellingPlanId) {
-  window.location.href = 'https://risksim.ai/cart/clear?return_to=/cart/add?items[][id]=' + variantId + '&items[][quantity]=1&items[][selling_plan]=' + sellingPlanId + '&return_to=/checkout';
+  var checkoutUrl = 'https://risksim-ai.myshopify.com/cart/' + variantId + ':1?selling_plan=' + sellingPlanId + '&checkout=true';
+  window.location.replace(checkoutUrl);
 }
 </script>
 
