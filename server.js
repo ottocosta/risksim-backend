@@ -722,15 +722,65 @@ app.post('/api/landed-cost', async (req, res) => {
 app.post('/api/shopify-checkout', async (req, res) => {
   try {
     const { variantId, sellingPlanId } = req.body;
+
     console.log('[Checkout] variantId:', variantId, 'sellingPlanId:', sellingPlanId);
 
-    let url = `https://risksim-ai.myshopify.com/checkout/now?id=${variantId}&quantity=1`;
+    const mutation = `
+      mutation cartCreate($input: CartInput!) {
+        cartCreate(input: $input) {
+          cart {
+            id
+            checkoutUrl
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const lineItem = {
+      merchandiseId: `gid://shopify/ProductVariant/${variantId}`,
+      quantity: 1
+    };
     if (sellingPlanId) {
-      url += `&selling_plan=${sellingPlanId}`;
+      lineItem.sellingPlanId = `gid://shopify/SellingPlan/${sellingPlanId}`;
     }
 
-    console.log('[Checkout] Direct URL:', url);
-    res.json({ url });
+    const variables = { input: { lines: [lineItem] } };
+
+    const response = await fetch('https://risksim-ai.myshopify.com/api/2023-10/graphql.json', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_TOKEN
+      },
+      body: JSON.stringify({ query: mutation, variables })
+    });
+
+    const rawText = await response.text();
+    console.log('[Checkout] Raw response:', rawText);
+    const data = JSON.parse(rawText);
+
+    if (data.errors) {
+      return res.status(500).json({ error: 'GraphQL error', details: data.errors });
+    }
+
+    const cart = data?.data?.cartCreate?.cart;
+    const userErrors = data?.data?.cartCreate?.userErrors;
+
+    if (userErrors && userErrors.length > 0) {
+      return res.status(400).json({ error: userErrors[0].message });
+    }
+
+    if (!cart?.checkoutUrl) {
+      return res.status(500).json({ error: 'No checkout URL returned' });
+    }
+
+    console.log('[Checkout] URL:', cart.checkoutUrl);
+    res.json({ url: cart.checkoutUrl });
+
   } catch (err) {
     console.error('Checkout error:', err);
     res.status(500).json({ error: err.message });
