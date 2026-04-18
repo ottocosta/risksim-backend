@@ -3049,7 +3049,7 @@
 
 <script>
 function goToCheckout(variantId, sellingPlanId) {
-  window.location.href = 'https://risksim.ai/cart/' + variantId + ':1?selling_plan=' + sellingPlanId;
+  window.location.href = 'https://risksim.ai/cart/clear?return_to=/cart/add?items[][id]=' + variantId + '&items[][quantity]=1&items[][selling_plan]=' + sellingPlanId + '&return_to=/checkout';
 }
 </script>
 
