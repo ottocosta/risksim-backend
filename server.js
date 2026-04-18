@@ -784,7 +784,10 @@ app.post('/api/shopify-checkout', async (req, res) => {
     }
 
     console.log('[Checkout] Success! URL:', cart.checkoutUrl);
-    res.json({ url: cart.checkoutUrl });
+    // Force checkoutUrl to use myshopify domain to bypass theme.liquid
+    const checkoutUrl = cart.checkoutUrl.replace('https://risksim.ai', 'https://risksim-ai.myshopify.com');
+    console.log('[Checkout] Final URL:', checkoutUrl);
+    res.json({ url: checkoutUrl });
 
   } catch (err) {
     console.error('Checkout creation error:', err);
