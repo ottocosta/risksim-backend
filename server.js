@@ -723,15 +723,17 @@ app.post('/api/shopify-checkout', async (req, res) => {
   try {
     const { variantId, sellingPlanId } = req.body;
 
+    console.log('[Checkout] variantId:', variantId, 'sellingPlanId:', sellingPlanId);
+    console.log('[Checkout] Token present:', !!process.env.SHOPIFY_STOREFRONT_TOKEN);
+
     const mutation = `
-      mutation checkoutCreate($input: CheckoutCreateInput!) {
-        checkoutCreate(input: $input) {
-          checkout {
-            webUrl
+      mutation cartCreate($input: CartInput!) {
+        cartCreate(input: $input) {
+          cart {
             id
+            checkoutUrl
           }
-          checkoutUserErrors {
-            code
+          userErrors {
             field
             message
           }
@@ -739,21 +741,16 @@ app.post('/api/shopify-checkout', async (req, res) => {
       }
     `;
 
-    const variables = {
-      input: {
-        lineItems: [
-          {
-            variantId: `gid://shopify/ProductVariant/${variantId}`,
-            quantity: 1,
-            ...(sellingPlanId ? { sellingPlanId: `gid://shopify/SellingPlan/${sellingPlanId}` } : {})
-          }
-        ],
-        allowPartialAddresses: true
-      }
+    const lineItem = {
+      merchandiseId: `gid://shopify/ProductVariant/${variantId}`,
+      quantity: 1
     };
+    if (sellingPlanId) {
+      lineItem.sellingPlanId = `gid://shopify/SellingPlan/${sellingPlanId}`;
+    }
 
-    console.log('[Checkout] variantId:', variantId, 'sellingPlanId:', sellingPlanId);
-    console.log('[Checkout] Token present:', !!process.env.SHOPIFY_STOREFRONT_TOKEN);
+    const variables = { input: { lines: [lineItem] } };
+
     console.log('[Checkout] Variables:', JSON.stringify(variables, null, 2));
 
     const response = await fetch('https://risksim-ai.myshopify.com/api/2023-10/graphql.json', {
@@ -774,19 +771,20 @@ app.post('/api/shopify-checkout', async (req, res) => {
       return res.status(500).json({ error: 'GraphQL error', details: data.errors });
     }
 
-    const checkout = data?.data?.checkoutCreate?.checkout;
-    const errors = data?.data?.checkoutCreate?.checkoutUserErrors;
+    const cart = data?.data?.cartCreate?.cart;
+    const userErrors = data?.data?.cartCreate?.userErrors;
 
-    if (errors && errors.length > 0) {
-      console.error('Checkout user errors:', errors);
-      return res.status(400).json({ error: errors[0].message });
+    if (userErrors && userErrors.length > 0) {
+      console.error('Cart user errors:', userErrors);
+      return res.status(400).json({ error: userErrors[0].message });
     }
 
-    if (!checkout?.webUrl) {
+    if (!cart?.checkoutUrl) {
       return res.status(500).json({ error: 'No checkout URL returned' });
     }
 
-    res.json({ url: checkout.webUrl });
+    console.log('[Checkout] Success! URL:', cart.checkoutUrl);
+    res.json({ url: cart.checkoutUrl });
 
   } catch (err) {
     console.error('Checkout creation error:', err);
