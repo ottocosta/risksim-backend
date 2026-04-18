@@ -3049,9 +3049,10 @@
 
 <script>
 function goToCheckout(variantId, sellingPlanId) {
-  fetch('/cart/add.js', {
+  fetch('https://risksim.ai/cart/add.js', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({
       id: variantId,
       quantity: 1,
@@ -3059,7 +3060,7 @@ function goToCheckout(variantId, sellingPlanId) {
     })
   })
   .then(function(response) {
-    window.location.href = '/checkout';
+    window.location.href = 'https://risksim-ai.myshopify.com/checkout';
   })
   .catch(function() {
     window.location.href = 'https://risksim-ai.myshopify.com/checkout?selling_plan=' + sellingPlanId + '&id=' + variantId;
