@@ -722,75 +722,17 @@ app.post('/api/landed-cost', async (req, res) => {
 app.post('/api/shopify-checkout', async (req, res) => {
   try {
     const { variantId, sellingPlanId } = req.body;
-
     console.log('[Checkout] variantId:', variantId, 'sellingPlanId:', sellingPlanId);
-    console.log('[Checkout] Token present:', !!process.env.SHOPIFY_STOREFRONT_TOKEN);
 
-    const mutation = `
-      mutation cartCreate($input: CartInput!) {
-        cartCreate(input: $input) {
-          cart {
-            id
-            checkoutUrl
-          }
-          userErrors {
-            field
-            message
-          }
-        }
-      }
-    `;
-
-    const lineItem = {
-      merchandiseId: `gid://shopify/ProductVariant/${variantId}`,
-      quantity: 1
-    };
+    let url = `https://risksim-ai.myshopify.com/checkout/now?id=${variantId}&quantity=1`;
     if (sellingPlanId) {
-      lineItem.sellingPlanId = `gid://shopify/SellingPlan/${sellingPlanId}`;
+      url += `&selling_plan=${sellingPlanId}`;
     }
 
-    const variables = { input: { lines: [lineItem] } };
-
-    console.log('[Checkout] Variables:', JSON.stringify(variables, null, 2));
-
-    const response = await fetch('https://risksim-ai.myshopify.com/api/2023-10/graphql.json', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_TOKEN
-      },
-      body: JSON.stringify({ query: mutation, variables })
-    });
-
-    const rawText = await response.text();
-    console.log('[Checkout] Raw Shopify response:', rawText);
-    const data = JSON.parse(rawText);
-
-    if (data.errors) {
-      console.error('GraphQL errors:', data.errors);
-      return res.status(500).json({ error: 'GraphQL error', details: data.errors });
-    }
-
-    const cart = data?.data?.cartCreate?.cart;
-    const userErrors = data?.data?.cartCreate?.userErrors;
-
-    if (userErrors && userErrors.length > 0) {
-      console.error('Cart user errors:', userErrors);
-      return res.status(400).json({ error: userErrors[0].message });
-    }
-
-    if (!cart?.checkoutUrl) {
-      return res.status(500).json({ error: 'No checkout URL returned' });
-    }
-
-    console.log('[Checkout] Success! URL:', cart.checkoutUrl);
-    // Force checkoutUrl to use myshopify domain to bypass theme.liquid
-    const checkoutUrl = cart.checkoutUrl.replace('https://risksim.ai', 'https://risksim-ai.myshopify.com');
-    console.log('[Checkout] Final URL:', checkoutUrl);
-    res.json({ url: checkoutUrl });
-
+    console.log('[Checkout] Direct URL:', url);
+    res.json({ url });
   } catch (err) {
-    console.error('Checkout creation error:', err);
+    console.error('Checkout error:', err);
     res.status(500).json({ error: err.message });
   }
 });
