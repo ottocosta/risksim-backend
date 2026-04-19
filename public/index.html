@@ -3049,25 +3049,23 @@
 
 <script>
 async function goToCheckout(variantId, sellingPlanId) {
-  var btn = (event && event.currentTarget) || document.querySelector('[data-checkout-btn]');
-  var originalText = btn ? btn.innerHTML : '';
-  if (btn) btn.innerHTML = 'PREPARING CHECKOUT...';
-
+  const win = window.open('', '_blank');
   try {
-    var res = await fetch('/api/shopify-checkout', {
+    const res = await fetch('/api/shopify-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ variantId: variantId, sellingPlanId: sellingPlanId })
+      body: JSON.stringify({ variantId, sellingPlanId })
     });
-    var data = await res.json();
+    const data = await res.json();
     if (data.url) {
-      var plan = variantId === '53221724029266' ? 'pro' : 'enterprise';
-      window.location.href = data.url + '&paid=' + plan;
+      const plan = variantId === '53221724029266' ? 'pro' : 'enterprise';
+      win.location.href = data.url + '&paid=' + plan;
     } else {
-      throw new Error(data.error || 'No URL returned');
+      win.close();
+      alert('Checkout error: ' + (data.error || 'Unknown error'));
     }
   } catch(err) {
-    if (btn) btn.innerHTML = originalText;
+    win.close();
     alert('Checkout error: ' + err.message);
   }
 }
