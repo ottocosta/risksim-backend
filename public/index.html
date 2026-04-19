@@ -705,61 +705,6 @@
       position: absolute; inset: 0; z-index: 1; pointer-events: none;
       background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.01) 2px, rgba(255,255,255,0.01) 4px);
     }
-    /* Paywall */
-    #amPaywall {
-      position: absolute; inset: 0; z-index: 200;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.88); backdrop-filter: blur(20px);
-      transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1);
-    }
-    #amPaywall.am-pw-hiding { opacity: 0; pointer-events: none; }
-    .am-pw-card {
-      width: 480px; max-width: calc(100vw - 40px);
-      background: rgba(255,255,255,0.04); backdrop-filter: blur(80px) saturate(200%);
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 24px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 12px 48px rgba(0,0,0,0.8);
-      padding: 48px 40px; text-align: center; position: relative;
-      animation: amCardIn 0.7s cubic-bezier(0.16,1,0.3,1) forwards;
-    }
-    @keyframes amCardIn { from { opacity:0; transform:translateY(24px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
-    .am-pw-card::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:1px;
-      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
-      border-radius:24px 24px 0 0; animation: amShimmerLine 3s ease-in-out infinite;
-    }
-    @keyframes amShimmerLine { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
-    .am-pw-badge {
-      display:inline-flex; align-items:center; gap:8px; padding:5px 16px;
-      border-radius:999px; border:1px solid rgba(255,255,255,0.15);
-      background:rgba(255,255,255,0.04);
-      font-family:'JetBrains Mono',monospace; font-size:9px;
-      letter-spacing:0.2em; color:rgba(255,255,255,0.55);
-      text-transform:uppercase; margin-bottom:24px;
-    }
-    .am-pw-badge-dot { width:5px; height:5px; border-radius:50%; background:#fff; box-shadow:0 0 6px #fff; animation:rsBlink 2s infinite; }
-    .am-pw-title { font-family:'Syne',sans-serif; font-weight:800; font-size:26px; color:#fff; letter-spacing:-0.02em; margin-bottom:12px; line-height:1.2; }
-    .am-pw-sub { font-size:13px; color:rgba(255,255,255,0.42); line-height:1.65; margin-bottom:28px; }
-    .am-pw-features { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:28px; text-align:left; }
-    .am-pw-feature {
-      padding:11px 13px; background:rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.07); border-radius:10px;
-      font-size:11px; color:rgba(255,255,255,0.55);
-      font-family:'JetBrains Mono',monospace; line-height:1.5;
-    }
-    .am-pw-feature-icon { font-size:14px; display:block; margin-bottom:5px; }
-    .am-pw-actions { display:flex; gap:10px; }
-    .am-pw-subscribe {
-      flex:1; padding:13px; background:#fff; color:#000;
-      border:none; border-radius:10px; font-size:13px; font-weight:700;
-      cursor:pointer; transition:all 0.25s; letter-spacing:0.02em;
-    }
-    .am-pw-subscribe:hover { background:#e8e8e8; transform:translateY(-1px); box-shadow:0 6px 24px rgba(255,255,255,0.2); }
-    .am-pw-skip {
-      padding:13px 20px; background:transparent; color:rgba(255,255,255,0.3);
-      border:1px solid rgba(255,255,255,0.1); border-radius:10px;
-      font-size:12px; cursor:pointer; transition:all 0.25s; white-space:nowrap;
-    }
-    .am-pw-skip:hover { color:rgba(255,255,255,0.65); border-color:rgba(255,255,255,0.2); }
     /* Main */
     #amMain {
       position:relative; z-index:10; display:flex; flex:1; overflow:hidden;
@@ -1014,19 +959,6 @@
     #warRoomModule { position:fixed; inset:0; z-index:500; background:#000; display:none; flex-direction:column; overflow:hidden; }
     .wm-scanline { position:absolute; inset:0; z-index:1; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.008) 2px,rgba(255,255,255,0.008) 4px); }
     .wm-bg { position:absolute; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,0.02) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,255,255,0.015) 0%,transparent 50%); }
-
-    /* Terminal Paywall */
-    #terminalPaywall { position:absolute; inset:0; z-index:600; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(20px); }
-    .tp-card { width:100%; max-width:480px; padding:40px 36px; text-align:center; background:rgba(255,255,255,0.04); backdrop-filter:blur(60px) saturate(200%); -webkit-backdrop-filter:blur(60px) saturate(200%); border:1px solid rgba(255,255,255,0.1); border-radius:20px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 8px 32px rgba(0,0,0,0.6); animation:psCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
-    .tp-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 14px; border:1px solid rgba(255,255,255,0.15); border-radius:999px; background:rgba(255,255,255,0.04); margin-bottom:20px; font-family:var(--font-mono); font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.5); text-transform:uppercase; }
-    .tp-title { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:#fff; margin-bottom:12px; letter-spacing:-0.01em; }
-    .tp-desc { font-size:13px; color:rgba(255,255,255,0.45); line-height:1.6; margin-bottom:24px; }
-    .tp-features { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:28px; }
-    .tp-feature { padding:12px 10px; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); font-family:var(--font-mono); font-size:10px; color:rgba(255,255,255,0.5); letter-spacing:0.04em; }
-    .tp-subscribe { width:100%; padding:13px; background:#fff; border:none; border-radius:10px; color:#000; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.25s; margin-bottom:10px; }
-    .tp-subscribe:hover { background:#e2e8f0; transform:translateY(-1px); }
-    .tp-skip { width:100%; padding:10px; background:transparent; border:1px solid rgba(255,255,255,0.08); border-radius:10px; color:rgba(255,255,255,0.4); font-size:12px; cursor:pointer; transition:all 0.2s; }
-    .tp-skip:hover { border-color:rgba(255,255,255,0.15); color:rgba(255,255,255,0.6); }
 
     /* Terminal Topbar */
     .wm-topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 24px; border-bottom:1px solid rgba(255,255,255,0.06); z-index:10; flex-shrink:0; position:relative; }
@@ -1294,14 +1226,6 @@
       position:absolute; inset:0; z-index:1; pointer-events:none;
       background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.01) 2px,rgba(255,255,255,0.01) 4px);
     }
-    /* Paywall */
-    #simPaywall {
-      position:absolute; inset:0; z-index:200;
-      display:flex; align-items:center; justify-content:center;
-      background:rgba(0,0,0,0.88); backdrop-filter:blur(20px);
-      transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1);
-    }
-    #simPaywall.sim-pw-hiding { opacity:0; pointer-events:none; }
     /* Main */
     #simMain {
       position:relative; z-index:10; display:flex; flex-direction:column; height:100vh;
@@ -3664,23 +3588,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
 <section id="auditModule">
   <div class="am-bg"></div>
   <div class="am-scanline"></div>
-  <!-- Paywall -->
-  <div id="amPaywall">
-    <div class="am-pw-card">
-      <div class="am-pw-badge"><span class="am-pw-badge-dot"></span>Enterprise Intelligence</div>
-      <div class="am-pw-title">ENTERPRISE ACCESS REQUIRED</div>
-      <p class="am-pw-sub">Supplier Audit is a premium intelligence module. Gain deep AI-powered analysis of any supplier — fraud detection, compliance scoring, financial stability, and hidden risk discovery.</p>
-      <div class="am-pw-features">
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">◈</span>AI Fraud Risk Detection</div>
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">◎</span>Financial Stability Score</div>
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">⊟</span>Compliance Analysis</div>
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">◇</span>Hidden Risk Discovery</div>
-      </div>
-      <div class="am-pw-actions">
-        <button class="am-pw-subscribe" onclick="goToCheckout('53221730910546', '692427981138')">Subscribe — Enterprise</button>
-      </div>
-    </div>
-  </div>
   <!-- Main Interface -->
   <div id="amMain">
     <div class="am-topbar">
@@ -3762,23 +3669,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
 <section id="simulatorModule">
   <div class="sim-bg"></div>
   <div class="sim-scanline"></div>
-  <!-- Paywall -->
-  <div id="simPaywall">
-    <div class="am-pw-card">
-      <div class="am-pw-badge"><span class="am-pw-badge-dot"></span>Scenario Intelligence</div>
-      <div class="am-pw-title">SIMULATOR ACCESS REQUIRED</div>
-      <p class="am-pw-sub">The Scenario Simulator is a premium modeling engine. Run what-if scenarios to project cost impact, risk score changes, and supply chain disruptions before they happen.</p>
-      <div class="am-pw-features">
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">◈</span>What-If Modeling</div>
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">◎</span>Cost Projections</div>
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">⊟</span>Risk Forecasting</div>
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">◇</span>Comparative Analysis</div>
-      </div>
-      <div class="am-pw-actions">
-        <button class="am-pw-subscribe" onclick="goToCheckout('53221730910546', '692427981138')">Subscribe — Enterprise</button>
-      </div>
-    </div>
-  </div>
   <!-- Main Interface -->
   <div id="simMain">
     <!-- Topbar -->
@@ -3878,21 +3768,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
 <section id="warRoomModule">
   <div class="wm-scanline"></div>
   <div class="wm-bg"></div>
-  <!-- Paywall -->
-  <div id="terminalPaywall">
-    <div class="tp-card">
-      <div class="tp-badge">Terminal Intelligence</div>
-      <div class="tp-title">TERMINAL ACCESS REQUIRED</div>
-      <p class="tp-desc">Unlock real-time supply chain intelligence, AI-powered alerts, and advanced risk monitoring.</p>
-      <div class="tp-features">
-        <div class="tp-feature">AI-Powered Alerts</div>
-        <div class="tp-feature">Live Risk Feed</div>
-        <div class="tp-feature">Tariff Tracking</div>
-        <div class="tp-feature">Port Intelligence</div>
-      </div>
-      <button class="tp-subscribe" onclick="goToCheckout('53221730910546', '692427981138')">Subscribe Now</button>
-    </div>
-  </div>
   <!-- Topbar -->
   <div class="wm-topbar">
     <div class="wm-topbar-brand">RiskSim <span>/ Terminal</span></div>
@@ -4522,13 +4397,8 @@ function switchModule(mod){
   var va=document.getElementById('voiceAssistant');
   if(mod==='audit'){
     if(am){am.style.display='flex';am.style.flexDirection='column';}
-    if(!localStorage.getItem('am_paywall_bypassed')){
-      document.getElementById('amPaywall').style.display='flex';
-    }else{
-      document.getElementById('amPaywall').style.display='none';
-      document.getElementById('amMain').classList.add('am-loaded');
-      renderAMSupplierList();
-    }
+    document.getElementById('amMain').classList.add('am-loaded');
+    renderAMSupplierList();
     if(btns[1])btns[1].classList.add('active');
     if(va)va.style.display='none';
   }else{
@@ -4539,17 +4409,6 @@ function switchModule(mod){
     if(va)va.style.display='';
   }
 }
-function bypassPaywall(){
-  localStorage.setItem('am_paywall_bypassed','1');
-  var pw=document.getElementById('amPaywall');
-  pw.classList.add('am-pw-hiding');
-  setTimeout(function(){
-    pw.style.display='none';pw.classList.remove('am-pw-hiding');
-    document.getElementById('amMain').classList.add('am-loaded');
-    renderAMSupplierList();
-  },600);
-}
-
 function renderAMSupplierList(){
   var list=document.getElementById('amSupplierList');if(!list)return;
   list.innerHTML=SUPPLIER_DATA.slice(0,14).map(function(s){
@@ -4758,7 +4617,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 function runCustomAudit(supplierName){
-  if(!checkPaywall('Supplier Audit'))return;
   if(_customAuditPending)return;
   _customAuditPending=true;
   var contextVal='';
@@ -5049,27 +4907,19 @@ function switchModule(name){
     if(navBtns[0])navBtns[0].classList.add('active');
   }else if(name==='audit'){
     if(am){am.style.display='flex';am.style.flexDirection='column';}
+    var amMain=document.getElementById('amMain');if(amMain)amMain.classList.add('am-loaded');
+    renderAMSupplierList();
     if(navBtns[1])navBtns[1].classList.add('active');
   }else if(name==='warroom'){
     if(wr){
       wr.style.display='flex';wr.style.flexDirection='column';
-      if(!localStorage.getItem('terminal_paywall_bypassed')){
-        document.getElementById('terminalPaywall').style.display='flex';
-      }else{
-        document.getElementById('terminalPaywall').style.display='none';
-        initTerminalData();
-      }
+      initTerminalData();
     }
     if(navBtns[2])navBtns[2].classList.add('active');
   }else if(name==='simulator'){
     if(sim){sim.style.display='flex';sim.style.flexDirection='column';}
-    if(!localStorage.getItem('simulator_paywall_bypassed')){
-      var sp=document.getElementById('simPaywall');if(sp)sp.style.display='flex';
-    }else{
-      var sp=document.getElementById('simPaywall');if(sp)sp.style.display='none';
-      var sm=document.getElementById('simMain');if(sm)sm.classList.add('sim-loaded');
-      if(typeof initSimulatorData==='function')initSimulatorData();
-    }
+    var sm=document.getElementById('simMain');if(sm)sm.classList.add('sim-loaded');
+    if(typeof initSimulatorData==='function')initSimulatorData();
     if(navBtns[3])navBtns[3].classList.add('active');
   }else if(name==='priceintel'){
     if(pi){pi.style.display='flex';pi.style.flexDirection='column';}
@@ -5077,12 +4927,6 @@ function switchModule(name){
     if(ce){ce.style.display='flex';ce.style.flexDirection='column';}
     if(typeof lcOnShow==='function')lcOnShow();
   }
-}
-
-function bypassTerminalPaywall(){
-  localStorage.setItem('terminal_paywall_bypassed','1');
-  document.getElementById('terminalPaywall').style.display='none';
-  initTerminalData();
 }
 
 // ===== TAB SWITCHING =====
@@ -6174,7 +6018,6 @@ function openHistoryItem(id){
     updateSidebarActive('audit');
     if(item.data&&item.data.result&&typeof renderCustomAudit==='function'){
       setTimeout(function(){
-        if(!localStorage.getItem('am_paywall_bypassed')){bypassPaywall();}
         renderCustomAudit(item.data.result);
       },100);
     }
@@ -6185,7 +6028,6 @@ function openHistoryItem(id){
       var simQ=item.data.scenario||item.data.question||'';
       var simR=item.data.result||null;
       setTimeout(function(){
-        if(!localStorage.getItem('simulator_paywall_bypassed')&&typeof bypassSimulatorPaywall==='function'){bypassSimulatorPaywall();}
         if(simQ&&typeof showSimAnalysisView==='function'){showSimAnalysisView(simQ,simR,false);}
       },150);
     }
@@ -6748,17 +6590,6 @@ function piShowError(msg){
 var SIM_STEPS=['Parsing scenario parameters...','Loading supply chain model...','Calculating cost impact projections...','Modeling risk score changes...','Generating timeline forecast...','Building comparative analysis...','Compiling executive summary...'];
 var simCurrentScenarioId=null,simCompareMode=false;
 
-function bypassSimulatorPaywall(){
-  localStorage.setItem('simulator_paywall_bypassed','1');
-  var pw=document.getElementById('simPaywall');
-  pw.classList.add('sim-pw-hiding');
-  setTimeout(function(){
-    pw.style.display='none';pw.classList.remove('sim-pw-hiding');
-    document.getElementById('simMain').classList.add('sim-loaded');
-    initSimulatorData();
-  },600);
-}
-
 function initSimulatorData(){
   loadSimScenarios();
   renderSimHistoryDropdown();
@@ -6943,7 +6774,6 @@ function showSimAnalysisView(question,results,runAnalysis){
 }
 
 function runSimProgress(question){
-  var _pw=checkPaywall('Scenario Simulator');if(_pw==='upgrade'){showUpgradeModal();return;}if(!_pw)return;
   var pp=document.getElementById('simProgressPanel');
   var stepsEl=document.getElementById('simProgressSteps');if(!pp||!stepsEl)return;
   document.getElementById('simStatusDot').classList.add('active');
