@@ -706,13 +706,6 @@
       background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.01) 2px, rgba(255,255,255,0.01) 4px);
     }
     /* Paywall */
-    #amPaywall {
-      position: absolute; inset: 0; z-index: 200;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.88); backdrop-filter: blur(20px);
-      transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1);
-    }
-    #amPaywall.am-pw-hiding { opacity: 0; pointer-events: none; }
     .am-pw-card {
       width: 480px; max-width: calc(100vw - 40px);
       background: rgba(255,255,255,0.04); backdrop-filter: blur(80px) saturate(200%);
@@ -3664,23 +3657,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
 <section id="auditModule">
   <div class="am-bg"></div>
   <div class="am-scanline"></div>
-  <!-- Paywall -->
-  <div id="amPaywall">
-    <div class="am-pw-card">
-      <div class="am-pw-badge"><span class="am-pw-badge-dot"></span>Enterprise Intelligence</div>
-      <div class="am-pw-title">ENTERPRISE ACCESS REQUIRED</div>
-      <p class="am-pw-sub">Supplier Audit is a premium intelligence module. Gain deep AI-powered analysis of any supplier — fraud detection, compliance scoring, financial stability, and hidden risk discovery.</p>
-      <div class="am-pw-features">
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">◈</span>AI Fraud Risk Detection</div>
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">◎</span>Financial Stability Score</div>
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">⊟</span>Compliance Analysis</div>
-        <div class="am-pw-feature"><span class="am-pw-feature-icon">◇</span>Hidden Risk Discovery</div>
-      </div>
-      <div class="am-pw-actions">
-        <button class="am-pw-subscribe" onclick="goToCheckout('53221730910546', '692427981138')">Subscribe — Enterprise</button>
-      </div>
-    </div>
-  </div>
   <!-- Main Interface -->
   <div id="amMain">
     <div class="am-topbar">
@@ -4522,13 +4498,8 @@ function switchModule(mod){
   var va=document.getElementById('voiceAssistant');
   if(mod==='audit'){
     if(am){am.style.display='flex';am.style.flexDirection='column';}
-    if(!localStorage.getItem('am_paywall_bypassed')){
-      document.getElementById('amPaywall').style.display='flex';
-    }else{
-      document.getElementById('amPaywall').style.display='none';
-      document.getElementById('amMain').classList.add('am-loaded');
-      renderAMSupplierList();
-    }
+    document.getElementById('amMain').classList.add('am-loaded');
+    renderAMSupplierList();
     if(btns[1])btns[1].classList.add('active');
     if(va)va.style.display='none';
   }else{
@@ -4538,16 +4509,6 @@ function switchModule(mod){
     if(btns[0])btns[0].classList.add('active');
     if(va)va.style.display='';
   }
-}
-function bypassPaywall(){
-  localStorage.setItem('am_paywall_bypassed','1');
-  var pw=document.getElementById('amPaywall');
-  pw.classList.add('am-pw-hiding');
-  setTimeout(function(){
-    pw.style.display='none';pw.classList.remove('am-pw-hiding');
-    document.getElementById('amMain').classList.add('am-loaded');
-    renderAMSupplierList();
-  },600);
 }
 
 function renderAMSupplierList(){
