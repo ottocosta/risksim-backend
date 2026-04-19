@@ -6496,7 +6496,7 @@ function piHandleDrop(e){
 }
 
 function piHandleFile(file){
-  var _pw=checkPaywall('Price Intelligence');if(_pw==='upgrade'){showUpgradeModal();return;}if(!_pw)return;
+  var _pw=checkPaywall('price_intel');if(_pw==='upgrade'){alert('This feature requires Enterprise plan. Upgrade at risksim.ai/products/risksim-enterprise');return;}if(!_pw)return;
   if(!file)return;
   var maxMB=10;
   if(file.size>maxMB*1024*1024){
@@ -6904,7 +6904,7 @@ function showSimAnalysisView(question,results,runAnalysis){
 }
 
 function runSimProgress(question){
-  var _pw=checkPaywall('Scenario Simulator');if(_pw==='upgrade'){showUpgradeModal();return;}if(!_pw)return;
+  var _pw=checkPaywall('simulator');if(_pw==='upgrade'){alert('This feature requires Enterprise plan. Upgrade at risksim.ai/products/risksim-enterprise');return;}if(!_pw)return;
   var pp=document.getElementById('simProgressPanel');
   var stepsEl=document.getElementById('simProgressSteps');if(!pp||!stepsEl)return;
   document.getElementById('simStatusDot').classList.add('active');
@@ -7278,7 +7278,7 @@ function checkPaywall(featureName) {
   if (bypass) return true;
   if (!paid) { showPricing(); return false; }
 
-  var enterpriseOnly = ['Scenario Simulator', 'Price Intelligence', 'Cost Engine'];
+  var enterpriseOnly = ['simulator', 'price_intel', 'cost_engine'];
   if (enterpriseOnly.indexOf(featureName) !== -1 && plan !== 'enterprise') {
     return 'upgrade';
   }
@@ -8570,7 +8570,7 @@ function lcLoadLastValues(){
 
 // Main calculate
 function lcCalculate(){
-  var _pw=checkPaywall('Cost Engine');if(_pw==='upgrade'){showUpgradeModal();return;}if(!_pw)return;
+  var _pw=checkPaywall('cost_engine');if(_pw==='upgrade'){alert('This feature requires Enterprise plan. Upgrade at risksim.ai/products/risksim-enterprise');return;}if(!_pw)return;
   // Sync country array from inputs
   var inputs=document.querySelectorAll('.lc-country-input');
   _lcCountries=[];
