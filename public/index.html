@@ -4962,6 +4962,8 @@ function switchModule(name){
     if(navBtns[0])navBtns[0].classList.add('active');
   }else if(name==='audit'){
     if(am){am.style.display='flex';am.style.flexDirection='column';}
+    var amMain=document.getElementById('amMain');if(amMain)amMain.classList.add('am-loaded');
+    renderAMSupplierList();
     if(navBtns[1])navBtns[1].classList.add('active');
   }else if(name==='warroom'){
     if(wr){
