@@ -706,6 +706,13 @@
       background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.01) 2px, rgba(255,255,255,0.01) 4px);
     }
     /* Paywall */
+    #amPaywall {
+      position: absolute; inset: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.88); backdrop-filter: blur(20px);
+      transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+    #amPaywall.am-pw-hiding { opacity: 0; pointer-events: none; }
     .am-pw-card {
       width: 480px; max-width: calc(100vw - 40px);
       background: rgba(255,255,255,0.04); backdrop-filter: blur(80px) saturate(200%);
@@ -1008,6 +1015,8 @@
     .wm-scanline { position:absolute; inset:0; z-index:1; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.008) 2px,rgba(255,255,255,0.008) 4px); }
     .wm-bg { position:absolute; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,0.02) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(255,255,255,0.015) 0%,transparent 50%); }
 
+    /* Terminal Paywall */
+    #terminalPaywall { position:absolute; inset:0; z-index:600; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(20px); }
     .tp-card { width:100%; max-width:480px; padding:40px 36px; text-align:center; background:rgba(255,255,255,0.04); backdrop-filter:blur(60px) saturate(200%); -webkit-backdrop-filter:blur(60px) saturate(200%); border:1px solid rgba(255,255,255,0.1); border-radius:20px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 8px 32px rgba(0,0,0,0.6); animation:psCardIn 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
     .tp-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 14px; border:1px solid rgba(255,255,255,0.15); border-radius:999px; background:rgba(255,255,255,0.04); margin-bottom:20px; font-family:var(--font-mono); font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.5); text-transform:uppercase; }
     .tp-title { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:#fff; margin-bottom:12px; letter-spacing:-0.01em; }
@@ -1285,6 +1294,14 @@
       position:absolute; inset:0; z-index:1; pointer-events:none;
       background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.01) 2px,rgba(255,255,255,0.01) 4px);
     }
+    /* Paywall */
+    #simPaywall {
+      position:absolute; inset:0; z-index:200;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.88); backdrop-filter:blur(20px);
+      transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+    #simPaywall.sim-pw-hiding { opacity:0; pointer-events:none; }
     /* Main */
     #simMain {
       position:relative; z-index:10; display:flex; flex-direction:column; height:100vh;
@@ -3103,16 +3120,22 @@ document.addEventListener('DOMContentLoaded', function() {
       localStorage.setItem('risksim_plan', paidPlan);
       // Clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
-      // Show success notification after app loads
-      setTimeout(function() {
-        var msg = document.createElement('div');
-        msg.style.cssText = 'position:fixed;top:20px;right:20px;z-index:999999;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:16px 24px;font-family:JetBrains Mono,monospace;font-size:12px;color:#fff;letter-spacing:1px;backdrop-filter:blur(20px);';
-        msg.textContent = '◈ WELCOME TO RISKSIM ' + paidPlan.toUpperCase() + ' — ACCESS UNLOCKED';
-        document.body.appendChild(msg);
-        setTimeout(function() { msg.remove(); }, 5000);
-      }, 2000);
+      // Show thank you screen after app loads
+      setTimeout(function() { showThankYouScreen(paidPlan); }, 500);
     }
   })();
+
+  // BroadcastChannel listener for cross-tab payment
+  try {
+    var paymentChannel = new BroadcastChannel('risksim_payment');
+    paymentChannel.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'PAYMENT_SUCCESS') {
+        localStorage.setItem('risksim_paid', 'true');
+        localStorage.setItem('risksim_plan', e.data.plan);
+        showThankYouScreen(e.data.plan);
+      }
+    });
+  } catch(e) {}
 
   // Show plan badge if already paid
   if (typeof updatePlanBadge === 'function') updatePlanBadge();
@@ -3641,6 +3664,23 @@ window.addEventListener('keydown',__handleIntroKey,true);
 <section id="auditModule">
   <div class="am-bg"></div>
   <div class="am-scanline"></div>
+  <!-- Paywall -->
+  <div id="amPaywall">
+    <div class="am-pw-card">
+      <div class="am-pw-badge"><span class="am-pw-badge-dot"></span>Enterprise Intelligence</div>
+      <div class="am-pw-title">ENTERPRISE ACCESS REQUIRED</div>
+      <p class="am-pw-sub">Supplier Audit is a premium intelligence module. Gain deep AI-powered analysis of any supplier — fraud detection, compliance scoring, financial stability, and hidden risk discovery.</p>
+      <div class="am-pw-features">
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◈</span>AI Fraud Risk Detection</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◎</span>Financial Stability Score</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">⊟</span>Compliance Analysis</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◇</span>Hidden Risk Discovery</div>
+      </div>
+      <div class="am-pw-actions">
+        <button class="am-pw-subscribe" onclick="goToCheckout('53221730910546', '692427981138')">Subscribe — Enterprise</button>
+      </div>
+    </div>
+  </div>
   <!-- Main Interface -->
   <div id="amMain">
     <div class="am-topbar">
@@ -3722,6 +3762,23 @@ window.addEventListener('keydown',__handleIntroKey,true);
 <section id="simulatorModule">
   <div class="sim-bg"></div>
   <div class="sim-scanline"></div>
+  <!-- Paywall -->
+  <div id="simPaywall">
+    <div class="am-pw-card">
+      <div class="am-pw-badge"><span class="am-pw-badge-dot"></span>Scenario Intelligence</div>
+      <div class="am-pw-title">SIMULATOR ACCESS REQUIRED</div>
+      <p class="am-pw-sub">The Scenario Simulator is a premium modeling engine. Run what-if scenarios to project cost impact, risk score changes, and supply chain disruptions before they happen.</p>
+      <div class="am-pw-features">
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◈</span>What-If Modeling</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◎</span>Cost Projections</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">⊟</span>Risk Forecasting</div>
+        <div class="am-pw-feature"><span class="am-pw-feature-icon">◇</span>Comparative Analysis</div>
+      </div>
+      <div class="am-pw-actions">
+        <button class="am-pw-subscribe" onclick="goToCheckout('53221730910546', '692427981138')">Subscribe — Enterprise</button>
+      </div>
+    </div>
+  </div>
   <!-- Main Interface -->
   <div id="simMain">
     <!-- Topbar -->
@@ -3821,6 +3878,21 @@ window.addEventListener('keydown',__handleIntroKey,true);
 <section id="warRoomModule">
   <div class="wm-scanline"></div>
   <div class="wm-bg"></div>
+  <!-- Paywall -->
+  <div id="terminalPaywall">
+    <div class="tp-card">
+      <div class="tp-badge">Terminal Intelligence</div>
+      <div class="tp-title">TERMINAL ACCESS REQUIRED</div>
+      <p class="tp-desc">Unlock real-time supply chain intelligence, AI-powered alerts, and advanced risk monitoring.</p>
+      <div class="tp-features">
+        <div class="tp-feature">AI-Powered Alerts</div>
+        <div class="tp-feature">Live Risk Feed</div>
+        <div class="tp-feature">Tariff Tracking</div>
+        <div class="tp-feature">Port Intelligence</div>
+      </div>
+      <button class="tp-subscribe" onclick="goToCheckout('53221730910546', '692427981138')">Subscribe Now</button>
+    </div>
+  </div>
   <!-- Topbar -->
   <div class="wm-topbar">
     <div class="wm-topbar-brand">RiskSim <span>/ Terminal</span></div>
@@ -4450,8 +4522,13 @@ function switchModule(mod){
   var va=document.getElementById('voiceAssistant');
   if(mod==='audit'){
     if(am){am.style.display='flex';am.style.flexDirection='column';}
-    document.getElementById('amMain').classList.add('am-loaded');
-    renderAMSupplierList();
+    if(!localStorage.getItem('am_paywall_bypassed')){
+      document.getElementById('amPaywall').style.display='flex';
+    }else{
+      document.getElementById('amPaywall').style.display='none';
+      document.getElementById('amMain').classList.add('am-loaded');
+      renderAMSupplierList();
+    }
     if(btns[1])btns[1].classList.add('active');
     if(va)va.style.display='none';
   }else{
@@ -4461,6 +4538,16 @@ function switchModule(mod){
     if(btns[0])btns[0].classList.add('active');
     if(va)va.style.display='';
   }
+}
+function bypassPaywall(){
+  localStorage.setItem('am_paywall_bypassed','1');
+  var pw=document.getElementById('amPaywall');
+  pw.classList.add('am-pw-hiding');
+  setTimeout(function(){
+    pw.style.display='none';pw.classList.remove('am-pw-hiding');
+    document.getElementById('amMain').classList.add('am-loaded');
+    renderAMSupplierList();
+  },600);
 }
 
 function renderAMSupplierList(){
@@ -4962,19 +5049,27 @@ function switchModule(name){
     if(navBtns[0])navBtns[0].classList.add('active');
   }else if(name==='audit'){
     if(am){am.style.display='flex';am.style.flexDirection='column';}
-    var amMain=document.getElementById('amMain');if(amMain)amMain.classList.add('am-loaded');
-    renderAMSupplierList();
     if(navBtns[1])navBtns[1].classList.add('active');
   }else if(name==='warroom'){
     if(wr){
       wr.style.display='flex';wr.style.flexDirection='column';
-      initTerminalData();
+      if(!localStorage.getItem('terminal_paywall_bypassed')){
+        document.getElementById('terminalPaywall').style.display='flex';
+      }else{
+        document.getElementById('terminalPaywall').style.display='none';
+        initTerminalData();
+      }
     }
     if(navBtns[2])navBtns[2].classList.add('active');
   }else if(name==='simulator'){
     if(sim){sim.style.display='flex';sim.style.flexDirection='column';}
-    var sm=document.getElementById('simMain');if(sm)sm.classList.add('sim-loaded');
-    if(typeof initSimulatorData==='function')initSimulatorData();
+    if(!localStorage.getItem('simulator_paywall_bypassed')){
+      var sp=document.getElementById('simPaywall');if(sp)sp.style.display='flex';
+    }else{
+      var sp=document.getElementById('simPaywall');if(sp)sp.style.display='none';
+      var sm=document.getElementById('simMain');if(sm)sm.classList.add('sim-loaded');
+      if(typeof initSimulatorData==='function')initSimulatorData();
+    }
     if(navBtns[3])navBtns[3].classList.add('active');
   }else if(name==='priceintel'){
     if(pi){pi.style.display='flex';pi.style.flexDirection='column';}
@@ -4984,6 +5079,11 @@ function switchModule(name){
   }
 }
 
+function bypassTerminalPaywall(){
+  localStorage.setItem('terminal_paywall_bypassed','1');
+  document.getElementById('terminalPaywall').style.display='none';
+  initTerminalData();
+}
 
 // ===== TAB SWITCHING =====
 var _currentTerminalTab=0;
@@ -6085,6 +6185,7 @@ function openHistoryItem(id){
       var simQ=item.data.scenario||item.data.question||'';
       var simR=item.data.result||null;
       setTimeout(function(){
+        if(!localStorage.getItem('simulator_paywall_bypassed')&&typeof bypassSimulatorPaywall==='function'){bypassSimulatorPaywall();}
         if(simQ&&typeof showSimAnalysisView==='function'){showSimAnalysisView(simQ,simR,false);}
       },150);
     }
@@ -6213,7 +6314,8 @@ function buildSettingsBilling(){
       id:'pro',name:'Pro',
       monthlyPrice:249,annualPrice:207,
       monthlyFounder:174,annualFounder:145,
-      link:'mailto:risksim.ai@gmail.com?subject=Pro%20Plan%20Inquiry',
+      monthlyVariant:'53221724029266',monthlyPlan:'692427948370',
+      annualVariant:'53221724029266',annualPlan:'692434501970',
       features:[
         {label:'Full supplier audit module',yes:true},
         {label:'Scenario simulator',yes:true},
@@ -6229,7 +6331,8 @@ function buildSettingsBilling(){
       id:'enterprise',name:'Enterprise',
       monthlyPrice:799,annualPrice:666,
       monthlyFounder:559,annualFounder:466,
-      link:'mailto:risksim.ai@gmail.com?subject=Enterprise%20Plan%20Inquiry',
+      monthlyVariant:'53221730910546',monthlyPlan:'692427981138',
+      annualVariant:'53221730910546',annualPlan:'692431323474',
       features:[
         {label:'Everything in Pro',yes:true},
         {label:'Custom integrations',yes:true},
@@ -6284,7 +6387,13 @@ function buildSettingsBilling(){
     h+='<div style="font-size:10px;color:rgba(120,230,160,0.7);margin-top:3px;font-family:\'JetBrains Mono\',monospace;">$'+founderPrice+'/mo with founder pricing</div>';
     if(isAnnual){h+='<div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:2px;">Billed $'+(price*12)+'/year</div>';}
     h+='</div>';
-    h+='<button class="settings-plan-btn" onclick="window.open(\''+p.link+'\',\'_blank\')">Upgrade</button>';
+    if(p.monthlyVariant){
+      var vId=isAnnual?p.annualVariant:p.monthlyVariant;
+      var spId=isAnnual?p.annualPlan:p.monthlyPlan;
+      h+='<button class="settings-plan-btn" onclick="goToCheckout(\''+vId+'\',\''+spId+'\')">Upgrade</button>';
+    }else{
+      h+='<button class="settings-plan-btn" onclick="window.location.href=\'mailto:risksim.ai@gmail.com?subject=Custom%20Plan%20Inquiry\'">Contact Sales</button>';
+    }
     h+='</div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">';
     p.features.forEach(function(f){
@@ -6426,7 +6535,7 @@ function piHandleDrop(e){
 }
 
 function piHandleFile(file){
-  if(!checkPaywall('Price Intelligence'))return;
+  var _pw=checkPaywall('Price Intelligence');if(_pw==='upgrade'){showUpgradeModal();return;}if(!_pw)return;
   if(!file)return;
   var maxMB=10;
   if(file.size>maxMB*1024*1024){
@@ -6639,6 +6748,17 @@ function piShowError(msg){
 var SIM_STEPS=['Parsing scenario parameters...','Loading supply chain model...','Calculating cost impact projections...','Modeling risk score changes...','Generating timeline forecast...','Building comparative analysis...','Compiling executive summary...'];
 var simCurrentScenarioId=null,simCompareMode=false;
 
+function bypassSimulatorPaywall(){
+  localStorage.setItem('simulator_paywall_bypassed','1');
+  var pw=document.getElementById('simPaywall');
+  pw.classList.add('sim-pw-hiding');
+  setTimeout(function(){
+    pw.style.display='none';pw.classList.remove('sim-pw-hiding');
+    document.getElementById('simMain').classList.add('sim-loaded');
+    initSimulatorData();
+  },600);
+}
+
 function initSimulatorData(){
   loadSimScenarios();
   renderSimHistoryDropdown();
@@ -6823,7 +6943,7 @@ function showSimAnalysisView(question,results,runAnalysis){
 }
 
 function runSimProgress(question){
-  if(!checkPaywall('Scenario Simulator'))return;
+  var _pw=checkPaywall('Scenario Simulator');if(_pw==='upgrade'){showUpgradeModal();return;}if(!_pw)return;
   var pp=document.getElementById('simProgressPanel');
   var stepsEl=document.getElementById('simProgressSteps');if(!pp||!stepsEl)return;
   document.getElementById('simStatusDot').classList.add('active');
@@ -7190,11 +7310,19 @@ function closePricing(){
 
 // ===== PAYWALL GATE =====
 function checkPaywall(featureName) {
-  var isPaid = localStorage.getItem('risksim_paid') === 'true';
-  var hasBypass = localStorage.getItem('risksim_bypass') === 'junior';
-  if (isPaid || hasBypass) return true;
-  showPricing();
-  return false;
+  var paid = localStorage.getItem('risksim_paid') === 'true';
+  var bypass = localStorage.getItem('risksim_bypass') === 'junior';
+  var plan = localStorage.getItem('risksim_plan') || 'pro';
+
+  if (bypass) return true;
+  if (!paid) { showPricing(); return false; }
+
+  var enterpriseOnly = ['Scenario Simulator', 'Price Intelligence', 'Cost Engine'];
+  if (enterpriseOnly.indexOf(featureName) !== -1 && plan !== 'enterprise') {
+    return 'upgrade';
+  }
+
+  return true;
 }
 
 // ===== PLAN BADGE =====
@@ -8265,6 +8393,18 @@ window.addEventListener('load',function(){
   </div><!-- /.po-container -->
 </div><!-- /#pricingOverlay -->
 
+<!-- ===== UPGRADE MODAL ===== -->
+<div id="upgradeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; align-items:center; justify-content:center;">
+  <div style="background:#0a0a0a; border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:48px; max-width:480px; width:90%; text-align:center; font-family:'JetBrains Mono',monospace;">
+    <div style="font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.4); margin-bottom:24px;">ENTERPRISE REQUIRED</div>
+    <div style="font-size:28px; font-weight:800; letter-spacing:-1px; margin-bottom:16px; line-height:1.1;">UPGRADE TO<br>ENTERPRISE</div>
+    <div style="color:rgba(255,255,255,0.5); font-size:13px; line-height:1.6; margin-bottom:32px;">This module is exclusive to Enterprise plan. Unlock the Cost Engine, Scenario Simulator, and Price Intelligence alongside everything in Pro.</div>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button onclick="goToCheckout('53221730910546','692427981138'); closeUpgradeModal();" style="background:#fff; color:#000; border:none; padding:14px 28px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:800; letter-spacing:2px; cursor:pointer; border-radius:4px;">UPGRADE — €799/MO</button>
+      <button onclick="closeUpgradeModal();" style="background:transparent; color:rgba(255,255,255,0.4); border:1px solid rgba(255,255,255,0.1); padding:14px 28px; font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer; border-radius:4px;">MAYBE LATER</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ===== BILLING TOGGLE & PRICING CLICK HANDLER =====
@@ -8324,6 +8464,60 @@ document.getElementById('pricingOverlay').addEventListener('click', function(e) 
   if (e.target === this) closePricing();
 });
 
+// ===== UPGRADE MODAL =====
+function showUpgradeModal() {
+  var m = document.getElementById('upgradeModal');
+  if (m) { m.style.display = 'flex'; }
+}
+
+function closeUpgradeModal() {
+  var m = document.getElementById('upgradeModal');
+  if (m) { m.style.display = 'none'; }
+}
+
+// ===== THANK YOU SCREEN =====
+function showThankYouScreen(plan) {
+  var existing = document.getElementById('thankYouScreen');
+  if (existing) existing.remove();
+
+  var isPro = plan === 'pro';
+
+  var screen = document.createElement('div');
+  screen.id = 'thankYouScreen';
+  screen.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;display:flex;align-items:center;justify-content:center;font-family:JetBrains Mono,monospace;';
+  screen.innerHTML =
+    '<div style="max-width:600px;width:90%;text-align:center;padding:48px;">' +
+      '<div style="font-size:11px;letter-spacing:4px;color:rgba(255,255,255,0.3);margin-bottom:32px;">RISKSIM AI</div>' +
+      '<div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.4);margin-bottom:16px;">' + (isPro ? 'PRO INTELLIGENCE' : 'ENTERPRISE INTELLIGENCE') + '</div>' +
+      '<div style="font-size:42px;font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:24px;">ACCESS<br>GRANTED</div>' +
+      '<div style="width:40px;height:1px;background:rgba(255,255,255,0.2);margin:0 auto 32px;"></div>' +
+      '<div style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.8;margin-bottom:48px;">' +
+        (isPro
+          ? 'Welcome to RiskSim Pro. You now have access to AI-powered supply chain intelligence, live risk alerts, the supplier audit system, and real-time terminal data.'
+          : 'Welcome to RiskSim Enterprise. You have full access to all intelligence modules including the Cost Engine, Scenario Simulator, Price Intelligence, and priority support.') +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px;text-align:left;">' +
+        '<div style="border:1px solid rgba(255,255,255,0.08);padding:20px;border-radius:8px;">' +
+          '<div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:8px;">ACTIVATED</div>' +
+          '<div style="font-size:13px;">AI Risk Chat</div>' +
+        '</div>' +
+        '<div style="border:1px solid rgba(255,255,255,0.08);padding:20px;border-radius:8px;">' +
+          '<div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:8px;">ACTIVATED</div>' +
+          '<div style="font-size:13px;">Supplier Audit</div>' +
+        '</div>' +
+        '<div style="border:1px solid rgba(255,255,255,0.08);padding:20px;border-radius:8px;">' +
+          '<div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:8px;">ACTIVATED</div>' +
+          '<div style="font-size:13px;">Live Terminal</div>' +
+        '</div>' +
+        '<div style="border:1px solid rgba(255,255,255,0.08);padding:20px;border-radius:8px;">' +
+          '<div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:8px;">' + (isPro ? 'PRO' : 'ACTIVATED') + '</div>' +
+          '<div style="font-size:13px;color:' + (isPro ? 'rgba(255,255,255,0.3)' : '#fff') + ';">Cost Engine' + (isPro ? ' (Enterprise)' : '') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<button onclick="document.getElementById(\'thankYouScreen\').remove();" style="background:#fff;color:#000;border:none;padding:16px 40px;font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:800;letter-spacing:3px;cursor:pointer;border-radius:4px;">ENTER RISKSIM \u2192</button>' +
+    '</div>';
+  document.body.appendChild(screen);
+}
 </script>
 
 <!-- ===== SYS_06 COST ENGINE JS ===== -->
@@ -8415,7 +8609,7 @@ function lcLoadLastValues(){
 
 // Main calculate
 function lcCalculate(){
-  if(!checkPaywall('Cost Engine'))return;
+  var _pw=checkPaywall('Cost Engine');if(_pw==='upgrade'){showUpgradeModal();return;}if(!_pw)return;
   // Sync country array from inputs
   var inputs=document.querySelectorAll('.lc-country-input');
   _lcCountries=[];
