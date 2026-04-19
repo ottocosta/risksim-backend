@@ -3048,32 +3048,28 @@
 </div>
 
 <script>
-function goToCheckout(variantId, sellingPlanId) {
-  var btn = event && event.target;
-  if (btn) {
-    btn.textContent = 'Loading...';
-    btn.disabled = true;
-  }
+async function goToCheckout(variantId, sellingPlanId) {
+  var btn = (event && event.currentTarget) || document.querySelector('[data-checkout-btn]');
+  var originalText = btn ? btn.innerHTML : '';
+  if (btn) btn.innerHTML = 'PREPARING CHECKOUT...';
 
-  fetch('/api/shopify-checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ variantId: variantId, sellingPlanId: sellingPlanId })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
+  try {
+    var res = await fetch('/api/shopify-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ variantId: variantId, sellingPlanId: sellingPlanId })
+    });
+    var data = await res.json();
     if (data.url) {
-      window.open(data.url, '_blank');
+      var plan = variantId === '53221724029266' ? 'pro' : 'enterprise';
+      window.location.href = data.url + '&paid=' + plan;
     } else {
-      alert('Checkout error: ' + (data.error || 'Unknown error'));
-      if (btn) { btn.textContent = 'Subscribe'; btn.disabled = false; }
+      throw new Error(data.error || 'No URL returned');
     }
-  })
-  .catch(function(err) {
-    console.error('Checkout error:', err);
-    alert('Could not open checkout. Please try again.');
-    if (btn) { btn.textContent = 'Subscribe'; btn.disabled = false; }
-  });
+  } catch(err) {
+    if (btn) btn.innerHTML = originalText;
+    alert('Checkout error: ' + err.message);
+  }
 }
 </script>
 
@@ -3126,16 +3122,23 @@ document.addEventListener('DOMContentLoaded', function() {
       localStorage.setItem('risksim_plan', paidPlan);
       // Clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
-      // Show success notification after app loads
-      setTimeout(function() {
-        var msg = document.createElement('div');
-        msg.style.cssText = 'position:fixed;top:20px;right:20px;z-index:999999;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:16px 24px;font-family:JetBrains Mono,monospace;font-size:12px;color:#fff;letter-spacing:1px;backdrop-filter:blur(20px);';
-        msg.textContent = '◈ WELCOME TO RISKSIM ' + paidPlan.toUpperCase() + ' — ACCESS UNLOCKED';
-        document.body.appendChild(msg);
-        setTimeout(function() { msg.remove(); }, 5000);
-      }, 2000);
+      // Show thank you screen after app loads
+      setTimeout(function() { showThankYouScreen(paidPlan); }, 500);
     }
   })();
+
+  // BroadcastChannel listener for cross-tab payment
+  try {
+    var paymentChannel = new BroadcastChannel('risksim_payment');
+    paymentChannel.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'PAYMENT_SUCCESS') {
+        localStorage.setItem('risksim_paid', 'true');
+        localStorage.setItem('risksim_plan', e.data.plan);
+        showThankYouScreen(e.data.plan);
+      }
+    });
+  } catch(e) {}
+
   // Show plan badge if already paid
   if (typeof updatePlanBadge === 'function') updatePlanBadge();
 
@@ -6316,7 +6319,8 @@ function buildSettingsBilling(){
       id:'pro',name:'Pro',
       monthlyPrice:249,annualPrice:207,
       monthlyFounder:174,annualFounder:145,
-      link:'mailto:risksim.ai@gmail.com?subject=Pro%20Plan%20Inquiry',
+      monthlyVariant:'53221724029266',monthlyPlan:'692427948370',
+      annualVariant:'53221724029266',annualPlan:'692434501970',
       features:[
         {label:'Full supplier audit module',yes:true},
         {label:'Scenario simulator',yes:true},
@@ -6332,7 +6336,8 @@ function buildSettingsBilling(){
       id:'enterprise',name:'Enterprise',
       monthlyPrice:799,annualPrice:666,
       monthlyFounder:559,annualFounder:466,
-      link:'mailto:risksim.ai@gmail.com?subject=Enterprise%20Plan%20Inquiry',
+      monthlyVariant:'53221730910546',monthlyPlan:'692427981138',
+      annualVariant:'53221730910546',annualPlan:'692431323474',
       features:[
         {label:'Everything in Pro',yes:true},
         {label:'Custom integrations',yes:true},
@@ -6387,7 +6392,13 @@ function buildSettingsBilling(){
     h+='<div style="font-size:10px;color:rgba(120,230,160,0.7);margin-top:3px;font-family:\'JetBrains Mono\',monospace;">$'+founderPrice+'/mo with founder pricing</div>';
     if(isAnnual){h+='<div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:2px;">Billed $'+(price*12)+'/year</div>';}
     h+='</div>';
-    h+='<button class="settings-plan-btn" onclick="window.open(\''+p.link+'\',\'_blank\')">Upgrade</button>';
+    if(p.monthlyVariant){
+      var vId=isAnnual?p.annualVariant:p.monthlyVariant;
+      var spId=isAnnual?p.annualPlan:p.monthlyPlan;
+      h+='<button class="settings-plan-btn" onclick="goToCheckout(\''+vId+'\',\''+spId+'\')">Upgrade</button>';
+    }else{
+      h+='<button class="settings-plan-btn" onclick="window.location.href=\'mailto:risksim.ai@gmail.com?subject=Custom%20Plan%20Inquiry\'">Contact Sales</button>';
+    }
     h+='</div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">';
     p.features.forEach(function(f){
@@ -6529,7 +6540,7 @@ function piHandleDrop(e){
 }
 
 function piHandleFile(file){
-  if(!checkPaywall('Price Intelligence'))return;
+  var _pw=checkPaywall('Price Intelligence');if(_pw==='upgrade'){showUpgradeModal();return;}if(!_pw)return;
   if(!file)return;
   var maxMB=10;
   if(file.size>maxMB*1024*1024){
@@ -6937,7 +6948,7 @@ function showSimAnalysisView(question,results,runAnalysis){
 }
 
 function runSimProgress(question){
-  if(!checkPaywall('Scenario Simulator'))return;
+  var _pw=checkPaywall('Scenario Simulator');if(_pw==='upgrade'){showUpgradeModal();return;}if(!_pw)return;
   var pp=document.getElementById('simProgressPanel');
   var stepsEl=document.getElementById('simProgressSteps');if(!pp||!stepsEl)return;
   document.getElementById('simStatusDot').classList.add('active');
@@ -7304,11 +7315,19 @@ function closePricing(){
 
 // ===== PAYWALL GATE =====
 function checkPaywall(featureName) {
-  var isPaid = localStorage.getItem('risksim_paid') === 'true';
-  var hasBypass = localStorage.getItem('risksim_bypass') === 'junior';
-  if (isPaid || hasBypass) return true;
-  showPricing();
-  return false;
+  var paid = localStorage.getItem('risksim_paid') === 'true';
+  var bypass = localStorage.getItem('risksim_bypass') === 'junior';
+  var plan = localStorage.getItem('risksim_plan') || 'pro';
+
+  if (bypass) return true;
+  if (!paid) { showPricing(); return false; }
+
+  var enterpriseOnly = ['Scenario Simulator', 'Price Intelligence', 'Cost Engine'];
+  if (enterpriseOnly.indexOf(featureName) !== -1 && plan !== 'enterprise') {
+    return 'upgrade';
+  }
+
+  return true;
 }
 
 // ===== PLAN BADGE =====
@@ -8379,6 +8398,19 @@ window.addEventListener('load',function(){
   </div><!-- /.po-container -->
 </div><!-- /#pricingOverlay -->
 
+<!-- ===== UPGRADE MODAL ===== -->
+<div id="upgradeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; align-items:center; justify-content:center;">
+  <div style="background:#0a0a0a; border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:48px; max-width:480px; width:90%; text-align:center; font-family:'JetBrains Mono',monospace;">
+    <div style="font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.4); margin-bottom:24px;">ENTERPRISE REQUIRED</div>
+    <div style="font-size:28px; font-weight:800; letter-spacing:-1px; margin-bottom:16px; line-height:1.1;">UPGRADE TO<br>ENTERPRISE</div>
+    <div style="color:rgba(255,255,255,0.5); font-size:13px; line-height:1.6; margin-bottom:32px;">This module is exclusive to Enterprise plan. Unlock the Cost Engine, Scenario Simulator, and Price Intelligence alongside everything in Pro.</div>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button onclick="goToCheckout('53221730910546','692427981138'); closeUpgradeModal();" style="background:#fff; color:#000; border:none; padding:14px 28px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:800; letter-spacing:2px; cursor:pointer; border-radius:4px;">UPGRADE — €799/MO</button>
+      <button onclick="closeUpgradeModal();" style="background:transparent; color:rgba(255,255,255,0.4); border:1px solid rgba(255,255,255,0.1); padding:14px 28px; font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer; border-radius:4px;">MAYBE LATER</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ===== BILLING TOGGLE & PRICING CLICK HANDLER =====
 function toggleBilling(isAnnual) {
@@ -8436,6 +8468,61 @@ function toggleBilling(isAnnual) {
 document.getElementById('pricingOverlay').addEventListener('click', function(e) {
   if (e.target === this) closePricing();
 });
+
+// ===== UPGRADE MODAL =====
+function showUpgradeModal() {
+  var m = document.getElementById('upgradeModal');
+  if (m) { m.style.display = 'flex'; }
+}
+
+function closeUpgradeModal() {
+  var m = document.getElementById('upgradeModal');
+  if (m) { m.style.display = 'none'; }
+}
+
+// ===== THANK YOU SCREEN =====
+function showThankYouScreen(plan) {
+  var existing = document.getElementById('thankYouScreen');
+  if (existing) existing.remove();
+
+  var isPro = plan === 'pro';
+
+  var screen = document.createElement('div');
+  screen.id = 'thankYouScreen';
+  screen.style.cssText = 'position:fixed;inset:0;background:#000;z-index:99999;display:flex;align-items:center;justify-content:center;font-family:JetBrains Mono,monospace;';
+  screen.innerHTML =
+    '<div style="max-width:600px;width:90%;text-align:center;padding:48px;">' +
+      '<div style="font-size:11px;letter-spacing:4px;color:rgba(255,255,255,0.3);margin-bottom:32px;">RISKSIM AI</div>' +
+      '<div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,0.4);margin-bottom:16px;">' + (isPro ? 'PRO INTELLIGENCE' : 'ENTERPRISE INTELLIGENCE') + '</div>' +
+      '<div style="font-size:42px;font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:24px;">ACCESS<br>GRANTED</div>' +
+      '<div style="width:40px;height:1px;background:rgba(255,255,255,0.2);margin:0 auto 32px;"></div>' +
+      '<div style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.8;margin-bottom:48px;">' +
+        (isPro
+          ? 'Welcome to RiskSim Pro. You now have access to AI-powered supply chain intelligence, live risk alerts, the supplier audit system, and real-time terminal data.'
+          : 'Welcome to RiskSim Enterprise. You have full access to all intelligence modules including the Cost Engine, Scenario Simulator, Price Intelligence, and priority support.') +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px;text-align:left;">' +
+        '<div style="border:1px solid rgba(255,255,255,0.08);padding:20px;border-radius:8px;">' +
+          '<div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:8px;">ACTIVATED</div>' +
+          '<div style="font-size:13px;">AI Risk Chat</div>' +
+        '</div>' +
+        '<div style="border:1px solid rgba(255,255,255,0.08);padding:20px;border-radius:8px;">' +
+          '<div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:8px;">ACTIVATED</div>' +
+          '<div style="font-size:13px;">Supplier Audit</div>' +
+        '</div>' +
+        '<div style="border:1px solid rgba(255,255,255,0.08);padding:20px;border-radius:8px;">' +
+          '<div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:8px;">ACTIVATED</div>' +
+          '<div style="font-size:13px;">Live Terminal</div>' +
+        '</div>' +
+        '<div style="border:1px solid rgba(255,255,255,0.08);padding:20px;border-radius:8px;">' +
+          '<div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:8px;">' + (isPro ? 'PRO' : 'ACTIVATED') + '</div>' +
+          '<div style="font-size:13px;color:' + (isPro ? 'rgba(255,255,255,0.3)' : '#fff') + ';">Cost Engine' + (isPro ? ' (Enterprise)' : '') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<button onclick="document.getElementById(\'thankYouScreen\').remove();" style="background:#fff;color:#000;border:none;padding:16px 40px;font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:800;letter-spacing:3px;cursor:pointer;border-radius:4px;">ENTER RISKSIM \u2192</button>' +
+    '</div>';
+  document.body.appendChild(screen);
+}
 </script>
 
 <!-- ===== SYS_06 COST ENGINE JS ===== -->
@@ -8527,7 +8614,7 @@ function lcLoadLastValues(){
 
 // Main calculate
 function lcCalculate(){
-  if(!checkPaywall('Cost Engine'))return;
+  var _pw=checkPaywall('Cost Engine');if(_pw==='upgrade'){showUpgradeModal();return;}if(!_pw)return;
   // Sync country array from inputs
   var inputs=document.querySelectorAll('.lc-country-input');
   _lcCountries=[];
