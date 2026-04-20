@@ -6178,7 +6178,7 @@ function buildSettingsBilling(){
       monthlyPrice:799,annualPrice:666,
       monthlyFounder:559,annualFounder:466,
       monthlyVariant:'53221730910546',monthlyPlan:'692427981138',
-      annualVariant:'53221730910546',annualPlan:'692431323474',
+      annualVariant:'53221730910546',annualPlan:'79417573714',
       features:[
         {label:'Everything in Pro',yes:true},
         {label:'Custom integrations',yes:true},
@@ -7144,9 +7144,28 @@ function closePricing(){
 }
 
 // ===== ENTERPRISE PAYWALL OVERLAY =====
+function epwToggle(cid, period) {
+  var moBtn = document.getElementById(cid + '-mo');
+  var anBtn = document.getElementById(cid + '-an');
+  var cta   = document.getElementById(cid + '-cta');
+  var activeStyle  = 'padding:6px 18px;border:1px solid rgba(255,255,255,0.5);border-radius:999px;background:rgba(255,255,255,0.12);color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.15em;cursor:pointer;';
+  var inactiveStyle = 'padding:6px 18px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;background:transparent;color:rgba(255,255,255,0.35);font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.15em;cursor:pointer;';
+  if (period === 'mo') {
+    moBtn.style.cssText = activeStyle;
+    anBtn.style.cssText = inactiveStyle;
+    cta.onclick = function(){ goToCheckout('53221730910546','692427981138'); };
+    cta.textContent = 'SUBSCRIBE \u2014 ENTERPRISE \u20ac799/MO';
+  } else {
+    anBtn.style.cssText = activeStyle;
+    moBtn.style.cssText = inactiveStyle;
+    cta.onclick = function(){ goToCheckout('53221730910546','79417573714'); };
+    cta.textContent = 'SUBSCRIBE \u2014 ENTERPRISE \u20ac666/MO';
+  }
+}
+
 function showEnterprisePaywall(moduleId, moduleName, sysCode) {
-  var plan = localStorage.getItem('risksim_plan');
-  var paid = localStorage.getItem('risksim_paid') === 'true';
+  var plan   = localStorage.getItem('risksim_plan');
+  var paid   = localStorage.getItem('risksim_paid') === 'true';
   var bypass = localStorage.getItem('risksim_bypass') === 'junior';
   if (bypass) return false;
   if (paid && plan === 'enterprise') return false;
@@ -7155,14 +7174,21 @@ function showEnterprisePaywall(moduleId, moduleName, sysCode) {
   var existing = document.getElementById(containerId);
   if (existing) return true;
 
+  var activeStyle  = 'padding:6px 18px;border:1px solid rgba(255,255,255,0.5);border-radius:999px;background:rgba(255,255,255,0.12);color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.15em;cursor:pointer;';
+  var inactiveStyle = 'padding:6px 18px;border:1px solid rgba(255,255,255,0.12);border-radius:999px;background:transparent;color:rgba(255,255,255,0.35);font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.15em;cursor:pointer;';
+
   var overlay = document.createElement('div');
   overlay.id = containerId;
   overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,0.95);z-index:1000;display:flex;align-items:center;justify-content:center;border-radius:12px;';
   overlay.innerHTML = '<div style="text-align:center;padding:48px;max-width:480px;font-family:\'JetBrains Mono\',monospace;">'
     + '<div style="font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.3);margin-bottom:16px;">' + sysCode + ' \u2022 ENTERPRISE INTELLIGENCE</div>'
     + '<div style="font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:16px;">ENTERPRISE<br>ACCESS REQUIRED</div>'
-    + '<div style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.7;margin-bottom:32px;">' + moduleName + ' is exclusive to the Enterprise plan. Unlock full access alongside the Cost Engine, Price Intelligence, and priority support.</div>'
-    + '<button onclick="goToCheckout(\'53221730910546\',\'692427981138\')" style="width:100%;background:#fff;color:#000;border:none;padding:16px;font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:800;letter-spacing:2px;cursor:pointer;border-radius:4px;margin-bottom:12px;">SUBSCRIBE \u2014 ENTERPRISE \u20ac799/MO</button>'
+    + '<div style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.7;margin-bottom:28px;">' + moduleName + ' is exclusive to the Enterprise plan. Unlock full access alongside the Cost Engine, Price Intelligence, and priority support.</div>'
+    + '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;">'
+    +   '<button id="' + containerId + '-mo" style="' + activeStyle + '" onclick="epwToggle(\'' + containerId + '\',\'mo\')">MONTHLY</button>'
+    +   '<button id="' + containerId + '-an" style="' + inactiveStyle + '" onclick="epwToggle(\'' + containerId + '\',\'an\')">ANNUAL</button>'
+    + '</div>'
+    + '<button id="' + containerId + '-cta" onclick="goToCheckout(\'53221730910546\',\'692427981138\')" style="width:100%;background:#fff;color:#000;border:none;padding:16px;font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:800;letter-spacing:2px;cursor:pointer;border-radius:4px;margin-bottom:12px;">SUBSCRIBE \u2014 ENTERPRISE \u20ac799/MO</button>'
     + '<div style="color:rgba(255,255,255,0.2);font-size:11px;">Use code BETA30 for 30% off forever</div>'
     + '</div>';
 
@@ -8299,7 +8325,7 @@ function toggleBilling(isAnnual) {
     document.getElementById('poCustSavings').style.display = 'block';
     // Update CTA checkout plans to annual
     document.querySelector('.po-card:not(.po-card-featured) .po-cta').setAttribute('onclick', "goToCheckout('53221724029266', '692434501970')");
-    document.querySelector('.po-card-featured .po-cta').setAttribute('onclick', "goToCheckout('53221730910546', '692431323474')");
+    document.querySelector('.po-card-featured .po-cta').setAttribute('onclick', "goToCheckout('53221730910546', '79417573714')");
   } else {
     btnAnnual.classList.remove('po-active');
     btnMonthly.classList.add('po-active');
