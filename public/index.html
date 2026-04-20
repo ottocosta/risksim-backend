@@ -6178,7 +6178,7 @@ function buildSettingsBilling(){
       monthlyPrice:799,annualPrice:666,
       monthlyFounder:559,annualFounder:466,
       monthlyVariant:'53221730910546',monthlyPlan:'692427981138',
-      annualVariant:'53221730910546',annualPlan:'79417573714',
+      annualVariant:'53221730910546',annualPlan:'79418523986',
       features:[
         {label:'Everything in Pro',yes:true},
         {label:'Custom integrations',yes:true},
@@ -7158,7 +7158,7 @@ function epwToggle(cid, period) {
   } else {
     anBtn.style.cssText = activeStyle;
     moBtn.style.cssText = inactiveStyle;
-    cta.onclick = function(){ goToCheckout('53221730910546','79417573714'); };
+    cta.onclick = function(){ goToCheckout('53221730910546','79418523986'); };
     cta.textContent = 'SUBSCRIBE \u2014 ENTERPRISE \u20ac666/MO';
   }
 }
@@ -8325,7 +8325,7 @@ function toggleBilling(isAnnual) {
     document.getElementById('poCustSavings').style.display = 'block';
     // Update CTA checkout plans to annual
     document.querySelector('.po-card:not(.po-card-featured) .po-cta').setAttribute('onclick', "goToCheckout('53221724029266', '692434501970')");
-    document.querySelector('.po-card-featured .po-cta').setAttribute('onclick', "goToCheckout('53221730910546', '79417573714')");
+    document.querySelector('.po-card-featured .po-cta').setAttribute('onclick', "goToCheckout('53221730910546', '79418523986')");
   } else {
     btnAnnual.classList.remove('po-active');
     btnMonthly.classList.add('po-active');
