@@ -787,6 +787,46 @@ app.post('/api/shopify-checkout', async (req, res) => {
   }
 });
 
+app.get('/api/debug-plans', async (req, res) => {
+  const query = `
+    query {
+      product(id: "gid://shopify/Product/10727528628562") {
+        title
+        sellingPlanGroups(first: 10) {
+          edges {
+            node {
+              id
+              name
+              sellingPlans(first: 10) {
+                edges {
+                  node {
+                    id
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+  try {
+    const response = await fetch('https://risksim-ai.myshopify.com/api/2023-10/graphql.json', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': process.env.SHOPIFY_STOREFRONT_TOKEN
+      },
+      body: JSON.stringify({ query })
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ============================================================
 // EMAIL SUBSCRIBER ENDPOINTS
 // ============================================================
