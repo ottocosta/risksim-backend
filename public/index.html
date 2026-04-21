@@ -8139,6 +8139,10 @@ window.addEventListener('load',function(){
       setTimeout(function(){ var sb=document.getElementById('rsSidebar'); if(sb)sb.style.opacity='1'; }, 500);
       requestAnimationFrame(function(){
         if(map)map.invalidateSize();
+        if(localStorage.getItem('risksim_onboarded')!=='true'){
+          setTimeout(function(){if(typeof startOnboarding==='function')startOnboarding();},400);
+          return;
+        }
         var savedProfile = localStorage.getItem('risksim_profile');
         if (savedProfile) {
           var btn = document.getElementById('psReopenBtn');
@@ -9266,6 +9270,379 @@ function lcShowToast(msg){
   t.textContent=msg;t.classList.add('show');
   setTimeout(function(){t.classList.remove('show');},3500);
 }
+</script>
+
+<!-- ===== CINEMATIC ONBOARDING ===== -->
+<style>
+body.oob-active #rsNav{display:none!important;}
+#oobOverlay{position:fixed;inset:0;z-index:99990;background:#000;display:none;overflow:hidden;}
+#oobOverlay.oob-active{display:block;}
+.oob-nav{position:absolute;top:1.6rem;left:1.8rem;z-index:20;display:flex;align-items:center;gap:1.8rem;}
+.oob-nav a{font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;transition:color .2s;}
+.oob-nav a:hover{color:rgba(255,255,255,.85);}
+.oob-screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;transform:translateY(100vh);transition:transform .9s cubic-bezier(.22,1,.36,1),opacity .6s ease;opacity:0;padding:100px 40px 80px;overflow-y:auto;overflow-x:hidden;}
+.oob-screen.active{transform:translateY(0);opacity:1;}
+.oob-screen.exiting{transform:translateY(-100vh);opacity:0;}
+.oob-sys-label,.oob-title,.oob-sub,.oob-content,.oob-btn,.oob-skip-link,.oob-progress-dots{opacity:0;}
+.oob-screen.active .oob-sys-label{animation:oobFadeUp .6s ease .1s both;}
+.oob-screen.active .oob-title{animation:oobFadeUp .7s ease .25s both;}
+.oob-screen.active .oob-sub{animation:oobFadeUp .6s ease .4s both;}
+.oob-screen.active .oob-content{animation:oobFadeUp .6s ease .5s both;}
+.oob-screen.active .oob-btn{animation:oobFadeUp .5s ease .65s both;}
+.oob-screen.active .oob-skip-link{animation:oobFadeUp .5s ease .8s both;}
+.oob-screen.active .oob-progress-dots{animation:oobFadeUp .5s ease .9s both;}
+@keyframes oobFadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+.oob-sys-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:1.5rem;text-align:center;}
+.oob-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.4rem,6vw,4.8rem);letter-spacing:-.03em;line-height:1.05;color:#fff;margin-bottom:1.2rem;text-align:center;}
+.oob-sub{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:rgba(255,255,255,.38);max-width:520px;line-height:1.75;margin-bottom:2rem;text-align:center;}
+.oob-btn{background:#fff;color:#000;border:none;padding:14px 48px;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:background .2s,transform .15s;margin-top:1.5rem;flex-shrink:0;}
+.oob-btn:hover{background:#e8e8e8;transform:translateY(-1px);}
+.oob-skip-link{font-family:'JetBrains Mono',monospace;font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.2);cursor:pointer;border:none;background:none;margin-top:1rem;transition:color .2s;flex-shrink:0;}
+.oob-skip-link:hover{color:rgba(255,255,255,.5);}
+.oob-progress-dots{display:flex;gap:8px;margin-top:2rem;flex-shrink:0;}
+.oob-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.18);transition:background .3s;}
+.oob-dot.active{background:#fff;}
+.oob-dot.done{background:rgba(255,255,255,.4);}
+.oob-founders{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;max-width:860px;width:100%;margin:1.5rem auto 0;}
+.oob-founder-card{flex:1;min-width:210px;max-width:270px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.8rem 1.5rem;text-align:left;}
+.oob-founder-initial{width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:#fff;background:rgba(255,255,255,.04);margin-bottom:1rem;}
+.oob-founder-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:#fff;margin-bottom:3px;}
+.oob-founder-role{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:.8rem;}
+.oob-founder-desc{font-size:.82rem;color:rgba(255,255,255,.48);line-height:1.6;}
+.oob-founder-caption{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.2em;color:rgba(255,255,255,.2);text-transform:uppercase;margin-top:1.5rem;}
+.oob-input-wrap{width:100%;max-width:540px;margin-top:.5rem;}
+.oob-input{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.2);color:#fff;font-family:'JetBrains Mono',monospace;font-size:clamp(1rem,2vw,1.35rem);font-weight:300;padding:12px 0;outline:none;transition:border-color .25s;text-align:center;}
+.oob-input:focus{border-bottom-color:rgba(255,255,255,.7);}
+.oob-input::placeholder{color:rgba(255,255,255,.18);}
+.oob-select{width:100%;background:#0a0a0a;border:none;border-bottom:1px solid rgba(255,255,255,.2);color:#fff;font-family:'JetBrains Mono',monospace;font-size:1rem;padding:12px 4px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;transition:border-color .25s;text-align:center;}
+.oob-select:focus{border-bottom-color:rgba(255,255,255,.7);}
+.oob-select option{background:#111;color:#fff;}
+.oob-input-err{font-family:'JetBrains Mono',monospace;font-size:.63rem;letter-spacing:.1em;color:rgba(255,80,80,.8);margin-top:8px;min-height:1.2em;text-align:center;}
+.oob-chips-grid{display:flex;flex-wrap:wrap;gap:8px;max-width:680px;max-height:260px;overflow-y:auto;padding:4px 2px 8px;margin-top:.5rem;justify-content:center;}
+.oob-chips-grid::-webkit-scrollbar{width:3px;}
+.oob-chips-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
+.oob-chip{padding:6px 13px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.42);font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.04em;cursor:pointer;transition:all .18s;user-select:none;}
+.oob-chip:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.75);}
+.oob-chip.selected{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.5);color:#fff;}
+.oob-plan-wrap{width:100%;max-width:940px;}
+.oob-plan-toggle{display:flex;gap:8px;justify-content:center;margin-bottom:2rem;}
+.oob-plan-toggle-btn{padding:8px 22px;border-radius:999px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.73rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(255,255,255,.18);background:transparent;color:rgba(255,255,255,.38);transition:all .2s;}
+.oob-plan-toggle-btn.active{border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.1);color:#fff;}
+.oob-plan-cards{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;}
+.oob-plan-card{flex:1;min-width:240px;max-width:290px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:2rem 1.8rem;display:flex;flex-direction:column;}
+.oob-plan-card.featured{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.055);}
+.oob-plan-badge{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.38);display:inline-block;margin-bottom:4px;}
+.oob-plan-badge-pop{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:3px 10px;margin-bottom:4px;}
+.oob-plan-name{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;text-transform:uppercase;color:#fff;margin-bottom:.9rem;text-align:left;}
+.oob-plan-price{font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:#fff;letter-spacing:-.02em;line-height:1;text-align:left;}
+.oob-plan-price-sub{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.28);letter-spacing:.06em;margin-bottom:1.1rem;margin-top:4px;text-align:left;}
+.oob-plan-features{list-style:none;margin-bottom:1.4rem;flex:1;}
+.oob-plan-feature{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:rgba(255,255,255,.48);letter-spacing:.04em;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:8px;text-align:left;}
+.oob-plan-feature.oob-f-dim{color:rgba(255,255,255,.2);}
+.oob-plan-feature-check{color:rgba(255,255,255,.35);flex-shrink:0;}
+.oob-plan-cta{width:100%;padding:12px;border:1px solid rgba(255,255,255,.15);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.08);color:#fff;}
+.oob-plan-cta:hover{background:rgba(255,255,255,.16);transform:translateY(-1px);}
+.oob-plan-cta.featured{background:#fff;color:#000;border-color:#fff;}
+.oob-plan-cta.featured:hover{background:#e8e8e8;}
+.oob-plan-trial-text{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:rgba(255,255,255,.18);text-align:center;letter-spacing:.06em;margin-top:9px;}
+.oob-plan-contact-cta{width:100%;padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:transparent;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;color:rgba(255,255,255,.5);transition:all .2s;}
+.oob-plan-contact-cta:hover{border-color:rgba(255,255,255,.28);color:#fff;}
+.oob-beta-note{text-align:center;margin-top:1.2rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;color:rgba(255,255,255,.18);}
+#oob-s12 .oob-welcome-name{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,5.5vw,4.5rem);letter-spacing:-.03em;color:#fff;text-align:center;animation:oobFadeIn 1.1s ease .3s both;}
+#oob-s12 .oob-welcome-sub{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:rgba(255,255,255,.28);letter-spacing:.2em;text-transform:uppercase;text-align:center;margin-top:1rem;animation:oobFadeIn 1s ease .9s both;}
+@keyframes oobFadeIn{from{opacity:0;}to{opacity:1;}}
+@media(max-width:640px){
+  .oob-screen{padding:80px 24px 60px;}
+  .oob-plan-card,.oob-founder-card{min-width:calc(100% - 0px);max-width:100%;}
+}
+</style>
+
+<div id="oobOverlay">
+  <nav class="oob-nav">
+    <a href="/about.html">About</a>
+    <a href="/privacy.html">Privacy Policy</a>
+    <a href="/contact.html">Contact</a>
+  </nav>
+  <!-- Screens built by JS -->
+</div>
+
+<script>
+(function(){
+  var _scr=0, _ann=false, _prof={}, _src=[], _scrollCD=false;
+
+  var QDEFS=[
+    {n:3,q:1,sys:'SYS_ONBOARD / 01 OF 08',title:'WHAT IS YOUR\nCOMPANY NAME?',sub:'We\'ll personalize your intelligence feed and welcome you by name.',type:'text',ph:'Acme Corp',field:'companyName',req:true},
+    {n:4,q:2,sys:'SYS_ONBOARD / 02 OF 08',title:'WHERE IS YOUR\nHOME COUNTRY?',sub:'Your base affects regulatory context and baseline risk modeling.',type:'text',ph:'Finland',field:'country',req:false},
+    {n:5,q:3,sys:'SYS_ONBOARD / 03 OF 08',title:'WHAT IS YOUR\nINDUSTRY?',sub:'We\'ll prioritize risk data and supplier intelligence for your sector.',type:'select',opts:[['technology','Electronics / Technology'],['textiles','Textiles / Apparel'],['automotive','Automotive'],['food','Food / Agriculture'],['pharma','Pharmaceuticals'],['rawMaterials','Raw Materials'],['consumerGoods','Consumer Goods'],['other','Other']],field:'industry',req:true},
+    {n:6,q:4,sys:'SYS_ONBOARD / 04 OF 08',title:'WHERE DO YOU\nSOURCE FROM?',sub:'Select all countries you source from. Your map will highlight these regions.',type:'chips',field:null,req:false},
+    {n:7,q:5,sys:'SYS_ONBOARD / 05 OF 08',title:'HOW LARGE IS\nYOUR COMPANY?',sub:'Helps calibrate risk thresholds and supplier recommendations to your scale.',type:'select',opts:[['1-10','1–10 employees'],['11-50','11–50 employees'],['51-200','51–200 employees'],['201-500','201–500 employees'],['500+','500+ employees']],field:'employees',req:false},
+    {n:8,q:6,sys:'SYS_ONBOARD / 06 OF 08',title:'WHAT DO YOU\nSOURCE OR SELL?',sub:'Primary products, components, or services you source internationally.',type:'text',ph:'Electronics components, textiles, raw materials\u2026',field:'products',req:false},
+    {n:9,q:7,sys:'SYS_ONBOARD / 07 OF 08',title:'WHO ARE YOUR\nKEY SUPPLIERS?',sub:'List your main suppliers. We\'ll monitor them for risk signals.',type:'text',ph:'TSMC, Samsung, Foxconn\u2026',field:'suppliers',req:false},
+    {n:10,q:8,sys:'SYS_ONBOARD / 08 OF 08',title:'WHAT IS YOUR\nPRIMARY CONCERN?',sub:'We\'ll prioritize alerts and intelligence around your biggest risk area.',type:'select',opts:[['geopolitical','Geopolitical Risk'],['disruption','Supply Disruption'],['tariffs','Tariffs / Trade Policy'],['labor','Labor & ESG'],['climate','Climate Risk'],['quality','Quality Control'],['cost','Cost Optimization']],field:'concern',req:false}
+  ];
+
+  function goTo(n,imm){
+    document.querySelectorAll('#oobOverlay .oob-screen').forEach(function(s){
+      if(s.classList.contains('active')){
+        s.classList.remove('active');
+        if(!imm){s.classList.add('exiting');setTimeout(function(){s.classList.remove('exiting');},950);}
+      }
+    });
+    _scr=n;
+    var next=document.getElementById('oob-s'+n);
+    if(!next)return;
+    var activate=function(){
+      next.classList.add('active');
+      if(n===6)renderChips();
+      if(n===12){var el=document.getElementById('oob-welcome-name');if(el)el.textContent=_prof.companyName?'WELCOME, '+_prof.companyName.toUpperCase():'WELCOME';}
+      var inp=next.querySelector('.oob-input');
+      if(inp)setTimeout(function(){inp.focus();},450);
+    };
+    imm?activate():setTimeout(activate,50);
+  }
+
+  function renderChips(){
+    var grid=document.getElementById('oob-chips-6');
+    if(!grid||!window.PS_SOURCING_COUNTRIES)return;
+    grid.innerHTML=PS_SOURCING_COUNTRIES.map(function(c){
+      return '<div class="oob-chip'+(_src.indexOf(c)!==-1?' selected':'')+'" data-c="'+c+'">'+c+'</div>';
+    }).join('');
+    grid.addEventListener('click',function(e){
+      var chip=e.target.closest('.oob-chip');if(!chip)return;
+      chip.classList.toggle('selected');
+      _src=[];grid.querySelectorAll('.oob-chip.selected').forEach(function(ch){_src.push(ch.getAttribute('data-c'));});
+    });
+  }
+
+  function collect(n){
+    var def=QDEFS.filter(function(d){return d.n===n;})[0];
+    if(!def||def.type==='chips')return;
+    var el=document.getElementById('oob-inp-'+n);
+    if(el&&def.field)_prof[def.field]=el.tagName==='SELECT'?el.value:el.value.trim();
+  }
+
+  function validate(n){
+    var def=QDEFS.filter(function(d){return d.n===n;})[0];
+    if(!def||!def.req)return true;
+    var el=document.getElementById('oob-inp-'+n);
+    var err=document.getElementById('oob-err-'+n);
+    if(!el||!el.value.trim()){if(err)err.textContent='This field is required.';return false;}
+    if(err)err.textContent='';return true;
+  }
+
+  function oobNext(){
+    if(!validate(_scr))return;
+    collect(_scr);
+    if(_scr<11)goTo(_scr+1);
+  }
+
+  function oobSkip(){
+    collect(_scr);
+    if(_scr<11)goTo(_scr+1);
+  }
+
+  function oobSetBilling(ann){
+    _ann=ann;
+    var mo=document.getElementById('oob-mo-btn'),an=document.getElementById('oob-an-btn');
+    if(mo)mo.classList.toggle('active',!ann);
+    if(an)an.classList.toggle('active',ann);
+    var c=document.getElementById('oob-plan-cards');
+    if(c)c.innerHTML=buildCards();
+  }
+
+  function buildCards(){
+    var proSp=_ann?'692434501970':'692427948370';
+    var entSp=_ann?'692442923346':'692427981138';
+    var proPx=_ann?'\u20ac207':'\u20ac249';
+    var entPx=_ann?'\u20ac666':'\u20ac799';
+    var per=_ann?'/mo \u00b7 billed annually':'/mo';
+
+    function feats(arr){return arr.map(function(f){return'<li class="oob-plan-feature'+(f[0]?'':' oob-f-dim')+'"><span class="oob-plan-feature-check">'+(f[0]?'\u2713':'\u2715')+'</span>'+f[1]+'</li>';}).join('');}
+
+    var pro='<div class="oob-plan-card">'
+      +'<div class="oob-plan-badge">PRO</div>'
+      +'<div class="oob-plan-name">RiskSim Pro</div>'
+      +'<div class="oob-plan-price">'+proPx+'</div>'
+      +'<div class="oob-plan-price-sub">'+per+'</div>'
+      +'<ul class="oob-plan-features">'+feats([[1,'Intelligence Map \u2014 all layers'],[1,'Terminal \u2014 alerts, news, tariffs'],[1,'AI Chat \u2014 300 messages/day'],[1,'Country Comparison Tool'],[0,'Scenario Simulator'],[0,'Supplier Audit']])+'</ul>'
+      +'<button class="oob-plan-cta" onclick="window._oobCO(\'53221724029266\',\''+proSp+'\')">START 7-DAY FREE TRIAL</button>'
+      +'<div class="oob-plan-trial-text">Then '+proPx+'/mo. Cancel anytime during trial \u2014 no charge.</div>'
+      +'</div>';
+
+    var ent='<div class="oob-plan-card featured">'
+      +'<div class="oob-plan-badge-pop">MOST POPULAR</div>'
+      +'<div class="oob-plan-name">RiskSim Enterprise</div>'
+      +'<div class="oob-plan-price">'+entPx+'</div>'
+      +'<div class="oob-plan-price-sub">'+per+'</div>'
+      +'<ul class="oob-plan-features">'+feats([[1,'Everything in Pro'],[1,'Scenario Simulator'],[1,'Supplier Audit \u2014 deep dive'],[1,'Voice Assistant \u2014 Jarvis AI'],[1,'Priority email alerts'],[1,'Advanced risk modeling']])+'</ul>'
+      +'<button class="oob-plan-cta featured" onclick="window._oobCO(\'53221730910546\',\''+entSp+'\')">START 7-DAY FREE TRIAL</button>'
+      +'<div class="oob-plan-trial-text">Then '+entPx+'/mo. Cancel anytime during trial \u2014 no charge.</div>'
+      +'</div>';
+
+    var cust='<div class="oob-plan-card">'
+      +'<div class="oob-plan-badge">CUSTOM</div>'
+      +'<div class="oob-plan-name">Custom</div>'
+      +'<div class="oob-plan-price">\u20ac1,299+</div>'
+      +'<div class="oob-plan-price-sub">/mo \u00b7 let\'s talk</div>'
+      +'<ul class="oob-plan-features">'+feats([[1,'Everything in Enterprise'],[1,'Unlimited users'],[1,'Custom integrations & API'],[1,'Dedicated success manager'],[1,'Custom SLAs']])+'</ul>'
+      +'<button class="oob-plan-contact-cta" onclick="window.location.href=\'mailto:risksim.ai@gmail.com?subject=Custom%20Plan%20Inquiry\'">BOOK A CALL</button>'
+      +'</div>';
+
+    return pro+ent+cust;
+  }
+
+  function oobEnterApp(){
+    if(window.userProfile!==undefined){
+      userProfile.companyName=_prof.companyName||'';
+      userProfile.country=_prof.country||'';
+      userProfile.industry=_prof.industry||'';
+      userProfile.employees=_prof.employees||'';
+      userProfile.products=_prof.products||'';
+      userProfile.suppliers=_prof.suppliers||'';
+      userProfile.concern=_prof.concern||'';
+      userProfile.regions=_src.join(', ');
+      if(_prof.industry)currentCategory=_prof.industry;
+      selectedSourcingCountries=_src.slice();
+    }
+    if(typeof saveProfileToStorage==='function')saveProfileToStorage();
+    localStorage.setItem('risksim_onboarded','true');
+    localStorage.setItem('risksim_onboarding_done','1');
+    goTo(12);
+    setTimeout(function(){
+      var ov=document.getElementById('oobOverlay');
+      if(ov){ov.style.transition='opacity 1s ease';ov.style.opacity='0';}
+      setTimeout(function(){
+        if(ov){ov.classList.remove('oob-active');ov.style.cssText='';}
+        document.body.classList.remove('oob-active');
+        if(typeof renderMarkers==='function')renderMarkers();
+        if(typeof updateHeroStats==='function')updateHeroStats();
+        var btn=document.getElementById('psReopenBtn');if(btn)btn.style.display='flex';
+        var sb=document.getElementById('rsSidebar');if(sb)sb.style.opacity='1';
+        if(typeof showDailyBriefing==='function')setTimeout(showDailyBriefing,1500);
+      },1050);
+    },2000);
+  }
+
+  function buildScreens(){
+    var ov=document.getElementById('oobOverlay');
+    if(!ov||ov.querySelector('.oob-screen'))return;
+
+    // Screen 2: Founder intro
+    var s2=document.createElement('div');
+    s2.className='oob-screen';s2.id='oob-s2';
+    s2.innerHTML=
+      '<div class="oob-sys-label">SYS_ONBOARD / INTRO</div>'
+      +'<div class="oob-title">BUILT BY THREE<br>TEENAGERS</div>'
+      +'<div class="oob-sub">Who got obsessed with a problem nobody else was solving.</div>'
+      +'<div class="oob-content">'
+        +'<div class="oob-founders">'
+          +fc('O','Otto Costa','CEO &amp; Co-Founder \u00b7 Finland','17 years old. Strategy, product, and outreach.')
+          +fc('K','Kai Poh','CTO &amp; Co-Founder \u00b7 Singapore','18 years old. Architecture, AI, infrastructure.')
+          +fc('L','Luukas Niskanen','COO &amp; Co-Founder \u00b7 Finland','17 years old. Operations, partnerships, distribution.')
+        +'</div>'
+        +'<div class="oob-founder-caption">No funding. No office. Just built.</div>'
+      +'</div>'
+      +'<button class="oob-btn" onclick="window._oobNext()">Continue</button>';
+    ov.appendChild(s2);
+
+    // Screens 3–10: Questions
+    QDEFS.forEach(function(def){
+      var s=document.createElement('div');
+      s.className='oob-screen';s.id='oob-s'+def.n;
+      var inp='';
+      if(def.type==='text'){
+        inp='<div class="oob-input-wrap">'
+          +'<input class="oob-input" id="oob-inp-'+def.n+'" type="text" placeholder="'+def.ph+'" autocomplete="off"'
+          +' onkeydown="if(event.key===\'Enter\'){event.preventDefault();window._oobNext();}">'
+          +'<div class="oob-input-err" id="oob-err-'+def.n+'"></div>'
+          +'</div>';
+      }else if(def.type==='select'){
+        var opts='<option value="">Select\u2026</option>';
+        def.opts.forEach(function(o){opts+='<option value="'+o[0]+'">'+o[1]+'</option>';});
+        inp='<div class="oob-input-wrap">'
+          +'<select class="oob-select" id="oob-inp-'+def.n+'">'+opts+'</select>'
+          +'<div class="oob-input-err" id="oob-err-'+def.n+'"></div>'
+          +'</div>';
+      }else if(def.type==='chips'){
+        inp='<div class="oob-chips-grid" id="oob-chips-6"></div>';
+      }
+      var dots='';
+      for(var i=1;i<=8;i++)dots+='<div class="oob-dot'+(i<def.q?' done':i===def.q?' active':'')+'"></div>';
+      s.innerHTML=
+        '<div class="oob-sys-label">'+def.sys+'</div>'
+        +'<div class="oob-title">'+def.title.replace(/\n/g,'<br>')+'</div>'
+        +'<div class="oob-sub">'+def.sub+'</div>'
+        +'<div class="oob-content" style="width:100%;display:flex;flex-direction:column;align-items:center;">'+inp+'</div>'
+        +'<button class="oob-btn" onclick="window._oobNext()">Continue</button>'
+        +(!def.req?'<button class="oob-skip-link" onclick="window._oobSkip()">Skip this question</button>':'')
+        +'<div class="oob-progress-dots">'+dots+'</div>';
+      ov.appendChild(s);
+    });
+
+    // Screen 11: Plan selection
+    var s11=document.createElement('div');
+    s11.className='oob-screen';s11.id='oob-s11';
+    s11.innerHTML=
+      '<div class="oob-sys-label">SYS_ONBOARD / FINAL STEP</div>'
+      +'<div class="oob-title">CHOOSE YOUR PLAN</div>'
+      +'<div class="oob-sub">Start your 7-day free trial. Cancel anytime, no charge.</div>'
+      +'<div class="oob-content" style="width:100%;display:flex;flex-direction:column;align-items:center;">'
+        +'<div class="oob-plan-wrap">'
+          +'<div class="oob-plan-toggle">'
+            +'<button class="oob-plan-toggle-btn active" id="oob-mo-btn" onclick="window._oobBilling(false)">Monthly</button>'
+            +'<button class="oob-plan-toggle-btn" id="oob-an-btn" onclick="window._oobBilling(true)">Annual \u00b7 Save 17%</button>'
+          +'</div>'
+          +'<div class="oob-plan-cards" id="oob-plan-cards">'+buildCards()+'</div>'
+          +'<div class="oob-beta-note">Use code BETA30 for 30% off forever</div>'
+        +'</div>'
+      +'</div>'
+      +'<button class="oob-skip-link" onclick="window._oobEnter()">Skip for now \u2014 enter the app</button>';
+    ov.appendChild(s11);
+
+    // Screen 12: Welcome
+    var s12=document.createElement('div');
+    s12.className='oob-screen';s12.id='oob-s12';
+    s12.innerHTML='<div class="oob-welcome-name" id="oob-welcome-name">WELCOME</div><div class="oob-welcome-sub">Setting up your intelligence feed\u2026</div>';
+    ov.appendChild(s12);
+  }
+
+  function fc(init,name,role,desc){
+    return '<div class="oob-founder-card">'
+      +'<div class="oob-founder-initial">'+init+'</div>'
+      +'<div class="oob-founder-name">'+name+'</div>'
+      +'<div class="oob-founder-role">'+role+'</div>'
+      +'<div class="oob-founder-desc">'+desc+'</div>'
+      +'</div>';
+  }
+
+  // Keyboard + scroll nav
+  document.addEventListener('keydown',function(e){
+    if(!document.body.classList.contains('oob-active'))return;
+    if(e.key==='ArrowDown'){e.preventDefault();oobNext();}
+    if(e.key==='ArrowUp'&&_scr>2){e.preventDefault();goTo(_scr-1);}
+  });
+  document.addEventListener('wheel',function(e){
+    if(!document.body.classList.contains('oob-active')||_scrollCD)return;
+    if(e.deltaY<30)return;
+    if(_scr===6){var chips=document.getElementById('oob-chips-6');if(chips&&chips.scrollTop<chips.scrollHeight-chips.clientHeight-5)return;}
+    if(_scr>=2&&_scr<=10){_scrollCD=true;setTimeout(function(){_scrollCD=false;},1200);oobNext();}
+  },{passive:true});
+
+  function startOnboarding(){
+    var ov=document.getElementById('oobOverlay');if(!ov)return;
+    document.body.classList.add('oob-active');
+    ov.classList.add('oob-active');
+    buildScreens();
+    goTo(2,true);
+  }
+
+  window.startOnboarding=startOnboarding;
+  window._oobNext=oobNext;
+  window._oobSkip=oobSkip;
+  window._oobBilling=oobSetBilling;
+  window._oobEnter=oobEnterApp;
+  window._oobCO=function(vid,spid){if(typeof goToCheckout==='function')goToCheckout(vid,spid);oobEnterApp();};
+})();
 </script>
 
 <iframe id="jarvisFrame" src="https://risksim-backend.onrender.com/voice.html" style="display:none;width:0;height:0;border:none;position:absolute;" allow="microphone"></iframe>
