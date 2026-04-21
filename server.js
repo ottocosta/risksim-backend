@@ -795,7 +795,6 @@ app.get('/api/debug-plans', async (req, res) => {
         sellingPlanGroups(first: 10) {
           edges {
             node {
-              id
               name
               sellingPlans(first: 10) {
                 edges {
