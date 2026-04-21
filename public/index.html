@@ -9280,7 +9280,7 @@ body.oob-active #rsNav{display:none!important;}
 .oob-nav{position:absolute;top:1.6rem;left:1.8rem;z-index:20;display:flex;align-items:center;gap:1.8rem;}
 .oob-nav a{font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;transition:color .2s;}
 .oob-nav a:hover{color:rgba(255,255,255,.85);}
-.oob-screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;transform:translateY(100vh);transition:transform .9s cubic-bezier(.22,1,.36,1),opacity .6s ease;opacity:0;padding:100px 40px 80px;overflow-y:auto;overflow-x:hidden;}
+.oob-screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;transform:translateY(100vh);transition:transform .9s cubic-bezier(.22,1,.36,1),opacity .6s ease;opacity:0;padding:60px 40px 50px;overflow:hidden;}
 .oob-screen.active{transform:translateY(0);opacity:1;}
 .oob-screen.exiting{transform:translateY(-100vh);opacity:0;}
 .oob-sys-label,.oob-title,.oob-sub,.oob-content,.oob-btn,.oob-skip-link,.oob-progress-dots{opacity:0;}
@@ -9292,68 +9292,76 @@ body.oob-active #rsNav{display:none!important;}
 .oob-screen.active .oob-skip-link{animation:oobFadeUp .5s ease .8s both;}
 .oob-screen.active .oob-progress-dots{animation:oobFadeUp .5s ease .9s both;}
 @keyframes oobFadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
-.oob-sys-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:1.5rem;text-align:center;}
-.oob-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.4rem,6vw,4.8rem);letter-spacing:-.03em;line-height:1.05;color:#fff;margin-bottom:1.2rem;text-align:center;}
-.oob-sub{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:rgba(255,255,255,.38);max-width:520px;line-height:1.75;margin-bottom:2rem;text-align:center;}
-.oob-btn{background:#fff;color:#000;border:none;padding:14px 48px;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:background .2s,transform .15s;margin-top:1.5rem;flex-shrink:0;}
+.oob-sys-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:1.2rem;text-align:center;}
+.oob-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:-.03em;line-height:1.05;color:#fff;margin-bottom:.9rem;text-align:center;}
+.oob-sub{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:rgba(255,255,255,.38);max-width:520px;line-height:1.75;margin-bottom:1.5rem;text-align:center;}
+.oob-btn{background:#fff;color:#000;border:none;padding:14px 48px;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:background .2s,transform .15s;margin-top:1.2rem;flex-shrink:0;}
 .oob-btn:hover{background:#e8e8e8;transform:translateY(-1px);}
-.oob-skip-link{font-family:'JetBrains Mono',monospace;font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.2);cursor:pointer;border:none;background:none;margin-top:1rem;transition:color .2s;flex-shrink:0;}
+.oob-skip-link{font-family:'JetBrains Mono',monospace;font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.2);cursor:pointer;border:none;background:none;margin-top:.8rem;transition:color .2s;flex-shrink:0;}
 .oob-skip-link:hover{color:rgba(255,255,255,.5);}
-.oob-progress-dots{display:flex;gap:8px;margin-top:2rem;flex-shrink:0;}
+.oob-progress-dots{display:flex;gap:8px;margin-top:1.5rem;flex-shrink:0;}
 .oob-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.18);transition:background .3s;}
 .oob-dot.active{background:#fff;}
 .oob-dot.done{background:rgba(255,255,255,.4);}
-.oob-founders{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;max-width:860px;width:100%;margin:1.5rem auto 0;}
-.oob-founder-card{flex:1;min-width:210px;max-width:270px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1.8rem 1.5rem;text-align:left;}
-.oob-founder-initial{width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:#fff;background:rgba(255,255,255,.04);margin-bottom:1rem;}
-.oob-founder-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:#fff;margin-bottom:3px;}
-.oob-founder-role{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:.8rem;}
-.oob-founder-desc{font-size:.82rem;color:rgba(255,255,255,.48);line-height:1.6;}
-.oob-founder-caption{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.2em;color:rgba(255,255,255,.2);text-transform:uppercase;margin-top:1.5rem;}
 .oob-input-wrap{width:100%;max-width:540px;margin-top:.5rem;}
 .oob-input{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.2);color:#fff;font-family:'JetBrains Mono',monospace;font-size:clamp(1rem,2vw,1.35rem);font-weight:300;padding:12px 0;outline:none;transition:border-color .25s;text-align:center;}
 .oob-input:focus{border-bottom-color:rgba(255,255,255,.7);}
 .oob-input::placeholder{color:rgba(255,255,255,.18);}
+.oob-textarea{width:100%;max-width:600px;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.2);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:300;padding:12px 0;outline:none;transition:border-color .25s;resize:none;line-height:1.7;}
+.oob-textarea:focus{border-bottom-color:rgba(255,255,255,.7);}
+.oob-textarea::placeholder{color:rgba(255,255,255,.18);}
 .oob-select{width:100%;background:#0a0a0a;border:none;border-bottom:1px solid rgba(255,255,255,.2);color:#fff;font-family:'JetBrains Mono',monospace;font-size:1rem;padding:12px 4px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;transition:border-color .25s;text-align:center;}
 .oob-select:focus{border-bottom-color:rgba(255,255,255,.7);}
 .oob-select option{background:#111;color:#fff;}
 .oob-input-err{font-family:'JetBrains Mono',monospace;font-size:.63rem;letter-spacing:.1em;color:rgba(255,80,80,.8);margin-top:8px;min-height:1.2em;text-align:center;}
-.oob-chips-grid{display:flex;flex-wrap:wrap;gap:8px;max-width:680px;max-height:260px;overflow-y:auto;padding:4px 2px 8px;margin-top:.5rem;justify-content:center;}
+.oob-chips-grid{display:flex;flex-wrap:wrap;gap:8px;max-width:680px;max-height:220px;overflow-y:auto;padding:4px 2px 8px;margin-top:.5rem;justify-content:center;}
 .oob-chips-grid::-webkit-scrollbar{width:3px;}
 .oob-chips-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px;}
 .oob-chip{padding:6px 13px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.42);font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.04em;cursor:pointer;transition:all .18s;user-select:none;}
 .oob-chip:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.75);}
 .oob-chip.selected{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.5);color:#fff;}
 .oob-plan-wrap{width:100%;max-width:940px;}
-.oob-plan-toggle{display:flex;gap:8px;justify-content:center;margin-bottom:2rem;}
+.oob-plan-toggle{display:flex;gap:8px;justify-content:center;margin-bottom:1.2rem;}
 .oob-plan-toggle-btn{padding:8px 22px;border-radius:999px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.73rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(255,255,255,.18);background:transparent;color:rgba(255,255,255,.38);transition:all .2s;}
 .oob-plan-toggle-btn.active{border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.1);color:#fff;}
-.oob-plan-cards{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center;}
-.oob-plan-card{flex:1;min-width:240px;max-width:290px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:2rem 1.8rem;display:flex;flex-direction:column;}
+.oob-plan-cards{display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center;}
+.oob-plan-card{flex:1;min-width:240px;max-width:285px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1.4rem;display:flex;flex-direction:column;}
 .oob-plan-card.featured{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.055);}
 .oob-plan-badge{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.38);display:inline-block;margin-bottom:4px;}
 .oob-plan-badge-pop{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:3px 10px;margin-bottom:4px;}
-.oob-plan-name{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;text-transform:uppercase;color:#fff;margin-bottom:.9rem;text-align:left;}
-.oob-plan-price{font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:#fff;letter-spacing:-.02em;line-height:1;text-align:left;}
-.oob-plan-price-sub{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.28);letter-spacing:.06em;margin-bottom:1.1rem;margin-top:4px;text-align:left;}
-.oob-plan-features{list-style:none;margin-bottom:1.4rem;flex:1;}
-.oob-plan-feature{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:rgba(255,255,255,.48);letter-spacing:.04em;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:8px;text-align:left;}
+.oob-plan-name{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;text-transform:uppercase;color:#fff;margin-bottom:.6rem;text-align:left;}
+.oob-plan-price{font-family:'Syne',sans-serif;font-weight:800;font-size:1.7rem;color:#fff;letter-spacing:-.02em;line-height:1;text-align:left;}
+.oob-plan-price-sub{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.28);letter-spacing:.06em;margin-bottom:.8rem;margin-top:4px;text-align:left;}
+.oob-plan-features{list-style:none;margin-bottom:1rem;flex:1;}
+.oob-plan-feature{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:rgba(255,255,255,.48);letter-spacing:.04em;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:8px;text-align:left;}
 .oob-plan-feature.oob-f-dim{color:rgba(255,255,255,.2);}
 .oob-plan-feature-check{color:rgba(255,255,255,.35);flex-shrink:0;}
-.oob-plan-cta{width:100%;padding:12px;border:1px solid rgba(255,255,255,.15);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.08);color:#fff;}
+.oob-plan-cta{width:100%;padding:10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.08);color:#fff;}
 .oob-plan-cta:hover{background:rgba(255,255,255,.16);transform:translateY(-1px);}
 .oob-plan-cta.featured{background:#fff;color:#000;border-color:#fff;}
 .oob-plan-cta.featured:hover{background:#e8e8e8;}
-.oob-plan-trial-text{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:rgba(255,255,255,.18);text-align:center;letter-spacing:.06em;margin-top:9px;}
-.oob-plan-contact-cta{width:100%;padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:transparent;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;color:rgba(255,255,255,.5);transition:all .2s;}
+.oob-plan-trial-text{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:rgba(255,255,255,.18);text-align:center;letter-spacing:.06em;margin-top:7px;}
+.oob-plan-contact-cta{width:100%;padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:transparent;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;color:rgba(255,255,255,.5);transition:all .2s;}
 .oob-plan-contact-cta:hover{border-color:rgba(255,255,255,.28);color:#fff;}
-.oob-beta-note{text-align:center;margin-top:1.2rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;color:rgba(255,255,255,.18);}
-#oob-s12 .oob-welcome-name{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,5.5vw,4.5rem);letter-spacing:-.03em;color:#fff;text-align:center;animation:oobFadeIn 1.1s ease .3s both;}
-#oob-s12 .oob-welcome-sub{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:rgba(255,255,255,.28);letter-spacing:.2em;text-transform:uppercase;text-align:center;margin-top:1rem;animation:oobFadeIn 1s ease .9s both;}
+.oob-beta-note{text-align:center;margin-top:1rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;color:rgba(255,255,255,.18);}
+.oob-about-grid{display:flex;gap:0;max-width:820px;width:100%;margin:.8rem 0;}
+.oob-about-col{flex:1;min-width:0;padding:.8rem 1.2rem;border-left:1px solid rgba(255,255,255,.07);}
+.oob-about-col:first-child{border-left:none;padding-left:0;}
+.oob-about-icon{font-size:1rem;margin-bottom:.5rem;color:rgba(255,255,255,.45);}
+.oob-about-col-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;color:#fff;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.05em;}
+.oob-about-col-desc{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.35);line-height:1.6;letter-spacing:.02em;}
+.oob-about-divider{width:100%;max-width:820px;height:1px;background:rgba(255,255,255,.08);margin:.9rem 0;}
+.oob-about-founders-line{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:rgba(255,255,255,.45);letter-spacing:.06em;text-align:center;}
+.oob-about-founders-caption{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:rgba(255,255,255,.2);letter-spacing:.14em;text-align:center;margin-top:.3rem;text-transform:uppercase;}
+#oob-s13 .oob-welcome-name{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2rem,5.5vw,4.5rem);letter-spacing:-.03em;color:#fff;text-align:center;animation:oobFadeIn 1.1s ease .3s both;}
+#oob-s13 .oob-welcome-sub{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:rgba(255,255,255,.28);letter-spacing:.2em;text-transform:uppercase;text-align:center;margin-top:1rem;animation:oobFadeIn 1s ease .9s both;}
 @keyframes oobFadeIn{from{opacity:0;}to{opacity:1;}}
 @media(max-width:640px){
-  .oob-screen{padding:80px 24px 60px;}
-  .oob-plan-card,.oob-founder-card{min-width:calc(100% - 0px);max-width:100%;}
+  .oob-screen{padding:60px 20px 40px;}
+  .oob-plan-card{min-width:calc(100% - 0px);max-width:100%;}
+  .oob-about-grid{flex-direction:column;}
+  .oob-about-col{border-left:none;border-top:1px solid rgba(255,255,255,.07);padding:.6rem 0;}
+  .oob-about-col:first-child{border-top:none;}
 }
 </style>
 
@@ -9375,7 +9383,7 @@ body.oob-active #rsNav{display:none!important;}
     {n:4,q:2,sys:'SYS_ONBOARD / 02 OF 08',title:'WHERE IS YOUR\nHOME COUNTRY?',sub:'Your base affects regulatory context and baseline risk modeling.',type:'text',ph:'Finland',field:'country',req:false},
     {n:5,q:3,sys:'SYS_ONBOARD / 03 OF 08',title:'WHAT IS YOUR\nINDUSTRY?',sub:'We\'ll prioritize risk data and supplier intelligence for your sector.',type:'select',opts:[['technology','Electronics / Technology'],['textiles','Textiles / Apparel'],['automotive','Automotive'],['food','Food / Agriculture'],['pharma','Pharmaceuticals'],['rawMaterials','Raw Materials'],['consumerGoods','Consumer Goods'],['other','Other']],field:'industry',req:true},
     {n:6,q:4,sys:'SYS_ONBOARD / 04 OF 08',title:'WHERE DO YOU\nSOURCE FROM?',sub:'Select all countries you source from. Your map will highlight these regions.',type:'chips',field:null,req:false},
-    {n:7,q:5,sys:'SYS_ONBOARD / 05 OF 08',title:'HOW LARGE IS\nYOUR COMPANY?',sub:'Helps calibrate risk thresholds and supplier recommendations to your scale.',type:'select',opts:[['1-10','1–10 employees'],['11-50','11–50 employees'],['51-200','51–200 employees'],['201-500','201–500 employees'],['500+','500+ employees']],field:'employees',req:false},
+    {n:7,q:5,sys:'SYS_ONBOARD / 05 OF 08',title:'HOW LARGE IS\nYOUR COMPANY?',sub:'Helps calibrate risk thresholds and supplier recommendations to your scale.',type:'select',opts:[['1-10','1\u201310 employees'],['11-50','11\u201350 employees'],['51-200','51\u2013200 employees'],['201-500','201\u2013500 employees'],['500+','500+ employees']],field:'employees',req:false},
     {n:8,q:6,sys:'SYS_ONBOARD / 06 OF 08',title:'WHAT DO YOU\nSOURCE OR SELL?',sub:'Primary products, components, or services you source internationally.',type:'text',ph:'Electronics components, textiles, raw materials\u2026',field:'products',req:false},
     {n:9,q:7,sys:'SYS_ONBOARD / 07 OF 08',title:'WHO ARE YOUR\nKEY SUPPLIERS?',sub:'List your main suppliers. We\'ll monitor them for risk signals.',type:'text',ph:'TSMC, Samsung, Foxconn\u2026',field:'suppliers',req:false},
     {n:10,q:8,sys:'SYS_ONBOARD / 08 OF 08',title:'WHAT IS YOUR\nPRIMARY CONCERN?',sub:'We\'ll prioritize alerts and intelligence around your biggest risk area.',type:'select',opts:[['geopolitical','Geopolitical Risk'],['disruption','Supply Disruption'],['tariffs','Tariffs / Trade Policy'],['labor','Labor & ESG'],['climate','Climate Risk'],['quality','Quality Control'],['cost','Cost Optimization']],field:'concern',req:false}
@@ -9394,8 +9402,8 @@ body.oob-active #rsNav{display:none!important;}
     var activate=function(){
       next.classList.add('active');
       if(n===6)renderChips();
-      if(n===12){var el=document.getElementById('oob-welcome-name');if(el)el.textContent=_prof.companyName?'WELCOME, '+_prof.companyName.toUpperCase():'WELCOME';}
-      var inp=next.querySelector('.oob-input');
+      if(n===13){var el=document.getElementById('oob-welcome-name');if(el)el.textContent=_prof.companyName?'WELCOME, '+_prof.companyName.toUpperCase():'WELCOME';}
+      var inp=next.querySelector('.oob-input,.oob-textarea');
       if(inp)setTimeout(function(){inp.focus();},450);
     };
     imm?activate():setTimeout(activate,50);
@@ -9415,6 +9423,7 @@ body.oob-active #rsNav{display:none!important;}
   }
 
   function collect(n){
+    if(n===2){var ta=document.getElementById('oob-inp-2');if(ta)_prof.context=ta.value.trim();return;}
     var def=QDEFS.filter(function(d){return d.n===n;})[0];
     if(!def||def.type==='chips')return;
     var el=document.getElementById('oob-inp-'+n);
@@ -9433,12 +9442,12 @@ body.oob-active #rsNav{display:none!important;}
   function oobNext(){
     if(!validate(_scr))return;
     collect(_scr);
-    if(_scr<11)goTo(_scr+1);
+    if(_scr<12)goTo(_scr+1);
   }
 
   function oobSkip(){
     collect(_scr);
-    if(_scr<11)goTo(_scr+1);
+    if(_scr<12)goTo(_scr+1);
   }
 
   function oobSetBilling(ann){
@@ -9500,6 +9509,7 @@ body.oob-active #rsNav{display:none!important;}
       userProfile.products=_prof.products||'';
       userProfile.suppliers=_prof.suppliers||'';
       userProfile.concern=_prof.concern||'';
+      userProfile.context=_prof.context||'';
       userProfile.regions=_src.join(', ');
       if(_prof.industry)currentCategory=_prof.industry;
       selectedSourcingCountries=_src.slice();
@@ -9507,7 +9517,7 @@ body.oob-active #rsNav{display:none!important;}
     if(typeof saveProfileToStorage==='function')saveProfileToStorage();
     localStorage.setItem('risksim_onboarded','true');
     localStorage.setItem('risksim_onboarding_done','1');
-    goTo(12);
+    goTo(13);
     setTimeout(function(){
       var ov=document.getElementById('oobOverlay');
       if(ov){ov.style.transition='opacity 1s ease';ov.style.opacity='0';}
@@ -9527,22 +9537,19 @@ body.oob-active #rsNav{display:none!important;}
     var ov=document.getElementById('oobOverlay');
     if(!ov||ov.querySelector('.oob-screen'))return;
 
-    // Screen 2: Founder intro
+    // Screen 2: Business context textarea
     var s2=document.createElement('div');
     s2.className='oob-screen';s2.id='oob-s2';
     s2.innerHTML=
-      '<div class="oob-sys-label">SYS_ONBOARD / INTRO</div>'
-      +'<div class="oob-title">BUILT BY THREE<br>TEENAGERS</div>'
-      +'<div class="oob-sub">Who got obsessed with a problem nobody else was solving.</div>'
-      +'<div class="oob-content">'
-        +'<div class="oob-founders">'
-          +fc('O','Otto Costa','CEO &amp; Co-Founder \u00b7 Finland','17 years old. Strategy, product, and outreach.')
-          +fc('K','Kai Poh','CTO &amp; Co-Founder \u00b7 Singapore','18 years old. Architecture, AI, infrastructure.')
-          +fc('L','Luukas Niskanen','COO &amp; Co-Founder \u00b7 Finland','17 years old. Operations, partnerships, distribution.')
-        +'</div>'
-        +'<div class="oob-founder-caption">No funding. No office. Just built.</div>'
+      '<div class="oob-sys-label">SYS_ONBOARD / CONTEXT</div>'
+      +'<div class="oob-title">TELL US ABOUT<br>YOUR BUSINESS</div>'
+      +'<div class="oob-sub">Specific suppliers you\'re worried about, recent disruptions, sourcing goals \u2014 the more context, the better your AI analysis.</div>'
+      +'<div class="oob-content" style="width:100%;display:flex;flex-direction:column;align-items:center;">'
+        +'<textarea class="oob-textarea" id="oob-inp-2" rows="5" placeholder="e.g. We source electronics from Vietnam and want to diversify into Malaysia. Concerned about recent tariff changes\u2026"'
+        +' onkeydown="if((event.metaKey||event.ctrlKey)&&event.key===\'Enter\'){event.preventDefault();window._oobNext();}"></textarea>'
       +'</div>'
-      +'<button class="oob-btn" onclick="window._oobNext()">Continue</button>';
+      +'<button class="oob-btn" onclick="window._oobNext()">Continue</button>'
+      +'<button class="oob-skip-link" onclick="window._oobSkip()">Skip \u2014 I\'ll add this later</button>';
     ov.appendChild(s2);
 
     // Screens 3–10: Questions
@@ -9579,13 +9586,45 @@ body.oob-active #rsNav{display:none!important;}
       ov.appendChild(s);
     });
 
-    // Screen 11: Plan selection
+    // Screen 11: What RiskSim is + compact founders
     var s11=document.createElement('div');
     s11.className='oob-screen';s11.id='oob-s11';
     s11.innerHTML=
+      '<div class="oob-sys-label">SYS_ONBOARD / WHAT YOU\'RE GETTING</div>'
+      +'<div class="oob-title" style="font-size:clamp(1.8rem,4vw,3rem);margin-bottom:.5rem;">SUPPLY CHAIN<br>INTELLIGENCE</div>'
+      +'<div class="oob-sub" style="font-size:.78rem;margin-bottom:.6rem;">Built from the ground up. Not another wrapper around ChatGPT.</div>'
+      +'<div class="oob-content" style="width:100%;display:flex;flex-direction:column;align-items:center;">'
+        +'<div class="oob-about-grid">'
+          +'<div class="oob-about-col">'
+            +'<div class="oob-about-icon">\u25c6</div>'
+            +'<div class="oob-about-col-title">Custom-trained AI</div>'
+            +'<div class="oob-about-col-desc">Jarvis is trained on supply chain data, tariffs, and 101-country risk models. Not a generic chatbot.</div>'
+          +'</div>'
+          +'<div class="oob-about-col">'
+            +'<div class="oob-about-icon">\u29bf</div>'
+            +'<div class="oob-about-col-title">Real-time intelligence</div>'
+            +'<div class="oob-about-col-desc">Live alerts from 8 industry pipelines. Updated every 15 minutes, not last week\'s news.</div>'
+          +'</div>'
+          +'<div class="oob-about-col">'
+            +'<div class="oob-about-icon">\u25eb</div>'
+            +'<div class="oob-about-col-title">Built for mid-market</div>'
+            +'<div class="oob-about-col-desc">Palantir-grade analysis at 1/20th the cost. No enterprise sales cycle, no \u20ac50K/year contract.</div>'
+          +'</div>'
+        +'</div>'
+        +'<div class="oob-about-divider"></div>'
+        +'<div class="oob-about-founders-line">Otto Costa \u2014 CEO &nbsp;\u00b7&nbsp; Kai Poh \u2014 CTO &nbsp;\u00b7&nbsp; Luukas Niskanen \u2014 COO</div>'
+        +'<div class="oob-about-founders-caption">No funding. No office. Just built.</div>'
+      +'</div>'
+      +'<button class="oob-btn" onclick="window._oobNext()">See plans</button>';
+    ov.appendChild(s11);
+
+    // Screen 12: Plan selection
+    var s12=document.createElement('div');
+    s12.className='oob-screen';s12.id='oob-s12';
+    s12.innerHTML=
       '<div class="oob-sys-label">SYS_ONBOARD / FINAL STEP</div>'
-      +'<div class="oob-title">CHOOSE YOUR PLAN</div>'
-      +'<div class="oob-sub">Start your 7-day free trial. Cancel anytime, no charge.</div>'
+      +'<div class="oob-title" style="font-size:clamp(1.6rem,3.5vw,2.4rem);">CHOOSE YOUR PLAN</div>'
+      +'<div class="oob-sub" style="margin-bottom:.8rem;">Start your 7-day free trial. Cancel anytime, no charge.</div>'
       +'<div class="oob-content" style="width:100%;display:flex;flex-direction:column;align-items:center;">'
         +'<div class="oob-plan-wrap">'
           +'<div class="oob-plan-toggle">'
@@ -9597,22 +9636,13 @@ body.oob-active #rsNav{display:none!important;}
         +'</div>'
       +'</div>'
       +'<button class="oob-skip-link" onclick="window._oobEnter()">Skip for now \u2014 enter the app</button>';
-    ov.appendChild(s11);
-
-    // Screen 12: Welcome
-    var s12=document.createElement('div');
-    s12.className='oob-screen';s12.id='oob-s12';
-    s12.innerHTML='<div class="oob-welcome-name" id="oob-welcome-name">WELCOME</div><div class="oob-welcome-sub">Setting up your intelligence feed\u2026</div>';
     ov.appendChild(s12);
-  }
 
-  function fc(init,name,role,desc){
-    return '<div class="oob-founder-card">'
-      +'<div class="oob-founder-initial">'+init+'</div>'
-      +'<div class="oob-founder-name">'+name+'</div>'
-      +'<div class="oob-founder-role">'+role+'</div>'
-      +'<div class="oob-founder-desc">'+desc+'</div>'
-      +'</div>';
+    // Screen 13: Welcome
+    var s13=document.createElement('div');
+    s13.className='oob-screen';s13.id='oob-s13';
+    s13.innerHTML='<div class="oob-welcome-name" id="oob-welcome-name">WELCOME</div><div class="oob-welcome-sub">Setting up your intelligence feed\u2026</div>';
+    ov.appendChild(s13);
   }
 
   // Keyboard + scroll nav
