@@ -9379,14 +9379,14 @@ body.oob-active #rsNav{display:none!important;}
   var _scr=0, _ann=false, _prof={}, _src=[], _scrollCD=false;
 
   var QDEFS=[
-    {n:3,q:1,sys:'SYS_ONBOARD / 01 OF 08',title:'WHAT IS YOUR\nCOMPANY NAME?',sub:'We\'ll personalize your intelligence feed and welcome you by name.',type:'text',ph:'Acme Corp',field:'companyName',req:true},
-    {n:4,q:2,sys:'SYS_ONBOARD / 02 OF 08',title:'WHERE IS YOUR\nHOME COUNTRY?',sub:'Your base affects regulatory context and baseline risk modeling.',type:'text',ph:'Finland',field:'country',req:false},
-    {n:5,q:3,sys:'SYS_ONBOARD / 03 OF 08',title:'WHAT IS YOUR\nINDUSTRY?',sub:'We\'ll prioritize risk data and supplier intelligence for your sector.',type:'select',opts:[['technology','Electronics / Technology'],['textiles','Textiles / Apparel'],['automotive','Automotive'],['food','Food / Agriculture'],['pharma','Pharmaceuticals'],['rawMaterials','Raw Materials'],['consumerGoods','Consumer Goods'],['other','Other']],field:'industry',req:true},
-    {n:6,q:4,sys:'SYS_ONBOARD / 04 OF 08',title:'WHERE DO YOU\nSOURCE FROM?',sub:'Select all countries you source from. Your map will highlight these regions.',type:'chips',field:null,req:false},
-    {n:7,q:5,sys:'SYS_ONBOARD / 05 OF 08',title:'HOW LARGE IS\nYOUR COMPANY?',sub:'Helps calibrate risk thresholds and supplier recommendations to your scale.',type:'select',opts:[['1-10','1\u201310 employees'],['11-50','11\u201350 employees'],['51-200','51\u2013200 employees'],['201-500','201\u2013500 employees'],['500+','500+ employees']],field:'employees',req:false},
-    {n:8,q:6,sys:'SYS_ONBOARD / 06 OF 08',title:'WHAT DO YOU\nSOURCE OR SELL?',sub:'Primary products, components, or services you source internationally.',type:'text',ph:'Electronics components, textiles, raw materials\u2026',field:'products',req:false},
-    {n:9,q:7,sys:'SYS_ONBOARD / 07 OF 08',title:'WHO ARE YOUR\nKEY SUPPLIERS?',sub:'List your main suppliers. We\'ll monitor them for risk signals.',type:'text',ph:'TSMC, Samsung, Foxconn\u2026',field:'suppliers',req:false},
-    {n:10,q:8,sys:'SYS_ONBOARD / 08 OF 08',title:'WHAT IS YOUR\nPRIMARY CONCERN?',sub:'We\'ll prioritize alerts and intelligence around your biggest risk area.',type:'select',opts:[['geopolitical','Geopolitical Risk'],['disruption','Supply Disruption'],['tariffs','Tariffs / Trade Policy'],['labor','Labor & ESG'],['climate','Climate Risk'],['quality','Quality Control'],['cost','Cost Optimization']],field:'concern',req:false}
+    {n:2,q:1,sys:'SYS_ONBOARD / 01 OF 08',title:'WHAT IS YOUR\nCOMPANY NAME?',sub:'We\'ll personalize your intelligence feed and welcome you by name.',type:'text',ph:'Acme Corp',field:'companyName',req:true},
+    {n:3,q:2,sys:'SYS_ONBOARD / 02 OF 08',title:'WHERE IS YOUR\nHOME COUNTRY?',sub:'Your base affects regulatory context and baseline risk modeling.',type:'text',ph:'Finland',field:'country',req:false},
+    {n:4,q:3,sys:'SYS_ONBOARD / 03 OF 08',title:'WHAT IS YOUR\nINDUSTRY?',sub:'We\'ll prioritize risk data and supplier intelligence for your sector.',type:'select',opts:[['technology','Electronics / Technology'],['textiles','Textiles / Apparel'],['automotive','Automotive'],['food','Food / Agriculture'],['pharma','Pharmaceuticals'],['rawMaterials','Raw Materials'],['consumerGoods','Consumer Goods'],['other','Other']],field:'industry',req:true},
+    {n:5,q:4,sys:'SYS_ONBOARD / 04 OF 08',title:'WHERE DO YOU\nSOURCE FROM?',sub:'Select all countries you source from. Your map will highlight these regions.',type:'chips',field:null,req:false},
+    {n:6,q:5,sys:'SYS_ONBOARD / 05 OF 08',title:'HOW LARGE IS\nYOUR COMPANY?',sub:'Helps calibrate risk thresholds and supplier recommendations to your scale.',type:'select',opts:[['1-10','1\u201310 employees'],['11-50','11\u201350 employees'],['51-200','51\u2013200 employees'],['201-500','201\u2013500 employees'],['500+','500+ employees']],field:'employees',req:false},
+    {n:7,q:6,sys:'SYS_ONBOARD / 06 OF 08',title:'WHAT DO YOU\nSOURCE OR SELL?',sub:'Primary products, components, or services you source internationally.',type:'text',ph:'Electronics components, textiles, raw materials\u2026',field:'products',req:false},
+    {n:8,q:7,sys:'SYS_ONBOARD / 07 OF 08',title:'WHO ARE YOUR\nKEY SUPPLIERS?',sub:'List your main suppliers. We\'ll monitor them for risk signals.',type:'text',ph:'TSMC, Samsung, Foxconn\u2026',field:'suppliers',req:false},
+    {n:9,q:8,sys:'SYS_ONBOARD / 08 OF 08',title:'WHAT IS YOUR\nPRIMARY CONCERN?',sub:'We\'ll prioritize alerts and intelligence around your biggest risk area.',type:'select',opts:[['geopolitical','Geopolitical Risk'],['disruption','Supply Disruption'],['tariffs','Tariffs / Trade Policy'],['labor','Labor & ESG'],['climate','Climate Risk'],['quality','Quality Control'],['cost','Cost Optimization']],field:'concern',req:false}
   ];
 
   function goTo(n,imm){
@@ -9401,7 +9401,7 @@ body.oob-active #rsNav{display:none!important;}
     if(!next)return;
     var activate=function(){
       next.classList.add('active');
-      if(n===6)renderChips();
+      if(n===5)renderChips();
       if(n===13){var el=document.getElementById('oob-welcome-name');if(el)el.textContent=_prof.companyName?'WELCOME, '+_prof.companyName.toUpperCase():'WELCOME';}
       var inp=next.querySelector('.oob-input,.oob-textarea');
       if(inp)setTimeout(function(){inp.focus();},450);
@@ -9410,7 +9410,7 @@ body.oob-active #rsNav{display:none!important;}
   }
 
   function renderChips(){
-    var grid=document.getElementById('oob-chips-6');
+    var grid=document.getElementById('oob-chips-5');
     if(!grid||!window.PS_SOURCING_COUNTRIES)return;
     grid.innerHTML=PS_SOURCING_COUNTRIES.map(function(c){
       return '<div class="oob-chip'+(_src.indexOf(c)!==-1?' selected':'')+'" data-c="'+c+'">'+c+'</div>';
@@ -9423,7 +9423,7 @@ body.oob-active #rsNav{display:none!important;}
   }
 
   function collect(n){
-    if(n===2){var ta=document.getElementById('oob-inp-2');if(ta)_prof.context=ta.value.trim();return;}
+    if(n===10){var ta=document.getElementById('oob-inp-10');if(ta)_prof.context=ta.value.trim();return;}
     var def=QDEFS.filter(function(d){return d.n===n;})[0];
     if(!def||def.type==='chips')return;
     var el=document.getElementById('oob-inp-'+n);
@@ -9537,22 +9537,7 @@ body.oob-active #rsNav{display:none!important;}
     var ov=document.getElementById('oobOverlay');
     if(!ov||ov.querySelector('.oob-screen'))return;
 
-    // Screen 2: Business context textarea
-    var s2=document.createElement('div');
-    s2.className='oob-screen';s2.id='oob-s2';
-    s2.innerHTML=
-      '<div class="oob-sys-label">SYS_ONBOARD / CONTEXT</div>'
-      +'<div class="oob-title">TELL US ABOUT<br>YOUR BUSINESS</div>'
-      +'<div class="oob-sub">Specific suppliers you\'re worried about, recent disruptions, sourcing goals \u2014 the more context, the better your AI analysis.</div>'
-      +'<div class="oob-content" style="width:100%;display:flex;flex-direction:column;align-items:center;">'
-        +'<textarea class="oob-textarea" id="oob-inp-2" rows="5" placeholder="e.g. We source electronics from Vietnam and want to diversify into Malaysia. Concerned about recent tariff changes\u2026"'
-        +' onkeydown="if((event.metaKey||event.ctrlKey)&&event.key===\'Enter\'){event.preventDefault();window._oobNext();}"></textarea>'
-      +'</div>'
-      +'<button class="oob-btn" onclick="window._oobNext()">Continue</button>'
-      +'<button class="oob-skip-link" onclick="window._oobSkip()">Skip \u2014 I\'ll add this later</button>';
-    ov.appendChild(s2);
-
-    // Screens 3–10: Questions
+    // Screens 2–9: Questions
     QDEFS.forEach(function(def){
       var s=document.createElement('div');
       s.className='oob-screen';s.id='oob-s'+def.n;
@@ -9571,7 +9556,7 @@ body.oob-active #rsNav{display:none!important;}
           +'<div class="oob-input-err" id="oob-err-'+def.n+'"></div>'
           +'</div>';
       }else if(def.type==='chips'){
-        inp='<div class="oob-chips-grid" id="oob-chips-6"></div>';
+        inp='<div class="oob-chips-grid" id="oob-chips-5"></div>';
       }
       var dots='';
       for(var i=1;i<=8;i++)dots+='<div class="oob-dot'+(i<def.q?' done':i===def.q?' active':'')+'"></div>';
@@ -9585,6 +9570,21 @@ body.oob-active #rsNav{display:none!important;}
         +'<div class="oob-progress-dots">'+dots+'</div>';
       ov.appendChild(s);
     });
+
+    // Screen 10: Business context textarea
+    var s10=document.createElement('div');
+    s10.className='oob-screen';s10.id='oob-s10';
+    s10.innerHTML=
+      '<div class="oob-sys-label">SYS_ONBOARD / CONTEXT</div>'
+      +'<div class="oob-title">TELL US ABOUT<br>YOUR BUSINESS</div>'
+      +'<div class="oob-sub">Specific suppliers you\'re worried about, recent disruptions, sourcing goals \u2014 the more context, the better your AI analysis.</div>'
+      +'<div class="oob-content" style="width:100%;display:flex;flex-direction:column;align-items:center;">'
+        +'<textarea class="oob-textarea" id="oob-inp-10" rows="5" placeholder="e.g. We source electronics from Vietnam and want to diversify into Malaysia. Concerned about recent tariff changes\u2026"'
+        +' onkeydown="if((event.metaKey||event.ctrlKey)&&event.key===\'Enter\'){event.preventDefault();window._oobNext();}"></textarea>'
+      +'</div>'
+      +'<button class="oob-btn" onclick="window._oobNext()">Continue</button>'
+      +'<button class="oob-skip-link" onclick="window._oobSkip()">Skip \u2014 I\'ll add this later</button>';
+    ov.appendChild(s10);
 
     // Screen 11: What RiskSim is + compact founders
     var s11=document.createElement('div');
@@ -9654,7 +9654,7 @@ body.oob-active #rsNav{display:none!important;}
   document.addEventListener('wheel',function(e){
     if(!document.body.classList.contains('oob-active')||_scrollCD)return;
     if(e.deltaY<30)return;
-    if(_scr===6){var chips=document.getElementById('oob-chips-6');if(chips&&chips.scrollTop<chips.scrollHeight-chips.clientHeight-5)return;}
+    if(_scr===5){var chips=document.getElementById('oob-chips-5');if(chips&&chips.scrollTop<chips.scrollHeight-chips.clientHeight-5)return;}
     if(_scr>=2&&_scr<=10){_scrollCD=true;setTimeout(function(){_scrollCD=false;},1200);oobNext();}
   },{passive:true});
 
