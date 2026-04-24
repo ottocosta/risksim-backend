@@ -1648,7 +1648,13 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 32px 100px rgba(0,0,0,0.85);
       padding: 48px 40px;
       scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent;
+      position: relative;
     }
+    .po-restore { position: absolute; top: 24px; right: 32px; z-index: 100; display: flex; align-items: center; gap: 0; }
+    .po-restore-label { color: rgba(255,255,255,0.3); font-size: 10px; letter-spacing: 2px; margin-right: 12px; font-family: 'JetBrains Mono', monospace; }
+    .po-restore-link { color: rgba(255,255,255,0.7); font-size: 11px; letter-spacing: 1px; text-decoration: underline; cursor: pointer; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+    .po-restore-link:hover { color: #fff; }
+    @media (max-width: 767px) { .po-restore-label { display: none; } }
     .po-container::-webkit-scrollbar { width: 3px; }
     .po-container::-webkit-scrollbar-track { background: transparent; }
     .po-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
@@ -8181,6 +8187,11 @@ window.addEventListener('load',function(){
 <div id="pricingOverlay">
   <div class="po-container">
 
+    <div class="po-restore">
+      <span class="po-restore-label">ALREADY SUBSCRIBED?</span>
+      <a href="#" class="po-restore-link" onclick="openRestoreAccessModal(); return false;">RESTORE ACCESS →</a>
+    </div>
+
     <!-- Header -->
     <div class="po-header">
       <span class="po-brand">RiskSim AI</span>
@@ -8284,14 +8295,6 @@ window.addEventListener('load',function(){
       </div>
 
     </div><!-- /.po-cards -->
-
-    <div style="margin-top:48px; text-align:center; padding-top:32px; border-top:1px solid rgba(255,255,255,0.05); max-width:600px; margin-left:auto; margin-right:auto;">
-      <span style="color:rgba(255,255,255,0.3); font-size:11px; letter-spacing:2px;">ALREADY SUBSCRIBED?</span>
-      <br><br>
-      <a href="#" onclick="openRestoreAccessModal(); return false;" style="color:rgba(255,255,255,0.6); font-size:12px; letter-spacing:1px; text-decoration:underline; cursor:pointer;">
-        RESTORE ACCESS →
-      </a>
-    </div>
 
     <div class="po-bottom-text">All plans include a personalized demo call. Questions? Contact risksim.ai@gmail.com</div>
 
