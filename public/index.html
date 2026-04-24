@@ -7190,6 +7190,10 @@ function showEnterprisePaywall(moduleId, moduleName, sysCode) {
     + '</div>'
     + '<button id="' + containerId + '-cta" onclick="goToCheckout(\'53221730910546\',\'692427981138\')" style="width:100%;background:#fff;color:#000;border:none;padding:16px;font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:800;letter-spacing:2px;cursor:pointer;border-radius:4px;margin-bottom:12px;">SUBSCRIBE \u2014 ENTERPRISE \u20ac799/MO</button>'
     + '<div style="color:rgba(255,255,255,0.2);font-size:11px;">Use code BETA30 for 30% off forever</div>'
+    + '<div style="margin-top:28px;text-align:center;padding-top:20px;border-top:1px solid rgba(255,255,255,0.05);">'
+    +   '<span style="color:rgba(255,255,255,0.3);font-size:11px;letter-spacing:2px;">ALREADY SUBSCRIBED?</span><br><br>'
+    +   '<a href="#" onclick="openRestoreAccessModal();return false;" style="color:rgba(255,255,255,0.6);font-size:12px;letter-spacing:1px;text-decoration:underline;cursor:pointer;">RESTORE ACCESS \u2192</a>'
+    + '</div>'
     + '</div>';
 
   var container = document.getElementById(moduleId);
@@ -7242,6 +7246,7 @@ document.addEventListener('keydown',function(e){
     closePricing();
     if(typeof closeDailyBriefing==='function')closeDailyBriefing();
     if(typeof closeOnboardSlides==='function')closeOnboardSlides();
+    if(typeof closeRestoreAccessModal==='function')closeRestoreAccessModal();
   }
 });
 
@@ -8299,6 +8304,24 @@ window.addEventListener('load',function(){
       <button onclick="goToCheckout('53221730910546','692427981138'); closeUpgradeModal();" style="background:#fff; color:#000; border:none; padding:14px 28px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:800; letter-spacing:2px; cursor:pointer; border-radius:4px;">UPGRADE — €799/MO</button>
       <button onclick="closeUpgradeModal();" style="background:transparent; color:rgba(255,255,255,0.4); border:1px solid rgba(255,255,255,0.1); padding:14px 28px; font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer; border-radius:4px;">MAYBE LATER</button>
     </div>
+    <div style="margin-top:28px; text-align:center; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05);">
+      <span style="color:rgba(255,255,255,0.3); font-size:11px; letter-spacing:2px;">ALREADY SUBSCRIBED?</span><br><br>
+      <a href="#" onclick="openRestoreAccessModal(); return false;" style="color:rgba(255,255,255,0.6); font-size:12px; letter-spacing:1px; text-decoration:underline; cursor:pointer;">RESTORE ACCESS →</a>
+    </div>
+  </div>
+</div>
+
+<div id="restoreAccessModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:10001; align-items:center; justify-content:center;">
+  <div style="background:#0a0a0a; border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:40px; max-width:440px; width:90%; font-family:'JetBrains Mono',monospace;">
+    <div style="font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.4); margin-bottom:16px;">RESTORE ACCESS</div>
+    <div style="font-size:22px; font-weight:800; letter-spacing:-0.5px; margin-bottom:12px; line-height:1.2;">ENTER YOUR EMAIL</div>
+    <div style="color:rgba(255,255,255,0.5); font-size:12px; line-height:1.6; margin-bottom:24px;">Enter the email you used when subscribing. We'll verify your subscription and unlock access on this device.</div>
+    <input type="email" id="restoreEmailInput" placeholder="you@company.com" style="width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:14px; font-family:'JetBrains Mono',monospace; font-size:13px; border-radius:4px; margin-bottom:16px; box-sizing:border-box;">
+    <div id="restoreErrorMsg" style="display:none; color:#ff6b6b; font-size:12px; margin-bottom:16px;"></div>
+    <div style="display:flex; gap:12px;">
+      <button onclick="submitRestoreAccess()" id="restoreSubmitBtn" style="flex:1; background:#fff; color:#000; border:none; padding:14px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:800; letter-spacing:2px; cursor:pointer; border-radius:4px;">VERIFY</button>
+      <button onclick="closeRestoreAccessModal()" style="flex:1; background:transparent; color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.1); padding:14px; font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer; border-radius:4px;">CANCEL</button>
+    </div>
   </div>
 </div>
 
@@ -8369,6 +8392,66 @@ function showUpgradeModal() {
 function closeUpgradeModal() {
   var m = document.getElementById('upgradeModal');
   if (m) { m.style.display = 'none'; }
+}
+
+// ===== RESTORE ACCESS =====
+function openRestoreAccessModal() {
+  var m = document.getElementById('restoreAccessModal');
+  if (m) {
+    m.style.display = 'flex';
+    document.getElementById('restoreEmailInput').value = '';
+    document.getElementById('restoreErrorMsg').style.display = 'none';
+    setTimeout(function() { document.getElementById('restoreEmailInput').focus(); }, 100);
+  }
+}
+
+function closeRestoreAccessModal() {
+  var m = document.getElementById('restoreAccessModal');
+  if (m) m.style.display = 'none';
+}
+
+async function submitRestoreAccess() {
+  var email = document.getElementById('restoreEmailInput').value.trim();
+  var errorEl = document.getElementById('restoreErrorMsg');
+  var btn = document.getElementById('restoreSubmitBtn');
+
+  if (!email || !email.includes('@')) {
+    errorEl.textContent = 'Please enter a valid email';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  errorEl.style.display = 'none';
+  btn.textContent = 'VERIFYING...';
+  btn.disabled = true;
+
+  try {
+    var res = await fetch('/api/restore-access', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    });
+    var data = await res.json();
+
+    if (res.ok && data.success) {
+      localStorage.setItem('risksim_paid', 'true');
+      localStorage.setItem('risksim_plan', data.plan);
+      localStorage.setItem('risksim_onboarded', 'true');
+      closeRestoreAccessModal();
+      alert('Access restored! Welcome back.');
+      window.location.reload();
+    } else {
+      errorEl.textContent = data.error || 'Verification failed';
+      errorEl.style.display = 'block';
+      btn.textContent = 'VERIFY';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    errorEl.textContent = 'Network error. Please try again.';
+    errorEl.style.display = 'block';
+    btn.textContent = 'VERIFY';
+    btn.disabled = false;
+  }
 }
 
 // ===== THANK YOU SCREEN =====

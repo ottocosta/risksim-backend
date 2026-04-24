@@ -788,6 +788,143 @@ app.post('/api/shopify-checkout', async (req, res) => {
 });
 
 // ============================================================
+// SHOPIFY ADMIN TOKEN CACHE + RESTORE ACCESS
+// ============================================================
+
+let shopifyAdminToken = null;
+let shopifyAdminTokenExpiry = 0;
+
+async function getShopifyAdminToken() {
+  if (shopifyAdminToken && Date.now() < shopifyAdminTokenExpiry - 60000) {
+    return shopifyAdminToken;
+  }
+  const shopDomain = 'risksim-ai.myshopify.com';
+  const response = await fetch(`https://${shopDomain}/admin/oauth/access_token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      client_id: process.env.SHOPIFY_CLIENT_ID,
+      client_secret: process.env.SHOPIFY_CLIENT_SECRET,
+      grant_type: 'client_credentials'
+    })
+  });
+  if (!response.ok) {
+    const errText = await response.text();
+    console.error('[Shopify Token] Failed:', errText);
+    throw new Error('Failed to get Shopify admin token');
+  }
+  const data = await response.json();
+  shopifyAdminToken = data.access_token;
+  shopifyAdminTokenExpiry = Date.now() + ((data.expires_in || 86400) * 1000);
+  console.log('[Shopify Token] Refreshed successfully');
+  return shopifyAdminToken;
+}
+
+app.post('/api/restore-access', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Valid email required' });
+    }
+
+    const token = await getShopifyAdminToken();
+    const shopDomain = 'risksim-ai.myshopify.com';
+
+    const customerQuery = `
+      query getCustomerByEmail($query: String!) {
+        customers(first: 1, query: $query) {
+          edges {
+            node {
+              id
+              email
+            }
+          }
+        }
+      }
+    `;
+
+    const customerRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': token
+      },
+      body: JSON.stringify({ query: customerQuery, variables: { query: `email:${email}` } })
+    });
+
+    const customerData = await customerRes.json();
+    console.log('[Restore Access] Customer lookup:', JSON.stringify(customerData));
+
+    const customer = customerData?.data?.customers?.edges?.[0]?.node;
+    if (!customer) {
+      return res.status(404).json({ error: 'No account found with this email' });
+    }
+
+    const subQuery = `
+      query getCustomerSubscriptions($customerId: ID!) {
+        customer(id: $customerId) {
+          subscriptionContracts(first: 10) {
+            edges {
+              node {
+                id
+                status
+                lines(first: 5) {
+                  edges {
+                    node {
+                      productId
+                      variantId
+                      title
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const subRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': token
+      },
+      body: JSON.stringify({ query: subQuery, variables: { customerId: customer.id } })
+    });
+
+    const subData = await subRes.json();
+    console.log('[Restore Access] Subscriptions:', JSON.stringify(subData));
+
+    const contracts = subData?.data?.customer?.subscriptionContracts?.edges || [];
+    const activeContracts = contracts.filter(c => c.node.status === 'ACTIVE');
+
+    if (activeContracts.length === 0) {
+      return res.status(404).json({ error: 'No active subscription found for this email' });
+    }
+
+    // Pro variant: 53221724029266, Enterprise variant: 53221730910546
+    let plan = 'pro';
+    for (const contract of activeContracts) {
+      for (const lineEdge of (contract.node.lines?.edges || [])) {
+        const variantId = lineEdge.node.variantId;
+        if (variantId && variantId.includes('53221730910546')) {
+          plan = 'enterprise';
+          break;
+        }
+      }
+      if (plan === 'enterprise') break;
+    }
+
+    return res.json({ success: true, plan, email });
+
+  } catch (err) {
+    console.error('[Restore Access] Error:', err);
+    return res.status(500).json({ error: 'Server error, please try again' });
+  }
+});
+
+// ============================================================
 // EMAIL SUBSCRIBER ENDPOINTS
 // ============================================================
 
