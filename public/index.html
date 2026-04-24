@@ -7190,10 +7190,6 @@ function showEnterprisePaywall(moduleId, moduleName, sysCode) {
     + '</div>'
     + '<button id="' + containerId + '-cta" onclick="goToCheckout(\'53221730910546\',\'692427981138\')" style="width:100%;background:#fff;color:#000;border:none;padding:16px;font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:800;letter-spacing:2px;cursor:pointer;border-radius:4px;margin-bottom:12px;">SUBSCRIBE \u2014 ENTERPRISE \u20ac799/MO</button>'
     + '<div style="color:rgba(255,255,255,0.2);font-size:11px;">Use code BETA30 for 30% off forever</div>'
-    + '<div style="margin-top:28px;text-align:center;padding-top:20px;border-top:1px solid rgba(255,255,255,0.05);">'
-    +   '<span style="color:rgba(255,255,255,0.3);font-size:11px;letter-spacing:2px;">ALREADY SUBSCRIBED?</span><br><br>'
-    +   '<a href="#" onclick="openRestoreAccessModal();return false;" style="color:rgba(255,255,255,0.6);font-size:12px;letter-spacing:1px;text-decoration:underline;cursor:pointer;">RESTORE ACCESS \u2192</a>'
-    + '</div>'
     + '</div>';
 
   var container = document.getElementById(moduleId);
@@ -8234,7 +8230,7 @@ window.addEventListener('load',function(){
           <li class="po-feature po-locked"><span class="po-feature-check">✕</span> Priority email alerts</li>
         </ul>
         <button class="po-cta" onclick="goToCheckout('53221724029266', '692427948370')">Subscribe — Pro</button>
-        <div class="po-trial-text">7-day free trial · Cancel anytime</div>
+        <div class="po-trial-text">First month free · Cancel anytime</div>
       </div>
 
       <!-- ENTERPRISE -->
@@ -8260,7 +8256,7 @@ window.addEventListener('load',function(){
           <li class="po-feature"><span class="po-feature-check">✓</span> Advanced risk modeling</li>
         </ul>
         <button class="po-cta po-cta-featured" onclick="goToCheckout('53221730910546', '692427981138')">Subscribe — Enterprise</button>
-        <div class="po-trial-text">7-day free trial · Cancel anytime</div>
+        <div class="po-trial-text">First month free · Cancel anytime</div>
       </div>
 
       <!-- CUSTOM -->
@@ -8289,6 +8285,14 @@ window.addEventListener('load',function(){
 
     </div><!-- /.po-cards -->
 
+    <div style="margin-top:48px; text-align:center; padding-top:32px; border-top:1px solid rgba(255,255,255,0.05); max-width:600px; margin-left:auto; margin-right:auto;">
+      <span style="color:rgba(255,255,255,0.3); font-size:11px; letter-spacing:2px;">ALREADY SUBSCRIBED?</span>
+      <br><br>
+      <a href="#" onclick="openRestoreAccessModal(); return false;" style="color:rgba(255,255,255,0.6); font-size:12px; letter-spacing:1px; text-decoration:underline; cursor:pointer;">
+        RESTORE ACCESS →
+      </a>
+    </div>
+
     <div class="po-bottom-text">All plans include a personalized demo call. Questions? Contact risksim.ai@gmail.com</div>
 
   </div><!-- /.po-container -->
@@ -8303,10 +8307,6 @@ window.addEventListener('load',function(){
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
       <button onclick="goToCheckout('53221730910546','692427981138'); closeUpgradeModal();" style="background:#fff; color:#000; border:none; padding:14px 28px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:800; letter-spacing:2px; cursor:pointer; border-radius:4px;">UPGRADE — €799/MO</button>
       <button onclick="closeUpgradeModal();" style="background:transparent; color:rgba(255,255,255,0.4); border:1px solid rgba(255,255,255,0.1); padding:14px 28px; font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer; border-radius:4px;">MAYBE LATER</button>
-    </div>
-    <div style="margin-top:28px; text-align:center; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05);">
-      <span style="color:rgba(255,255,255,0.3); font-size:11px; letter-spacing:2px;">ALREADY SUBSCRIBED?</span><br><br>
-      <a href="#" onclick="openRestoreAccessModal(); return false;" style="color:rgba(255,255,255,0.6); font-size:12px; letter-spacing:1px; text-decoration:underline; cursor:pointer;">RESTORE ACCESS →</a>
     </div>
   </div>
 </div>
@@ -9557,8 +9557,8 @@ body.oob-active #rsNav{display:none!important;}
       +'<div class="oob-plan-price">'+proPx+'</div>'
       +'<div class="oob-plan-price-sub">'+per+'</div>'
       +'<ul class="oob-plan-features">'+feats([[1,'Intelligence Map \u2014 all layers'],[1,'Terminal \u2014 alerts, news, tariffs'],[1,'AI Chat \u2014 300 messages/day'],[1,'Country Comparison Tool'],[0,'Scenario Simulator'],[0,'Supplier Audit']])+'</ul>'
-      +'<button class="oob-plan-cta" onclick="window._oobCO(\'53221724029266\',\''+proSp+'\')">START 7-DAY FREE TRIAL</button>'
-      +'<div class="oob-plan-trial-text">Then '+proPx+'/mo. Cancel anytime during trial \u2014 no charge.</div>'
+      +'<button class="oob-plan-cta" onclick="window._oobCO(\'53221724029266\',\''+proSp+'\')">START FREE MONTH</button>'
+      +'<div class="oob-plan-trial-text">Then '+proPx+'/mo. Cancel anytime before month ends \u2014 no charge.</div>'
       +'</div>';
 
     var ent='<div class="oob-plan-card featured">'
@@ -9567,8 +9567,8 @@ body.oob-active #rsNav{display:none!important;}
       +'<div class="oob-plan-price">'+entPx+'</div>'
       +'<div class="oob-plan-price-sub">'+per+'</div>'
       +'<ul class="oob-plan-features">'+feats([[1,'Everything in Pro'],[1,'Scenario Simulator'],[1,'Supplier Audit \u2014 deep dive'],[1,'Voice Assistant \u2014 Jarvis AI'],[1,'Priority email alerts'],[1,'Advanced risk modeling']])+'</ul>'
-      +'<button class="oob-plan-cta featured" onclick="window._oobCO(\'53221730910546\',\''+entSp+'\')">START 7-DAY FREE TRIAL</button>'
-      +'<div class="oob-plan-trial-text">Then '+entPx+'/mo. Cancel anytime during trial \u2014 no charge.</div>'
+      +'<button class="oob-plan-cta featured" onclick="window._oobCO(\'53221730910546\',\''+entSp+'\')">START FREE MONTH</button>'
+      +'<div class="oob-plan-trial-text">Then '+entPx+'/mo. Cancel anytime before month ends \u2014 no charge.</div>'
       +'</div>';
 
     var cust='<div class="oob-plan-card">'
@@ -9707,7 +9707,7 @@ body.oob-active #rsNav{display:none!important;}
     s12.innerHTML=
       '<div class="oob-sys-label">SYS_ONBOARD / FINAL STEP</div>'
       +'<div class="oob-title" style="font-size:clamp(1.6rem,3.5vw,2.4rem);">CHOOSE YOUR PLAN</div>'
-      +'<div class="oob-sub" style="margin-bottom:.8rem;">Start your 7-day free trial. Cancel anytime, no charge.</div>'
+      +'<div class="oob-sub" style="margin-bottom:.8rem;">First month free. Cancel anytime, no charge.</div>'
       +'<div class="oob-content" style="width:100%;display:flex;flex-direction:column;align-items:center;">'
         +'<div class="oob-plan-wrap">'
           +'<div class="oob-plan-toggle">'
