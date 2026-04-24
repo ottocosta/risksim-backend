@@ -8183,11 +8183,6 @@ window.addEventListener('load',function(){
 <div id="pricingOverlay">
   <div class="po-container" style="position:relative;">
 
-    <div id="restoreAccessTopBar" style="position:absolute; top:20px; right:28px; z-index:1000; display:flex; align-items:center; gap:12px;">
-      <span class="restore-label" style="color:rgba(255,255,255,0.35); font-size:10px; letter-spacing:2px; font-family:'JetBrains Mono',monospace;">ALREADY SUBSCRIBED?</span>
-      <a href="javascript:void(0)" onclick="openRestoreAccessModal()" style="color:rgba(255,255,255,0.8); font-size:11px; letter-spacing:1px; text-decoration:underline; cursor:pointer; font-family:'JetBrains Mono',monospace; white-space:nowrap;">RESTORE ACCESS →</a>
-    </div>
-
     <!-- Header -->
     <div class="po-header">
       <span class="po-brand">RiskSim AI</span>
@@ -9704,7 +9699,11 @@ body.oob-active #rsNav{display:none!important;}
     var s12=document.createElement('div');
     s12.className='oob-screen';s12.id='oob-s12';
     s12.innerHTML=
-      '<div class="oob-sys-label">SYS_ONBOARD / FINAL STEP</div>'
+      '<div id="restoreAccessTopBar" style="position:absolute;top:20px;right:28px;z-index:1000;display:flex;align-items:center;gap:12px;font-family:\'JetBrains Mono\',monospace;">'
+      +'<span class="restore-label" style="color:rgba(255,255,255,0.35);font-size:10px;letter-spacing:2px;">ALREADY SUBSCRIBED?</span>'
+      +'<a href="javascript:void(0)" onclick="openRestoreAccessModal()" style="color:rgba(255,255,255,0.8);font-size:11px;letter-spacing:1px;text-decoration:underline;cursor:pointer;">RESTORE ACCESS \u2192</a>'
+      +'</div>'
+      +'<div class="oob-sys-label">SYS_ONBOARD / FINAL STEP</div>'
       +'<div class="oob-title" style="font-size:clamp(1.6rem,3.5vw,2.4rem);">CHOOSE YOUR PLAN</div>'
       +'<div class="oob-sub" style="margin-bottom:.8rem;">First month free. Cancel anytime, no charge.</div>'
       +'<div class="oob-content" style="width:100%;display:flex;flex-direction:column;align-items:center;">'
