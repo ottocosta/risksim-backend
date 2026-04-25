@@ -827,6 +827,7 @@ app.post('/api/restore-access', async (req, res) => {
       return res.status(400).json({ error: 'Valid email required' });
     }
 
+    console.log('[Restore Access] Lookup for:', email);
     const token = await getShopifyAdminToken();
     const shopDomain = 'risksim-ai.myshopify.com';
 
