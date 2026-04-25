@@ -882,12 +882,6 @@ app.post('/api/restore-access', async (req, res) => {
                   edges {
                     node {
                       title
-                      product {
-                        id
-                      }
-                      variant {
-                        id
-                      }
                       sellingPlan {
                         sellingPlanId
                         name
@@ -919,23 +913,27 @@ app.post('/api/restore-access', async (req, res) => {
 
     const orders = ordersData?.data?.customer?.orders?.edges || [];
 
-    // Find any active (non-cancelled) order with a subscription line item
+    // Plan ID mapping
+    const PLAN_IDS = {
+      'gid://shopify/SellingPlan/692427948370': 'pro',          // Pro monthly
+      'gid://shopify/SellingPlan/692434501970': 'pro',          // Pro annual
+      'gid://shopify/SellingPlan/692427981138': 'enterprise',   // Enterprise monthly
+      'gid://shopify/SellingPlan/692442923346': 'enterprise'    // Enterprise annual
+    };
+
     let plan = null;
     for (const orderEdge of orders) {
       const order = orderEdge.node;
-      if (order.cancelledAt) continue; // skip cancelled orders
+      if (order.cancelledAt) continue;
 
       for (const lineEdge of (order.lineItems?.edges || [])) {
         const line = lineEdge.node;
-        if (line.sellingPlan) {
-          // This is a subscription line item
-          const variantId = line.variant?.id || '';
-          if (variantId.includes('53221730910546')) {
-            plan = 'enterprise';
-          } else if (variantId.includes('53221724029266')) {
-            plan = 'pro';
+        if (line.sellingPlan?.sellingPlanId) {
+          const planId = line.sellingPlan.sellingPlanId;
+          if (PLAN_IDS[planId]) {
+            plan = PLAN_IDS[planId];
+            break;
           }
-          if (plan) break;
         }
       }
       if (plan) break;
