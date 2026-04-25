@@ -828,9 +828,11 @@ app.post('/api/restore-access', async (req, res) => {
     }
 
     console.log('[Restore Access] Lookup for:', email);
+
     const token = await getShopifyAdminToken();
     const shopDomain = 'risksim-ai.myshopify.com';
 
+    // Find customer by email
     const customerQuery = `
       query getCustomerByEmail($query: String!) {
         customers(first: 1, query: $query) {
@@ -838,6 +840,7 @@ app.post('/api/restore-access', async (req, res) => {
             node {
               id
               email
+              numberOfOrders
             }
           }
         }
@@ -850,7 +853,10 @@ app.post('/api/restore-access', async (req, res) => {
         'Content-Type': 'application/json',
         'X-Shopify-Access-Token': token
       },
-      body: JSON.stringify({ query: customerQuery, variables: { query: `email:${email}` } })
+      body: JSON.stringify({
+        query: customerQuery,
+        variables: { query: `email:${email}` }
+      })
     });
 
     const customerData = await customerRes.json();
@@ -861,20 +867,31 @@ app.post('/api/restore-access', async (req, res) => {
       return res.status(404).json({ error: 'No account found with this email' });
     }
 
-    const subQuery = `
-      query getCustomerSubscriptions($customerId: ID!) {
+    // Get customer's orders with subscription line items
+    const ordersQuery = `
+      query getCustomerOrders($customerId: ID!) {
         customer(id: $customerId) {
-          subscriptionContracts(first: 10) {
+          orders(first: 20, sortKey: CREATED_AT, reverse: true) {
             edges {
               node {
                 id
-                status
-                lines(first: 5) {
+                name
+                createdAt
+                cancelledAt
+                lineItems(first: 10) {
                   edges {
                     node {
-                      productId
-                      variantId
                       title
+                      product {
+                        id
+                      }
+                      variant {
+                        id
+                      }
+                      sellingPlan {
+                        sellingPlanId
+                        name
+                      }
                     }
                   }
                 }
@@ -885,36 +902,47 @@ app.post('/api/restore-access', async (req, res) => {
       }
     `;
 
-    const subRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+    const ordersRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Shopify-Access-Token': token
       },
-      body: JSON.stringify({ query: subQuery, variables: { customerId: customer.id } })
+      body: JSON.stringify({
+        query: ordersQuery,
+        variables: { customerId: customer.id }
+      })
     });
 
-    const subData = await subRes.json();
-    console.log('[Restore Access] Subscriptions:', JSON.stringify(subData));
+    const ordersData = await ordersRes.json();
+    console.log('[Restore Access] Orders:', JSON.stringify(ordersData));
 
-    const contracts = subData?.data?.customer?.subscriptionContracts?.edges || [];
-    const activeContracts = contracts.filter(c => c.node.status === 'ACTIVE');
+    const orders = ordersData?.data?.customer?.orders?.edges || [];
 
-    if (activeContracts.length === 0) {
-      return res.status(404).json({ error: 'No active subscription found for this email' });
-    }
+    // Find any active (non-cancelled) order with a subscription line item
+    let plan = null;
+    for (const orderEdge of orders) {
+      const order = orderEdge.node;
+      if (order.cancelledAt) continue; // skip cancelled orders
 
-    // Pro variant: 53221724029266, Enterprise variant: 53221730910546
-    let plan = 'pro';
-    for (const contract of activeContracts) {
-      for (const lineEdge of (contract.node.lines?.edges || [])) {
-        const variantId = lineEdge.node.variantId;
-        if (variantId && variantId.includes('53221730910546')) {
-          plan = 'enterprise';
-          break;
+      for (const lineEdge of (order.lineItems?.edges || [])) {
+        const line = lineEdge.node;
+        if (line.sellingPlan) {
+          // This is a subscription line item
+          const variantId = line.variant?.id || '';
+          if (variantId.includes('53221730910546')) {
+            plan = 'enterprise';
+          } else if (variantId.includes('53221724029266')) {
+            plan = 'pro';
+          }
+          if (plan) break;
         }
       }
-      if (plan === 'enterprise') break;
+      if (plan) break;
+    }
+
+    if (!plan) {
+      return res.status(404).json({ error: 'No active subscription found for this email' });
     }
 
     return res.json({ success: true, plan, email });
