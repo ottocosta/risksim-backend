@@ -8147,7 +8147,9 @@ window.addEventListener('load',function(){
           return;
         }
         var savedProfile = localStorage.getItem('risksim_profile');
-        if (savedProfile) {
+        var isRestored = localStorage.getItem('risksim_restored') === 'true'
+          || localStorage.getItem('risksim_profile_complete') === 'true';
+        if (savedProfile || isRestored) {
           var btn = document.getElementById('psReopenBtn');
           if (btn) btn.style.display = 'flex';
           if(typeof showOnboardSlides==='function'){
@@ -8431,6 +8433,11 @@ async function submitRestoreAccess() {
       localStorage.setItem('risksim_paid', 'true');
       localStorage.setItem('risksim_plan', data.plan);
       localStorage.setItem('risksim_onboarded', 'true');
+      localStorage.setItem('risksim_profile_complete', 'true');
+      localStorage.setItem('risksim_company_setup', 'true');
+      localStorage.setItem('risksim_basics_done', 'true');
+      // Set a generic restored flag the app can check
+      localStorage.setItem('risksim_restored', 'true');
       closeRestoreAccessModal();
       alert('Access restored! Welcome back.');
       window.location.reload();
