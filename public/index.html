@@ -3041,6 +3041,8 @@ document.addEventListener('DOMContentLoaded', function() {
   (function() {
     var urlParams = new URLSearchParams(window.location.search);
     var paidPlan = urlParams.get('paid');
+    var urlEmail = urlParams.get('email') || urlParams.get('customer_email');
+    if (urlEmail) localStorage.setItem('risksim_email', urlEmail);
     if (paidPlan) {
       localStorage.setItem('risksim_paid', 'true');
       localStorage.setItem('risksim_plan', paidPlan);
@@ -4257,6 +4259,35 @@ function getNewsPlaceholder(c) {
 // ===== LOCALSTORAGE =====
 function saveProfileToStorage(){
   try{ localStorage.setItem('risksim_profile',JSON.stringify({userProfile:userProfile,selectedSourcingCountries:selectedSourcingCountries,currentCategory:currentCategory})); }catch(e){}
+}
+
+async function saveProfileToBackend() {
+  try {
+    var email = localStorage.getItem('risksim_email') || localStorage.getItem('risksim_notif_email');
+    if (!email) return;
+    var up = userProfile || {};
+    var src = selectedSourcingCountries || [];
+    var profile = {
+      companyName: up.companyName || '',
+      homeCountry: up.country || '',
+      industry: up.industry || '',
+      sourcingCountries: src.join(','),
+      companySize: up.employees || '',
+      products: up.products || '',
+      keySuppliers: up.suppliers || '',
+      primaryConcern: up.concern || '',
+      businessDescription: up.context || '',
+      currentCategory: currentCategory || ''
+    };
+    await fetch('/api/save-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, profile: profile })
+    });
+    console.log('[Profile] Saved to backend');
+  } catch(e) {
+    console.error('[Profile] Save failed:', e);
+  }
 }
 
 // ===== HERO STATS (profile-driven) =====
@@ -8436,8 +8467,32 @@ async function submitRestoreAccess() {
       localStorage.setItem('risksim_profile_complete', 'true');
       localStorage.setItem('risksim_company_setup', 'true');
       localStorage.setItem('risksim_basics_done', 'true');
-      // Set a generic restored flag the app can check
       localStorage.setItem('risksim_restored', 'true');
+      localStorage.setItem('risksim_email', email);
+
+      // Load profile if saved on backend
+      if (data.profile) {
+        var p = data.profile;
+        var src = p.sourcingCountries ? p.sourcingCountries.split(',').filter(Boolean) : [];
+        var restoredProfile = {
+          userProfile: {
+            companyName: p.companyName || '',
+            country: p.homeCountry || '',
+            industry: p.industry || '',
+            employees: p.companySize || '',
+            products: p.products || '',
+            suppliers: p.keySuppliers || '',
+            concern: p.primaryConcern || '',
+            context: p.businessDescription || '',
+            regions: src.join(', ')
+          },
+          selectedSourcingCountries: src,
+          currentCategory: p.currentCategory || p.industry || 'technology'
+        };
+        localStorage.setItem('risksim_profile', JSON.stringify(restoredProfile));
+        console.log('[Restore Access] Profile loaded');
+      }
+
       closeRestoreAccessModal();
       alert('Access restored! Welcome back.');
       window.location.reload();
@@ -9601,6 +9656,7 @@ body.oob-active #rsNav{display:none!important;}
     if(typeof saveProfileToStorage==='function')saveProfileToStorage();
     localStorage.setItem('risksim_onboarded','true');
     localStorage.setItem('risksim_onboarding_done','1');
+    if(typeof saveProfileToBackend==='function')saveProfileToBackend();
     goTo(13);
     setTimeout(function(){
       var ov=document.getElementById('oobOverlay');

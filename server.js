@@ -820,6 +820,106 @@ async function getShopifyAdminToken() {
   return shopifyAdminToken;
 }
 
+app.post('/api/save-profile', async (req, res) => {
+  try {
+    const { email, profile } = req.body;
+    if (!email || !email.includes('@') || !profile) {
+      return res.status(400).json({ error: 'Email and profile required' });
+    }
+
+    console.log('[Save Profile] For:', email);
+
+    const token = await getShopifyAdminToken();
+    const shopDomain = 'risksim-ai.myshopify.com';
+
+    // Find customer by email
+    const customerQuery = `
+      query getCustomerByEmail($query: String!) {
+        customers(first: 1, query: $query) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    `;
+
+    const customerRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': token
+      },
+      body: JSON.stringify({
+        query: customerQuery,
+        variables: { query: `email:${email}` }
+      })
+    });
+
+    const customerData = await customerRes.json();
+    const customer = customerData?.data?.customers?.edges?.[0]?.node;
+
+    if (!customer) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+
+    // Save profile as metafield
+    const metafieldMutation = `
+      mutation metafieldsSet($metafields: [MetafieldsSetInput!]!) {
+        metafieldsSet(metafields: $metafields) {
+          metafields {
+            id
+            namespace
+            key
+            value
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const metafieldRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Access-Token': token
+      },
+      body: JSON.stringify({
+        query: metafieldMutation,
+        variables: {
+          metafields: [{
+            ownerId: customer.id,
+            namespace: 'risksim',
+            key: 'profile',
+            type: 'json',
+            value: JSON.stringify(profile)
+          }]
+        }
+      })
+    });
+
+    const metafieldData = await metafieldRes.json();
+    console.log('[Save Profile] Result:', JSON.stringify(metafieldData));
+
+    if (metafieldData?.data?.metafieldsSet?.userErrors?.length > 0) {
+      return res.status(500).json({
+        error: 'Failed to save profile',
+        details: metafieldData.data.metafieldsSet.userErrors
+      });
+    }
+
+    return res.json({ success: true });
+
+  } catch (err) {
+    console.error('[Save Profile] Error:', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.post('/api/restore-access', async (req, res) => {
   try {
     const { email } = req.body;
@@ -943,7 +1043,42 @@ app.post('/api/restore-access', async (req, res) => {
       return res.status(404).json({ error: 'No active subscription found for this email' });
     }
 
-    return res.json({ success: true, plan, email });
+    // Fetch saved profile metafield
+    let profile = null;
+    try {
+      const profileQuery = `
+        query getCustomerProfile($customerId: ID!) {
+          customer(id: $customerId) {
+            metafield(namespace: "risksim", key: "profile") {
+              value
+            }
+          }
+        }
+      `;
+
+      const profileRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': token
+        },
+        body: JSON.stringify({
+          query: profileQuery,
+          variables: { customerId: customer.id }
+        })
+      });
+
+      const profileData = await profileRes.json();
+      const metafieldValue = profileData?.data?.customer?.metafield?.value;
+      if (metafieldValue) {
+        profile = JSON.parse(metafieldValue);
+        console.log('[Restore Access] Profile loaded from metafield');
+      }
+    } catch (e) {
+      console.error('[Restore Access] Profile fetch error:', e);
+    }
+
+    return res.json({ success: true, plan, email, profile });
 
   } catch (err) {
     console.error('[Restore Access] Error:', err);
