@@ -748,7 +748,7 @@ app.post('/api/shopify-checkout', async (req, res) => {
       lineItem.sellingPlanId = `gid://shopify/SellingPlan/${sellingPlanId}`;
     }
 
-    const variables = { input: { lines: [lineItem] } };
+    const variables = { input: { lines: [lineItem], discountCodes: ['FIRSTMONTHFREE'] } };
 
     const response = await fetch('https://risksim-ai.myshopify.com/api/2023-10/graphql.json', {
       method: 'POST',
