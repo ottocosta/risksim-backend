@@ -2983,10 +2983,6 @@
         <div class="cs-cd-label">SECONDS</div>
       </div>
     </div>
-    <div class="cs-beta-badge cs-anim-5">
-      <span class="cs-beta-dot"></span>
-      BETA USERS GET 30% OFF — FOREVER
-    </div>
     <div class="cs-signup cs-anim-6">
       <div class="cs-input-wrap">
         <input type="email" id="waitlistEmail" placeholder="Enter your email for early access" class="cs-email-input">
@@ -3582,10 +3578,9 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <div class="hero-stat"><div class="hero-stat-num">&lt;2s</div><div class="hero-stat-lbl">Analysis</div></div>
     </div>
     <div class="hero-actions">
-      <button class="btn-primary" onclick="goToCheckout('53221730910546', '692427981138')">Claim Founder Access</button>
+      <button class="btn-primary" onclick="goToCheckout('53221730910546', '692427981138')">Get Started Free</button>
       <button class="btn-secondary" onclick="document.getElementById('heroPanel').style.display='none'">Explore Map</button>
     </div>
-    <div class="hero-founder-line">First 15 founders get 30% off forever.</div>
   </div>
 </div>
 
@@ -6292,9 +6287,6 @@ function buildSettingsBilling(){
   ];
   var isAnnual=_billingAnnual;
   var h='';
-  // Founder banner
-  h+='<div style="background:rgba(100,220,140,0.08);border:1px solid rgba(100,220,140,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:rgba(120,230,160,0.9);font-family:\'JetBrains Mono\',monospace;letter-spacing:0.06em;">';
-  h+='First 15 founders get 30% off — forever</div>';
   // Toggle
   h+='<div style="display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:4px;margin-bottom:16px;width:fit-content;">';
   h+='<button onclick="_billingAnnual=false;renderSettingsTab(\'billing\')" style="padding:6px 16px;border-radius:6px;border:none;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.1em;cursor:pointer;transition:all 0.15s;background:'+(isAnnual?'transparent':'rgba(255,255,255,0.1)')+';color:'+(isAnnual?'rgba(255,255,255,0.35)':'white')+';">Monthly</button>';
@@ -6304,17 +6296,15 @@ function buildSettingsBilling(){
   plans.forEach(function(p){
     var price=isAnnual?p.annualPrice:p.monthlyPrice;
     var origPrice=isAnnual?p.monthlyPrice:null;
-    var founderPrice=isAnnual?p.annualFounder:p.monthlyFounder;
     h+='<div class="settings-plan-card" style="margin-bottom:12px;">';
     h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">';
     h+='<div>';
     h+='<div class="settings-plan-name">'+p.name+'</div>';
     h+='<div style="margin-top:4px;">';
-    if(origPrice){h+='<span style="font-size:11px;color:rgba(255,255,255,0.25);text-decoration:line-through;margin-right:6px;">$'+origPrice+'/mo</span>';}
-    h+='<span style="font-size:20px;font-weight:800;color:white;font-family:\'Syne\',sans-serif;">$'+price+'</span><span style="font-size:11px;color:rgba(255,255,255,0.35);"> /mo</span>';
+    if(origPrice){h+='<span style="font-size:11px;color:rgba(255,255,255,0.25);text-decoration:line-through;margin-right:6px;">€'+origPrice+'/mo</span>';}
+    h+='<span style="font-size:20px;font-weight:800;color:white;font-family:\'Syne\',sans-serif;">€'+price+'</span><span style="font-size:11px;color:rgba(255,255,255,0.35);"> /mo</span>';
     h+='</div>';
-    h+='<div style="font-size:10px;color:rgba(120,230,160,0.7);margin-top:3px;font-family:\'JetBrains Mono\',monospace;">$'+founderPrice+'/mo with founder pricing</div>';
-    if(isAnnual){h+='<div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:2px;">Billed $'+(price*12)+'/year</div>';}
+    if(isAnnual){h+='<div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:2px;">Billed €'+(price*12)+'/year</div>';}
     h+='</div>';
     if(p.monthlyVariant){
       var vId=isAnnual?p.annualVariant:p.monthlyVariant;
@@ -6333,6 +6323,15 @@ function buildSettingsBilling(){
     h+='</div>';
     h+='</div>';
   });
+  // Cancel subscription
+  var userEmail=localStorage.getItem('risksim_email')||'';
+  var cancelSubject=encodeURIComponent('Cancel My RiskSim Subscription');
+  var cancelBody=encodeURIComponent('Hi,\n\nPlease cancel my RiskSim subscription.\n\nEmail: '+userEmail+'\n\nThank you.');
+  h+='<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">';
+  h+='<div style="font-size:11px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:\'JetBrains Mono\',monospace;">CANCEL SUBSCRIPTION</div>';
+  h+='<div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:14px;">To cancel your subscription, send us a cancellation request. We\'ll process it within 24 hours and confirm by email.</div>';
+  h+='<a href="mailto:risksim.ai@gmail.com?subject='+cancelSubject+'&body='+cancelBody+'" style="display:inline-block;padding:10px 20px;background:transparent;border:1px solid rgba(255,80,80,0.3);color:rgba(255,100,100,0.7);font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:1px;border-radius:4px;text-decoration:none;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor=\'rgba(255,80,80,0.6)\';this.style.color=\'rgba(255,100,100,1)\'" onmouseout="this.style.borderColor=\'rgba(255,80,80,0.3)\';this.style.color=\'rgba(255,100,100,0.7)\'">REQUEST CANCELLATION</a>';
+  h+='</div>';
   return h;
 }
 
@@ -7272,7 +7271,7 @@ function showEnterprisePaywall(moduleId, moduleName, sysCode) {
     +   '<button id="' + containerId + '-an" style="' + inactiveStyle + '" onclick="epwToggle(\'' + containerId + '\',\'an\')">ANNUAL</button>'
     + '</div>'
     + '<button id="' + containerId + '-cta" onclick="goToCheckout(\'53221730910546\',\'692427981138\')" style="width:100%;background:#fff;color:#000;border:none;padding:16px;font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:800;letter-spacing:2px;cursor:pointer;border-radius:4px;margin-bottom:12px;">SUBSCRIBE \u2014 ENTERPRISE \u20ac799/MO</button>'
-    + '<div style="color:rgba(255,255,255,0.2);font-size:11px;">Use code BETA30 for 30% off forever</div>'
+    + '<div style="color:rgba(255,255,255,0.2);font-size:11px;">First month free. Cancel anytime.</div>'
     + '</div>';
 
   var container = document.getElementById(moduleId);
@@ -7347,17 +7346,34 @@ function initJarvis(){
     speechSynthesis.speak(primer);
     speechSynthesis.cancel();
   }
+  var plan=localStorage.getItem('risksim_plan');
   var enabled=localStorage.getItem('jarvis_enabled')==='1';
-  if(enabled)enableJarvis();
+  if(enabled&&plan==='enterprise')enableJarvis();
 }
 
 function handleJarvisClick(){
+  var paid=localStorage.getItem('risksim_paid')==='true';
+  var plan=localStorage.getItem('risksim_plan');
+  if(!paid||plan!=='enterprise'){
+    showJarvisUpsell();
+    return;
+  }
   if(!_jarvisEnabled){
     enableJarvis();
     return;
   }
   if(_jarvisIsListening||_jarvisSpeaking)return;
   jarvisListenOnce();
+}
+
+function showJarvisUpsell(){
+  var m=document.getElementById('jarvisUpsellModal');
+  if(m)m.style.display='flex';
+}
+
+function closeJarvisUpsell(){
+  var m=document.getElementById('jarvisUpsellModal');
+  if(m)m.style.display='none';
 }
 
 function enableJarvis(){
@@ -8010,7 +8026,7 @@ function obsNext(){
     _jarvisHonorific=_obsJarvisHonorific;
     if(_obsJarvisEnabled){
       localStorage.setItem('jarvis_enabled','1');
-      enableJarvis();
+      if(localStorage.getItem('risksim_plan')==='enterprise')enableJarvis();
     }
     closeOnboardSlides();
     // Trigger daily briefing after a short delay
@@ -8057,7 +8073,7 @@ function showDailyBriefing(){
   }
 
   var jarvisLine=document.getElementById('dbJarvisLine');
-  if(jarvisLine&&localStorage.getItem('jarvis_enabled')==='1'){
+  if(jarvisLine&&localStorage.getItem('jarvis_enabled')==='1'&&localStorage.getItem('risksim_plan')==='enterprise'){
     var h=localStorage.getItem('jarvis_honorific')||'Sir';
     jarvisLine.textContent='Good '+(['morning','afternoon','evening'][hour<12?0:hour<17?1:2])+', '+h+'. Four intelligence items require your attention. Port pressure in Shanghai is your highest priority. Shall I navigate there?';
     jarvisLine.style.display='block';
@@ -8090,6 +8106,19 @@ window.addEventListener('load',function(){
 
 <!-- ===== JARVIS BORDER GLOW ===== -->
 <div id="jarvisBorder"></div>
+
+<!-- ===== JARVIS UPSELL MODAL ===== -->
+<div id="jarvisUpsellModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10000; align-items:center; justify-content:center;">
+  <div style="background:#0a0a0a; border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:48px; max-width:480px; width:90%; text-align:center; font-family:'JetBrains Mono',monospace;">
+    <div style="font-size:11px; letter-spacing:3px; color:rgba(255,255,255,0.4); margin-bottom:24px;">ENTERPRISE ONLY</div>
+    <div style="font-size:28px; font-weight:800; letter-spacing:-1px; margin-bottom:16px; line-height:1.1;">JARVIS AI<br>VOICE ASSISTANT</div>
+    <div style="color:rgba(255,255,255,0.5); font-size:13px; line-height:1.6; margin-bottom:32px;">Jarvis is exclusive to Enterprise plan. Upgrade to unlock AI voice intelligence, daily briefings, and hands-free navigation.</div>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button onclick="goToCheckout('53221730910546','692427981138'); closeJarvisUpsell();" style="background:#fff; color:#000; border:none; padding:14px 28px; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:800; letter-spacing:2px; cursor:pointer; border-radius:4px;">UPGRADE — €799/MO</button>
+      <button onclick="closeJarvisUpsell();" style="background:transparent; color:rgba(255,255,255,0.4); border:1px solid rgba(255,255,255,0.1); padding:14px 28px; font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer; border-radius:4px;">MAYBE LATER</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== JARVIS TOGGLE BUTTON ===== -->
 <div id="jarvisToggle" onclick="handleJarvisClick()">
@@ -8274,11 +8303,6 @@ window.addEventListener('load',function(){
     <div class="po-title">Choose Your Plan</div>
     <div class="po-subtitle">Unlock the full power of AI-driven supply chain intelligence</div>
 
-    <!-- Beta Banner -->
-    <div class="po-founder-banner">
-      <span class="po-founder-text">◈ BETA30 — 30% off automatically applied at checkout — limited to 15 users</span>
-    </div>
-
     <!-- Billing Toggle -->
     <div class="po-billing-wrap">
       <div class="po-billing-toggle">
@@ -8294,12 +8318,11 @@ window.addEventListener('load',function(){
       <div class="po-card">
         <div class="po-tier">PRO</div>
         <div class="po-price-wrap">
-          <div class="po-price-strike" id="poProStrike">€249/mo</div>
+          <div class="po-price-strike" id="poProStrike" style="display:none">€249/mo</div>
           <div>
-            <span class="po-price" id="poProPrice">€174</span>
+            <span class="po-price" id="poProPrice">€249</span>
             <span class="po-price-period">/mo</span>
           </div>
-          <div class="po-founder-note" id="poProNote">Founder pricing · normally €249/mo</div>
         </div>
         <div class="po-savings" id="poProSavings">Save €504/year</div>
         <div class="po-seats">Up to 3 users</div>
@@ -8315,7 +8338,7 @@ window.addEventListener('load',function(){
           <li class="po-feature po-locked"><span class="po-feature-check">✕</span> Priority email alerts</li>
         </ul>
         <button class="po-cta" onclick="goToCheckout('53221724029266', '692427948370')">Subscribe — Pro</button>
-        <div class="po-trial-text">30-day free trial · Cancel anytime</div>
+        <div class="po-trial-text">First month free · Cancel anytime</div>
       </div>
 
       <!-- ENTERPRISE -->
@@ -8323,12 +8346,11 @@ window.addEventListener('load',function(){
         <div class="po-best-value">BEST VALUE</div>
         <div class="po-tier">ENTERPRISE</div>
         <div class="po-price-wrap">
-          <div class="po-price-strike" id="poEntStrike">€799/mo</div>
+          <div class="po-price-strike" id="poEntStrike" style="display:none">€799/mo</div>
           <div>
-            <span class="po-price" id="poEntPrice">€559</span>
+            <span class="po-price" id="poEntPrice">€799</span>
             <span class="po-price-period">/mo</span>
           </div>
-          <div class="po-founder-note" id="poEntNote">Founder pricing · normally €799/mo</div>
         </div>
         <div class="po-savings" id="poEntSavings">Save €1,596/year</div>
         <div class="po-seats">Up to 8 users</div>
@@ -8341,19 +8363,18 @@ window.addEventListener('load',function(){
           <li class="po-feature"><span class="po-feature-check">✓</span> Advanced risk modeling</li>
         </ul>
         <button class="po-cta po-cta-featured" onclick="goToCheckout('53221730910546', '692427981138')">Subscribe — Enterprise</button>
-        <div class="po-trial-text">30-day free trial · Cancel anytime</div>
+        <div class="po-trial-text">First month free · Cancel anytime</div>
       </div>
 
       <!-- CUSTOM -->
       <div class="po-card">
         <div class="po-tier">CUSTOM</div>
         <div class="po-price-wrap">
-          <div class="po-price-strike" id="poCustStrike">€1,299/mo</div>
+          <div class="po-price-strike" id="poCustStrike" style="display:none">€1,299/mo</div>
           <div>
-            <span class="po-price" id="poCustPrice">€909</span>
+            <span class="po-price" id="poCustPrice">€1,299</span>
             <span class="po-price-period">/mo</span>
           </div>
-          <div class="po-founder-note" id="poCustNote">Founder pricing · normally €1,299/mo</div>
         </div>
         <div class="po-savings" id="poCustSavings">Save €2,604/year</div>
         <div class="po-seats">Negotiated</div>
@@ -8411,18 +8432,16 @@ function toggleBilling(isAnnual) {
   if (isAnnual) {
     btnMonthly.classList.remove('po-active');
     btnAnnual.classList.add('po-active');
-    // Strikethrough originals (annual list price)
-    document.getElementById('poProStrike').textContent = '€207/mo';
-    document.getElementById('poEntStrike').textContent = '€666/mo';
-    document.getElementById('poCustStrike').textContent = '€1,082/mo';
-    // Main price = founder annual price
-    document.getElementById('poProPrice').textContent = '€145';
-    document.getElementById('poEntPrice').textContent = '€466';
-    document.getElementById('poCustPrice').textContent = '€758';
-    // Founder notes
-    document.getElementById('poProNote').textContent = 'Founder pricing · normally €207/mo';
-    document.getElementById('poEntNote').textContent = 'Founder pricing · normally €666/mo';
-    document.getElementById('poCustNote').textContent = 'Founder pricing · normally €1,082/mo';
+    // Strike = monthly price; main = annual price (17% off)
+    document.getElementById('poProStrike').textContent = '€249/mo';
+    document.getElementById('poEntStrike').textContent = '€799/mo';
+    document.getElementById('poCustStrike').textContent = '€1,299/mo';
+    document.getElementById('poProStrike').style.display = '';
+    document.getElementById('poEntStrike').style.display = '';
+    document.getElementById('poCustStrike').style.display = '';
+    document.getElementById('poProPrice').textContent = '€207';
+    document.getElementById('poEntPrice').textContent = '€666';
+    document.getElementById('poCustPrice').textContent = '€1,082';
     // Show annual savings line
     document.getElementById('poProSavings').style.display = 'block';
     document.getElementById('poEntSavings').style.display = 'block';
@@ -8433,18 +8452,13 @@ function toggleBilling(isAnnual) {
   } else {
     btnAnnual.classList.remove('po-active');
     btnMonthly.classList.add('po-active');
-    // Strikethrough originals (monthly list price)
-    document.getElementById('poProStrike').textContent = '€249/mo';
-    document.getElementById('poEntStrike').textContent = '€799/mo';
-    document.getElementById('poCustStrike').textContent = '€1,299/mo';
-    // Main price = founder monthly price
-    document.getElementById('poProPrice').textContent = '€174';
-    document.getElementById('poEntPrice').textContent = '€559';
-    document.getElementById('poCustPrice').textContent = '€909';
-    // Founder notes
-    document.getElementById('poProNote').textContent = 'Founder pricing · normally €249/mo';
-    document.getElementById('poEntNote').textContent = 'Founder pricing · normally €799/mo';
-    document.getElementById('poCustNote').textContent = 'Founder pricing · normally €1,299/mo';
+    // Monthly standard prices, no strikethrough
+    document.getElementById('poProStrike').style.display = 'none';
+    document.getElementById('poEntStrike').style.display = 'none';
+    document.getElementById('poCustStrike').style.display = 'none';
+    document.getElementById('poProPrice').textContent = '€249';
+    document.getElementById('poEntPrice').textContent = '€799';
+    document.getElementById('poCustPrice').textContent = '€1,299';
     // Hide annual savings line
     document.getElementById('poProSavings').style.display = 'none';
     document.getElementById('poEntSavings').style.display = 'none';
