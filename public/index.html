@@ -3532,9 +3532,7 @@ function closeProfileSection() {
     setTimeout(function(){ var h=document.getElementById('heroPanel'); if(h) h.style.animation='heroFloat 5s ease-in-out infinite'; }, 800);
     // Show onboarding slides if first time, otherwise show daily briefing
     if(typeof showOnboardSlides==='function'){
-      if(localStorage.getItem('risksim_onboarding_done')==='1'){
-        if(typeof showDailyBriefing==='function')setTimeout(showDailyBriefing,900);
-      }else{
+      if(localStorage.getItem('risksim_onboarding_done')!=='1'){
         setTimeout(showOnboardSlides,900);
       }
     }
@@ -4535,16 +4533,18 @@ function switchModule(name){
     }
     if(navBtns[2])navBtns[2].classList.add('active');
   }else if(name==='simulator'){
+    if(localStorage.getItem('risksim_bypass')!=='junior'&&localStorage.getItem('risksim_paid')!=='true'){showPricing();return;}
     if(sim){sim.style.display='flex';sim.style.flexDirection='column';}
     var sm=document.getElementById('simMain');if(sm)sm.classList.add('sim-loaded');
     if(typeof initSimulatorData==='function')initSimulatorData();
-    showEnterprisePaywall('simulatorModule','The Scenario Simulator','SYS_04');
     if(navBtns[3])navBtns[3].classList.add('active');
   }else if(name==='priceintel'){
     if(pi){pi.style.display='flex';pi.style.flexDirection='column';}
   }else if(name==='costengine'){
+    if(localStorage.getItem('risksim_bypass')!=='junior'&&localStorage.getItem('risksim_paid')!=='true'){showPricing();return;}
     if(ce){ce.style.display='flex';ce.style.flexDirection='column';}
     if(typeof lcOnShow==='function')lcOnShow();
+    showEnterprisePaywall('costEngineModule','The Cost Engine','SYS_06');
   }
 }
 
@@ -5783,7 +5783,7 @@ function buildSettingsBilling(){
         {label:'AI chat (Jarvis)',yes:true},
         {label:'Real-time alerts',yes:true},
         {label:'Price Intelligence',yes:true},
-        {label:'Custom integrations',yes:false},
+        {label:'Cost Engine',yes:false},
         {label:'Priority support',yes:false},
         {label:'API access',yes:false}
       ]
@@ -5796,13 +5796,13 @@ function buildSettingsBilling(){
       annualVariant:'53221730910546',annualPlan:'692442923346',
       features:[
         {label:'Everything in Pro',yes:true},
+        {label:'Cost Engine',yes:true},
         {label:'Custom integrations',yes:true},
         {label:'Priority support',yes:true},
         {label:'API access',yes:true},
         {label:'5 team seats',yes:true},
         {label:'Dedicated account manager',yes:false},
-        {label:'Custom workflows',yes:false},
-        {label:'SLA guarantee',yes:false}
+        {label:'Custom workflows',yes:false}
       ]
     },
     {
@@ -5858,13 +5858,11 @@ function buildSettingsBilling(){
     h+='</div>';
     h+='</div>';
   });
-  if(localStorage.getItem('risksim_paid')==='true'){
-    h+='<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">';
-    h+='<span class="settings-section-title">Cancel Subscription</span>';
-    h+='<div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:14px;">Cancel anytime. You\'ll keep access until the end of your current billing period.</div>';
-    h+='<button class="settings-plan-btn" onclick="showCancelConfirmModal()" style="font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:0.08em;">Cancel subscription</button>';
-    h+='</div>';
-  }
+  h+='<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">';
+  h+='<span class="settings-section-title">Cancel Subscription</span>';
+  h+='<div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:14px;">Cancel anytime. You\'ll keep access until the end of your current billing period.</div>';
+  h+='<button class="settings-plan-btn" onclick="showCancelConfirmModal()" style="font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:0.08em;">Cancel subscription</button>';
+  h+='</div>';
   return h;
 }
 
@@ -6824,7 +6822,7 @@ function checkPaywall(featureName) {
   if (bypass) return true;
   if (!paid) { showPricing(); return false; }
 
-  var enterpriseOnly = ['Scenario Simulator', 'Price Intelligence', 'Cost Engine'];
+  var enterpriseOnly = ['Price Intelligence', 'Cost Engine'];
   if (enterpriseOnly.indexOf(featureName) !== -1 && plan !== 'enterprise') {
     return 'upgrade';
   }
@@ -7562,8 +7560,6 @@ function obsNext(){
       if(localStorage.getItem('risksim_plan')==='enterprise')enableJarvis();
     }
     closeOnboardSlides();
-    // Trigger daily briefing after a short delay
-    setTimeout(showDailyBriefing,800);
   }
 }
 
