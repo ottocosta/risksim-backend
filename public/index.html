@@ -185,6 +185,7 @@
     @keyframes pulse { 0%,100% { opacity:0.25; } 50% { opacity:0.5; } }
     @keyframes rsBlink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
     @keyframes shimmer { 0% { transform:translateX(-100%); } 100% { transform:translateX(100%); } }
+    @keyframes cancelSpin { to { transform:rotate(360deg); } }
     @keyframes shimmerPulse { 0%,100% { opacity:0.4; } 50% { opacity:0.8; } }
     @keyframes panelIn { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
     @keyframes chatIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
@@ -3029,6 +3030,13 @@ window.addEventListener('keydown',__handleIntroKey,true);
   </div>
 </div>
 
+<!-- ===== CANCEL SUBSCRIPTION MODAL ===== -->
+<div id="cancelSubModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100001; align-items:center; justify-content:center;">
+  <div style="background:#111; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:32px; max-width:440px; width:calc(100% - 40px); font-family:'JetBrains Mono',monospace; box-shadow:0 24px 80px rgba(0,0,0,0.8);">
+    <div id="cancelSubModalBody"></div>
+  </div>
+</div>
+
 <!-- ===== COMING SOON TOAST ===== -->
 <div id="sbToast"></div>
 
@@ -5824,13 +5832,11 @@ function buildSettingsBilling(){
   // Plan cards
   plans.forEach(function(p){
     var price=isAnnual?p.annualPrice:p.monthlyPrice;
-    var origPrice=isAnnual?p.monthlyPrice:null;
     h+='<div class="settings-plan-card" style="margin-bottom:12px;">';
     h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">';
     h+='<div>';
     h+='<div class="settings-plan-name">'+p.name+'</div>';
     h+='<div style="margin-top:4px;">';
-    if(origPrice){h+='<span style="font-size:11px;color:rgba(255,255,255,0.25);text-decoration:line-through;margin-right:6px;">€'+origPrice+'/mo</span>';}
     h+='<span style="font-size:20px;font-weight:800;color:white;font-family:\'Syne\',sans-serif;">€'+price+'</span><span style="font-size:11px;color:rgba(255,255,255,0.35);"> /mo</span>';
     h+='</div>';
     if(isAnnual){h+='<div style="font-size:10px;color:rgba(255,255,255,0.25);margin-top:2px;">Billed €'+(price*12)+'/year</div>';}
@@ -5840,7 +5846,7 @@ function buildSettingsBilling(){
       var spId=isAnnual?p.annualPlan:p.monthlyPlan;
       h+='<button class="settings-plan-btn" onclick="goToCheckout(\''+vId+'\',\''+spId+'\')">Upgrade</button>';
     }else{
-      h+='<button class="settings-plan-btn" onclick="window.location.href=\'mailto:risksim.ai@gmail.com?subject=Custom%20Plan%20Inquiry\'">Contact Sales</button>';
+      h+='<button class="settings-plan-btn" onclick="window.location.href=\'mailto:risksim.ai@gmail.com?subject=RiskSim%20Custom%20Plan%20Inquiry\'">Contact Sales</button>';
     }
     h+='</div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">';
@@ -5852,15 +5858,13 @@ function buildSettingsBilling(){
     h+='</div>';
     h+='</div>';
   });
-  // Cancel subscription
-  var userEmail=localStorage.getItem('risksim_email')||'';
-  var cancelSubject=encodeURIComponent('Cancel My RiskSim Subscription');
-  var cancelBody=encodeURIComponent('Hi,\n\nPlease cancel my RiskSim subscription.\n\nEmail: '+userEmail+'\n\nThank you.');
-  h+='<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">';
-  h+='<div style="font-size:11px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-bottom:10px;font-family:\'JetBrains Mono\',monospace;">CANCEL SUBSCRIPTION</div>';
-  h+='<div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:14px;">To cancel your subscription, send us a cancellation request. We\'ll process it within 24 hours and confirm by email.</div>';
-  h+='<a href="mailto:risksim.ai@gmail.com?subject='+cancelSubject+'&body='+cancelBody+'" style="display:inline-block;padding:10px 20px;background:transparent;border:1px solid rgba(255,80,80,0.3);color:rgba(255,100,100,0.7);font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:1px;border-radius:4px;text-decoration:none;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor=\'rgba(255,80,80,0.6)\';this.style.color=\'rgba(255,100,100,1)\'" onmouseout="this.style.borderColor=\'rgba(255,80,80,0.3)\';this.style.color=\'rgba(255,100,100,0.7)\'">REQUEST CANCELLATION</a>';
-  h+='</div>';
+  if(localStorage.getItem('risksim_paid')==='true'){
+    h+='<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">';
+    h+='<span class="settings-section-title">Cancel Subscription</span>';
+    h+='<div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:14px;">Cancel anytime. You\'ll keep access until the end of your current billing period.</div>';
+    h+='<button class="settings-plan-btn" onclick="showCancelConfirmModal()" style="font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:0.08em;">Cancel subscription</button>';
+    h+='</div>';
+  }
   return h;
 }
 
@@ -8012,6 +8016,73 @@ function showUpgradeModal() {
 function closeUpgradeModal() {
   var m = document.getElementById('upgradeModal');
   if (m) { m.style.display = 'none'; }
+}
+
+// ===== CANCEL SUBSCRIPTION =====
+function showCancelConfirmModal() {
+  var m = document.getElementById('cancelSubModal');
+  if (!m) return;
+  renderCancelModal('confirm');
+  m.style.display = 'flex';
+}
+
+function closeCancelModal() {
+  var m = document.getElementById('cancelSubModal');
+  if (m) m.style.display = 'none';
+}
+
+function renderCancelModal(state) {
+  var body = document.getElementById('cancelSubModalBody');
+  if (!body) return;
+  if (state === 'confirm') {
+    body.innerHTML =
+      '<div style="font-size:20px;font-weight:800;font-family:\'Syne\',sans-serif;margin-bottom:12px;letter-spacing:-0.5px;color:white;">Cancel your subscription?</div>' +
+      '<div style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.6;margin-bottom:28px;">You\'ll keep access to RiskSim until the end of your current billing period. After that, your subscription won\'t renew and you won\'t be charged again.</div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px;">' +
+        '<button onclick="closeCancelModal()" style="width:100%;padding:13px;background:#fff;color:#000;border:none;border-radius:8px;font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:800;letter-spacing:1.5px;cursor:pointer;">KEEP MY SUBSCRIPTION</button>' +
+        '<button onclick="submitCancelRequest()" style="width:100%;padding:13px;background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-family:\'JetBrains Mono\',monospace;font-size:11px;cursor:pointer;letter-spacing:0.05em;">Yes, cancel</button>' +
+      '</div>';
+  } else if (state === 'loading') {
+    body.innerHTML =
+      '<div style="text-align:center;padding:24px 0;">' +
+        '<div style="width:32px;height:32px;border:2px solid rgba(255,255,255,0.1);border-top-color:rgba(255,255,255,0.7);border-radius:50%;animation:cancelSpin 0.8s linear infinite;margin:0 auto 16px;"></div>' +
+        '<div style="color:rgba(255,255,255,0.4);font-size:11px;letter-spacing:0.1em;">PROCESSING...</div>' +
+      '</div>';
+  } else if (state === 'success') {
+    body.innerHTML =
+      '<div style="font-size:20px;font-weight:800;font-family:\'Syne\',sans-serif;margin-bottom:12px;letter-spacing:-0.5px;color:white;">Cancellation confirmed</div>' +
+      '<div style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.6;margin-bottom:28px;">Your subscription has been cancelled. You\'ll keep access until the end of your current billing period. You won\'t be charged again.</div>' +
+      '<button onclick="closeCancelModal()" style="width:100%;padding:13px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);border-radius:8px;font-family:\'JetBrains Mono\',monospace;font-size:11px;cursor:pointer;letter-spacing:0.05em;">Close</button>';
+  } else if (state === 'error') {
+    body.innerHTML =
+      '<div style="font-size:18px;font-weight:700;font-family:\'Syne\',sans-serif;margin-bottom:12px;color:white;">Something went wrong</div>' +
+      '<div style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.6;margin-bottom:28px;">Please try again or contact us at <a href="mailto:risksim.ai@gmail.com" style="color:rgba(255,255,255,0.7);text-decoration:none;">risksim.ai@gmail.com</a>.</div>' +
+      '<div style="display:flex;gap:10px;">' +
+        '<button onclick="submitCancelRequest()" style="flex:1;padding:13px;background:#fff;color:#000;border:none;border-radius:8px;font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:800;letter-spacing:1px;cursor:pointer;">RETRY</button>' +
+        '<button onclick="closeCancelModal()" style="flex:1;padding:13px;background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-family:\'JetBrains Mono\',monospace;font-size:11px;cursor:pointer;">Dismiss</button>' +
+      '</div>';
+  }
+}
+
+async function submitCancelRequest() {
+  renderCancelModal('loading');
+  var email = localStorage.getItem('risksim_email') || null;
+  var plan = localStorage.getItem('risksim_plan') || null;
+  var timestamp = new Date().toISOString();
+  try {
+    var resp = await fetch('/api/subscription/cancel-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, plan: plan, timestamp: timestamp })
+    });
+    if (resp.ok) {
+      renderCancelModal('success');
+    } else {
+      renderCancelModal('error');
+    }
+  } catch (e) {
+    renderCancelModal('error');
+  }
 }
 
 // ===== RESTORE ACCESS =====

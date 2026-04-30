@@ -1204,4 +1204,22 @@ app.get('/api/email/digest-data', requireDataKey, (req, res) => {
     });
 });
 
+app.post('/api/subscription/cancel-request', async (req, res) => {
+  const { email, plan, timestamp } = req.body;
+  const webhookUrl = process.env.DISCORD_CANCEL_WEBHOOK_URL;
+  if (!webhookUrl) {
+    return res.status(500).json({ success: false, error: 'internal' });
+  }
+  try {
+    const content = `🚨 **CANCELLATION REQUEST**\n**Plan:** ${plan || 'unknown'}\n**Email:** ${email || 'not provided'}\n**Timestamp:** ${timestamp}\n**Action needed:** Cancel in Shopify admin → Subscriptions → Contracts`;
+    const resp = await axios.post(webhookUrl, { content }, { headers: { 'Content-Type': 'application/json' } });
+    if (resp.status >= 200 && resp.status < 300) {
+      return res.json({ success: true });
+    }
+    return res.status(500).json({ success: false, error: 'internal' });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: 'internal' });
+  }
+});
+
 app.listen(PORT, () => console.log(`RiskSim running on ${PORT}`));
