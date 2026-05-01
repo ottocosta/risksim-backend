@@ -89,97 +89,137 @@
     .rs-nav-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
     .rs-nav-btn.active { background: rgba(255,255,255,0.09); color: #fff; }
     .rs-nav-mod { display: block; font-size: 6px; opacity: 0.4; letter-spacing: 0.18em; margin-bottom: 3px; }
-    /* ===== CINEMATIC INTRO ===== */
+    /* ===== PUBLIC LANDING PAGE ===== */
     #rs-intro {
-      position: fixed; inset: 0; z-index: 99999; background: #000;
+      position: fixed; inset: 0; z-index: 99999; background: transparent;
       width: 100vw; height: 100vh; height: 100dvh;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      overflow: hidden; cursor: pointer;
-      transition: opacity 1.4s cubic-bezier(0.25,0,1,1), transform 1.6s cubic-bezier(0.16,1,0.3,1);
-      will-change: opacity, transform;
-      touch-action: none;
-      overscroll-behavior: none;
+      overflow-y: auto; overflow-x: hidden;
+      scroll-behavior: smooth;
+      transition: opacity 0.8s ease;
+      will-change: opacity;
     }
-    #rs-intro.dismissing {
-      opacity: 0; transform: scale(1.05);
-      pointer-events: none;
-    }
+    #rs-intro.dismissing { opacity: 0; pointer-events: none; }
 
-    /* RISKSIM wordmark — thick modern geometric */
-    .intro-wordmark {
-      position: relative; z-index: 10;
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: clamp(3.5rem, 12vw, 10rem);
-      letter-spacing: 0.04em;
-      color: #fff;
-      text-transform: uppercase;
-      line-height: 1;
-      margin-top: -12vh;
-      opacity: 0;
-      animation: wmIn 1.2s cubic-bezier(0.16,1,0.3,1) 0.4s forwards;
-      /* Thick stroke effect via text-shadow stacking */
-      text-shadow:
-        -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff,
-        -3px 0 0 #fff, 3px 0 0 #fff, 0 -3px 0 #fff, 0 3px 0 #fff;
-      paint-order: stroke fill;
-      -webkit-text-stroke: 3px #fff;
-    }
-    @media (min-width: 768px) {
-      .intro-wordmark { -webkit-text-stroke: 5px #fff; font-size: clamp(5rem, 14vw, 13rem); }
-    }
+    /* Hero */
+    .lp-hero { min-height: 100vh; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .lp-hero-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.68); }
+    .lp-hero-content { position: relative; z-index: 1; text-align: center; padding: 0 1.5rem; max-width: 680px; margin: 0 auto; }
+    .lp-wordmark { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2.5rem, 9vw, 6rem); letter-spacing: 0.04em; color: #fff; text-transform: uppercase; line-height: 1; -webkit-text-stroke: 2px #fff; }
+    .lp-tagline { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: clamp(0.7rem, 1.1vw, 0.9rem); color: rgba(255,255,255,0.45); letter-spacing: 0.35em; text-transform: uppercase; margin-top: 0.9rem; }
+    .lp-hero-desc { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: clamp(0.92rem, 1.25vw, 1.05rem); color: rgba(255,255,255,0.45); line-height: 1.7; margin-top: 1.4rem; max-width: 520px; }
+    .lp-hero-ctas { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 2.4rem; }
+    .lp-btn-primary { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; background: #fff; color: #000; border: none; padding: 0.85rem 2rem; cursor: pointer; transition: background 0.2s; }
+    .lp-btn-primary:hover { background: #e8e8e8; }
+    .lp-btn-secondary { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase; background: transparent; color: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.2); padding: 0.85rem 2rem; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+    .lp-btn-secondary:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
-    .intro-subtitle {
-      position: relative; z-index: 10;
-      font-family: 'DM Sans', sans-serif; font-weight: 300;
-      font-size: clamp(0.7rem, 1.2vw, 1rem);
-      color: rgba(255,255,255,0.4); letter-spacing: 0.4em; text-transform: uppercase;
-      margin-top: 1.2rem; opacity: 0;
-      animation: fadeUp 0.8s ease 1s forwards;
-    }
+    /* Landing nav */
+    .lp-nav { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 1.4rem 2rem; z-index: 10; }
+    .lp-nav-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.95rem; letter-spacing: 0.14em; color: #fff; text-transform: uppercase; }
+    .lp-nav-links { display: flex; gap: 2rem; }
+    .lp-nav-link { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.2s; }
+    .lp-nav-link:hover { color: rgba(255,255,255,0.8); }
 
-    .intro-hint {
-      position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%);
-      z-index: 10; display: flex; align-items: center; gap: 0.5rem;
-      font-family: 'DM Sans', sans-serif; font-size: 0.65rem;
-      letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.25);
-      opacity: 0; animation: fadeIn 0.8s ease 2s forwards;
-    }
-    .intro-hint-key {
-      padding: 2px 8px; border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 4px; color: rgba(255,255,255,0.35); font-size: 0.6rem;
-    }
+    /* Scroll hint */
+    .lp-scroll-hint { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.18); display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
+    .lp-scroll-hint svg { animation: lpBounce 2s ease infinite; }
+    @keyframes lpBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 
-    /* Globe canvas */
-    #introGlobe {
-      position: absolute; inset: 0; z-index: 1;
-      opacity: 0; animation: fadeIn 1.5s ease 0.2s forwards;
-    }
+    /* Content sections */
+    .lp-section { background: #0a0a0a; padding: 5rem 2rem; }
+    .lp-section-inner { max-width: 960px; margin: 0 auto; }
+    .lp-section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(255,255,255,0.25); display: block; margin-bottom: 1.4rem; }
+    .lp-section-heading { font-family: 'Syne', sans-serif; font-weight: 700; font-size: clamp(1.5rem, 3.2vw, 2.6rem); color: #fff; line-height: 1.2; margin-bottom: 1.4rem; }
+    .lp-section-body { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: clamp(0.92rem, 1.2vw, 1.05rem); color: rgba(255,255,255,0.45); line-height: 1.7; max-width: 580px; }
 
-    /* Intro nav links — top-left, only visible on intro screen */
-    .intro-nav {
-      position: absolute; top: 1.6rem; left: 1.8rem; z-index: 20;
-      display: flex; align-items: center; gap: 1.8rem;
-      opacity: 0; animation: fadeIn 0.8s ease 1.8s forwards;
-    }
-    .intro-nav-link {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
-      color: rgba(255,255,255,0.4); text-decoration: none;
-      transition: color 0.2s;
-    }
-    .intro-nav-link:hover { color: rgba(255,255,255,0.85); }
+    /* Problem stats */
+    .lp-stats { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2.5rem; }
+    .lp-stat { padding: 0.6rem 1rem; border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.02); font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); }
 
-    /* Vignette */
-    .intro-vignette {
-      position: absolute; inset: 0; z-index: 5; pointer-events: none;
-      background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.7) 70%, #000 100%);
-    }
+    /* Feature cards */
+    .lp-features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); margin-top: 3rem; }
+    .lp-feature-card { background: #080808; padding: 1.8rem 1.5rem; transition: background 0.2s; }
+    .lp-feature-card:hover { background: rgba(255,255,255,0.025); }
+    .lp-feature-sys { font-family: 'JetBrains Mono', monospace; font-size: 0.53rem; letter-spacing: 0.22em; color: rgba(255,255,255,0.2); display: block; margin-bottom: 0.65rem; }
+    .lp-feature-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.98rem; color: #fff; margin-bottom: 0.45rem; }
+    .lp-feature-desc { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 0.82rem; color: rgba(255,255,255,0.38); line-height: 1.6; }
 
-    @keyframes wmIn {
-      0% { opacity: 0; transform: translateY(30px) scale(0.96); filter: blur(8px); }
-      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-    }
+    /* Comparison table */
+    .lp-table { width: 100%; border-collapse: collapse; margin-top: 3rem; font-family: 'JetBrains Mono', monospace; }
+    .lp-table th { padding: 0.7rem 1rem; text-align: left; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.25); border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .lp-table td { padding: 0.8rem 1rem; font-size: 0.7rem; color: rgba(255,255,255,0.5); border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .lp-table td:first-child { color: rgba(255,255,255,0.3); }
+    .lp-table .lp-yes { color: rgba(180,240,180,0.65); }
+    .lp-table .lp-no { color: rgba(255,255,255,0.18); }
+    .lp-table .lp-rs { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+    /* Pricing cards */
+    .lp-pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); margin-top: 3rem; }
+    .lp-plan-card { background: #080808; padding: 2rem 1.5rem; }
+    .lp-plan-card.featured { background: rgba(255,255,255,0.03); }
+    .lp-plan-name { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(255,255,255,0.35); display: block; margin-bottom: 0.7rem; }
+    .lp-plan-price { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 2rem; color: #fff; line-height: 1; }
+    .lp-plan-period { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: rgba(255,255,255,0.28); margin-left: 0.2rem; }
+    .lp-plan-desc { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 0.82rem; color: rgba(255,255,255,0.38); line-height: 1.5; margin-top: 0.7rem; }
+    .lp-plan-features { list-style: none; padding: 0; margin: 1.4rem 0; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; color: rgba(255,255,255,0.45); }
+    .lp-plan-features li { padding: 0.28rem 0; }
+    .lp-plan-features li::before { content: '→ '; color: rgba(255,255,255,0.18); }
+    .lp-plan-btn { width: 100%; padding: 0.72rem; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; }
+    .lp-plan-btn:hover { background: rgba(255,255,255,0.09); color: #fff; }
+    .lp-plan-btn.lp-primary { background: #fff; color: #000; border-color: #fff; }
+    .lp-plan-btn.lp-primary:hover { background: #e8e8e8; }
+
+    /* Founder / closing */
+    .lp-founder-quote { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: clamp(1rem, 1.8vw, 1.35rem); color: rgba(255,255,255,0.55); line-height: 1.75; max-width: 680px; }
+    .lp-founder-sig { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; color: rgba(255,255,255,0.2); margin-top: 1.4rem; display: block; }
+    .lp-final-ctas { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 2.8rem; }
+
+    /* Landing footer */
+    .lp-footer { background: #060606; padding: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; border-top: 1px solid rgba(255,255,255,0.05); }
+    .lp-footer-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.14em; color: rgba(255,255,255,0.18); text-transform: uppercase; }
+    .lp-footer-links { display: flex; gap: 1.5rem; }
+    .lp-footer-link { font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.18); text-decoration: none; transition: color 0.2s; }
+    .lp-footer-link:hover { color: rgba(255,255,255,0.45); }
+
+    /* Demo banner */
+    #demoBanner { position: fixed; top: 0; left: 0; right: 0; z-index: 9000; background: rgba(8,8,8,0.97); border-bottom: 1px solid rgba(255,255,255,0.07); display: none; align-items: center; justify-content: center; gap: 1rem; padding: 0.6rem 1.5rem; flex-wrap: wrap; }
+    #demoBanner.active { display: flex; }
+    .demo-banner-text { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+    .demo-banner-cta { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; background: none; border: 1px solid rgba(255,255,255,0.18); padding: 0.28rem 0.75rem; cursor: pointer; transition: all 0.2s; }
+    .demo-banner-cta:hover { background: rgba(255,255,255,0.07); }
+    .demo-banner-dismiss { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.18); background: none; border: none; cursor: pointer; transition: color 0.2s; padding: 0; margin-left: 0.25rem; }
+    .demo-banner-dismiss:hover { color: rgba(255,255,255,0.45); }
+
+    /* Demo upgrade modal */
+    #demoUpgradeModal { position: fixed; inset: 0; z-index: 100002; background: rgba(0,0,0,0.82); display: none; align-items: center; justify-content: center; }
+    #demoUpgradeModal.active { display: flex; }
+    .dum-box { background: #111; border: 1px solid rgba(255,255,255,0.1); padding: 2.5rem; max-width: 400px; width: 90%; text-align: center; }
+    .dum-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(255,255,255,0.22); display: block; margin-bottom: 1rem; }
+    .dum-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.35rem; color: #fff; margin-bottom: 0.7rem; }
+    .dum-sub { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 0.88rem; color: rgba(255,255,255,0.42); line-height: 1.65; margin-bottom: 2rem; }
+    .dum-btns { display: flex; flex-direction: column; gap: 0.55rem; }
+    .dum-btn-primary { width: 100%; padding: 0.88rem; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; background: #fff; color: #000; border: none; cursor: pointer; transition: background 0.2s; }
+    .dum-btn-primary:hover { background: #e8e8e8; }
+    .dum-btn-secondary { width: 100%; padding: 0.72rem; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; background: none; color: rgba(255,255,255,0.28); border: 1px solid rgba(255,255,255,0.07); cursor: pointer; transition: all 0.2s; }
+    .dum-btn-secondary:hover { color: rgba(255,255,255,0.55); border-color: rgba(255,255,255,0.18); }
+
+    /* Post-checkout questionnaire */
+    #postCheckoutModal { position: fixed; inset: 0; z-index: 100003; background: rgba(0,0,0,0.88); display: none; align-items: center; justify-content: center; }
+    #postCheckoutModal.active { display: flex; }
+    .pcm-box { background: #111; border: 1px solid rgba(255,255,255,0.1); padding: 2.5rem; max-width: 460px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .pcm-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(255,255,255,0.22); display: block; margin-bottom: 1rem; }
+    .pcm-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.45rem; color: #fff; margin-bottom: 0.45rem; }
+    .pcm-sub { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 0.88rem; color: rgba(255,255,255,0.42); line-height: 1.65; margin-bottom: 2rem; }
+    .pcm-field { margin-bottom: 1.2rem; }
+    .pcm-label-sm { font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.28); display: block; margin-bottom: 0.4rem; }
+    .pcm-select { width: 100%; padding: 0.58rem 0.75rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; appearance: none; }
+    .pcm-select option { background: #1a1a1a; }
+    .pcm-actions { display: flex; flex-direction: column; gap: 0.55rem; margin-top: 1.5rem; }
+    .pcm-btn-primary { width: 100%; padding: 0.88rem; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; background: #fff; color: #000; border: none; cursor: pointer; transition: background 0.2s; }
+    .pcm-btn-primary:hover { background: #e8e8e8; }
+    .pcm-btn-skip { background: none; border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.2); transition: color 0.2s; padding: 0.4rem; }
+    .pcm-btn-skip:hover { color: rgba(255,255,255,0.48); }
+
     @keyframes fadeUp { 0% { opacity:0; transform:translateY(15px); } 100% { opacity:1; transform:translateY(0); } }
     @keyframes fadeIn { 0% { opacity:0; } 100% { opacity:1; } }
     @keyframes pulse { 0%,100% { opacity:0.25; } 50% { opacity:0.5; } }
@@ -1353,13 +1393,15 @@
     .sim-card-action:hover { border-color:rgba(255,255,255,0.2); color:#fff; }
 
 
-    /* ===== JARVIS VISIBILITY (hide during intro / profile / pricing) ===== */
+    /* ===== JARVIS VISIBILITY (hide during intro / profile / pricing / demo) ===== */
     body:has(#rs-intro) #jarvisToggle,
     body:has(#rs-intro) #jarvisBorder,
     body:has(#profileSection.ps-visible) #jarvisToggle,
     body:has(#profileSection.ps-visible) #jarvisBorder,
     body:has(#pricingOverlay.po-visible) #jarvisToggle,
-    body:has(#pricingOverlay.po-visible) #jarvisBorder { display: none !important; }
+    body:has(#pricingOverlay.po-visible) #jarvisBorder,
+    body.demo-mode #jarvisToggle,
+    body.demo-mode #jarvisBorder { display: none !important; }
 
     /* ===== JARVIS MODE ===== */
     #jarvisBorder {
@@ -2663,8 +2705,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (paidPlan) {
       localStorage.setItem('risksim_paid', 'true');
       localStorage.setItem('risksim_plan', paidPlan);
+      localStorage.removeItem('risksim_demo');
+      localStorage.removeItem('risksim_demo_banner_dismissed');
       window.history.replaceState({}, document.title, window.location.pathname);
-      setTimeout(function() { showThankYouScreen(paidPlan); }, 500);
+      setTimeout(function() { showPostCheckoutQuestionnaire(paidPlan); }, 500);
     }
   })();
 
@@ -2675,7 +2719,8 @@ document.addEventListener('DOMContentLoaded', function() {
       if (e.data && e.data.type === 'PAYMENT_SUCCESS') {
         localStorage.setItem('risksim_paid', 'true');
         localStorage.setItem('risksim_plan', e.data.plan);
-        showThankYouScreen(e.data.plan);
+        localStorage.removeItem('risksim_demo');
+        showPostCheckoutQuestionnaire(e.data.plan);
       }
     });
   } catch(e) {}
@@ -3040,19 +3085,231 @@ window.addEventListener('keydown',__handleIntroKey,true);
 <!-- ===== COMING SOON TOAST ===== -->
 <div id="sbToast"></div>
 
-<!-- ===== INTRO ===== -->
+<!-- ===== LANDING PAGE ===== -->
 <div id="rs-intro">
-  <canvas id="introGlobe"></canvas>
-  <div class="intro-vignette"></div>
-  <nav class="intro-nav" id="introNav">
-    <a href="/about.html" class="intro-nav-link">About</a>
-    <a href="/privacy.html" class="intro-nav-link">Privacy Policy</a>
-    <a href="/contact.html" class="intro-nav-link">Contact</a>
-  </nav>
-  <div class="intro-wordmark">RISKSIM</div>
-  <div class="intro-subtitle">Supply Chain Intelligence</div>
-  <div class="intro-hint">
-    <span>Click anywhere or press</span><span class="intro-hint-key">Enter</span><span>to continue</span>
+  <section class="lp-hero">
+    <nav class="lp-nav">
+      <span class="lp-nav-brand">RiskSim</span>
+      <div class="lp-nav-links">
+        <a href="/about.html" class="lp-nav-link">About</a>
+        <a href="/privacy.html" class="lp-nav-link">Privacy</a>
+        <a href="/contact.html" class="lp-nav-link">Contact</a>
+      </div>
+    </nav>
+    <div class="lp-hero-bg"></div>
+    <div class="lp-hero-content">
+      <div class="lp-wordmark">RiskSim</div>
+      <div class="lp-tagline">Supply Chain Intelligence</div>
+      <p class="lp-hero-desc">Real-time geopolitical risk, tariff data, and AI-powered scenario modeling — built for teams that move product across borders.</p>
+      <div class="lp-hero-ctas">
+        <button class="lp-btn-primary" onclick="lpStartTrial()">Start free trial</button>
+        <button class="lp-btn-secondary" onclick="lpBrowseProduct()">Browse the product</button>
+      </div>
+    </div>
+    <div class="lp-scroll-hint">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M7 12l-4-4M7 12l4-4" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  </section>
+
+  <section class="lp-section">
+    <div class="lp-section-inner">
+      <span class="lp-section-label">The Problem</span>
+      <h2 class="lp-section-heading">Enterprise tools start at $30K/year.<br>Spreadsheets can't keep up.</h2>
+      <p class="lp-section-body">Global supply chains are being reshaped by tariffs, port congestion, and geopolitical shifts — faster than any analyst can track manually. Most teams are flying blind.</p>
+      <div class="lp-stats">
+        <span class="lp-stat">143 active tariff disputes tracked</span>
+        <span class="lp-stat">Real-time shipping disruption alerts</span>
+        <span class="lp-stat">Risk scores across 140+ countries</span>
+        <span class="lp-stat">AI analysis in seconds, not weeks</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-section" style="background:#080808;">
+    <div class="lp-section-inner">
+      <span class="lp-section-label">What It Does</span>
+      <h2 class="lp-section-heading">Six systems. One dashboard.</h2>
+      <div class="lp-features-grid">
+        <div class="lp-feature-card">
+          <span class="lp-feature-sys">SYS_01</span>
+          <div class="lp-feature-name">Risk Intelligence Map</div>
+          <div class="lp-feature-desc">Live choropleth map of geopolitical risk, tariff exposure, labor cost, and shipping reliability across 140+ countries.</div>
+        </div>
+        <div class="lp-feature-card">
+          <span class="lp-feature-sys">SYS_02</span>
+          <div class="lp-feature-name">Supply Chain Audit</div>
+          <div class="lp-feature-desc">AI-powered vulnerability analysis of your supplier network. Identifies concentration risk and single points of failure.</div>
+        </div>
+        <div class="lp-feature-card">
+          <span class="lp-feature-sys">SYS_03</span>
+          <div class="lp-feature-name">AI Terminal</div>
+          <div class="lp-feature-desc">Natural language interface to your supply chain data. Ask questions, get structured analysis, build reports in seconds.</div>
+        </div>
+        <div class="lp-feature-card">
+          <span class="lp-feature-sys">SYS_04 — Pro</span>
+          <div class="lp-feature-name">Scenario Simulator</div>
+          <div class="lp-feature-desc">Model the impact of tariff changes, port closures, or supplier failures before they happen. Compare scenarios side-by-side.</div>
+        </div>
+        <div class="lp-feature-card">
+          <span class="lp-feature-sys">SYS_05 — Enterprise</span>
+          <div class="lp-feature-name">Price Intelligence</div>
+          <div class="lp-feature-desc">Track commodity prices, freight indices, and tariff changes that affect your cost structure in real time.</div>
+        </div>
+        <div class="lp-feature-card">
+          <span class="lp-feature-sys">SYS_06 — Enterprise</span>
+          <div class="lp-feature-name">Cost Engine</div>
+          <div class="lp-feature-desc">Full landed cost modeling with tariff stacking, logistics, and FX. Build cost scenarios across sourcing alternatives.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-section">
+    <div class="lp-section-inner">
+      <span class="lp-section-label">How It Compares</span>
+      <h2 class="lp-section-heading">Built for the team that can't wait for consulting.</h2>
+      <table class="lp-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="lp-rs">RiskSim</th>
+            <th>Enterprise Software</th>
+            <th>Spreadsheets</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Real-time risk data</td><td class="lp-rs lp-yes">✓</td><td class="lp-yes">✓</td><td class="lp-no">✗</td></tr>
+          <tr><td>AI-powered analysis</td><td class="lp-rs lp-yes">✓</td><td class="lp-no">✗</td><td class="lp-no">✗</td></tr>
+          <tr><td>Scenario modeling</td><td class="lp-rs lp-yes">✓</td><td class="lp-yes">✓</td><td class="lp-no">Partial</td></tr>
+          <tr><td>Monthly cost</td><td class="lp-rs">€149–799</td><td class="lp-no">€2,500+</td><td class="lp-yes">Free</td></tr>
+          <tr><td>Time to first insight</td><td class="lp-rs lp-yes">Minutes</td><td class="lp-no">Months</td><td class="lp-no">Days</td></tr>
+          <tr><td>No vendor lock-in</td><td class="lp-rs lp-yes">✓</td><td class="lp-no">✗</td><td class="lp-yes">✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="lp-section" style="background:#080808;">
+    <div class="lp-section-inner">
+      <span class="lp-section-label">Pricing</span>
+      <h2 class="lp-section-heading">Transparent pricing. No contracts.</h2>
+      <div class="lp-pricing-grid">
+        <div class="lp-plan-card">
+          <span class="lp-plan-name">Browse</span>
+          <div class="lp-plan-price">Free</div>
+          <div class="lp-plan-desc">Explore the product with no commitment.</div>
+          <ul class="lp-plan-features">
+            <li>Risk Intelligence Map</li>
+            <li>AI Terminal (limited)</li>
+            <li>No signup required</li>
+          </ul>
+          <button class="lp-plan-btn" onclick="lpBrowseProduct()">Browse now</button>
+        </div>
+        <div class="lp-plan-card featured">
+          <span class="lp-plan-name">Pro</span>
+          <div class="lp-plan-price">€149<span class="lp-plan-period">/mo</span></div>
+          <div class="lp-plan-desc">For supply chain analysts and procurement teams.</div>
+          <ul class="lp-plan-features">
+            <li>Risk Intelligence Map</li>
+            <li>Supply Chain Audit</li>
+            <li>Scenario Simulator</li>
+            <li>Full AI Terminal</li>
+          </ul>
+          <button class="lp-plan-btn lp-primary" onclick="lpStartTrial()">Start free trial</button>
+        </div>
+        <div class="lp-plan-card">
+          <span class="lp-plan-name">Enterprise</span>
+          <div class="lp-plan-price">€799<span class="lp-plan-period">/mo</span></div>
+          <div class="lp-plan-desc">For operations teams managing complex global sourcing.</div>
+          <ul class="lp-plan-features">
+            <li>Everything in Pro</li>
+            <li>Cost Engine</li>
+            <li>Price Intelligence</li>
+            <li>Jarvis AI Voice Assistant</li>
+          </ul>
+          <button class="lp-plan-btn" onclick="lpStartTrial()">Start free trial</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lp-section" style="background:#060606;">
+    <div class="lp-section-inner">
+      <span class="lp-section-label">Why We Built This</span>
+      <p class="lp-founder-quote">"I watched procurement teams spend weeks gathering data that should have taken minutes. The intelligence existed — it just wasn't accessible. RiskSim is what we built to fix that."</p>
+      <span class="lp-founder-sig">— Founder, RiskSim</span>
+      <div class="lp-final-ctas">
+        <button class="lp-btn-primary" onclick="lpStartTrial()">Start free trial</button>
+        <button class="lp-btn-secondary" onclick="lpBrowseProduct()">Browse the product</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="lp-footer">
+    <span class="lp-footer-brand">RiskSim</span>
+    <div class="lp-footer-links">
+      <a href="/about.html" class="lp-footer-link">About</a>
+      <a href="/privacy.html" class="lp-footer-link">Privacy</a>
+      <a href="/contact.html" class="lp-footer-link">Contact</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ===== DEMO BANNER ===== -->
+<div id="demoBanner">
+  <span class="demo-banner-text">Browsing in demo mode</span>
+  <button class="demo-banner-cta" onclick="lpStartTrialFromApp()">Start free trial</button>
+  <button class="demo-banner-dismiss" onclick="dismissDemoBanner()">✕</button>
+</div>
+
+<!-- ===== DEMO UPGRADE MODAL ===== -->
+<div id="demoUpgradeModal">
+  <div class="dum-box">
+    <span class="dum-label">Demo Mode</span>
+    <div class="dum-title">Sign up to use this</div>
+    <div class="dum-sub">You're browsing in demo mode. Start a free trial to unlock the full product.</div>
+    <div class="dum-btns">
+      <button class="dum-btn-primary" onclick="lpStartTrialFromApp()">Start free trial</button>
+      <button class="dum-btn-secondary" onclick="closeDemoUpgradeModal()">Keep browsing</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== POST-CHECKOUT QUESTIONNAIRE ===== -->
+<div id="postCheckoutModal">
+  <div class="pcm-box">
+    <span class="pcm-label">Welcome to RiskSim</span>
+    <div class="pcm-title">Quick setup</div>
+    <div class="pcm-sub">Help us personalize your experience. Takes 30 seconds — or skip and go straight in.</div>
+    <div class="pcm-field">
+      <label class="pcm-label-sm">Company Type</label>
+      <select class="pcm-select" id="pcmCompanyType">
+        <option value="">Select…</option>
+        <option value="manufacturer">Manufacturer</option>
+        <option value="retailer">Retailer</option>
+        <option value="distributor">Distributor</option>
+        <option value="logistics">Logistics Provider</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="pcm-field">
+      <label class="pcm-label-sm">Industry</label>
+      <select class="pcm-select" id="pcmIndustry">
+        <option value="">Select…</option>
+        <option value="technology">Electronics</option>
+        <option value="textiles">Textiles / Apparel</option>
+        <option value="automotive">Automotive</option>
+        <option value="food">Food / Agriculture</option>
+        <option value="pharma">Pharmaceuticals</option>
+        <option value="rawMaterials">Raw Materials</option>
+        <option value="consumerGoods">Consumer Goods</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="pcm-actions">
+      <button class="pcm-btn-primary" onclick="submitPostCheckoutQuestionnaire()">Get started</button>
+      <button class="pcm-btn-skip" onclick="skipPostCheckoutQuestionnaire()">Skip for now</button>
+    </div>
   </div>
 </div>
 
@@ -4533,7 +4790,9 @@ function switchModule(name){
     }
     if(navBtns[2])navBtns[2].classList.add('active');
   }else if(name==='simulator'){
-    if(localStorage.getItem('risksim_bypass')!=='junior'&&localStorage.getItem('risksim_paid')!=='true'){showPricing();return;}
+    if(localStorage.getItem('risksim_bypass')!=='junior'&&localStorage.getItem('risksim_paid')!=='true'){
+      if(localStorage.getItem('risksim_demo')==='true'){showDemoUpgradeModal();}else{showPricing();}return;
+    }
     if(sim){sim.style.display='flex';sim.style.flexDirection='column';}
     var sm=document.getElementById('simMain');if(sm)sm.classList.add('sim-loaded');
     if(typeof initSimulatorData==='function')initSimulatorData();
@@ -4541,7 +4800,9 @@ function switchModule(name){
   }else if(name==='priceintel'){
     if(pi){pi.style.display='flex';pi.style.flexDirection='column';}
   }else if(name==='costengine'){
-    if(localStorage.getItem('risksim_bypass')!=='junior'&&localStorage.getItem('risksim_paid')!=='true'){showPricing();return;}
+    if(localStorage.getItem('risksim_bypass')!=='junior'&&localStorage.getItem('risksim_paid')!=='true'){
+      if(localStorage.getItem('risksim_demo')==='true'){showDemoUpgradeModal();}else{showPricing();}return;
+    }
     if(ce){ce.style.display='flex';ce.style.flexDirection='column';}
     if(typeof lcOnShow==='function')lcOnShow();
     showEnterprisePaywall('costEngineModule','The Cost Engine','SYS_06');
@@ -5680,6 +5941,7 @@ function openHistoryItem(id){
 var _settingsTab='profile';
 
 function openSettings(){
+  if (localStorage.getItem('risksim_demo') === 'true') { showDemoUpgradeModal(); return; }
   var overlay=document.getElementById('settingsOverlay');
   if(overlay){overlay.classList.add('open');}
   renderSettingsTab('profile');
@@ -6820,7 +7082,11 @@ function checkPaywall(featureName) {
   var plan = localStorage.getItem('risksim_plan') || 'pro';
 
   if (bypass) return true;
-  if (!paid) { showPricing(); return false; }
+  if (!paid) {
+    if (localStorage.getItem('risksim_demo') === 'true') { showDemoUpgradeModal(); }
+    else { showPricing(); }
+    return false;
+  }
 
   var enterpriseOnly = ['Price Intelligence', 'Cost Engine'];
   if (enterpriseOnly.indexOf(featureName) !== -1 && plan !== 'enterprise') {
@@ -7697,127 +7963,175 @@ window.addEventListener('load',function(){
   </div>
 </div>
 
-<!-- ===== D3 INTRO GLOBE ===== -->
+<!-- ===== LANDING PAGE + DEMO JS ===== -->
 <script>
 (function(){
-  var intro=document.getElementById('rs-intro');
-  if(!intro)return;
-  document.body.style.overflow='hidden';
+  var intro = document.getElementById('rs-intro');
+  if (!intro) return;
 
-  var canvas=document.getElementById('introGlobe');
-  var ctx=canvas.getContext('2d');
-  var W=window.innerWidth, H=window.innerHeight;
-  var dpr=window.devicePixelRatio||1;
-  canvas.width=W*dpr; canvas.height=H*dpr;
-  canvas.style.width=W+'px'; canvas.style.height=H+'px';
-  ctx.scale(dpr,dpr);
+  // Skip landing if already paid, demo, bypass, or returning from checkout (?paid= in URL)
+  var _up = new URLSearchParams(window.location.search);
+  var _skipLanding = _up.get('paid') !== null
+    || localStorage.getItem('risksim_paid') === 'true'
+    || localStorage.getItem('risksim_demo') === 'true'
+    || localStorage.getItem('risksim_bypass') === 'junior'
+    || localStorage.getItem('risksim_restored') === 'true';
 
-  var radius=Math.min(W,H)*0.35;
-  var proj=d3.geoOrthographic().scale(radius).translate([W/2,H/2+H*0.08]).clipAngle(90);
-  var pathGen=d3.geoPath().projection(proj).context(ctx);
-  var rotation=[0,-15];
-  var allDots=[];
-  var landData=null;
-
-  function pointInPoly(pt,poly){var x=pt[0],y=pt[1],inside=false;for(var i=0,j=poly.length-1;i<poly.length;j=i++){var xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(yi>y!==yj>y&&x<((xj-xi)*(y-yi))/(yj-yi)+xi)inside=!inside;}return inside;}
-  function pointInFeature(pt,f){var g=f.geometry;if(g.type==='Polygon'){if(!pointInPoly(pt,g.coordinates[0]))return false;for(var i=1;i<g.coordinates.length;i++)if(pointInPoly(pt,g.coordinates[i]))return false;return true;}if(g.type==='MultiPolygon'){for(var p=0;p<g.coordinates.length;p++){if(pointInPoly(pt,g.coordinates[p][0])){var hole=false;for(var i=1;i<g.coordinates[p].length;i++)if(pointInPoly(pt,g.coordinates[p][i])){hole=true;break;}if(!hole)return true;}}return false;}return false;}
-
-  function genDots(feature,spacing){var dots=[];var b=d3.geoBounds(feature);var step=spacing*0.08;for(var lng=b[0][0];lng<=b[1][0];lng+=step)for(var lat=b[0][1];lat<=b[1][1];lat+=step)if(pointInFeature([lng,lat],feature))dots.push([lng,lat]);return dots;}
-
-  function render(){
-    ctx.clearRect(0,0,W,H);
-    var s=proj.scale();
-    // Globe bg
-    ctx.beginPath();ctx.arc(W/2,H/2+H*0.08,s,0,2*Math.PI);ctx.fillStyle='#000';ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1.5;ctx.stroke();
-    if(landData){
-      // Graticule
-      var grat=d3.geoGraticule();ctx.beginPath();pathGen(grat());ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=0.5;ctx.stroke();
-      // Land outlines
-      ctx.beginPath();landData.features.forEach(function(f){pathGen(f);});ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=0.8;ctx.stroke();
-      // Dots
-      allDots.forEach(function(d){var p=proj(d);if(p&&p[0]>=0&&p[0]<=W&&p[1]>=0&&p[1]<=H){ctx.beginPath();ctx.arc(p[0],p[1],1,0,2*Math.PI);ctx.fillStyle='rgba(160,170,180,0.5)';ctx.fill();}});
-    }
+  function _restoreBodyScroll() {
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.height = '';
+    document.body.style.width = '';
+    document.body.style.top = '';
+    document.documentElement.style.height = '';
   }
 
-  // Load land data
-  fetch('https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json')
-    .then(function(r){return r.json();})
-    .then(function(data){
-      landData=data;
-      data.features.forEach(function(f){var dots=genDots(f,14);dots.forEach(function(d){allDots.push(d);});});
-      render();
-    }).catch(function(){render();});
+  function _restoreApp() {
+    setTimeout(function() {
+      var sb = document.getElementById('rsSidebar');
+      if (sb) sb.style.opacity = '1';
+      if (typeof map !== 'undefined' && map) map.invalidateSize();
+    }, 300);
+  }
 
-  // Auto-rotate
-  var autoRotate=true;
-  var timer=d3.timer(function(){
-    if(autoRotate){rotation[0]+=0.3;proj.rotate(rotation);render();}
-  });
+  if (_skipLanding) {
+    intro.remove();
+    window.__introDismissed = true;
+    _restoreBodyScroll();
+    _restoreApp();
+    if (localStorage.getItem('risksim_demo') === 'true') {
+      document.body.classList.add('demo-mode');
+      setTimeout(initDemoMode, 400);
+    }
+    return;
+  }
 
-  // Resize
-  function onResize(){W=window.innerWidth;H=window.innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.scale(dpr,dpr);radius=Math.min(W,H)*0.35;proj.scale(radius).translate([W/2,H/2+H*0.08]);render();}
-  window.addEventListener('resize',onResize);
-
-  // Dismiss
-  var dismissed=false;
-  function dismiss(){
-    if(dismissed)return;dismissed=true;
-    window.__introDismissed=true;
+  // Landing is visible — wire up dismiss
+  function dismissLanding(afterFn) {
+    if (window.__introDismissed) return;
+    window.__introDismissed = true;
     intro.classList.add('dismissing');
-    var cleaned=false;
-    function cleanup(){
-      if(cleaned)return;cleaned=true;
-      intro.removeEventListener('transitionend',onTransitionEnd);
-      timer.stop();
+    setTimeout(function() {
       intro.remove();
-      window.removeEventListener('resize',onResize);
-      document.body.style.overflow='';
-      document.documentElement.style.overflow='';
-      document.body.style.position='';
-      document.body.style.height='';
-      document.body.style.width='';
-      document.body.style.top='';
-      document.documentElement.style.height='';
-      setTimeout(function(){ var sb=document.getElementById('rsSidebar'); if(sb)sb.style.opacity='1'; }, 500);
-      requestAnimationFrame(function(){
-        if(map)map.invalidateSize();
-        if(localStorage.getItem('risksim_onboarded')!=='true'){
-          setTimeout(function(){if(typeof startOnboarding==='function')startOnboarding();},400);
-          return;
-        }
-        var savedProfile = localStorage.getItem('risksim_profile');
-        var isRestored = localStorage.getItem('risksim_restored') === 'true'
-          || localStorage.getItem('risksim_profile_complete') === 'true';
-        if (savedProfile || isRestored) {
-          var btn = document.getElementById('psReopenBtn');
-          if (btn) btn.style.display = 'flex';
-          if(typeof showOnboardSlides==='function'){
-            if(localStorage.getItem('risksim_onboarding_done')==='1'){
-              if(typeof showDailyBriefing==='function')setTimeout(showDailyBriefing,900);
-            }else{
-              setTimeout(showOnboardSlides,900);
-            }
-          }
-        } else {
-          if(window.showProfileSection)window.showProfileSection();
+      _restoreBodyScroll();
+      _restoreApp();
+      if (typeof afterFn === 'function') afterFn();
+    }, 820);
+  }
+  window.dismissLanding = dismissLanding;
+
+  window.lpStartTrial = function() {
+    dismissLanding(function() {
+      if (typeof showPricing === 'function') showPricing();
+    });
+  };
+
+  window.lpBrowseProduct = function() {
+    localStorage.setItem('risksim_demo', 'true');
+    dismissLanding(function() {
+      initDemoMode();
+      if (typeof switchModule === 'function') switchModule('map');
+    });
+  };
+
+  // Enter/Escape → start trial
+  window.__dismissIntro = window.lpStartTrial;
+
+  // Scroll-based fade-in for landing sections
+  if ('IntersectionObserver' in window) {
+    var _obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+          _obs.unobserve(e.target);
         }
       });
-    }
-    function onTransitionEnd(e){if(e.propertyName==='opacity')cleanup();}
-    intro.addEventListener('transitionend',onTransitionEnd);
-    setTimeout(cleanup,1800);
+    }, { threshold: 0.08 });
+    var _fadels = intro.querySelectorAll('.lp-section, .lp-feature-card, .lp-plan-card, .lp-section-heading, .lp-section-body, .lp-stats, .lp-table, .lp-final-ctas, .lp-founder-quote');
+    _fadels.forEach(function(el, i) {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(18px)';
+      el.style.transition = 'opacity 0.55s ease ' + (i * 0.04) + 's, transform 0.55s ease ' + (i * 0.04) + 's';
+      _obs.observe(el);
+    });
   }
-  window.__dismissIntro=dismiss;
-  // Prevent nav links from triggering dismiss
-  var introNav=document.getElementById('introNav');
-  if(introNav)introNav.addEventListener('click',function(e){e.stopPropagation();});
-  intro.addEventListener('click',dismiss);
-  // Block scroll while intro is up
-  intro.addEventListener('wheel',function(e){e.preventDefault();dismiss();},{passive:false});
-  var ty=0;
-  intro.addEventListener('touchstart',function(e){ty=e.touches[0].clientY;},{passive:true});
-  intro.addEventListener('touchmove',function(e){e.preventDefault();if(e.touches[0].clientY<ty-30)dismiss();},{passive:false});
 })();
+
+// ===== DEMO MODE =====
+function initDemoMode() {
+  document.body.classList.add('demo-mode');
+  var banner = document.getElementById('demoBanner');
+  if (banner && localStorage.getItem('risksim_demo_banner_dismissed') !== 'true') {
+    banner.classList.add('active');
+  }
+}
+
+function dismissDemoBanner() {
+  localStorage.setItem('risksim_demo_banner_dismissed', 'true');
+  var banner = document.getElementById('demoBanner');
+  if (banner) banner.classList.remove('active');
+}
+
+function showDemoUpgradeModal() {
+  var m = document.getElementById('demoUpgradeModal');
+  if (m) m.classList.add('active');
+}
+
+function closeDemoUpgradeModal() {
+  var m = document.getElementById('demoUpgradeModal');
+  if (m) m.classList.remove('active');
+}
+
+function lpStartTrialFromApp() {
+  localStorage.removeItem('risksim_demo');
+  localStorage.removeItem('risksim_demo_banner_dismissed');
+  document.body.classList.remove('demo-mode');
+  var banner = document.getElementById('demoBanner');
+  if (banner) banner.classList.remove('active');
+  closeDemoUpgradeModal();
+  if (typeof showPricing === 'function') showPricing();
+}
+
+// ===== POST-CHECKOUT QUESTIONNAIRE (Change 3) =====
+function showPostCheckoutQuestionnaire(plan) {
+  var m = document.getElementById('postCheckoutModal');
+  if (!m) { routeAfterCheckout(plan); return; }
+  m.classList.add('active');
+}
+
+function submitPostCheckoutQuestionnaire() {
+  var typeEl = document.getElementById('pcmCompanyType');
+  var industryEl = document.getElementById('pcmIndustry');
+  if (!window.userProfile) window.userProfile = {};
+  if (typeEl && typeEl.value) window.userProfile.type = typeEl.value;
+  if (industryEl && industryEl.value) {
+    window.userProfile.industry = industryEl.value;
+    if (typeof currentCategory !== 'undefined') currentCategory = industryEl.value;
+  }
+  if (typeof saveProfileToStorage === 'function') saveProfileToStorage();
+  localStorage.setItem('risksim_questionnaire_completed', 'true');
+  var m = document.getElementById('postCheckoutModal');
+  if (m) m.classList.remove('active');
+  routeAfterCheckout(localStorage.getItem('risksim_plan'));
+}
+
+function skipPostCheckoutQuestionnaire() {
+  localStorage.setItem('risksim_questionnaire_completed', 'true');
+  var m = document.getElementById('postCheckoutModal');
+  if (m) m.classList.remove('active');
+  routeAfterCheckout(localStorage.getItem('risksim_plan'));
+}
+
+function routeAfterCheckout(plan) {
+  localStorage.removeItem('risksim_demo');
+  localStorage.removeItem('risksim_demo_banner_dismissed');
+  document.body.classList.remove('demo-mode');
+  localStorage.setItem('risksim_onboarded', 'true');
+  if (typeof updatePlanBadge === 'function') updatePlanBadge();
+  if (typeof switchModule === 'function') switchModule('map');
+}
 </script>
 
 <!-- ===== UNIFIED PRICING OVERLAY ===== -->
