@@ -203,13 +203,14 @@
     .lp-footer-link:hover { color: rgba(255,255,255,0.45); }
 
     /* Demo banner */
-    #demoBanner { position: fixed; top: 0; left: 0; right: 0; z-index: 9000; background: rgba(8,8,8,0.97); border-bottom: 1px solid rgba(255,255,255,0.07); display: none; align-items: center; justify-content: center; gap: 1rem; padding: 0.6rem 1.5rem; flex-wrap: wrap; }
+    #demoBanner { position: fixed; top: 0; left: 0; right: 0; z-index: 9000; background: #080808; border-bottom: 1px solid rgba(255,255,255,0.07); display: none; align-items: center; height: 42px; padding: 0 1.5rem; gap: 1.25rem; }
     #demoBanner.active { display: flex; }
-    .demo-banner-text { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
-    .demo-banner-cta { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; background: none; border: 1px solid rgba(255,255,255,0.18); padding: 0.28rem 0.75rem; cursor: pointer; transition: all 0.2s; }
-    .demo-banner-cta:hover { background: rgba(255,255,255,0.07); }
-    .demo-banner-dismiss { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.18); background: none; border: none; cursor: pointer; transition: color 0.2s; padding: 0; margin-left: 0.25rem; }
-    .demo-banner-dismiss:hover { color: rgba(255,255,255,0.45); }
+    .demo-banner-label { font-family: 'JetBrains Mono', monospace; font-size: 0.54rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.28); flex-shrink: 0; }
+    .demo-banner-text { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 300; color: rgba(255,255,255,0.35); flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .demo-banner-cta { font-family: 'JetBrains Mono', monospace; font-size: 0.54rem; letter-spacing: 0.12em; text-transform: uppercase; color: #fff; background: none; border: 1px solid rgba(255,255,255,0.2); padding: 0.28rem 0.85rem; cursor: pointer; transition: all 0.18s; border-radius: 2px; flex-shrink: 0; white-space: nowrap; }
+    .demo-banner-cta:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.38); }
+    .demo-banner-dismiss { font-size: 0.72rem; color: rgba(255,255,255,0.2); background: none; border: none; cursor: pointer; transition: color 0.18s; padding: 0 0 0 0.5rem; flex-shrink: 0; line-height: 1; }
+    .demo-banner-dismiss:hover { color: rgba(255,255,255,0.5); }
 
     /* Demo upgrade modal */
     #demoUpgradeModal { position: fixed; inset: 0; z-index: 100002; background: rgba(0,0,0,0.82); display: none; align-items: center; justify-content: center; }
@@ -3298,8 +3299,9 @@ window.addEventListener('keydown',__handleIntroKey,true);
 
 <!-- ===== DEMO BANNER ===== -->
 <div id="demoBanner">
-  <span class="demo-banner-text">Browsing in demo mode</span>
-  <button class="demo-banner-cta" onclick="lpStartTrialFromApp()">Start free trial</button>
+  <span class="demo-banner-label">Demo</span>
+  <span class="demo-banner-text">You're browsing in demo mode — sign up to use the full product</span>
+  <button class="demo-banner-cta" onclick="lpStartTrialFromApp()">Start free trial →</button>
   <button class="demo-banner-dismiss" onclick="dismissDemoBanner()">✕</button>
 </div>
 
@@ -4218,7 +4220,7 @@ function initOnboardScrollIndicator(){
 
 // Map chat bar -> unified fullscreen
 function sendQuickMsg(t){openChatFullscreen(t,'map');}
-function handleChatSend(){var input=document.getElementById('chatInput'),msg=input.value.trim();if(!msg)return;input.value='';openChatFullscreen(msg,'map');}
+function handleChatSend(){var input=document.getElementById('chatInput'),msg=input.value.trim();if(!msg)return;if(localStorage.getItem('risksim_demo')==='true'){showDemoUpgradeModal();return;}input.value='';openChatFullscreen(msg,'map');}
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('chatInput').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();handleChatSend();}});});
 // Legacy inline chat functions (kept for backward compat)
 function addUserMessage(t){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg user';d.textContent=t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
@@ -4529,6 +4531,7 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 function runCustomAudit(supplierName){
+  if(localStorage.getItem('risksim_demo')==='true'){showDemoUpgradeModal();return;}
   if(showEnterprisePaywall('auditModule','The Supplier Audit','SYS_02'))return;
   if(_customAuditPending)return;
   _customAuditPending=true;
@@ -4822,7 +4825,7 @@ function switchModule(name){
     if(am){am.style.display='flex';am.style.flexDirection='column';}
     var amMain=document.getElementById('amMain');if(amMain)amMain.classList.add('am-loaded');
     renderAMSupplierList();
-    showEnterprisePaywall('auditModule','The Supplier Audit','SYS_02');
+    if(localStorage.getItem('risksim_demo')!=='true'){showEnterprisePaywall('auditModule','The Supplier Audit','SYS_02');}
     if(navBtns[1])navBtns[1].classList.add('active');
   }else if(name==='warroom'){
     if(wr){
@@ -4831,8 +4834,8 @@ function switchModule(name){
     }
     if(navBtns[2])navBtns[2].classList.add('active');
   }else if(name==='simulator'){
-    if(localStorage.getItem('risksim_bypass')!=='junior'&&localStorage.getItem('risksim_paid')!=='true'){
-      if(localStorage.getItem('risksim_demo')==='true'){showDemoUpgradeModal();}else{showPricing();}return;
+    if(localStorage.getItem('risksim_bypass')!=='junior'&&localStorage.getItem('risksim_paid')!=='true'&&localStorage.getItem('risksim_demo')!=='true'){
+      showPricing();return;
     }
     if(sim){sim.style.display='flex';sim.style.flexDirection='column';}
     var sm=document.getElementById('simMain');if(sm)sm.classList.add('sim-loaded');
@@ -4841,12 +4844,12 @@ function switchModule(name){
   }else if(name==='priceintel'){
     if(pi){pi.style.display='flex';pi.style.flexDirection='column';}
   }else if(name==='costengine'){
-    if(localStorage.getItem('risksim_bypass')!=='junior'&&localStorage.getItem('risksim_paid')!=='true'){
-      if(localStorage.getItem('risksim_demo')==='true'){showDemoUpgradeModal();}else{showPricing();}return;
+    if(localStorage.getItem('risksim_bypass')!=='junior'&&localStorage.getItem('risksim_paid')!=='true'&&localStorage.getItem('risksim_demo')!=='true'){
+      showPricing();return;
     }
     if(ce){ce.style.display='flex';ce.style.flexDirection='column';}
     if(typeof lcOnShow==='function')lcOnShow();
-    showEnterprisePaywall('costEngineModule','The Cost Engine','SYS_06');
+    if(localStorage.getItem('risksim_demo')!=='true'){showEnterprisePaywall('costEngineModule','The Cost Engine','SYS_06');}
   }
 }
 
@@ -5567,7 +5570,7 @@ function addTerminalTyping(){var m=document.getElementById('wmChatMessages'),d=d
 function removeTerminalTyping(){var t=document.getElementById('wmTyping');if(t)t.remove();}
 
 function sendTerminalChat(text){openChatFullscreen(text,'terminal');}
-function handleTerminalChatSend(){var inp=document.getElementById('wmChatInput'),msg=inp.value.trim();if(!msg)return;inp.value='';openChatFullscreen(msg,'terminal');}
+function handleTerminalChatSend(){var inp=document.getElementById('wmChatInput'),msg=inp.value.trim();if(!msg)return;if(localStorage.getItem('risksim_demo')==='true'){showDemoUpgradeModal();return;}inp.value='';openChatFullscreen(msg,'terminal');}
 async function handleTerminalMsg(userText){
   addTerminalUserMsg(userText);addTerminalTyping();
   try{
@@ -6694,6 +6697,7 @@ function showSimAnalysisView(question,results,runAnalysis){
 }
 
 function runSimProgress(question){
+  if(localStorage.getItem('risksim_demo')==='true'){showDemoUpgradeModal();return;}
   if(showEnterprisePaywall('simulatorModule','The Scenario Simulator','SYS_04'))return;
   var pp=document.getElementById('simProgressPanel');
   var stepsEl=document.getElementById('simProgressSteps');if(!pp||!stepsEl)return;
