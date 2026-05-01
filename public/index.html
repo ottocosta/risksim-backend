@@ -100,30 +100,46 @@
     }
     #rs-intro.dismissing { opacity: 0; pointer-events: none; }
 
-    /* Hero */
-    .lp-hero { min-height: 100vh; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .lp-hero-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.68); }
-    .lp-hero-content { position: relative; z-index: 1; text-align: center; padding: 0 1.5rem; max-width: 680px; margin: 0 auto; }
-    .lp-wordmark { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2.5rem, 9vw, 6rem); letter-spacing: 0.04em; color: #fff; text-transform: uppercase; line-height: 1; -webkit-text-stroke: 2px #fff; }
-    .lp-tagline { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: clamp(0.7rem, 1.1vw, 0.9rem); color: rgba(255,255,255,0.45); letter-spacing: 0.35em; text-transform: uppercase; margin-top: 0.9rem; }
-    .lp-hero-desc { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: clamp(0.92rem, 1.25vw, 1.05rem); color: rgba(255,255,255,0.45); line-height: 1.7; margin-top: 1.4rem; max-width: 520px; }
-    .lp-hero-ctas { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 2.4rem; }
-    .lp-btn-primary { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; background: #fff; color: #000; border: none; padding: 0.85rem 2rem; cursor: pointer; transition: background 0.2s; }
+    /* ===== LANDING TOP NAV ===== */
+    .lp-topnav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(0,0,0,0.98); border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; padding: 0 2rem; height: 58px; gap: 1rem;
+    }
+    .lp-topnav-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; letter-spacing: 0.16em; color: #fff; text-transform: uppercase; white-space: nowrap; }
+    .lp-topnav-links { display: flex; align-items: center; justify-content: center; gap: 2.5rem; }
+    .lp-topnav-link { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.2s; white-space: nowrap; }
+    .lp-topnav-link:hover { color: #fff; }
+    .lp-topnav-right { display: flex; justify-content: flex-end; }
+    .lp-topnav-cta { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; background: #fff; color: #000; border: none; padding: 0.5rem 1.25rem; border-radius: 4px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+    .lp-topnav-cta:hover { background: #e8e8e8; }
+    .lp-topnav-hamburger { display: none; background: none; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); font-size: 1rem; padding: 0.3rem 0.6rem; cursor: pointer; border-radius: 4px; }
+    @media (max-width: 640px) {
+      .lp-topnav { grid-template-columns: 1fr auto; }
+      .lp-topnav-links { display: none; }
+      .lp-topnav-links.lp-nav-open { display: flex; flex-direction: column; align-items: flex-start; gap: 1.2rem; position: absolute; top: 58px; left: 0; right: 0; background: rgba(0,0,0,0.99); border-bottom: 1px solid rgba(255,255,255,0.07); padding: 1.5rem 2rem; z-index: 99; }
+      .lp-topnav-right { display: none; }
+      .lp-topnav-hamburger { display: block; }
+    }
+
+    /* ===== HERO ===== */
+    .lp-hero { min-height: 100vh; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18vh 2rem 8rem; position: relative; }
+    .lp-hero-content { text-align: center; max-width: 720px; margin: 0 auto; }
+    .lp-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.28em; text-transform: uppercase; color: #6ee7a0; display: block; margin-bottom: 1.6rem; }
+    .lp-headline { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2.2rem, 6vw, 4.2rem); color: #fff; line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 1.6rem; }
+    .lp-hero-desc { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: clamp(0.95rem, 1.2vw, 1.08rem); color: rgba(255,255,255,0.48); line-height: 1.72; max-width: 60ch; margin: 0 auto 2.4rem; }
+    .lp-hero-ctas { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.4rem; }
+    .lp-trust { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; color: rgba(255,255,255,0.22); }
+    .lp-btn-primary { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; background: #fff; color: #000; border: none; padding: 0.8rem 1.8rem; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
     .lp-btn-primary:hover { background: #e8e8e8; }
-    .lp-btn-secondary { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase; background: transparent; color: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.2); padding: 0.85rem 2rem; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+    .lp-btn-secondary { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; background: transparent; color: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.2); padding: 0.8rem 1.8rem; border-radius: 4px; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
     .lp-btn-secondary:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
-    /* Landing nav */
-    .lp-nav { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 1.4rem 2rem; z-index: 10; }
-    .lp-nav-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.95rem; letter-spacing: 0.14em; color: #fff; text-transform: uppercase; }
-    .lp-nav-links { display: flex; gap: 2rem; }
-    .lp-nav-link { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.2s; }
-    .lp-nav-link:hover { color: rgba(255,255,255,0.8); }
-
     /* Scroll hint */
-    .lp-scroll-hint { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.18); display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
+    .lp-scroll-hint { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
     .lp-scroll-hint svg { animation: lpBounce 2s ease infinite; }
-    @keyframes lpBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+    @keyframes lpBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 
     /* Content sections */
     .lp-section { background: #0a0a0a; padding: 5rem 2rem; }
@@ -1393,6 +1409,27 @@
     .sim-card-action:hover { border-color:rgba(255,255,255,0.2); color:#fff; }
 
 
+    /* ===== HIDE APP UI WHILE LANDING IS SHOWING ===== */
+    body:has(#rs-intro) .risksim-sidebar,
+    body:has(#rs-intro) #sbHamburger,
+    body:has(#rs-intro) #mapContainer,
+    body:has(#rs-intro) #mapSkeleton,
+    body:has(#rs-intro) #heroPanel,
+    body:has(#rs-intro) #layerControls,
+    body:has(#rs-intro) #chatPanel,
+    body:has(#rs-intro) #chatInputWrap,
+    body:has(#rs-intro) #alertBanner,
+    body:has(#rs-intro) #rsNav,
+    body:has(#rs-intro) #warRoomModule,
+    body:has(#rs-intro) #auditModule,
+    body:has(#rs-intro) #simulatorModule,
+    body:has(#rs-intro) #priceIntelModule,
+    body:has(#rs-intro) #costEngineModule,
+    body:has(#rs-intro) #profileSection,
+    body:has(#rs-intro) .map-overlay-header,
+    body:has(#rs-intro) .map-legend,
+    body:has(#rs-intro) #psReopenBtn { display: none !important; }
+
     /* ===== JARVIS VISIBILITY (hide during intro / profile / pricing / demo) ===== */
     body:has(#rs-intro) #jarvisToggle,
     body:has(#rs-intro) #jarvisBorder,
@@ -2389,6 +2426,7 @@
   #costEngineModule {
     position: fixed; inset: 0; background: #080808;
     display: none; flex-direction: column; z-index: 8000; overflow: hidden;
+    width: 100vw; height: 100vh;
   }
   .lc-header {
     padding: 18px 28px 14px; flex-shrink: 0;
@@ -3087,27 +3125,34 @@ window.addEventListener('keydown',__handleIntroKey,true);
 
 <!-- ===== LANDING PAGE ===== -->
 <div id="rs-intro">
+  <!-- Sticky nav bar -->
+  <nav class="lp-topnav" id="lpTopNav">
+    <span class="lp-topnav-brand">Risksim</span>
+    <div class="lp-topnav-links" id="lpNavLinks">
+      <a href="/about.html" class="lp-topnav-link">About</a>
+      <a href="/privacy.html" class="lp-topnav-link">Privacy Policy</a>
+      <a href="/contact.html" class="lp-topnav-link">Contact</a>
+    </div>
+    <div class="lp-topnav-right">
+      <button class="lp-topnav-cta" onclick="lpStartTrial()">Start Free Trial</button>
+    </div>
+    <button class="lp-topnav-hamburger" onclick="document.getElementById('lpNavLinks').classList.toggle('lp-nav-open')" aria-label="Menu">☰</button>
+  </nav>
+
+  <!-- Hero — pure black, no map -->
   <section class="lp-hero">
-    <nav class="lp-nav">
-      <span class="lp-nav-brand">RiskSim</span>
-      <div class="lp-nav-links">
-        <a href="/about.html" class="lp-nav-link">About</a>
-        <a href="/privacy.html" class="lp-nav-link">Privacy</a>
-        <a href="/contact.html" class="lp-nav-link">Contact</a>
-      </div>
-    </nav>
-    <div class="lp-hero-bg"></div>
     <div class="lp-hero-content">
-      <div class="lp-wordmark">RiskSim</div>
-      <div class="lp-tagline">Supply Chain Intelligence</div>
-      <p class="lp-hero-desc">Real-time geopolitical risk, tariff data, and AI-powered scenario modeling — built for teams that move product across borders.</p>
+      <span class="lp-eyebrow">Supply Chain Intelligence</span>
+      <h1 class="lp-headline">Real-time supplier risk<br>for companies under<br>€500M revenue.</h1>
+      <p class="lp-hero-desc">Geopolitical risk scores, tariff tracking, and AI-powered scenario modeling — shipped in minutes, not months. Built for the team that can't afford to wait.</p>
       <div class="lp-hero-ctas">
         <button class="lp-btn-primary" onclick="lpStartTrial()">Start free trial</button>
         <button class="lp-btn-secondary" onclick="lpBrowseProduct()">Browse the product</button>
       </div>
+      <div class="lp-trust">First month free &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Cancel anytime</div>
     </div>
     <div class="lp-scroll-hint">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M7 12l-4-4M7 12l4-4" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M7 12l-4-4M7 12l4-4" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
   </section>
 
