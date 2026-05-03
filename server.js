@@ -16,6 +16,16 @@ app.use(helmet({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
+// Redirect raw Render URL to custom domain so localStorage always uses risksim.ai origin.
+// Exception: /voice.html must stay at backend origin — it's loaded in the Jarvis iframe and
+// the postMessage target in index.html is explicitly 'https://risksim-backend.onrender.com'.
+app.use(function(req, res, next) {
+  if (req.hostname === 'risksim-backend.onrender.com' && req.method === 'GET' && req.path !== '/voice.html') {
+    return res.redirect(301, 'https://risksim.ai' + req.originalUrl);
+  }
+  next();
+});
+
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', 'https://risksim.ai');
   res.header('Access-Control-Allow-Credentials', 'true');
