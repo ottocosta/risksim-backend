@@ -3429,10 +3429,10 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <div class="rm-title">Restore your access</div>
     <div class="rm-sub">Enter the email you used at checkout. We'll verify your subscription with Shopify and unlock your account.</div>
     <input class="rm-input" id="rmEmail" type="email" placeholder="you@company.com" autocomplete="email"
-      onkeydown="if(event.key==='Enter')submitRestoreAccess()">
+      onkeydown="if(event.key==='Enter')submitLandingRestoreAccess()">
     <div class="rm-error" id="rmError"></div>
     <div class="rm-btns">
-      <button class="rm-btn-primary" id="rmSubmitBtn" onclick="submitRestoreAccess()">Restore access</button>
+      <button class="rm-btn-primary" id="rmSubmitBtn" onclick="submitLandingRestoreAccess()">Restore access</button>
       <button class="rm-btn-cancel" onclick="closeRestoreModal()">Cancel</button>
     </div>
   </div>
@@ -7302,12 +7302,6 @@ var _jarvisUseIframe=false;
 function initJarvis(){
   var stored=localStorage.getItem('jarvis_honorific');
   if(stored)_jarvisHonorific=stored;
-  // Chrome workaround: prime speech synthesis engine
-  if('speechSynthesis' in window){
-    var primer=new SpeechSynthesisUtterance('');
-    speechSynthesis.speak(primer);
-    speechSynthesis.cancel();
-  }
   var plan=localStorage.getItem('risksim_plan');
   var enabled=localStorage.getItem('jarvis_enabled')==='1';
   if(enabled&&plan==='enterprise')enableJarvis();
@@ -8263,7 +8257,7 @@ function closeRestoreModal() {
   if (m) m.classList.remove('active');
 }
 
-async function submitRestoreAccess() {
+async function submitLandingRestoreAccess() {
   var emailInput = document.getElementById('rmEmail');
   var errorEl = document.getElementById('rmError');
   var btn = document.getElementById('rmSubmitBtn');
