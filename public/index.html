@@ -2754,8 +2754,6 @@
 </head>
 <body>
 
-<script>if(window.location.hostname==='risksim-backend.onrender.com'){window.location.replace('https://risksim.ai'+window.location.pathname+window.location.search+window.location.hash);}</script>
-<noscript><meta http-equiv="refresh" content="0; url=https://risksim.ai"></noscript>
 
 <script>
 async function goToCheckout(variantId, sellingPlanId) {
@@ -3234,7 +3232,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
         <button class="lp-btn-secondary" onclick="lpBrowseProduct()">Browse the product</button>
       </div>
       <div class="lp-trust">First month free &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Cancel anytime</div>
-      <button class="lp-restore-link" onclick="openRestoreModal()">Just paid? Click here to access RiskSim →</button>
       <button class="lp-restore-link" onclick="openRestoreModal()">Already a customer? Restore access →</button>
     </div>
     <div class="lp-scroll-hint">
@@ -8216,10 +8213,6 @@ window.addEventListener('load',function(){
       el.style.transition = 'opacity 0.55s ease ' + (i * 0.04) + 's, transform 0.55s ease ' + (i * 0.04) + 's';
       _obs.observe(el);
     });
-  }
-
-  if (new URLSearchParams(window.location.search).get('restore') === '1') {
-    setTimeout(openRestoreModal, 300);
   }
 })();
 

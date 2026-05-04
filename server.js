@@ -16,24 +16,6 @@ app.use(helmet({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// DISABLED 2026-05-03 - causing site outage, will revisit Monday with a different approach
-// app.use(function(req, res, next) {
-//   var fwdHost = req.headers['x-forwarded-host'];
-//   if (
-//     req.method === 'GET' &&
-//     fwdHost === 'risksim-backend.onrender.com' &&
-//     req.path !== '/voice.html' &&
-//     req.path !== '/health' &&
-//     req.path !== '/healthz'
-//   ) {
-//     var target = 'https://risksim.ai' + req.originalUrl;
-//     if (target !== req.originalUrl) {
-//       return res.redirect(301, target);
-//     }
-//   }
-//   next();
-// });
-
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', 'https://risksim.ai');
   res.header('Access-Control-Allow-Credentials', 'true');
