@@ -3860,8 +3860,7 @@ var map=null,countryMarkers={},currentLayer='risk',currentCategory='technology',
   } catch(e){}
   if(localStorage.getItem('risksim_paid')==='true'&&!localStorage.getItem('risksim_profile')){
     setTimeout(function(){
-      var panel=document.getElementById('onboardingPanel');
-      if(panel)panel.style.display='block';
+      if(typeof window.startOnboarding==='function')window.startOnboarding();
     },600);
   }
 })();
