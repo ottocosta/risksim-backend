@@ -8285,6 +8285,26 @@ async function submitLandingRestoreAccess() {
       localStorage.removeItem('risksim_demo');
       localStorage.removeItem('risksim_demo_banner_dismissed');
       if (data.email) localStorage.setItem('risksim_email', data.email);
+      if (data.profile) {
+        var p = data.profile;
+        var src = p.sourcingCountries ? p.sourcingCountries.split(',').filter(Boolean) : [];
+        var restoredProfile = {
+          userProfile: {
+            companyName: p.companyName || '',
+            country:     p.homeCountry || '',
+            industry:    p.industry || '',
+            employees:   p.companySize || '',
+            products:    p.products || '',
+            suppliers:   p.keySuppliers || '',
+            concern:     p.primaryConcern || '',
+            context:     p.businessDescription || '',
+            regions:     src.join(', ')
+          },
+          selectedSourcingCountries: src,
+          currentCategory: p.currentCategory || p.industry || 'technology'
+        };
+        localStorage.setItem('risksim_profile', JSON.stringify(restoredProfile));
+      }
       closeRestoreModal();
       window.location.reload();
     } else {
