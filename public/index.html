@@ -9811,7 +9811,8 @@ body.oob-active #rsNav{display:none!important;}
   function oobNext(){
     if(!validate(_scr))return;
     collect(_scr);
-    if(_scr<12)goTo(_scr+1);
+    if(_scr===11&&localStorage.getItem('risksim_paid')==='true'){oobEnterApp();}
+    else if(_scr<12){goTo(_scr+1);}
   }
 
   function oobSkip(){
