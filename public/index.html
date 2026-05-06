@@ -9986,7 +9986,7 @@ body.oob-active #rsNav{display:none!important;}
         +'<div class="oob-about-founders-line">Otto Costa \u2014 CEO &nbsp;\u00b7&nbsp; Kai Poh \u2014 CTO &nbsp;\u00b7&nbsp; Luukas Niskanen \u2014 COO</div>'
         +'<div class="oob-about-founders-caption">No funding. No office. Just built.</div>'
       +'</div>'
-      +'<button class="oob-btn" onclick="window._oobNext()">See plans</button>';
+      +'<button class="oob-btn" onclick="window._oobNext()">'+(localStorage.getItem('risksim_paid')==='true'?'Get started':'See plans')+'</button>';
     ov.appendChild(s11);
 
     // Screen 12: Plan selection
