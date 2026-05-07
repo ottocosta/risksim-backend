@@ -1284,6 +1284,39 @@
     .cf-typing-dot:nth-child(2) { animation-delay:0.2s; }
     .cf-typing-dot:nth-child(3) { animation-delay:0.4s; }
 
+    /* Visual Chat — Incident Card */
+    .vc-card { margin-top:12px; border-radius:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(45,212,191,0.18); overflow:hidden; font-size:12px; width:100%; max-width:420px; }
+    .vc-card-header { padding:12px 14px 10px; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:flex-start; gap:10px; }
+    .vc-sev { font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; padding:3px 7px; border-radius:4px; font-weight:700; flex-shrink:0; margin-top:2px; }
+    .vc-sev.p1 { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); }
+    .vc-sev.p2 { background:rgba(251,146,60,0.15); color:#fb923c; border:1px solid rgba(251,146,60,0.3); }
+    .vc-card-titles { flex:1; min-width:0; }
+    .vc-card-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#fff; line-height:1.3; margin-bottom:2px; }
+    .vc-card-sub { font-size:11px; color:rgba(255,255,255,0.45); line-height:1.4; }
+    .vc-card-body { padding:12px 14px; }
+    .vc-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+    .vc-stat { background:rgba(255,255,255,0.03); border-radius:8px; padding:8px 10px; border:1px solid rgba(255,255,255,0.06); }
+    .vc-stat-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.1em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:3px; }
+    .vc-stat-value { font-size:15px; font-weight:700; color:#fff; line-height:1; }
+    .vc-stat-sub { font-size:10px; color:rgba(255,255,255,0.35); margin-top:2px; }
+    .vc-section-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.1em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:6px; }
+    .vc-bars { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+    .vc-bar-row { display:flex; align-items:center; gap:8px; }
+    .vc-bar-name { font-size:11px; color:rgba(255,255,255,0.6); width:110px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .vc-bar-track { flex:1; height:4px; background:rgba(255,255,255,0.07); border-radius:2px; overflow:hidden; }
+    .vc-bar-fill { height:100%; background:var(--accent); border-radius:2px; }
+    .vc-bar-amt { font-family:var(--font-mono); font-size:9px; color:rgba(255,255,255,0.4); width:52px; text-align:right; flex-shrink:0; }
+    .vc-delay { font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:12px; padding:7px 10px; background:rgba(255,255,255,0.03); border-radius:6px; border-left:2px solid rgba(45,212,191,0.4); }
+    .vc-action { background:rgba(45,212,191,0.06); border:1px solid rgba(45,212,191,0.18); border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; }
+    .vc-action-text { flex:1; font-size:11px; color:rgba(255,255,255,0.7); line-height:1.4; }
+    .vc-action-impact { font-family:var(--font-mono); font-size:9px; color:var(--accent); margin-top:2px; }
+    .vc-action-cta { font-family:var(--font-mono); font-size:9px; letter-spacing:0.08em; padding:6px 10px; border-radius:6px; background:rgba(45,212,191,0.12); border:1px solid rgba(45,212,191,0.3); color:var(--accent); cursor:pointer; white-space:nowrap; flex-shrink:0; transition:background 0.2s; }
+    .vc-action-cta:hover { background:rgba(45,212,191,0.22); }
+    /* Follow-up chips */
+    .vc-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+    .vc-chip { font-size:11px; padding:5px 11px; border-radius:20px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+    .vc-chip:hover { border-color:rgba(45,212,191,0.4); color:var(--accent); background:rgba(45,212,191,0.06); }
+
     /* Empty State */
     .cf-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; text-align:center; padding:40px; }
     .cf-empty-icon { font-size:32px; margin-bottom:16px; opacity:0.5; }
@@ -3846,6 +3879,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
 
 <script>
 var map=null,countryMarkers={},currentLayer='risk',currentCategory='technology',userProfile={},selectedSourcingCountries=[];
+var VISUAL_CHAT_DEV=localStorage.getItem('rs_visual_chat_dev')==='true';
 
 // ===== LOAD PROFILE FROM LOCALSTORAGE =====
 (function(){
@@ -5797,6 +5831,74 @@ function cfRenderMessages(convId){
   msgEl.scrollTop=msgEl.scrollHeight;
 }
 
+// ===== VISUAL CHAT — MOCK DATA + RENDERERS =====
+var _vcMockCard={
+  severity:'P1',category:'logistics',
+  title:'Port closure at Shenzhen Yantian',
+  subtitle:'Typhoon-related shutdown — 48–72hr estimated resumption',
+  location:{display:'Yantian, Shenzhen, China'},
+  direct_exposure_usd:2400000,
+  affected_pos_count:14,
+  suppliers_hit:[
+    {name:'Guangdong Flex Tech',exposure_usd:980000},
+    {name:'Shenzhen Apex Mfg',exposure_usd:640000},
+    {name:'Foshan Components',exposure_usd:420000}
+  ],
+  delay_risk:'9–14 days to North America DCs',
+  recommended_action:{text:'Reroute 3 critical POs via Hong Kong Kwai Chung — vessels departing Friday.',impact_estimate:'Saves ~$180K in delay costs',cta_label:'Run mitigation'}
+};
+var _vcMockChips=['Show alternate suppliers','Calculate delay impact','What's my tariff exposure?'];
+
+function _vcFmtUsd(n){
+  if(n>=1000000)return '$'+(n/1000000).toFixed(1)+'M';
+  if(n>=1000)return '$'+(n/1000).toFixed(0)+'K';
+  return '$'+n;
+}
+function buildIncidentCardHtml(c){
+  var maxExp=c.suppliers_hit[0]?c.suppliers_hit[0].exposure_usd:1;
+  var bars=c.suppliers_hit.map(function(s){
+    var pct=Math.round((s.exposure_usd/maxExp)*100);
+    return '<div class="vc-bar-row"><div class="vc-bar-name">'+s.name+'</div><div class="vc-bar-track"><div class="vc-bar-fill" style="width:'+pct+'%"></div></div><div class="vc-bar-amt">'+_vcFmtUsd(s.exposure_usd)+'</div></div>';
+  }).join('');
+  return '<div class="vc-card">'
+    +'<div class="vc-card-header">'
+      +'<div class="vc-sev '+c.severity.toLowerCase()+'">'+c.severity+'</div>'
+      +'<div class="vc-card-titles">'
+        +'<div class="vc-card-title">'+c.title+'</div>'
+        +'<div class="vc-card-sub">'+c.subtitle+'</div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="vc-card-body">'
+      +'<div class="vc-stats">'
+        +'<div class="vc-stat"><div class="vc-stat-label">Direct exposure</div><div class="vc-stat-value">'+_vcFmtUsd(c.direct_exposure_usd)+'</div></div>'
+        +'<div class="vc-stat"><div class="vc-stat-label">POs affected</div><div class="vc-stat-value">'+c.affected_pos_count+'</div><div class="vc-stat-sub">active orders</div></div>'
+      +'</div>'
+      +'<div class="vc-section-label">Supplier exposure</div>'
+      +'<div class="vc-bars">'+bars+'</div>'
+      +'<div class="vc-delay">&#9201; Delay risk: '+c.delay_risk+'</div>'
+      +'<div class="vc-action">'
+        +'<div class="vc-action-text">'+c.recommended_action.text+'<div class="vc-action-impact">'+c.recommended_action.impact_estimate+'</div></div>'
+        +'<div class="vc-action-cta">'+c.recommended_action.cta_label+'</div>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+}
+function buildChipsHtml(chips){
+  var html='<div class="vc-chips">';
+  chips.forEach(function(ch){
+    html+='<div class="vc-chip" onclick="cfSendFromChip(this)">'+ch+'</div>';
+  });
+  return html+'</div>';
+}
+window.cfSendFromChip=function(el){
+  var txt=el.textContent||el.innerText;
+  if(txt&&typeof cfSendMessage==='function'){
+    var inp=document.getElementById('cfInput');
+    if(inp){inp.value=txt;}
+    cfSendMessage();
+  }
+};
+
 function cfRenderEmpty(){
   var msgEl=document.getElementById('cfMessages');
   if(!msgEl)return;
@@ -5906,8 +6008,10 @@ async function cfSendMessage(userText){
     var reply=d.reply||d.response||d.error||'Unable to process.';
     // Remove typing
     var tp=document.getElementById('cfTyping');if(tp)tp.remove();
-    // Save AI message
-    cfAddMessage(_cfActiveConv,'ai',reply);
+    // Save AI message — append visual card + chips when dev flag is on
+    var fullReply=reply;
+    if(VISUAL_CHAT_DEV){fullReply+=buildIncidentCardHtml(_vcMockCard)+buildChipsHtml(_vcMockChips);}
+    cfAddMessage(_cfActiveConv,'ai',fullReply);
     cfRenderMessages(_cfActiveConv);
     // Save to sidebar history
     if(typeof saveToHistory==='function'){
