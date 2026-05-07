@@ -231,7 +231,25 @@ function buildSystemPrompt(profile) {
 'General Manufacturing: China 95, Germany 78, Mexico 78, India 72, United States 65.\n' +
 'Consumer Goods: China 92, India 65, Vietnam 62, Thailand 55, Indonesia 45.\n\n' +
 
-'When asked about sourcing, comparisons, or where to source from, reference these scores naturally in conversation.';
+'When asked about sourcing, comparisons, or where to source from, reference these scores naturally in conversation.' +
+
+'\n\nSTRUCTURED INCIDENT CARDS (the ONLY exception to the plain text rule above):\n' +
+'When a question is specifically about an active supply chain disruption — a port closure, typhoon, strike, factory shutdown, logistics incident, or similar real-time event that directly affects the user\'s sourcing regions or named suppliers — append the following block on a new line AFTER your complete spoken response. Do not alter your spoken response; only add the block after it. The user never sees this block; it drives UI rendering only.\n\n' +
+'Format (copy exactly, including the sentinel lines):\n' +
+'[BLOCKS_START]\n' +
+'[{"type":"incident_card","data":{"severity":"P1","category":"logistics","title":"<event title, max 60 chars>","subtitle":"<one-line event summary, max 60 chars>","direct_exposure_usd":<estimated USD number, use 0 if unknown>,"affected_pos_count":<estimated count, use 0 if unknown>,"suppliers_hit":[{"name":"<supplier name relevant to user profile or disruption location>","exposure_usd":<number, use 0 if unknown>}],"delay_risk":"<e.g. 9-14 days to North America DCs>","recommended_action":{"text":"<one concrete sentence recommending an action>","impact_estimate":"<brief estimated benefit, e.g. Saves ~$180K in delay costs>","cta_label":"Run mitigation"}}},{"type":"follow_up_chips","options":["<3-6 word chip>","<3-6 word chip>","<3-6 word chip>"]}]\n' +
+'[BLOCKS_END]\n\n' +
+'When to append a block — YES:\n' +
+'  - "Typhoon hitting Yantian port, what\'s my exposure?"\n' +
+'  - "There\'s a port strike in Shanghai — how does that affect me?"\n' +
+'  - "I heard the Red Sea shipping lanes are disrupted"\n\n' +
+'When NOT to append a block — NO:\n' +
+'  - General risk questions: "What are my biggest risks?"\n' +
+'  - Sourcing comparisons: "Should I source from Vietnam or China?"\n' +
+'  - Tariff or strategy questions: "How do I reduce costs?"\n' +
+'  - Vague or casual questions: "What\'s the vibe of supply chain?"\n' +
+'  - Identity questions: "Who are you?"\n\n' +
+'If uncertain whether a question warrants a block, do NOT include one. Err on the side of plain text.';
 
     if (profile && (profile.companyType || profile.homeCountry || profile.industry)) {
         prompt += '\n\n## User Company Profile\n';
@@ -294,8 +312,23 @@ app.post('/api/chat', async (req, res) => {
             messages: allMessages
         });
 
-        const reply = response.content[0]?.text || 'No response';
-        res.json({ reply, blocks: [] });
+        const rawText = response.content[0]?.text || 'No response';
+        let reply = rawText;
+        let blocks = [];
+        const blockStart = rawText.indexOf('[BLOCKS_START]');
+        if (blockStart !== -1) {
+            reply = rawText.slice(0, blockStart).trim();
+            const blockEnd = rawText.indexOf('[BLOCKS_END]', blockStart);
+            if (blockEnd !== -1) {
+                try {
+                    blocks = JSON.parse(rawText.slice(blockStart + 14, blockEnd).trim());
+                } catch (e) {
+                    console.error('blocks parse error:', e.message);
+                    blocks = [];
+                }
+            }
+        }
+        res.json({ reply, blocks });
     } catch (error) {
         console.error('API Error:', error);
         res.status(500).json({ error: error.message });
