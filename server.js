@@ -295,7 +295,7 @@ app.post('/api/chat', async (req, res) => {
         });
 
         const reply = response.content[0]?.text || 'No response';
-        res.json({ reply });
+        res.json({ reply, blocks: [] });
     } catch (error) {
         console.error('API Error:', error);
         res.status(500).json({ error: error.message });
