@@ -5899,6 +5899,16 @@ window.cfSendFromChip=function(el){
   }
 };
 
+function renderBlocks(blocks){
+  var html='';
+  blocks.forEach(function(block){
+    if(block.type==='incident_card'){html+=buildIncidentCardHtml(block.data);}
+    else if(block.type==='follow_up_chips'){html+=buildChipsHtml(block.options);}
+    else if(block.type==='text'){html+='<p style="margin:8px 0">'+block.content+'</p>';}
+  });
+  return html;
+}
+
 function cfRenderEmpty(){
   var msgEl=document.getElementById('cfMessages');
   if(!msgEl)return;
@@ -6006,11 +6016,15 @@ async function cfSendMessage(userText){
     var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:body});
     var d=await r.json();
     var reply=d.reply||d.response||d.error||'Unable to process.';
+    var blocks=Array.isArray(d.blocks)?d.blocks:[];
     // Remove typing
     var tp=document.getElementById('cfTyping');if(tp)tp.remove();
-    // Save AI message — append visual card + chips when dev flag is on
+    // Build full reply: real blocks > mock fallback > plain text
     var fullReply=reply;
-    if(VISUAL_CHAT_DEV){fullReply+=buildIncidentCardHtml(_vcMockCard)+buildChipsHtml(_vcMockChips);}
+    if(localStorage.getItem('rs_visual_chat_dev')==='true'){
+      if(blocks.length>0){fullReply+=renderBlocks(blocks);}
+      else{fullReply+=buildIncidentCardHtml(_vcMockCard)+buildChipsHtml(_vcMockChips);}
+    }
     cfAddMessage(_cfActiveConv,'ai',fullReply);
     cfRenderMessages(_cfActiveConv);
     // Save to sidebar history
