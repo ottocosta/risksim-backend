@@ -1285,7 +1285,7 @@
     .cf-typing-dot:nth-child(3) { animation-delay:0.4s; }
 
     /* Visual Chat — Incident Card */
-    .vc-card { margin-top:12px; border-radius:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(45,212,191,0.18); overflow:hidden; font-size:12px; width:100%; max-width:420px; }
+    .vc-card { margin-top:12px; border-radius:14px; background:#0a0c10; border:1px solid rgba(255,255,255,0.18); box-shadow:inset 0 2px 0 rgba(45,212,191,0.6); overflow:hidden; font-size:12px; width:100%; max-width:420px; }
     .vc-card-header { padding:12px 14px 10px; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:flex-start; gap:10px; }
     .vc-sev { font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; padding:3px 7px; border-radius:4px; font-weight:700; flex-shrink:0; margin-top:2px; }
     .vc-sev.p1 { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); }
@@ -1293,6 +1293,7 @@
     .vc-card-titles { flex:1; min-width:0; }
     .vc-card-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#fff; line-height:1.3; margin-bottom:2px; }
     .vc-card-sub { font-size:11px; color:rgba(255,255,255,0.45); line-height:1.4; }
+    .vc-card-cat { font-family:var(--font-mono); font-size:8px; letter-spacing:0.12em; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:5px; }
     .vc-card-body { padding:12px 14px; }
     .vc-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
     .vc-stat { background:rgba(255,255,255,0.03); border-radius:8px; padding:8px 10px; border:1px solid rgba(255,255,255,0.06); }
@@ -5864,6 +5865,7 @@ function buildIncidentCardHtml(c){
     +'<div class="vc-card-header">'
       +'<div class="vc-sev '+c.severity.toLowerCase()+'">'+c.severity+'</div>'
       +'<div class="vc-card-titles">'
+        +'<div class="vc-card-cat">'+(c.category?c.category.toUpperCase():'INCIDENT')+' · ACTIVE</div>'
         +'<div class="vc-card-title">'+c.title+'</div>'
         +'<div class="vc-card-sub">'+c.subtitle+'</div>'
       +'</div>'
