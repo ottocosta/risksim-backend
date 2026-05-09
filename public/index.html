@@ -1245,7 +1245,7 @@
     @keyframes cfSlideUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
 
     /* Sidebar */
-    .cf-sidebar { width:280px; min-width:280px; background:rgba(255,255,255,0.03); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%); border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; padding:16px 0; }
+    .cf-sidebar { width:280px; min-width:280px; background:rgba(255,255,255,0.03); backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%); border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; padding:16px 0; will-change:width; transition:width 0.25s cubic-bezier(0.16,1,0.3,1),min-width 0.25s cubic-bezier(0.16,1,0.3,1); }
     .cf-sidebar-header { padding:0 16px 16px; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:space-between; }
     .cf-sidebar-title { font-family:var(--font-mono); font-size:9px; letter-spacing:0.15em; color:rgba(255,255,255,0.35); text-transform:uppercase; }
     .cf-new-chat { padding:7px 14px; border-radius:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); font-family:var(--font-mono); font-size:10px; cursor:pointer; transition:all 0.2s; }
@@ -1262,6 +1262,9 @@
     .cf-conv-delete { opacity:0; background:none; border:none; color:rgba(255,255,255,0.3); font-size:11px; cursor:pointer; padding:2px 4px; transition:all 0.2s; float:right; margin-top:-2px; }
     .cf-conv-item:hover .cf-conv-delete { opacity:1; }
     .cf-conv-delete:hover { color:rgba(255,100,100,0.8); }
+    #chatFullscreen.cf-sb-collapsed .cf-sidebar { width:0; min-width:0; overflow:hidden; border:0; }
+    #chatFullscreen.cf-sb-collapsed .cf-messages { max-width:1200px; }
+    #chatFullscreen.cf-sb-collapsed .cf-input-area { max-width:1200px; }
 
     /* Main Chat Area */
     .cf-main { flex:1; display:flex; flex-direction:column; position:relative; }
@@ -1346,7 +1349,7 @@
     .cf-send:active { transform:scale(0.95); }
 
     /* Mobile sidebar */
-    .cf-mobile-toggle { display:none; width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); font-size:14px; cursor:pointer; align-items:center; justify-content:center; transition:all 0.2s; }
+    .cf-mobile-toggle { display:flex; width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); font-size:14px; cursor:pointer; align-items:center; justify-content:center; transition:all 0.2s; margin-right:10px; }
     .cf-mobile-toggle:hover { background:rgba(255,255,255,0.08); color:#fff; }
     @media (max-width:768px) {
       .cf-sidebar { position:absolute; left:0; top:0; bottom:0; z-index:10; transform:translateX(-100%); transition:transform 0.3s cubic-bezier(0.16,1,0.3,1); }
@@ -3864,7 +3867,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
   <div class="cf-main">
     <div class="cf-topbar">
       <div style="display:flex;align-items:center;">
-        <button class="cf-mobile-toggle" onclick="document.getElementById('cfSidebar').classList.toggle('cf-sb-open')">≡</button>
+        <button class="cf-mobile-toggle" onclick="cfToggleSidebar()">≡</button>
         <span class="cf-topbar-title">RiskSim AI</span>
         <span class="cf-topbar-source" id="cfSource"></span>
       </div>
@@ -5949,6 +5952,8 @@ function openChatFullscreen(msg,source){
   _cfChatSource=source||_activeModule||'map';
   var cf=document.getElementById('chatFullscreen');
   cf.classList.add('cf-open');
+  if(localStorage.getItem('risksim_sidebar_collapsed')!=='false')cf.classList.add('cf-sb-collapsed');
+  else cf.classList.remove('cf-sb-collapsed');
   document.getElementById('cfSource').textContent=_cfChatSource==='terminal'?'VIA TERMINAL':'VIA MAP';
   cfRenderQuickActions();
   // Create new conversation if none active
@@ -5976,6 +5981,17 @@ function closeChatFullscreen(){
   if(sb)sb.classList.remove('cf-sb-open');
 }
 
+function cfToggleSidebar(){
+  if(window.innerWidth<=768){
+    var sb=document.getElementById('cfSidebar');
+    if(sb)sb.classList.toggle('cf-sb-open');
+  }else{
+    var cf=document.getElementById('chatFullscreen');
+    var collapsed=cf.classList.toggle('cf-sb-collapsed');
+    localStorage.setItem('risksim_sidebar_collapsed',collapsed?'true':'false');
+  }
+}
+
 function cfNewChat(){
   var conv=cfCreateConversation(null,_cfChatSource);
   _cfActiveConv=conv.id;
@@ -5991,6 +6007,10 @@ function cfSwitchConv(id){
   cfRenderMessages(id);
   var sb=document.getElementById('cfSidebar');
   if(sb)sb.classList.remove('cf-sb-open');
+  if(window.innerWidth>768){
+    var cf=document.getElementById('chatFullscreen');
+    if(cf){cf.classList.add('cf-sb-collapsed');localStorage.setItem('risksim_sidebar_collapsed','true');}
+  }
 }
 
 // ===== SEND MESSAGE =====
