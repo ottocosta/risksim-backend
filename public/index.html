@@ -5906,8 +5906,8 @@ window.cfSendFromChip=function(el){
   var txt=el.textContent||el.innerText;
   if(txt&&typeof cfSendMessage==='function'){
     var inp=document.getElementById('cfInput');
-    if(inp){inp.value=txt;}
-    cfSendMessage();
+    if(inp){inp.value='';}
+    cfSendMessage(txt);
   }
 };
 
