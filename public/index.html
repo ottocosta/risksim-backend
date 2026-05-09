@@ -1306,6 +1306,9 @@
     .vc-bar-name { font-size:11px; color:rgba(255,255,255,0.6); width:110px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .vc-bar-track { flex:1; height:14px; background:rgba(255,255,255,0.07); border-radius:7px; overflow:hidden; }
     .vc-bar-fill { height:100%; background:var(--accent); border-radius:7px; }
+    .vc-bar-fill.r0 { background:rgba(255,59,48,0.6); }
+    .vc-bar-fill.r1 { background:rgba(245,158,11,0.6); }
+    .vc-bar-fill.r2 { background:rgba(45,212,191,0.7); }
     .vc-bar-amt { font-family:var(--font-mono); font-size:9px; color:rgba(255,255,255,0.4); width:52px; text-align:right; flex-shrink:0; }
     .vc-delay { font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:12px; padding:7px 10px; background:rgba(255,255,255,0.03); border-radius:6px; border-left:2px solid rgba(45,212,191,0.4); }
     .vc-action { background:rgba(45,212,191,0.06); border:1px solid rgba(45,212,191,0.18); border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; }
@@ -5857,9 +5860,11 @@ function _vcFmtUsd(n){
 }
 function buildIncidentCardHtml(c){
   var maxExp=c.suppliers_hit[0]?c.suppliers_hit[0].exposure_usd:1;
-  var bars=c.suppliers_hit.map(function(s){
+  var n=c.suppliers_hit.length;
+  var bars=c.suppliers_hit.map(function(s,i){
     var pct=Math.round((s.exposure_usd/maxExp)*100);
-    return '<div class="vc-bar-row"><div class="vc-bar-name">'+s.name+'</div><div class="vc-bar-track"><div class="vc-bar-fill" style="width:'+pct+'%"></div></div><div class="vc-bar-amt">'+_vcFmtUsd(s.exposure_usd)+'</div></div>';
+    var rc=n===1?'r2':(i===0?'r0':(i===n-1?'r2':'r1'));
+    return '<div class="vc-bar-row"><div class="vc-bar-name">'+s.name+'</div><div class="vc-bar-track"><div class="vc-bar-fill '+rc+'" style="width:'+pct+'%"></div></div><div class="vc-bar-amt">'+_vcFmtUsd(s.exposure_usd)+'</div></div>';
   }).join('');
   return '<div class="vc-card">'
     +'<div class="vc-card-header">'
