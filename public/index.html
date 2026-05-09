@@ -1314,11 +1314,12 @@
     .vc-bar-fill.r2 { background:rgba(45,212,191,0.7); }
     .vc-bar-amt { font-family:var(--font-mono); font-size:9px; color:rgba(255,255,255,0.4); width:52px; text-align:right; flex-shrink:0; }
     .vc-delay { font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:12px; padding:7px 10px; background:rgba(255,255,255,0.03); border-radius:6px; border-left:2px solid rgba(45,212,191,0.4); }
-    .vc-action { background:rgba(45,212,191,0.06); border:1px solid rgba(45,212,191,0.18); border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; }
+    .vc-action { background:rgba(45,212,191,0.06); border:1px solid rgba(45,212,191,0.4); border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; }
+    .vc-action-icon { width:24px; height:24px; border-radius:50%; background:rgba(45,212,191,0.25); flex-shrink:0; }
     .vc-action-text { flex:1; font-size:11px; color:rgba(255,255,255,0.7); line-height:1.4; }
     .vc-action-impact { font-family:var(--font-mono); font-size:9px; color:var(--accent); margin-top:2px; }
-    .vc-action-cta { font-family:var(--font-mono); font-size:9px; letter-spacing:0.08em; padding:6px 10px; border-radius:6px; background:rgba(45,212,191,0.12); border:1px solid rgba(45,212,191,0.3); color:var(--accent); cursor:pointer; white-space:nowrap; flex-shrink:0; transition:background 0.2s; }
-    .vc-action-cta:hover { background:rgba(45,212,191,0.22); }
+    .vc-action-cta { font-family:var(--font-mono); font-size:9px; letter-spacing:0.08em; padding:6px 10px; border-radius:6px; background:#2dd4bf; color:#050608; cursor:pointer; white-space:nowrap; flex-shrink:0; transition:background 0.2s; }
+    .vc-action-cta:hover { background:var(--accent2); }
     /* Follow-up chips */
     .vc-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
     .vc-chip { font-size:11px; padding:5px 11px; border-radius:20px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); cursor:pointer; transition:all 0.2s; white-space:nowrap; }
@@ -5887,6 +5888,7 @@ function buildIncidentCardHtml(c){
       +'<div class="vc-bars">'+bars+'</div>'
       +'<div class="vc-delay">&#9201; Delay risk: '+c.delay_risk+'</div>'
       +'<div class="vc-action">'
+        +'<div class="vc-action-icon"></div>'
         +'<div class="vc-action-text">'+c.recommended_action.text+'<div class="vc-action-impact">'+c.recommended_action.impact_estimate+'</div></div>'
         +'<div class="vc-action-cta">'+c.recommended_action.cta_label+'</div>'
       +'</div>'
