@@ -1288,7 +1288,7 @@
     .cf-typing-dot:nth-child(3) { animation-delay:0.4s; }
 
     /* Visual Chat — Incident Card */
-    .vc-card { margin-top:12px; border-radius:14px; background:#0a0c10; border:1px solid rgba(255,255,255,0.18); box-shadow:inset 0 2px 0 rgba(45,212,191,0.6); overflow:hidden; font-size:12px; width:100%; max-width:520px; }
+    .vc-card { margin-top:12px; border-radius:14px; background:#0a0c10; border:1px solid rgba(200,55,40,0.45); box-shadow:0 0 28px rgba(200,55,40,0.18); overflow:hidden; font-size:12px; width:100%; max-width:900px; }
     .vc-card-header { padding:12px 14px 10px; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; align-items:flex-start; gap:10px; }
     .vc-sev { font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; padding:3px 7px; border-radius:4px; font-weight:700; flex-shrink:0; margin-top:2px; }
     .vc-sev.p1 { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); }
@@ -1297,7 +1297,15 @@
     .vc-card-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#fff; line-height:1.3; margin-bottom:2px; }
     .vc-card-sub { font-size:11px; color:rgba(255,255,255,0.45); line-height:1.4; }
     .vc-card-cat { font-family:var(--font-mono); font-size:8px; letter-spacing:0.12em; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:5px; }
-    .vc-card-body { padding:12px 14px; }
+    .vc-card-body { display:flex; padding:0; }
+    .vc-banner { display:flex; justify-content:space-between; align-items:center; padding:10px 16px; background:rgba(180,40,30,0.22); border-bottom:1px solid rgba(180,40,30,0.45); }
+    .vc-banner-left { display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:10px; letter-spacing:0.1em; color:#fff; }
+    .vc-banner-dot { width:7px; height:7px; border-radius:50%; background:#ef4444; flex-shrink:0; }
+    .vc-banner-right { font-size:11px; color:rgba(255,255,255,0.55); }
+    .vc-banner-right strong { font-weight:600; color:rgba(255,255,255,0.85); }
+    .vc-card-left { flex:60; padding:12px 14px; min-width:0; }
+    .vc-card-right { flex:40; background:rgba(0,0,0,0.32); background-image:radial-gradient(circle at 68% 55%, rgba(239,68,68,0.18) 0%, transparent 58%); min-height:220px; }
+    @media (max-width:640px) { .vc-card-right { display:none; } .vc-card-body { display:block; } }
     .vc-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
     .vc-stat { background:rgba(255,255,255,0.03); border-radius:8px; padding:8px 10px; border:1px solid rgba(255,255,255,0.06); }
     .vc-stat-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.1em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:3px; }
@@ -5871,27 +5879,34 @@ function buildIncidentCardHtml(c){
     return '<div class="vc-bar-row"><div class="vc-bar-name">'+s.name+'</div><div class="vc-bar-track"><div class="vc-bar-fill '+rc+'" style="width:'+pct+'%"></div></div><div class="vc-bar-amt">'+_vcFmtUsd(s.exposure_usd)+'</div></div>';
   }).join('');
   return '<div class="vc-card">'
-    +'<div class="vc-card-header">'
-      +'<div class="vc-sev '+c.severity.toLowerCase()+'">'+c.severity+'</div>'
-      +'<div class="vc-card-titles">'
-        +'<div class="vc-card-cat">'+(c.category?c.category.toUpperCase():'INCIDENT')+' · ACTIVE</div>'
-        +'<div class="vc-card-title">'+c.title+'</div>'
-        +'<div class="vc-card-sub">'+c.subtitle+'</div>'
-      +'</div>'
+    +'<div class="vc-banner">'
+      +'<div class="vc-banner-left"><div class="vc-banner-dot"></div>ACTIVE INCIDENT · P1 CRITICAL</div>'
+      +'<div class="vc-banner-right">Detected · <strong>monitoring</strong></div>'
     +'</div>'
     +'<div class="vc-card-body">'
-      +'<div class="vc-stats">'
-        +'<div class="vc-stat"><div class="vc-stat-label">Direct exposure</div><div class="vc-stat-value">'+_vcFmtUsd(c.direct_exposure_usd)+'</div></div>'
-        +'<div class="vc-stat"><div class="vc-stat-label">POs affected</div><div class="vc-stat-value">'+c.affected_pos_count+'</div><div class="vc-stat-sub">active orders</div></div>'
+      +'<div class="vc-card-left">'
+        +'<div class="vc-card-header">'
+          +'<div class="vc-sev '+c.severity.toLowerCase()+'">'+c.severity+'</div>'
+          +'<div class="vc-card-titles">'
+            +'<div class="vc-card-cat">'+(c.category?c.category.toUpperCase():'INCIDENT')+' · ACTIVE</div>'
+            +'<div class="vc-card-title">'+c.title+'</div>'
+            +'<div class="vc-card-sub">'+c.subtitle+'</div>'
+          +'</div>'
+        +'</div>'
+        +'<div class="vc-stats">'
+          +'<div class="vc-stat"><div class="vc-stat-label">Direct exposure</div><div class="vc-stat-value">'+_vcFmtUsd(c.direct_exposure_usd)+'</div></div>'
+          +'<div class="vc-stat"><div class="vc-stat-label">POs affected</div><div class="vc-stat-value">'+c.affected_pos_count+'</div><div class="vc-stat-sub">active orders</div></div>'
+        +'</div>'
+        +'<div class="vc-section-label">Supplier exposure</div>'
+        +'<div class="vc-bars">'+bars+'</div>'
+        +'<div class="vc-delay">&#9201; Delay risk: '+c.delay_risk+'</div>'
+        +'<div class="vc-action">'
+          +'<div class="vc-action-icon"></div>'
+          +'<div class="vc-action-text">'+c.recommended_action.text+'<div class="vc-action-impact">'+c.recommended_action.impact_estimate+'</div></div>'
+          +'<div class="vc-action-cta">'+c.recommended_action.cta_label+'</div>'
+        +'</div>'
       +'</div>'
-      +'<div class="vc-section-label">Supplier exposure</div>'
-      +'<div class="vc-bars">'+bars+'</div>'
-      +'<div class="vc-delay">&#9201; Delay risk: '+c.delay_risk+'</div>'
-      +'<div class="vc-action">'
-        +'<div class="vc-action-icon"></div>'
-        +'<div class="vc-action-text">'+c.recommended_action.text+'<div class="vc-action-impact">'+c.recommended_action.impact_estimate+'</div></div>'
-        +'<div class="vc-action-cta">'+c.recommended_action.cta_label+'</div>'
-      +'</div>'
+      +'<div class="vc-card-right"></div>'
     +'</div>'
   +'</div>';
 }
