@@ -1304,7 +1304,9 @@
     .vc-banner-right { font-size:11px; color:rgba(255,255,255,0.55); }
     .vc-banner-right strong { font-weight:600; color:rgba(255,255,255,0.85); }
     .vc-card-left { flex:60; padding:12px 14px; min-width:0; }
-    .vc-card-right { flex:40; background:rgba(0,0,0,0.32); background-image:radial-gradient(circle at 68% 55%, rgba(239,68,68,0.18) 0%, transparent 58%); min-height:220px; }
+    .vc-card-right { flex:40; background:rgba(0,0,0,0.32); background-image:radial-gradient(circle at 68% 55%, rgba(239,68,68,0.08) 0%, transparent 58%); min-height:220px; overflow:hidden; }
+    .vc-map-svg { width:100%; height:100%; display:block; }
+    .vc-map-txt { font-family:var(--font-mono); font-size:9px; fill:rgba(255,255,255,0.45); }
     @media (max-width:640px) { .vc-card-right { display:none; } .vc-card-body { display:block; } }
     .vc-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
     .vc-stat { background:rgba(255,255,255,0.03); border-radius:8px; padding:8px 10px; border:1px solid rgba(255,255,255,0.06); }
@@ -5870,6 +5872,33 @@ function _vcFmtUsd(n){
   if(n>=1000)return '$'+(n/1000).toFixed(0)+'K';
   return '$'+n;
 }
+function buildMapGlyphHtml(){
+  return '<svg class="vc-map-svg" viewBox="0 0 360 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
+    +'<path d="M 195,85 Q 265,108 305,172 Q 338,228 318,298 Q 295,358 248,408 L 360,408 L 360,85 Z" fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>'
+    +'<text x="12" y="22" class="vc-map-txt">SOUTH CHINA · YANTIAN</text>'
+    +'<text x="348" y="22" class="vc-map-txt" text-anchor="end">LIVE · 09:46Z</text>'
+    +'<line x1="252" y1="218" x2="356" y2="148" stroke="rgba(255,255,255,0.28)" stroke-width="1" stroke-dasharray="4 3"/>'
+    +'<text x="330" y="143" class="vc-map-txt" text-anchor="end" font-size="8" fill="rgba(255,255,255,0.35)">&#8594;N. AMER</text>'
+    +'<circle cx="137" cy="277" r="4" fill="#f59e0b" opacity="0.85"/>'
+    +'<text x="137" y="294" class="vc-map-txt" text-anchor="middle" font-size="8" fill="#f59e0b">GUANGZHOU</text>'
+    +'<text x="212" y="262" class="vc-map-txt" font-size="8" fill="rgba(255,255,255,0.38)">HONG KONG</text>'
+    +'<circle cx="252" cy="218" r="7" fill="none" stroke="rgba(239,68,68,0.65)" stroke-width="1.5">'
+      +'<animate attributeName="r" from="7" to="26" dur="2.2s" repeatCount="indefinite"/>'
+      +'<animate attributeName="opacity" from="0.65" to="0" dur="2.2s" repeatCount="indefinite"/>'
+    +'</circle>'
+    +'<circle cx="252" cy="218" r="7" fill="none" stroke="rgba(239,68,68,0.35)" stroke-width="1">'
+      +'<animate attributeName="r" from="7" to="38" dur="2.2s" begin="0.7s" repeatCount="indefinite"/>'
+      +'<animate attributeName="opacity" from="0.35" to="0" dur="2.2s" begin="0.7s" repeatCount="indefinite"/>'
+    +'</circle>'
+    +'<circle cx="252" cy="218" r="5" fill="#ef4444"/>'
+    +'<text x="243" y="213" class="vc-map-txt" text-anchor="end" fill="#fff">YANTIAN</text>'
+    +'<text x="243" y="225" class="vc-map-txt" text-anchor="end" font-size="8" fill="rgba(255,255,255,0.55)">SHENZHEN</text>'
+    +'<circle cx="14" cy="406" r="3" fill="#ef4444"/>'
+    +'<text x="22" y="409" class="vc-map-txt" font-size="8">P1 Closure</text>'
+    +'<circle cx="90" cy="406" r="3" fill="#f59e0b"/>'
+    +'<text x="98" y="409" class="vc-map-txt" font-size="8">Spillover</text>'
+  +'</svg>';
+}
 function buildIncidentCardHtml(c){
   var maxExp=c.suppliers_hit[0]?c.suppliers_hit[0].exposure_usd:1;
   var n=c.suppliers_hit.length;
@@ -5906,7 +5935,7 @@ function buildIncidentCardHtml(c){
           +'<div class="vc-action-cta">'+c.recommended_action.cta_label+'</div>'
         +'</div>'
       +'</div>'
-      +'<div class="vc-card-right"></div>'
+      +'<div class="vc-card-right">'+buildMapGlyphHtml()+'</div>'
     +'</div>'
   +'</div>';
 }
