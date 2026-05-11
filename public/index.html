@@ -1308,6 +1308,26 @@
     .vc-map-svg { width:100%; height:100%; display:block; }
     .vc-map-txt { font-family:var(--font-mono); font-size:9px; fill:rgba(255,255,255,0.45); }
     @media (max-width:640px) { .vc-card-right { display:none; } .vc-card-body { display:block; } }
+    .vc-ra { margin-top:8px; border-radius:14px; background:#0a0c10; border:1px solid rgba(200,55,40,0.35); font-size:12px; width:100%; max-width:900px; overflow:hidden; }
+    .vc-ra-header { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .vc-ra-title { display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:10px; letter-spacing:0.1em; color:#fff; font-weight:600; }
+    .vc-ra-icon { color:#f59e0b; }
+    .vc-ra-meta { font-family:var(--font-mono); font-size:9px; letter-spacing:0.08em; color:rgba(255,255,255,0.35); }
+    .vc-ra-items { padding:10px 14px 14px; display:flex; flex-direction:column; gap:8px; }
+    .vc-ra-item { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.07); }
+    .vc-ra-item.p1 { background:rgba(239,68,68,0.04); border:1px solid rgba(239,68,68,0.35); }
+    .vc-ra-num { font-family:var(--font-mono); font-size:11px; font-weight:700; width:32px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.12); }
+    .vc-ra-num.p1 { background:#ef4444; color:#fff; border:none; }
+    .vc-ra-body { flex:1; min-width:0; }
+    .vc-ra-text { font-size:13px; color:#fff; line-height:1.4; margin-bottom:4px; }
+    .vc-ra-impact { font-family:var(--font-mono); font-size:9px; color:rgba(45,212,191,0.85); letter-spacing:0.04em; }
+    .vc-ra-impact2 { font-family:var(--font-mono); font-size:9px; color:rgba(255,255,255,0.4); letter-spacing:0.04em; margin-top:2px; }
+    .vc-ra-cta { font-family:var(--font-mono); font-size:9px; letter-spacing:0.08em; padding:7px 12px; border-radius:6px; cursor:pointer; white-space:nowrap; flex-shrink:0; transition:background 0.2s; }
+    .vc-ra-cta.p1 { background:#ef4444; color:#fff; border:none; }
+    .vc-ra-cta.p1:hover { background:#dc2626; }
+    .vc-ra-cta.neutral { background:transparent; color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.25); }
+    .vc-ra-cta.neutral:hover { background:rgba(255,255,255,0.06); }
+    @media (max-width:640px) { .vc-ra-item { flex-wrap:wrap; } .vc-ra-cta { margin-left:44px; margin-top:6px; } .vc-ra-meta { display:none; } }
     .vc-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
     .vc-stat { background:rgba(255,255,255,0.03); border-radius:8px; padding:8px 10px; border:1px solid rgba(255,255,255,0.06); }
     .vc-stat-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.1em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:3px; }
@@ -5863,7 +5883,12 @@ var _vcMockCard={
     {name:'Foshan Components',exposure_usd:420000}
   ],
   delay_risk:'9–14 days to North America DCs',
-  recommended_action:{text:'Reroute 3 critical POs via Hong Kong Kwai Chung — vessels departing Friday.',impact_estimate:'Saves ~$180K in delay costs',cta_label:'Run mitigation'}
+  recommended_action:{text:'Reroute 3 critical POs via Hong Kong Kwai Chung — vessels departing Friday.',impact_estimate:'Saves ~$180K in delay costs',cta_label:'Run mitigation'},
+  recommendedActions:[
+    {text:'Reroute <strong>14 active POs ($4.7M)</strong> from Yantian → Hong Kong (HKG) via SinoPak — air freight on 6 launch-critical SKUs',impact:'Preserves $2.3M · saves 2 retail launch dates',impact2:'+$84K freight · +4-day ETA Capacity confirmed',cta:'INITIATE REROUTE →'},
+    {text:'Hold <strong>8 non-critical POs ($1.6M)</strong> — release once Yantian reopens (ETA 48–72h)',impact:'Avoids $84K rush freight 9–14d delay accepted',cta:'CONFIRM HOLD'},
+    {text:'Notify <strong>3 affected suppliers</strong> + downstream DCs · auto-draft customer comms for 2 launch SKUs',impact:'Pre-empts SLA penalties Ops review required',cta:'SEND DRAFTS'}
+  ]
 };
 var _vcMockChips=['Show alternate suppliers','Calculate delay impact',"What's my tariff exposure?"];
 
@@ -5871,6 +5896,33 @@ function _vcFmtUsd(n){
   if(n>=1000000)return '$'+(n/1000000).toFixed(1)+'M';
   if(n>=1000)return '$'+(n/1000).toFixed(0)+'K';
   return '$'+n;
+}
+// B3 note: mock text uses <strong> tags for bold numbers — safe here because data is
+// hardcoded by us. When B3 migrates to chatbot-generated text, use a separate highlights
+// array or renderer-side number-bolding regex rather than trusting raw HTML from the model.
+function buildRecommendedActionsHtml(actions){
+  if(!actions||!actions.length)return '';
+  var labels=['01','02','03'];
+  var items=actions.map(function(a,i){
+    var num=labels[i]||('0'+(i+1));
+    var isPri=i===0;
+    return '<div class="vc-ra-item'+(isPri?' p1':'')+'">'
+      +'<div class="vc-ra-num'+(isPri?' p1':'')+'">'+num+'</div>'
+      +'<div class="vc-ra-body">'
+        +'<div class="vc-ra-text">'+a.text+'</div>'
+        +'<div class="vc-ra-impact">'+a.impact+'</div>'
+        +(a.impact2?'<div class="vc-ra-impact2">'+a.impact2+'</div>':'')
+      +'</div>'
+      +'<button class="vc-ra-cta '+(isPri?'p1':'neutral')+'">'+a.cta+'</button>'
+    +'</div>';
+  }).join('');
+  return '<div class="vc-ra">'
+    +'<div class="vc-ra-header">'
+      +'<div class="vc-ra-title"><span class="vc-ra-icon">⚡</span>RECOMMENDED ACTIONS</div>'
+      +'<div class="vc-ra-meta">3 RANKED · THROUGHPUT PRESERVED · ACT WITHIN 6H</div>'
+    +'</div>'
+    +'<div class="vc-ra-items">'+items+'</div>'
+  +'</div>';
 }
 function buildMapGlyphHtml(location){
   var loc=location||{};
@@ -5941,7 +5993,7 @@ function buildIncidentCardHtml(c){
       +'</div>'
       +'<div class="vc-card-right">'+buildMapGlyphHtml(c.location)+'</div>'
     +'</div>'
-  +'</div>';
+  +'</div>'+buildRecommendedActionsHtml(c.recommendedActions);
 }
 function buildChipsHtml(chips){
   var html='<div class="vc-chips">';
