@@ -1327,13 +1327,7 @@
     .vc-ra-cta.p1:hover { background:#dc2626; }
     .vc-ra-cta.neutral { background:transparent; color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.25); }
     .vc-ra-cta.neutral:hover { background:rgba(255,255,255,0.06); }
-    .vc-ra-footer { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-top:1px solid rgba(255,255,255,0.06); }
-    .vc-ra-tracking { font-family:var(--font-mono); font-size:10px; color:rgba(255,255,255,0.45); flex:1; min-width:0; }
-    .vc-ra-hl { color:rgba(45,212,191,0.9); }
-    .vc-ra-btns { display:flex; gap:8px; flex-shrink:0; margin-left:16px; }
-    .vc-ra-btn { font-family:var(--font-mono); font-size:9px; letter-spacing:0.08em; padding:7px 12px; border-radius:6px; cursor:pointer; white-space:nowrap; background:transparent; color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.25); transition:background 0.2s; }
-    .vc-ra-btn:hover { background:rgba(255,255,255,0.06); }
-    @media (max-width:640px) { .vc-ra-item { flex-wrap:wrap; } .vc-ra-cta { margin-left:44px; margin-top:6px; } .vc-ra-meta { display:none; } .vc-ra-footer { flex-wrap:wrap; } .vc-ra-btns { margin-left:0; margin-top:8px; } }
+    @media (max-width:640px) { .vc-ra-item { flex-wrap:wrap; } .vc-ra-cta { margin-left:44px; margin-top:6px; } .vc-ra-meta { display:none; } }
     .vc-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
     .vc-stat { background:rgba(255,255,255,0.03); border-radius:8px; padding:8px 10px; border:1px solid rgba(255,255,255,0.06); }
     .vc-stat-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.1em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:3px; }
@@ -5894,8 +5888,7 @@ var _vcMockCard={
     {text:'Reroute <strong>14 active POs ($4.7M)</strong> from Yantian → Hong Kong (HKG) via SinoPak — air freight on 6 launch-critical SKUs',impact:'Preserves $2.3M · saves 2 retail launch dates',impact2:'+$84K freight · +4-day ETA Capacity confirmed',cta:'INITIATE REROUTE →'},
     {text:'Hold <strong>8 non-critical POs ($1.6M)</strong> — release once Yantian reopens (ETA 48–72h)',impact:'Avoids $84K rush freight 9–14d delay accepted',cta:'CONFIRM HOLD'},
     {text:'Notify <strong>3 affected suppliers</strong> + downstream DCs · auto-draft customer comms for 2 launch SKUs',impact:'Pre-empts SLA penalties Ops review required',cta:'SEND DRAFTS'}
-  ],
-  trackingFooter:{update_every:'5 min',next_refresh:'02:14',escalation:'S. Patel'}
+  ]
 };
 var _vcMockChips=['Show alternate suppliers','Calculate delay impact',"What's my tariff exposure?"];
 
@@ -5907,7 +5900,7 @@ function _vcFmtUsd(n){
 // B3 note: mock text uses <strong> tags for bold numbers — safe here because data is
 // hardcoded by us. When B3 migrates to chatbot-generated text, use a separate highlights
 // array or renderer-side number-bolding regex rather than trusting raw HTML from the model.
-function buildRecommendedActionsHtml(actions,footer){
+function buildRecommendedActionsHtml(actions){
   if(!actions||!actions.length)return '';
   var labels=['01','02','03'];
   var items=actions.map(function(a,i){
@@ -5923,23 +5916,12 @@ function buildRecommendedActionsHtml(actions,footer){
       +'<button class="vc-ra-cta '+(isPri?'p1':'neutral')+'">'+(a.cta||'')+'</button>'
     +'</div>';
   }).join('');
-  var footerHtml='';
-  if(footer){
-    footerHtml='<div class="vc-ra-footer">'
-      +'<div class="vc-ra-tracking">Tracking · auto-update every <span class="vc-ra-hl">'+(footer.update_every||'5 min')+'</span> · next refresh in <span class="vc-ra-hl">'+(footer.next_refresh||'05:00')+'</span> · escalation: <span class="vc-ra-hl">'+(footer.escalation||'Ops Lead')+'</span></div>'
-      +'<div class="vc-ra-btns">'
-        +'<button class="vc-ra-btn">NOTIFY TEAM</button>'
-        +'<button class="vc-ra-btn">OPEN WAR ROOM</button>'
-      +'</div>'
-    +'</div>';
-  }
   return '<div class="vc-ra">'
     +'<div class="vc-ra-header">'
       +'<div class="vc-ra-title"><span class="vc-ra-icon">⚡</span>RECOMMENDED ACTIONS</div>'
       +'<div class="vc-ra-meta">3 RANKED · THROUGHPUT PRESERVED · ACT WITHIN 6H</div>'
     +'</div>'
     +'<div class="vc-ra-items">'+items+'</div>'
-    +footerHtml
   +'</div>';
 }
 function buildMapGlyphHtml(location){
@@ -6011,7 +5993,7 @@ function buildIncidentCardHtml(c){
       +'</div>'
       +'<div class="vc-card-right">'+buildMapGlyphHtml(c.location)+'</div>'
     +'</div>'
-  +'</div>'+buildRecommendedActionsHtml(c.recommendedActions,c.trackingFooter);
+  +'</div>'+buildRecommendedActionsHtml(c.recommendedActions);
 }
 function buildChipsHtml(chips){
   var html='<div class="vc-chips">';
