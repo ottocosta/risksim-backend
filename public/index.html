@@ -5913,7 +5913,7 @@ function buildRecommendedActionsHtml(actions){
         +'<div class="vc-ra-impact">'+(a.impact||'')+'</div>'
         +(a.impact2?'<div class="vc-ra-impact2">'+a.impact2+'</div>':'')
       +'</div>'
-      +'<button class="vc-ra-cta '+(isPri?'p1':'neutral')+'">'+(a.cta||'')+'</button>'
+      +'<button class="vc-ra-cta '+(isPri?'p1':'neutral')+'" data-action="'+_vcAttrEscape(a.text||'')+'" onclick="cfSendFromAction(this)">'+(a.cta||'')+'</button>'
     +'</div>';
   }).join('');
   return '<div class="vc-ra">'
@@ -6011,6 +6011,15 @@ window.cfSendFromChip=function(el){
   }
 };
 
+window.cfSendFromAction=function(el){
+  var txt=el.dataset.action||'';
+  if(txt&&typeof cfSendMessage==='function'){
+    var inp=document.getElementById('cfInput');
+    if(inp){inp.value='';}
+    cfSendMessage('Walk me through how to execute this step by step: '+txt);
+  }
+};
+
 function renderBlocks(blocks){
   var html='';
   blocks.forEach(function(block){
@@ -6047,6 +6056,10 @@ function cfRenderQuickActions(){
 
 function escapeHtml(t){
   var d=document.createElement('div');d.textContent=t;return d.innerHTML;
+}
+
+function _vcAttrEscape(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ===== OPEN / CLOSE =====
