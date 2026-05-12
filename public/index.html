@@ -5916,17 +5916,17 @@ function buildRecommendedActionsHtml(actions,footer){
     return '<div class="vc-ra-item'+(isPri?' p1':'')+'">'
       +'<div class="vc-ra-num'+(isPri?' p1':'')+'">'+num+'</div>'
       +'<div class="vc-ra-body">'
-        +'<div class="vc-ra-text">'+a.text+'</div>'
-        +'<div class="vc-ra-impact">'+a.impact+'</div>'
+        +'<div class="vc-ra-text">'+(a.text||'')+'</div>'
+        +'<div class="vc-ra-impact">'+(a.impact||'')+'</div>'
         +(a.impact2?'<div class="vc-ra-impact2">'+a.impact2+'</div>':'')
       +'</div>'
-      +'<button class="vc-ra-cta '+(isPri?'p1':'neutral')+'">'+a.cta+'</button>'
+      +'<button class="vc-ra-cta '+(isPri?'p1':'neutral')+'">'+(a.cta||'')+'</button>'
     +'</div>';
   }).join('');
   var footerHtml='';
   if(footer){
     footerHtml='<div class="vc-ra-footer">'
-      +'<div class="vc-ra-tracking">Tracking · auto-update every <span class="vc-ra-hl">'+footer.update_every+'</span> · next refresh in <span class="vc-ra-hl">'+footer.next_refresh+'</span> · escalation: <span class="vc-ra-hl">'+footer.escalation+'</span></div>'
+      +'<div class="vc-ra-tracking">Tracking · auto-update every <span class="vc-ra-hl">'+(footer.update_every||'5 min')+'</span> · next refresh in <span class="vc-ra-hl">'+(footer.next_refresh||'05:00')+'</span> · escalation: <span class="vc-ra-hl">'+(footer.escalation||'Ops Lead')+'</span></div>'
       +'<div class="vc-ra-btns">'
         +'<button class="vc-ra-btn">NOTIFY TEAM</button>'
         +'<button class="vc-ra-btn">OPEN WAR ROOM</button>'
