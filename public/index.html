@@ -6012,7 +6012,7 @@ window.cfSendFromChip=function(el){
 };
 
 window.cfSendFromAction=function(el){
-  var txt=el.dataset.action||'';
+  var txt=(el.dataset.action||'').replace(/<[^>]*>/g,'');
   if(txt&&typeof cfSendMessage==='function'){
     var inp=document.getElementById('cfInput');
     if(inp){inp.value='';}
