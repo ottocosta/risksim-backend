@@ -6161,11 +6161,10 @@ async function cfSendMessage(userText){
     var blocks=Array.isArray(d.blocks)?d.blocks:[];
     // Remove typing
     var tp=document.getElementById('cfTyping');if(tp)tp.remove();
-    // Build full reply: real blocks > mock fallback > plain text
+    // Build full reply: real blocks or plain text
     var fullReply=reply;
-    if(localStorage.getItem('rs_visual_chat_dev')==='true'){
-      if(blocks.length>0){fullReply+=renderBlocks(blocks);}
-      else{fullReply+=buildIncidentCardHtml(_vcMockCard)+buildChipsHtml(_vcMockChips);}
+    if(localStorage.getItem('rs_visual_chat_dev')==='true'&&blocks.length>0){
+      fullReply+=renderBlocks(blocks);
     }
     cfAddMessage(_cfActiveConv,'ai',fullReply);
     cfRenderMessages(_cfActiveConv);
