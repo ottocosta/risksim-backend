@@ -5874,7 +5874,7 @@ var _vcMockCard={
   severity:'P1',category:'logistics',
   title:'Port closure at Shenzhen Yantian',
   subtitle:'Typhoon-related shutdown — 48–72hr estimated resumption',
-  location:{display:'SOUTH CHINA · YANTIAN',primary:'YANTIAN',sub:'SHENZHEN'},
+  location:{display:'SOUTH CHINA · YANTIAN',primary:'YANTIAN',sub:'SHENZHEN',region:'south_china'},
   direct_exposure_usd:2400000,
   affected_pos_count:14,
   suppliers_hit:[
@@ -5925,6 +5925,11 @@ function buildRecommendedActionsHtml(actions){
   +'</div>';
 }
 function buildMapGlyphHtml(location){
+  var region=(location&&location.region)||'south_china';
+  if(region==='red_sea') return buildRedSeaMap(location);
+  return buildSouthChinaMap(location);
+}
+function buildSouthChinaMap(location){
   var loc=location||{};
   var locDisplay=(loc.display||'SOUTH CHINA · YANTIAN').toUpperCase();
   var locPrimary=(loc.primary||'YANTIAN').toUpperCase();
@@ -5949,6 +5954,42 @@ function buildMapGlyphHtml(location){
     +'<circle cx="252" cy="218" r="5" fill="#ef4444"/>'
     +'<text x="243" y="213" class="vc-map-txt" text-anchor="end" fill="#fff">'+locPrimary+'</text>'
     +'<text x="243" y="225" class="vc-map-txt" text-anchor="end" font-size="8" fill="rgba(255,255,255,0.55)">'+locSub+'</text>'
+    +'<circle cx="14" cy="406" r="3" fill="#ef4444"/>'
+    +'<text x="22" y="409" class="vc-map-txt" font-size="8">P1 Closure</text>'
+    +'<circle cx="90" cy="406" r="3" fill="#f59e0b"/>'
+    +'<text x="98" y="409" class="vc-map-txt" font-size="8">Spillover</text>'
+  +'</svg>';
+}
+// Suez-centric glyph: hardcoded PORT SAID spillover, CAIRO reference, →INDIAN OC. route.
+// Red Sea incidents outside Suez (Bab-el-Mandeb, Yemen) render with this same glyph until sub-region granularity is added.
+function buildRedSeaMap(location){
+  var loc=location||{};
+  var locDisplay=(loc.display||'RED SEA · SUEZ').toUpperCase();
+  var locPrimary=(loc.primary||'SUEZ').toUpperCase();
+  var locSub=(loc.sub||'PORT SAID').toUpperCase();
+  return '<svg class="vc-map-svg" viewBox="0 0 360 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
+    +'<path d="M 0,0 L 170,0 L 170,90 Q 162,130 155,180 Q 142,240 115,320 Q 90,390 60,420 L 0,420 Z" fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>'
+    +'<path d="M 188,90 L 265,90 Q 272,115 268,160 Q 255,205 225,235 L 188,238 Z" fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>'
+    +'<path d="M 268,158 Q 298,200 318,260 Q 332,315 340,380 L 360,420 L 360,158 Z" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>'
+    +'<rect x="171" y="91" width="17" height="147" fill="rgba(80,160,220,0.10)" stroke="rgba(80,160,220,0.25)" stroke-width="0.8"/>'
+    +'<text x="12" y="22" class="vc-map-txt">'+locDisplay+'</text>'
+    +'<text x="348" y="22" class="vc-map-txt" text-anchor="end">LIVE · 09:46Z</text>'
+    +'<line x1="179" y1="165" x2="350" y2="390" stroke="rgba(255,255,255,0.28)" stroke-width="1" stroke-dasharray="4 3"/>'
+    +'<text x="348" y="406" class="vc-map-txt" text-anchor="end" font-size="8" fill="rgba(255,255,255,0.35)">&#8594;INDIAN OC.</text>'
+    +'<text x="78" y="228" class="vc-map-txt" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.38)">CAIRO</text>'
+    +'<circle cx="179" cy="90" r="4" fill="#f59e0b" opacity="0.85"/>'
+    +'<text x="189" y="88" class="vc-map-txt" font-size="8" fill="#f59e0b">PORT SAID</text>'
+    +'<circle cx="179" cy="165" r="7" fill="none" stroke="rgba(239,68,68,0.65)" stroke-width="1.5">'
+      +'<animate attributeName="r" from="7" to="26" dur="2.2s" repeatCount="indefinite"/>'
+      +'<animate attributeName="opacity" from="0.65" to="0" dur="2.2s" repeatCount="indefinite"/>'
+    +'</circle>'
+    +'<circle cx="179" cy="165" r="7" fill="none" stroke="rgba(239,68,68,0.35)" stroke-width="1">'
+      +'<animate attributeName="r" from="7" to="38" dur="2.2s" begin="0.7s" repeatCount="indefinite"/>'
+      +'<animate attributeName="opacity" from="0.35" to="0" dur="2.2s" begin="0.7s" repeatCount="indefinite"/>'
+    +'</circle>'
+    +'<circle cx="179" cy="165" r="5" fill="#ef4444"/>'
+    +'<text x="189" y="161" class="vc-map-txt" text-anchor="start" fill="#fff">'+locPrimary+'</text>'
+    +'<text x="189" y="173" class="vc-map-txt" text-anchor="start" font-size="8" fill="rgba(255,255,255,0.55)">'+locSub+'</text>'
     +'<circle cx="14" cy="406" r="3" fill="#ef4444"/>'
     +'<text x="22" y="409" class="vc-map-txt" font-size="8">P1 Closure</text>'
     +'<circle cx="90" cy="406" r="3" fill="#f59e0b"/>'
