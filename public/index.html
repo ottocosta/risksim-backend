@@ -3476,6 +3476,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
 
 <!-- ===== DEMO BANNER ===== -->
 <div id="demoBanner">
+  <button class="demo-banner-cta" onclick="goBackToLanding()" style="letter-spacing:0.08em;">← HOME</button>
   <span class="demo-banner-label">Demo</span>
   <span class="demo-banner-text">You're browsing in demo mode — sign up to use the full product</span>
   <button class="demo-banner-cta" onclick="lpStartTrialFromApp()">Start free trial →</button>
@@ -8536,6 +8537,12 @@ function dismissDemoBanner() {
   localStorage.setItem('risksim_demo_banner_dismissed', 'true');
   var banner = document.getElementById('demoBanner');
   if (banner) banner.classList.remove('active');
+}
+
+function goBackToLanding() {
+  localStorage.removeItem('risksim_demo');
+  localStorage.removeItem('risksim_demo_banner_dismissed');
+  location.reload();
 }
 
 function showDemoUpgradeModal() {
