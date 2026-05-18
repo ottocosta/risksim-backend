@@ -5929,6 +5929,8 @@ function buildMapGlyphHtml(location){
   var region=(location&&location.region)||'south_china';
   if(region==='red_sea') return buildRedSeaMap(location);
   if(region==='na_east_coast') return buildNAEastCoastMap(location);
+  if(region==='northern_europe') return buildNorthernEuropeMap(location);
+  if(region==='mediterranean') return buildMediterraneanMap(location);
   return buildSouthChinaMap(location);
 }
 function buildSouthChinaMap(location){
@@ -6025,6 +6027,74 @@ function buildRedSeaMap(location){
     +'<circle cx="179" cy="165" r="5" fill="#ef4444"/>'
     +'<text x="189" y="161" class="vc-map-txt" text-anchor="start" fill="#fff">'+locPrimary+'</text>'
     +'<text x="189" y="173" class="vc-map-txt" text-anchor="start" font-size="8" fill="rgba(255,255,255,0.55)">'+locSub+'</text>'
+    +'<circle cx="14" cy="406" r="3" fill="#ef4444"/>'
+    +'<text x="22" y="409" class="vc-map-txt" font-size="8">P1 Closure</text>'
+    +'<circle cx="90" cy="406" r="3" fill="#f59e0b"/>'
+    +'<text x="98" y="409" class="vc-map-txt" font-size="8">Spillover</text>'
+  +'</svg>';
+}
+// Rotterdam-centric glyph: hardcoded HAMBURG spillover, LONDON reference, → EU INLAND route.
+// Northern Europe incidents at other ports (Antwerp, Felixstowe, Bremerhaven) render with this same glyph until sub-region granularity is added.
+function buildNorthernEuropeMap(location){
+  var loc=location||{};
+  var locDisplay=(loc.display||'NORTH SEA · ROTTERDAM').toUpperCase();
+  var locPrimary=(loc.primary||'ROTTERDAM').toUpperCase();
+  var locSub=(loc.sub||'NETHERLANDS').toUpperCase();
+  return '<svg class="vc-map-svg" viewBox="0 0 360 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
+    +'<path d="M 0,0 L 112,0 Q 125,28 122,65 Q 118,98 126,135 Q 134,165 140,205 Q 138,238 128,262 Q 112,280 92,285 Q 68,290 50,268 Q 35,248 36,218 Q 38,188 44,155 Q 46,122 38,88 Q 26,52 0,25 Z" fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>'
+    +'<path d="M 145,268 Q 185,258 230,262 Q 270,268 308,280 Q 335,295 360,315 L 360,420 L 0,420 L 0,395 Q 35,375 72,348 Q 110,320 135,300 Q 140,285 145,268 Z" fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>'
+    +'<text x="12" y="22" class="vc-map-txt">'+locDisplay+'</text>'
+    +'<text x="348" y="22" class="vc-map-txt" text-anchor="end">LIVE · 09:46Z</text>'
+    +'<line x1="185" y1="265" x2="358" y2="340" stroke="rgba(255,255,255,0.28)" stroke-width="1" stroke-dasharray="4 3"/>'
+    +'<text x="355" y="337" class="vc-map-txt" text-anchor="end" font-size="8" fill="rgba(255,255,255,0.35)">&#8594; EU INLAND</text>'
+    +'<text x="100" y="248" class="vc-map-txt" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.38)">LONDON</text>'
+    +'<circle cx="248" cy="263" r="4" fill="#f59e0b" opacity="0.85"/>'
+    +'<text x="258" y="261" class="vc-map-txt" font-size="8" fill="#f59e0b">HAMBURG</text>'
+    +'<circle cx="185" cy="265" r="7" fill="none" stroke="rgba(239,68,68,0.65)" stroke-width="1.5">'
+      +'<animate attributeName="r" from="7" to="26" dur="2.2s" repeatCount="indefinite"/>'
+      +'<animate attributeName="opacity" from="0.65" to="0" dur="2.2s" repeatCount="indefinite"/>'
+    +'</circle>'
+    +'<circle cx="185" cy="265" r="7" fill="none" stroke="rgba(239,68,68,0.35)" stroke-width="1">'
+      +'<animate attributeName="r" from="7" to="38" dur="2.2s" begin="0.7s" repeatCount="indefinite"/>'
+      +'<animate attributeName="opacity" from="0.35" to="0" dur="2.2s" begin="0.7s" repeatCount="indefinite"/>'
+    +'</circle>'
+    +'<circle cx="185" cy="265" r="5" fill="#ef4444"/>'
+    +'<text x="175" y="258" class="vc-map-txt" text-anchor="end" fill="#fff">'+locPrimary+'</text>'
+    +'<text x="175" y="270" class="vc-map-txt" text-anchor="end" font-size="8" fill="rgba(255,255,255,0.55)">'+locSub+'</text>'
+    +'<circle cx="14" cy="406" r="3" fill="#ef4444"/>'
+    +'<text x="22" y="409" class="vc-map-txt" font-size="8">P1 Closure</text>'
+    +'<circle cx="90" cy="406" r="3" fill="#f59e0b"/>'
+    +'<text x="98" y="409" class="vc-map-txt" font-size="8">Spillover</text>'
+  +'</svg>';
+}
+// Piraeus-centric glyph: hardcoded GENOA spillover, ROME reference, ↑ EU INLAND route.
+// Mediterranean incidents at other ports (Valencia, Algeciras, Trieste) render with this same glyph until sub-region granularity is added.
+function buildMediterraneanMap(location){
+  var loc=location||{};
+  var locDisplay=(loc.display||'MEDITERRANEAN · PIRAEUS').toUpperCase();
+  var locPrimary=(loc.primary||'PIRAEUS').toUpperCase();
+  var locSub=(loc.sub||'GREECE').toUpperCase();
+  return '<svg class="vc-map-svg" viewBox="0 0 360 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
+    +'<path d="M 0,0 L 360,0 L 360,120 Q 335,128 310,138 Q 285,148 265,145 Q 245,142 230,155 Q 218,165 205,155 Q 192,142 178,148 Q 162,155 148,145 Q 130,135 108,145 Q 88,155 68,148 Q 45,140 22,148 Q 10,152 0,148 Z" fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>'
+    +'<path d="M 0,295 Q 35,285 70,290 Q 108,295 142,288 Q 178,282 212,285 Q 248,290 282,285 Q 315,280 342,288 Q 355,292 360,298 L 360,420 L 0,420 Z" fill="rgba(255,255,255,0.025)" stroke="rgba(255,255,255,0.13)" stroke-width="1"/>'
+    +'<text x="12" y="22" class="vc-map-txt">'+locDisplay+'</text>'
+    +'<text x="348" y="22" class="vc-map-txt" text-anchor="end">LIVE · 09:46Z</text>'
+    +'<line x1="292" y1="203" x2="292" y2="90" stroke="rgba(255,255,255,0.28)" stroke-width="1" stroke-dasharray="4 3"/>'
+    +'<text x="292" y="84" class="vc-map-txt" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.35)">&#8593; EU INLAND</text>'
+    +'<text x="220" y="130" class="vc-map-txt" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.38)">ROME</text>'
+    +'<circle cx="182" cy="163" r="4" fill="#f59e0b" opacity="0.85"/>'
+    +'<text x="192" y="175" class="vc-map-txt" font-size="8" fill="#f59e0b">GENOA</text>'
+    +'<circle cx="292" cy="203" r="7" fill="none" stroke="rgba(239,68,68,0.65)" stroke-width="1.5">'
+      +'<animate attributeName="r" from="7" to="26" dur="2.2s" repeatCount="indefinite"/>'
+      +'<animate attributeName="opacity" from="0.65" to="0" dur="2.2s" repeatCount="indefinite"/>'
+    +'</circle>'
+    +'<circle cx="292" cy="203" r="7" fill="none" stroke="rgba(239,68,68,0.35)" stroke-width="1">'
+      +'<animate attributeName="r" from="7" to="38" dur="2.2s" begin="0.7s" repeatCount="indefinite"/>'
+      +'<animate attributeName="opacity" from="0.35" to="0" dur="2.2s" begin="0.7s" repeatCount="indefinite"/>'
+    +'</circle>'
+    +'<circle cx="292" cy="203" r="5" fill="#ef4444"/>'
+    +'<text x="282" y="198" class="vc-map-txt" text-anchor="end" fill="#fff">'+locPrimary+'</text>'
+    +'<text x="282" y="210" class="vc-map-txt" text-anchor="end" font-size="8" fill="rgba(255,255,255,0.55)">'+locSub+'</text>'
     +'<circle cx="14" cy="406" r="3" fill="#ef4444"/>'
     +'<text x="22" y="409" class="vc-map-txt" font-size="8">P1 Closure</text>'
     +'<circle cx="90" cy="406" r="3" fill="#f59e0b"/>'
