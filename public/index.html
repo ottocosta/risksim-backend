@@ -4530,6 +4530,12 @@ function renderAMSupplierList(){
   }).join('');
 }
 
+function getProfileSuppliers(){
+  var s=(userProfile&&userProfile.suppliers)||'';
+  if(!s.trim()) return [];
+  return s.split(',').map(function(n){return n.trim();}).filter(Boolean);
+}
+
 function getSupplierById(id){for(var i=0;i<SUPPLIER_DATA.length;i++)if(SUPPLIER_DATA[i].id===id)return SUPPLIER_DATA[i];return null;}
 
 function selectSupplier(id){
