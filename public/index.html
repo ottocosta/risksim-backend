@@ -892,7 +892,7 @@
     .am-profile-sup-empty { font-size:11px; color:rgba(255,255,255,0.25); padding:6px 11px 4px; }
     .am-profile-sup-link { color:rgba(45,212,191,0.7); cursor:pointer; }
     .am-profile-sup-link:hover { color:#2dd4bf; }
-    .am-profile-sup-item { cursor:default; }
+    .am-profile-sup-item { cursor:pointer; }
     /* Right panel */
     .am-right { flex:1; display:flex; flex-direction:column; padding:58px 0 0; overflow:hidden; }
     .am-analysis-wrap { flex:1; overflow-y:auto; padding:20px 26px 28px; }
@@ -4550,8 +4550,16 @@ function renderProfileSuppliersSection(){
       +'<div class="am-profile-sup-empty">No suppliers added. <span class="am-profile-sup-link" onclick="openSettings()">Edit in Settings →</span></div>';
   }else{
     el.innerHTML='<span class="am-sup-list-label">Your Suppliers</span>'
-      +sups.map(function(n){return'<div class="am-sup-list-item am-profile-sup-item"><span>'+escapeHtml(n)+'</span></div>';}).join('');
+      +sups.map(function(n){return'<div class="am-sup-list-item am-profile-sup-item" data-spname="'+escapeHtml(n)+'" onclick="selectProfileSupplier(this)"><span>'+escapeHtml(n)+'</span></div>';}).join('');
   }
+}
+
+function selectProfileSupplier(el){
+  var name=el.dataset.spname||'';if(!name)return;
+  var csi=document.getElementById('amCustomSearch');if(csi)csi.value=name;
+  document.querySelectorAll('.am-sup-list-item').forEach(function(e){e.classList.remove('selected');});
+  el.classList.add('selected');
+  runCustomAudit(name);
 }
 
 function getSupplierById(id){for(var i=0;i<SUPPLIER_DATA.length;i++)if(SUPPLIER_DATA[i].id===id)return SUPPLIER_DATA[i];return null;}
