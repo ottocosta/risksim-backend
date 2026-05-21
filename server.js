@@ -391,7 +391,7 @@ Always respond in this exact JSON format:
   "strengths": ["Specific strength 1", "Specific strength 2"]
 }
 
-Risk score ranges: 0-14 Low risk, 15-29 Low-Medium, 30-44 Medium, 45-59 Medium-High, 60-79 High, 80-100 Critical.
+Risk score ranges: 0-14 Low risk, 15-29 Low-Medium, 30-44 Medium, 45-59 Medium-High, 60-84 High, 85-100 Critical. Only assign Critical for active conflict zones, complete port shutdowns, or government-imposed trade bans directly affecting the supplier.
 Score realistically based on country risk, industry, company size, and known information.`;
 
         const userMessage = `Generate a comprehensive supply chain risk audit for this supplier:
@@ -1185,7 +1185,7 @@ app.get('/api/email/preferences/:email', (req, res) => {
 
 // Critical alert check — n8n uses this (protected)
 app.get('/api/email/critical-check', requireDataKey, (req, res) => {
-    const criticalKeywords = /\bwar\b|bombing|invasion|sanction|embargo|shutdown|collaps|devastat|catastroph|blockade|martial law/i;
+    const criticalKeywords = /\bwar\b|bombing|invasion|military.strike|armed.conflict|port.closure|factory.explosion/i;
     const criticalAlerts = [];
     for (const [industry, alerts] of Object.entries(dataStore.alertsByIndustry)) {
         for (const alert of alerts) {
@@ -1220,7 +1220,7 @@ app.get('/api/email/digest-data', requireDataKey, (req, res) => {
         link: a.link,
         pubDate: a.pubDate || a.isoDate
     }));
-    const criticalRe = /\bwar\b|bombing|invasion|sanction|embargo|shutdown|collaps/i;
+    const criticalRe = /\bwar\b|bombing|invasion|military.strike|armed.conflict|port.closure|factory.explosion/i;
     const highRe = /strike|shortage|recession|congestion|disrupt|halt|suspend|crisis/i;
     let criticalCount = 0, highCount = 0, mediumCount = 0, lowCount = 0;
     combined.forEach(a => {
