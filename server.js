@@ -51,6 +51,7 @@ const generalLimiter = rateLimit({
 app.use(generalLimiter);
 app.use('/api/audit-custom', claudeLimiter);
 app.use('/api/price-extract', claudeLimiter);
+app.use('/api/terminal/news', claudeLimiter);
 app.use('/api/chat', chatLimiter);
 
 // Input sanitisation helper — strips HTML tags
@@ -60,6 +61,28 @@ function stripHtml(str) {
 }
 
 const MAX_INPUT = 5000;
+
+// ============================================================
+// TERMINAL NEWS CACHE — in-memory, resets on deploy
+// ============================================================
+const terminalNewsCache = {};
+const TERMINAL_NEWS_TTL = 2 * 60 * 60 * 1000; // 2 hours
+
+function terminalCacheKey(sourcingCountries, homeCountry, industry) {
+    return (Array.isArray(sourcingCountries) ? sourcingCountries.slice().sort() : []).join(',')
+        + '|' + (homeCountry || '').toLowerCase().trim()
+        + '|' + (industry || 'general').toLowerCase().trim();
+}
+
+function extractJsonArray(text) {
+    // Strip ```json fences first
+    text = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+    // Bracket-match: first '[' to last ']'
+    const start = text.indexOf('[');
+    const end = text.lastIndexOf(']');
+    if (start === -1 || end === -1 || end <= start) return null;
+    return text.slice(start, end + 1);
+}
 
 // Allow iframe embedding from Shopify
 app.use((req, res, next) => {
@@ -426,6 +449,102 @@ Analyze this supplier thoroughly. If you have knowledge about this company, use 
     } catch (error) {
         console.error('Custom audit error:', error);
         res.status(500).json({ error: 'Failed to generate audit. Please try again.' });
+    }
+});
+
+app.post('/api/terminal/news', async (req, res) => {
+    try {
+        const { sourcingCountries, homeCountry, industry } = req.body;
+
+        const hasSourcing = Array.isArray(sourcingCountries) && sourcingCountries.length > 0;
+        const hasHome = typeof homeCountry === 'string' && homeCountry.trim().length > 0;
+        const hasIndustry = typeof industry === 'string' && industry.trim().length > 0;
+
+        if (!hasSourcing && !hasHome && !hasIndustry) {
+            return res.status(400).json({ error: 'insufficient_profile', items: [] });
+        }
+
+        const key = terminalCacheKey(sourcingCountries, homeCountry, industry);
+        const cached = terminalNewsCache[key];
+        if (cached && (Date.now() - cached.fetchedAt) < TERMINAL_NEWS_TTL) {
+            return res.json({ items: cached.items, fetchedAt: new Date(cached.fetchedAt).toISOString(), fromCache: true });
+        }
+
+        const apiKey = process.env.CLAUDE_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
+
+        const client = new Anthropic({ apiKey });
+
+        const now = new Date();
+        const monthYear = now.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+        const sourcingStr = hasSourcing ? sourcingCountries.map(c => String(c).trim()).filter(Boolean).join(', ') : '';
+        const laneDesc = [
+            sourcingStr && `sourcing from ${sourcingStr}`,
+            hasHome && `shipping to ${homeCountry.trim()}`,
+            hasIndustry && `industry: ${industry.trim()}`
+        ].filter(Boolean).join(', ');
+
+        const searchQuery = [
+            `supply chain risk news ${monthYear}`,
+            sourcingStr,
+            hasHome ? homeCountry.trim() : '',
+            hasIndustry ? industry.trim() : '',
+            'tariffs disruptions port delays strikes'
+        ].filter(Boolean).join(' ');
+
+        const userMessage = `Search for the latest supply chain risk news relevant to this trade profile and return ONLY a JSON array — no prose, no markdown, no backticks — with 5-8 items.
+
+Trade profile: ${laneDesc}
+Date: ${monthYear}
+
+Return this exact JSON array format with no other text before or after it:
+[{"headline":"...","summary":"one concise sentence max 120 chars","source":"publication name","date":"${monthYear}","severity":"critical|high|medium|low"}]
+
+Severity guide — be conservative, match real-world impact:
+- critical: only for supply-chain-halting events (port fully closed, major sanctions embargo, war-zone factory seizure)
+- high: significant disruption — major strike, 20%+ tariff hike, severe congestion adding weeks of delay
+- medium: notable but manageable — policy change, moderate congestion, cost pressure, investigation launched
+- low: advisory, minor update, early-stage review with no confirmed impact yet
+Most items should be medium or high. Reserve critical for genuinely rare, severe events. Do not inflate severity.
+
+Focus on: tariffs, port disruptions, strikes, geopolitical risk, freight rate changes, factory shutdowns — specific to the trade lane above. Omit general economic news not tied to supply chain.
+
+Search query: ${searchQuery}`;
+
+        const response = await client.messages.create({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 2000,
+            tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+            messages: [{ role: 'user', content: userMessage }]
+        });
+
+        const rawText = response.content
+            .filter(b => b.type === 'text')
+            .map(b => b.text)
+            .join('\n');
+
+        const jsonStr = extractJsonArray(rawText);
+        let items = [];
+        if (jsonStr) {
+            try {
+                const parsed = JSON.parse(jsonStr);
+                if (Array.isArray(parsed)) items = parsed.slice(0, 8);
+            } catch (e) {
+                console.error('[terminal/news] JSON parse failed:', e.message, '— raw:', rawText.slice(0, 200));
+            }
+        }
+
+        const fetchedAt = Date.now();
+        if (items.length > 0) {
+            terminalNewsCache[key] = { items, fetchedAt };
+        }
+        console.log(`[terminal/news] fetched ${items.length} items for key: ${key}`);
+
+        res.json({ items, fetchedAt: new Date(fetchedAt).toISOString(), fromCache: false });
+    } catch (error) {
+        console.error('[terminal/news] error:', error.message);
+        res.status(500).json({ error: 'fetch_failed', items: [] });
     }
 });
 
