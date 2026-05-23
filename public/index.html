@@ -5119,8 +5119,8 @@ function initTerminalData(){
   var countries=profile.selectedSourcingCountries||[];
   var industry=up.industry||profile.currentCategory||'technology';
   buildStatsBar(countries,industry);
-  // Try live data first, fall back to mock
-  fetchLiveAlerts(up, countries, industry);
+  fetchT1Alerts(up, countries, industry);
+  buildNewsFeed(generateMockNews(up,countries,industry),countries);
   buildTariffTracker(countries);
   buildPortMonitor(countries);
   buildCommodities(industry);
@@ -5395,6 +5395,69 @@ function buildLiveFeed(items, countries) {
   el.innerHTML = h;
 }
 
+// ===== T1 LIVE ALERT FEED =====
+var _t1AlertProfile=null;
+
+function refreshT1Alerts(){
+  if(!_t1AlertProfile)return;
+  fetchT1Alerts(_t1AlertProfile.up,_t1AlertProfile.countries,_t1AlertProfile.industry);
+}
+
+function fetchT1Alerts(up,countries,industry){
+  _t1AlertProfile={up:up,countries:countries,industry:industry};
+  var el=document.getElementById('wmAlerts');if(!el)return;
+  el.innerHTML='<span class="wm-section-label">PRIORITY ALERTS — LIVE INTELLIGENCE FEED</span>'
+    +'<div style="padding:40px 20px;text-align:center;color:rgba(255,255,255,0.25);font-family:var(--font-mono);font-size:11px;letter-spacing:0.1em;">FETCHING LIVE INTELLIGENCE'
+    +'<div style="margin-top:10px;display:flex;justify-content:center;gap:5px;">'
+    +'<div style="width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.3);animation:rsBlink 1.2s ease-in-out 0s infinite;"></div>'
+    +'<div style="width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.3);animation:rsBlink 1.2s ease-in-out 0.4s infinite;"></div>'
+    +'<div style="width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.3);animation:rsBlink 1.2s ease-in-out 0.8s infinite;"></div>'
+    +'</div></div>';
+  fetch('/api/terminal/news',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({sourcingCountries:countries,homeCountry:(up.country||''),industry:industry})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data.items&&data.items.length>0){buildT1Alerts(data.items);}
+    else{buildT1EmptyState();}
+  })
+  .catch(function(){buildT1EmptyState();});
+}
+
+function buildT1Alerts(items){
+  var el=document.getElementById('wmAlerts');if(!el)return;
+  var sc={'critical':'wm-severity-critical','high':'wm-severity-high','medium':'wm-severity-medium','low':'wm-severity-low'};
+  var h='<span class="wm-section-label">PRIORITY ALERTS — LIVE INTELLIGENCE FEED'
+    +'<span style="cursor:pointer;color:rgba(255,255,255,0.25);margin-left:10px;font-size:11px;" onclick="refreshT1Alerts()" title="Refresh">↻</span>'
+    +'</span><div class="wm-alerts-grid">';
+  items.forEach(function(item,i){
+    var sev=(item.severity||'medium');
+    if(!sc[sev])sev='medium';
+    var dot=sev==='critical'?'<span class="wm-pulse-dot" style="width:6px;height:6px;margin-right:4px;"></span>':'';
+    h+='<div class="wm-alert-card sev-'+sev+'" style="animation-delay:'+(i*0.08)+'s">';
+    h+='<div class="wm-alert-header">'+dot+'<span class="wm-severity '+(sc[sev]||'')+'">'+sev.toUpperCase()+'</span>';
+    h+='<span class="wm-alert-title">'+escapeHtml(item.headline||'')+'</span></div>';
+    if(item.summary){h+='<div class="wm-alert-desc">'+escapeHtml(item.summary)+'</div>';}
+    h+='<div class="wm-alert-footer">';
+    h+='<span class="wm-alert-country">'+escapeHtml(item.source||'Live')+'</span>';
+    h+='<span class="wm-alert-time">'+escapeHtml(item.date||'')+'</span>';
+    h+='</div></div>';
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+function buildT1EmptyState(){
+  var el=document.getElementById('wmAlerts');if(!el)return;
+  el.innerHTML='<span class="wm-section-label">PRIORITY ALERTS — LIVE INTELLIGENCE FEED</span>'
+    +'<div style="padding:40px 20px;text-align:center;color:rgba(255,255,255,0.25);font-family:var(--font-mono);font-size:11px;letter-spacing:0.1em;">'
+    +'NO CURRENT RISK ALERTS FOR YOUR TRADE LANE'
+    +'<div style="margin-top:10px;font-size:10px;">'
+    +'<span style="color:rgba(45,212,191,0.6);cursor:pointer;" onclick="refreshT1Alerts()">Retry →</span>'
+    +'</div></div>';
+}
 
 // ===== ANIMATED COUNTERS =====
 function animateCounter(el,target,dur){
