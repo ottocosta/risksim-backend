@@ -256,25 +256,37 @@ function buildSystemPrompt(profile) {
 
 'When asked about sourcing, comparisons, or where to source from, reference these scores naturally in conversation.' +
 
-'\n\nSTRUCTURED INCIDENT CARDS (the ONLY exception to the plain text rule above):\n' +
-'When a question is specifically about an active supply chain disruption — a port closure, typhoon, strike, factory shutdown, logistics incident, or similar real-time event that directly affects the user\'s sourcing regions or named suppliers — append the following block on a new line AFTER your complete spoken response. Do not alter your spoken response; only add the block after it. The user never sees this block; it drives UI rendering only.\n\n' +
-'Format (copy exactly, including the sentinel lines):\n' +
+'\n\nSTRUCTURED VISUAL CARDS (the ONLY exception to the plain text rule above):\n' +
+'For specific question types, append a structured block AFTER your complete spoken response on a new line. The user never sees this block; it drives UI rendering only. Do not alter your spoken response. Always include a follow_up_chips block alongside any card.\n\n' +
+'Block format (copy exactly, including the sentinel lines):\n' +
 '[BLOCKS_START]\n' +
-'[{"type":"incident_card","data":{"severity":"P1","category":"logistics","title":"<event title, max 60 chars>","subtitle":"<one-line event summary, max 60 chars>","location":{"display":"<REGION · LOCATION, uppercase, max 25 chars, e.g. SOUTH CHINA · YANTIAN>","primary":"<primary marker name, uppercase, e.g. YANTIAN>","sub":"<sub label, uppercase, e.g. SHENZHEN>","region":"<south_china|red_sea|na_east_coast|northern_europe|mediterranean>"},"direct_exposure_usd":<estimated USD number, use 0 if unknown>,"affected_pos_count":<estimated count, use 0 if unknown>,"suppliers_hit":[{"name":"<supplier name relevant to user profile or disruption location>","exposure_usd":<number, use 0 if unknown>}],"delay_risk":"<e.g. 9-14 days to North America DCs>","recommended_action":{"text":"<one concrete sentence recommending an action>","impact_estimate":"<brief estimated benefit, e.g. Saves ~$180K in delay costs>","cta_label":"Run mitigation"},"recommendedActions":[{"text":"<action description, plain text only, no HTML or asterisks, max 120 chars>","impact":"<primary impact tag, e.g. Preserves $X · saves Y>","impact2":"<optional second impact line for item 0 only>","cta":"<button label, uppercase, max 20 chars, e.g. INITIATE REROUTE>"},{"text":"<second action, plain text>","impact":"<impact>","cta":"<button label>"},{"text":"<third action, plain text>","impact":"<impact>","cta":"<button label>"}]}},{"type":"follow_up_chips","options":["<3-6 word chip>","<3-6 word chip>","<3-6 word chip>"]}]\n' +
+'[...JSON array of block objects...]\n' +
 '[BLOCKS_END]\n\n' +
-'When you include an incident_card, the location field is required. Use short uppercase labels: display is REGION · LOCATION (max 25 chars), primary is the port or city name, sub is the broader city or region. When you include the location field, region must also be included alongside display, primary, and sub. Use south_china for incidents in mainland China, Hong Kong, Taiwan, or the Pearl River Delta. Use red_sea for incidents in the Suez Canal, Egypt, Eastern Mediterranean, Gulf of Aden, or Arabian Peninsula. Use na_east_coast for incidents in US East Coast ports: Newark, NY, Norfolk, Charleston, Savannah, Baltimore, etc. Use northern_europe for incidents in North Sea ports: Rotterdam, Hamburg, Antwerp, Felixstowe, Bremerhaven, etc. Use mediterranean for incidents in Mediterranean ports: Piraeus, Genoa, Valencia, Algeciras, Trieste, etc.\n\n' +
-'When you include an incident_card, recommendedActions (exactly 3 items) is required. Action text must be plain text — no HTML, no asterisks, no markdown. Prioritize concrete supply chain actions: rerouting POs, holding shipments, notifying suppliers. impact2 is optional and for item 0 only.\n\n' +
-'When to append a block — YES:\n' +
-'  - "Typhoon hitting Yantian port, what\'s my exposure?"\n' +
-'  - "There\'s a port strike in Shanghai — how does that affect me?"\n' +
-'  - "I heard the Red Sea shipping lanes are disrupted"\n\n' +
-'When NOT to append a block — NO:\n' +
-'  - General risk questions: "What are my biggest risks?"\n' +
-'  - Sourcing comparisons: "Should I source from Vietnam or China?"\n' +
-'  - Tariff or strategy questions: "How do I reduce costs?"\n' +
-'  - Vague or casual questions: "What\'s the vibe of supply chain?"\n' +
-'  - Identity questions: "Who are you?"\n\n' +
-'If uncertain whether a question warrants a block, do NOT include one. Err on the side of plain text.';
+'Each block object has a "type" field identifying the card. Supported types below.\n\n' +
+
+'## CARD TYPE: incident_card\n' +
+'Emit when: the question is specifically about an ACTIVE supply chain disruption — a port closure, typhoon, strike, factory shutdown, logistics incident, or similar real-time event that directly affects the user\'s sourcing regions or named suppliers.\n\n' +
+'Format:\n' +
+'[{"type":"incident_card","data":{"severity":"P1","category":"logistics","title":"<event title, max 60 chars>","subtitle":"<one-line event summary, max 60 chars>","location":{"display":"<REGION · LOCATION, uppercase, max 25 chars, e.g. SOUTH CHINA · YANTIAN>","primary":"<primary marker name, uppercase, e.g. YANTIAN>","sub":"<sub label, uppercase, e.g. SHENZHEN>","region":"<south_china|red_sea|na_east_coast|northern_europe|mediterranean>"},"direct_exposure_usd":<number, use 0 if unknown>,"affected_pos_count":<number, use 0 if unknown>,"suppliers_hit":[{"name":"<supplier name relevant to user profile or disruption location>","exposure_usd":<number, use 0 if unknown>}],"delay_risk":"<e.g. 9-14 days to North America DCs>","recommended_action":{"text":"<one concrete sentence recommending an action>","impact_estimate":"<brief estimated benefit>","cta_label":"Run mitigation"},"recommendedActions":[{"text":"<action, plain text only, no HTML or asterisks, max 120 chars>","impact":"<primary impact tag>","impact2":"<optional, item 0 only>","cta":"<button label, uppercase, max 20 chars>"},{"text":"<second action>","impact":"<impact>","cta":"<label>"},{"text":"<third action>","impact":"<impact>","cta":"<label>"}]}},{"type":"follow_up_chips","options":["<3-6 word chip>","<3-6 word chip>","<3-6 word chip>"]}]\n\n' +
+'Rules: location is required — display is REGION · LOCATION (max 25 chars), primary is port/city, sub is broader area. region values: south_china (mainland China, Hong Kong, Taiwan, Pearl River Delta); red_sea (Suez Canal, Egypt, Eastern Mediterranean, Gulf of Aden, Arabian Peninsula); na_east_coast (US East Coast ports: Newark, NY, Norfolk, Charleston, Savannah, Baltimore); northern_europe (North Sea ports: Rotterdam, Hamburg, Antwerp, Felixstowe, Bremerhaven); mediterranean (Mediterranean ports: Piraeus, Genoa, Valencia, Algeciras, Trieste). recommendedActions must have exactly 3 items, plain text only. Use 0 for all USD/count fields when unknown.\n' +
+'Emit YES: "Typhoon hitting Yantian port, what\'s my exposure?" / "Port strike in Shanghai — how does that affect me?" / "Red Sea shipping lanes are disrupted"\n' +
+'Emit NO: geographic exposure overview questions, tariff questions, general risk questions, sourcing comparisons, strategy questions:\n' +
+'  - "What are my biggest risks?"\n' +
+'  - "Should I source from Vietnam or China?"\n' +
+'  - "What\'s the vibe of supply chain?"\n' +
+'  - "Who are you?"\n\n' +
+
+'## CARD TYPE: geo_exposure_card\n' +
+'Emit when: the user asks about their OVERALL geographic risk profile — which of their sourcing countries are riskiest, a risk overview of where they source from, which regions to be most concerned about. This is a structural risk question, not an active-event question.\n\n' +
+'Format:\n' +
+'[{"type":"geo_exposure_card","data":{"countries":[{"name":"<country name>","severity":"<critical|high|medium|low>","reason":"<1-2 qualitative sentences — geopolitical, trade policy, and industry-specific risk for this country>"},{"name":"<next country>","severity":"<severity>","reason":"<reason>"}],"insight":"<one synthesis observation across all countries, e.g. concentration risk or correlated risk>","cta_text":"<button label, e.g. Drill into China risk>","cta_action":"<full question string to send to chat when the button is clicked>"}},{"type":"follow_up_chips","options":["<3-6 word chip>","<3-6 word chip>","<3-6 word chip>"]}]\n\n' +
+'Rules: List ALL of the user\'s sourcing countries from their profile. Rank by severity (critical first, then high, medium, low). reason must be 1-2 qualitative sentences grounded in geopolitical conditions, trade policy, and industry-specific factors — no percentages, no dollar amounts. insight is a synthesis across all countries. cta_action is the full question that drills deeper into the highest-risk country.\n' +
+'CRITICAL — no fabricated data: In reason and insight, never state spend percentages, dollar amounts, volumes, or any quantified figure about the user\'s operations — you do not have that data. Reason only qualitatively. Never write "China represents X% of your spend" or "your exposure is $Y" — these figures are unknown.\n' +
+'Emit YES: "What are my riskiest sourcing countries?" / "Map my geographic exposure" / "Which regions worry you most for my supply chain?" / "Give me a risk overview of where I source from"\n' +
+'Emit NO: active disruption events (use incident_card instead), tariff questions, supplier-specific questions, general strategy or cost questions.\n\n' +
+
+'## GLOBAL CARD RULES\n' +
+'If uncertain which card fits the question, emit plain text only. Never emit both incident_card and geo_exposure_card in the same response. Always default to plain text if a question does not clearly match a card\'s emit criteria.';
 
     if (profile && (profile.companyType || profile.homeCountry || profile.industry)) {
         prompt += '\n\n## User Company Profile\n';
