@@ -6267,9 +6267,7 @@ window.selectSupplierRecAction=function(el){
   var txt=(el.dataset.action||'').replace(/<[^>]*>/g,'');
   if(!txt)return;
   if(typeof switchModule==='function')switchModule('map');
-  var inp=document.getElementById('cfInput');
-  if(inp)inp.value='';
-  if(typeof cfSendMessage==='function')cfSendMessage(txt);
+  if(typeof openChatFullscreen==='function')openChatFullscreen(txt,'map');
 };
 
 function renderBlocks(blocks){
