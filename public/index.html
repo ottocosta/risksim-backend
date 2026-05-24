@@ -1300,6 +1300,13 @@
     .vc-sev.p2,.vc-sev.high { background:rgba(251,146,60,0.15); color:#fb923c; border:1px solid rgba(251,146,60,0.3); }
     .vc-sev.medium { background:rgba(234,179,8,0.12); color:#fbbf24; border:1px solid rgba(234,179,8,0.3); }
     .vc-sev.low { background:rgba(45,212,191,0.12); color:#2dd4bf; border:1px solid rgba(45,212,191,0.3); }
+    @keyframes vcBannerPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5);} 50%{box-shadow:0 0 0 5px rgba(239,68,68,0);} }
+    .vc-incident-dot { animation:vcBannerPulse 2s ease-in-out infinite; }
+    .vc-banner-sev { color:#f87171; }
+    .vc-cat-pill { display:inline-flex; align-items:center; gap:5px; font-family:var(--font-mono); font-size:8px; letter-spacing:0.12em; color:rgba(251,146,60,0.9); background:rgba(251,146,60,0.08); border:1px solid rgba(251,146,60,0.25); border-radius:20px; padding:3px 9px 3px 7px; margin-bottom:8px; }
+    .vc-cat-pill-dot { width:5px; height:5px; border-radius:50%; background:#fb923c; flex-shrink:0; }
+    .vc-loc-line { display:flex; align-items:center; gap:5px; font-family:var(--font-mono); font-size:8px; letter-spacing:0.08em; color:rgba(255,255,255,0.35); margin-top:6px; }
+    .vc-loc-dot { width:5px; height:5px; border-radius:50%; background:#fb923c; flex-shrink:0; }
     /* Visual Chat — Geographic Exposure Card */
     .vc-geo-card { border-color:rgba(45,212,191,0.35); box-shadow:0 0 28px rgba(45,212,191,0.1); }
     .vc-geo-banner { background:rgba(20,50,48,0.6); border-bottom-color:rgba(45,212,191,0.25); }
@@ -1307,7 +1314,8 @@
     .vc-geo-body { padding:12px 14px 14px; }
     .vc-geo-list { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
     .vc-geo-row { display:flex; align-items:flex-start; gap:10px; }
-    .vc-geo-name { font-size:13px; font-weight:600; color:#fff; margin-bottom:3px; }
+    .vc-geo-row:not(:last-child) { padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .vc-geo-name { font-size:14px; font-weight:600; color:#fff; margin-bottom:3px; }
     .vc-geo-reason { font-size:11px; color:rgba(255,255,255,0.5); line-height:1.5; }
     .vc-geo-footer { border-top:1px solid rgba(255,255,255,0.06); padding-top:12px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
     .vc-geo-insight { font-size:11px; color:rgba(255,255,255,0.55); line-height:1.5; flex:1; min-width:0; }
@@ -1320,9 +1328,10 @@
     .vc-tariff-body { padding:12px 14px 14px; }
     .vc-tariff-list { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
     .vc-tariff-row { display:flex; align-items:flex-start; gap:10px; }
+    .vc-tariff-row:not(:last-child) { padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.04); }
     .vc-tariff-row-right { flex:1; min-width:0; }
     .vc-tariff-name-line { display:flex; align-items:center; gap:8px; margin-bottom:3px; flex-wrap:wrap; }
-    .vc-tariff-name { font-size:13px; font-weight:600; color:#fff; }
+    .vc-tariff-name { font-size:14px; font-weight:600; color:#fff; }
     .vc-tariff-policy { font-family:var(--font-mono); font-size:8px; letter-spacing:0.08em; padding:2px 6px; border-radius:3px; background:rgba(251,146,60,0.1); border:1px solid rgba(251,146,60,0.25); color:rgba(251,146,60,0.8); }
     .vc-tariff-reason { font-size:11px; color:rgba(255,255,255,0.5); line-height:1.5; }
     .vc-tariff-footer { border-top:1px solid rgba(255,255,255,0.06); padding-top:12px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
@@ -1343,7 +1352,7 @@
     .vc-card-right { flex:40; background:rgba(0,0,0,0.32); background-image:radial-gradient(circle at 68% 55%, rgba(239,68,68,0.08) 0%, transparent 58%); min-height:220px; overflow:hidden; }
     .vc-map-svg { width:100%; height:100%; display:block; }
     .vc-map-txt { font-family:var(--font-mono); font-size:9px; fill:rgba(255,255,255,0.45); }
-    @media (max-width:640px) { .vc-card-right { display:none; } .vc-card-body { display:block; } }
+    @media (max-width:640px) { .vc-card-right { display:none; } .vc-card-body { display:block; } .vc-stats { grid-template-columns:1fr 1fr; } }
     .vc-ra { margin-top:8px; border-radius:14px; background:#0a0c10; border:1px solid rgba(200,55,40,0.35); font-size:12px; width:100%; max-width:900px; overflow:hidden; }
     .vc-ra-header { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.06); }
     .vc-ra-title { display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:10px; letter-spacing:0.1em; color:#fff; font-weight:600; }
@@ -1351,7 +1360,7 @@
     .vc-ra-meta { font-family:var(--font-mono); font-size:9px; letter-spacing:0.08em; color:rgba(255,255,255,0.35); }
     .vc-ra-items { padding:10px 14px 14px; display:flex; flex-direction:column; gap:8px; }
     .vc-ra-item { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.07); }
-    .vc-ra-item.p1 { background:rgba(239,68,68,0.04); border:1px solid rgba(239,68,68,0.35); }
+    .vc-ra-item.p1 { background:rgba(239,68,68,0.04); border:1px solid rgba(239,68,68,0.35); border-left:3px solid rgba(239,68,68,0.7); }
     .vc-ra-num { font-family:var(--font-mono); font-size:11px; font-weight:700; width:32px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.12); }
     .vc-ra-num.p1 { background:#ef4444; color:#fff; border:none; }
     .vc-ra-body { flex:1; min-width:0; }
@@ -1361,14 +1370,17 @@
     .vc-ra-cta { font-family:var(--font-mono); font-size:9px; letter-spacing:0.08em; padding:7px 12px; border-radius:6px; cursor:pointer; white-space:nowrap; flex-shrink:0; transition:background 0.2s; }
     .vc-ra-cta.p1 { background:#ef4444; color:#fff; border:none; }
     .vc-ra-cta.p1:hover { background:#dc2626; }
+    .vc-ra-cta.p1::after { content:" →"; }
     .vc-ra-cta.neutral { background:transparent; color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.25); }
     .vc-ra-cta.neutral:hover { background:rgba(255,255,255,0.06); }
     @media (max-width:640px) { .vc-ra-item { flex-wrap:wrap; } .vc-ra-cta { margin-left:44px; margin-top:6px; } .vc-ra-meta { display:none; } }
-    .vc-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+    .vc-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px; }
     .vc-stat { background:rgba(255,255,255,0.03); border-radius:8px; padding:8px 10px; border:1px solid rgba(255,255,255,0.06); }
     .vc-stat-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.1em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:3px; }
     .vc-stat-value { font-size:15px; font-weight:700; color:#fff; line-height:1; }
     .vc-stat-sub { font-size:10px; color:rgba(255,255,255,0.35); margin-top:2px; }
+    .vc-stat-value--money { color:#fb923c; }
+    .vc-stat-value--time { color:#fbbf24; }
     .vc-section-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.1em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:6px; }
     .vc-bars { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
     .vc-bar-row { display:flex; align-items:center; gap:8px; }
@@ -1379,6 +1391,10 @@
     .vc-bar-fill.r1 { background:rgba(245,158,11,0.6); }
     .vc-bar-fill.r2 { background:rgba(45,212,191,0.7); }
     .vc-bar-amt { font-family:var(--font-mono); font-size:9px; color:rgba(255,255,255,0.4); width:52px; text-align:right; flex-shrink:0; }
+    .vc-sup-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
+    .vc-sup-pill { display:flex; align-items:center; gap:6px; font-size:11px; color:rgba(255,255,255,0.75); padding:6px 10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:7px; overflow:hidden; min-width:0; white-space:nowrap; text-overflow:ellipsis; }
+    .vc-sup-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+    @media (max-width:480px) { .vc-sup-grid { grid-template-columns:1fr; } }
     .vc-delay { font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:12px; padding:7px 10px; background:rgba(255,255,255,0.03); border-radius:6px; border-left:2px solid rgba(45,212,191,0.4); }
     .vc-action { background:rgba(45,212,191,0.06); border:1px solid rgba(45,212,191,0.4); border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; }
     .vc-action-icon { width:24px; height:24px; border-radius:50%; background:rgba(45,212,191,0.25); flex-shrink:0; }
@@ -6048,7 +6064,7 @@ function buildRecommendedActionsHtml(actions){
   return '<div class="vc-ra">'
     +'<div class="vc-ra-header">'
       +'<div class="vc-ra-title"><span class="vc-ra-icon">⚡</span>RECOMMENDED ACTIONS</div>'
-      +'<div class="vc-ra-meta">3 RANKED · THROUGHPUT PRESERVED · ACT WITHIN 6H</div>'
+      +'<div class="vc-ra-meta">'+actions.length+' ACTIONS · PRIORITY RANKED</div>'
     +'</div>'
     +'<div class="vc-ra-items">'+items+'</div>'
   +'</div>';
@@ -6230,39 +6246,46 @@ function buildMediterraneanMap(location){
   +'</svg>';
 }
 function buildIncidentCardHtml(c){
-  var maxExp=c.suppliers_hit[0]?c.suppliers_hit[0].exposure_usd:1;
-  var n=c.suppliers_hit.length;
-  var bars=c.suppliers_hit.map(function(s,i){
-    var pct=Math.round((s.exposure_usd/maxExp)*100);
-    var rc=n===1?'r2':(i===0?'r0':(i===n-1?'r2':'r1'));
-    return '<div class="vc-bar-row"><div class="vc-bar-name">'+s.name+'</div><div class="vc-bar-track"><div class="vc-bar-fill '+rc+'" style="width:'+pct+'%"></div></div><div class="vc-bar-amt">'+_vcFmtUsd(s.exposure_usd)+'</div></div>';
+  var dotColors=['#ef4444','#f59e0b','#2dd4bf'];
+  var hits=c.suppliers_hit||[];
+  var pills=hits.map(function(s,i){
+    var col=i===0?dotColors[0]:(i===(hits.length-1)?dotColors[2]:dotColors[1]);
+    var amt=s.exposure_usd>0?(' · '+_vcFmtUsd(s.exposure_usd)):'';
+    return '<div class="vc-sup-pill"><span class="vc-sup-dot" style="background:'+col+'"></span>'+escapeHtml(s.name||'')+escapeHtml(amt)+'</div>';
   }).join('');
+  var hasLoc=c.location&&(c.location.primary||c.location.sub);
+  var locLine=hasLoc
+    ?'<div class="vc-loc-line"><span class="vc-loc-dot"></span>'+escapeHtml((c.location.primary||'').toUpperCase())+(c.location.sub?' · '+escapeHtml(c.location.sub.toUpperCase()):'')+'</div>'
+    :'';
+  var expVal=c.direct_exposure_usd>0?_vcFmtUsd(c.direct_exposure_usd):'–';
+  var expCls=c.direct_exposure_usd>0?'vc-stat-value vc-stat-value--money':'vc-stat-value';
   return '<div class="vc-card">'
     +'<div class="vc-banner">'
-      +'<div class="vc-banner-left"><div class="vc-banner-dot"></div>ACTIVE INCIDENT · P1 CRITICAL</div>'
+      +'<div class="vc-banner-left"><div class="vc-banner-dot vc-incident-dot"></div>ACTIVE INCIDENT · <span class="vc-banner-sev">'+escapeHtml(c.severity||'P1')+' CRITICAL</span></div>'
       +'<div class="vc-banner-right">Detected · <strong>monitoring</strong></div>'
     +'</div>'
     +'<div class="vc-card-body">'
       +'<div class="vc-card-left">'
         +'<div class="vc-card-header">'
-          +'<div class="vc-sev '+c.severity.toLowerCase()+'">'+c.severity+'</div>'
+          +'<div class="vc-sev '+c.severity.toLowerCase()+'">'+escapeHtml(c.severity||'P1')+'</div>'
           +'<div class="vc-card-titles">'
-            +'<div class="vc-card-cat">'+(c.category?c.category.toUpperCase():'INCIDENT')+' · ACTIVE</div>'
-            +'<div class="vc-card-title">'+c.title+'</div>'
-            +'<div class="vc-card-sub">'+c.subtitle+'</div>'
+            +'<div class="vc-cat-pill"><span class="vc-cat-pill-dot"></span>'+(c.category?escapeHtml(c.category.toUpperCase()):'INCIDENT')+'</div>'
+            +'<div class="vc-card-title">'+escapeHtml(c.title||'')+'</div>'
+            +'<div class="vc-card-sub">'+escapeHtml(c.subtitle||'')+'</div>'
+            +locLine
           +'</div>'
         +'</div>'
         +'<div class="vc-stats">'
-          +'<div class="vc-stat"><div class="vc-stat-label">Direct exposure</div><div class="vc-stat-value">'+_vcFmtUsd(c.direct_exposure_usd)+'</div></div>'
-          +'<div class="vc-stat"><div class="vc-stat-label">POs affected</div><div class="vc-stat-value">'+c.affected_pos_count+'</div><div class="vc-stat-sub">active orders</div></div>'
+          +'<div class="vc-stat"><div class="vc-stat-label">Direct exposure</div><div class="'+expCls+'">'+expVal+'</div>'+(c.affected_pos_count>0?'<div class="vc-stat-sub">'+c.affected_pos_count+' active orders</div>':'')+'</div>'
+          +'<div class="vc-stat"><div class="vc-stat-label">Suppliers hit</div><div class="vc-stat-value">'+(hits.length||'–')+'</div><div class="vc-stat-sub">affected</div></div>'
+          +'<div class="vc-stat"><div class="vc-stat-label">Delay risk</div><div class="vc-stat-value vc-stat-value--time">'+escapeHtml(c.delay_risk||'–')+'</div></div>'
         +'</div>'
-        +'<div class="vc-section-label">Supplier exposure</div>'
-        +'<div class="vc-bars">'+bars+'</div>'
-        +'<div class="vc-delay">&#9201; Delay risk: '+c.delay_risk+'</div>'
+        +'<div class="vc-section-label">Affected suppliers</div>'
+        +'<div class="vc-sup-grid">'+pills+'</div>'
         +'<div class="vc-action">'
           +'<div class="vc-action-icon"></div>'
-          +'<div class="vc-action-text">'+c.recommended_action.text+'<div class="vc-action-impact">'+c.recommended_action.impact_estimate+'</div></div>'
-          +'<div class="vc-action-cta">'+c.recommended_action.cta_label+'</div>'
+          +'<div class="vc-action-text">'+escapeHtml(c.recommended_action.text||'')+'<div class="vc-action-impact">'+escapeHtml(c.recommended_action.impact_estimate||'')+'</div></div>'
+          +'<div class="vc-action-cta">'+escapeHtml(c.recommended_action.cta_label||'')+'</div>'
         +'</div>'
       +'</div>'
       +'<div class="vc-card-right">'+buildMapGlyphHtml(c.location)+'</div>'
@@ -6292,7 +6315,7 @@ function buildGeoExposureHtml(d){
   return '<div class="vc-card vc-geo-card">'
     +'<div class="vc-banner vc-geo-banner">'
       +'<div class="vc-banner-left"><div class="vc-banner-dot vc-geo-dot"></div>GEOGRAPHIC EXPOSURE · PROFILE ANALYSIS</div>'
-      +'<div class="vc-banner-right">Based on <strong>your sourcing profile</strong></div>'
+      +'<div class="vc-banner-right"><strong>'+(d.countries||[]).length+'</strong> countries assessed</div>'
     +'</div>'
     +'<div class="vc-geo-body">'
       +'<div class="vc-section-label" style="margin-bottom:10px;">Sourcing countries by risk</div>'
@@ -6327,7 +6350,7 @@ function buildTariffExposureHtml(d){
   return '<div class="vc-card vc-tariff-card">'
     +'<div class="vc-banner vc-tariff-banner">'
       +'<div class="vc-banner-left"><div class="vc-banner-dot vc-tariff-dot"></div>TARIFF EXPOSURE · TRADE POLICY ANALYSIS</div>'
-      +(d.regime?'<div class="vc-banner-right">Regime: <strong>'+escapeHtml(d.regime)+'</strong></div>':'<div class="vc-banner-right">Based on <strong>your sourcing profile</strong></div>')
+      +'<div class="vc-banner-right"><strong>'+(d.items||[]).length+'</strong> countries'+(d.regime?' · '+escapeHtml(d.regime):'')+'</div>'
     +'</div>'
     +'<div class="vc-tariff-body">'
       +'<div class="vc-section-label" style="margin-bottom:10px;">Tariff risk by sourcing country</div>'
