@@ -1313,6 +1313,22 @@
     .vc-geo-insight { font-size:11px; color:rgba(255,255,255,0.55); line-height:1.5; flex:1; min-width:0; }
     .vc-geo-cta { font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; padding:7px 14px; background:rgba(45,212,191,0.1); border:1px solid rgba(45,212,191,0.3); color:#2dd4bf; border-radius:6px; cursor:pointer; white-space:nowrap; transition:all 0.2s; flex-shrink:0; }
     .vc-geo-cta:hover { background:rgba(45,212,191,0.18); border-color:rgba(45,212,191,0.5); }
+    /* Visual Chat — Tariff Exposure Card */
+    .vc-tariff-card { border-color:rgba(251,146,60,0.35); box-shadow:0 0 28px rgba(251,146,60,0.1); }
+    .vc-tariff-banner { background:rgba(50,28,8,0.6); border-bottom-color:rgba(251,146,60,0.25); }
+    .vc-tariff-dot { background:#fb923c; }
+    .vc-tariff-body { padding:12px 14px 14px; }
+    .vc-tariff-list { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+    .vc-tariff-row { display:flex; align-items:flex-start; gap:10px; }
+    .vc-tariff-row-right { flex:1; min-width:0; }
+    .vc-tariff-name-line { display:flex; align-items:center; gap:8px; margin-bottom:3px; flex-wrap:wrap; }
+    .vc-tariff-name { font-size:13px; font-weight:600; color:#fff; }
+    .vc-tariff-policy { font-family:var(--font-mono); font-size:8px; letter-spacing:0.08em; padding:2px 6px; border-radius:3px; background:rgba(251,146,60,0.1); border:1px solid rgba(251,146,60,0.25); color:rgba(251,146,60,0.8); }
+    .vc-tariff-reason { font-size:11px; color:rgba(255,255,255,0.5); line-height:1.5; }
+    .vc-tariff-footer { border-top:1px solid rgba(255,255,255,0.06); padding-top:12px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .vc-tariff-insight { font-size:11px; color:rgba(255,255,255,0.55); line-height:1.5; flex:1; min-width:0; }
+    .vc-tariff-cta { font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; padding:7px 14px; background:rgba(251,146,60,0.1); border:1px solid rgba(251,146,60,0.3); color:#fb923c; border-radius:6px; cursor:pointer; white-space:nowrap; transition:all 0.2s; flex-shrink:0; }
+    .vc-tariff-cta:hover { background:rgba(251,146,60,0.18); border-color:rgba(251,146,60,0.5); }
     .vc-card-titles { flex:1; min-width:0; }
     .vc-card-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#fff; line-height:1.3; margin-bottom:2px; }
     .vc-card-sub { font-size:11px; color:rgba(255,255,255,0.45); line-height:1.4; }
@@ -6285,6 +6301,41 @@ function buildGeoExposureHtml(d){
     +'</div>'
     +'</div>';
 }
+function buildTariffExposureHtml(d){
+  var valid={critical:1,high:1,medium:1,low:1};
+  var rows=(d.items||[]).map(function(c){
+    var sev=(c.severity||'medium').toLowerCase();
+    if(!valid[sev])sev='medium';
+    return '<div class="vc-tariff-row">'
+      +'<span class="vc-sev '+sev+'">'+sev.toUpperCase()+'</span>'
+      +'<div class="vc-tariff-row-right">'
+        +'<div class="vc-tariff-name-line">'
+          +'<span class="vc-tariff-name">'+escapeHtml(c.name||'')+'</span>'
+          +(c.policy?'<span class="vc-tariff-policy">'+escapeHtml(c.policy)+'</span>':'')
+        +'</div>'
+        +'<div class="vc-tariff-reason">'+escapeHtml(c.reason||'')+'</div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+  var footer='';
+  if(d.insight||d.cta_action){
+    footer='<div class="vc-tariff-footer">'
+      +(d.insight?'<div class="vc-tariff-insight">'+escapeHtml(d.insight)+'</div>':'')
+      +(d.cta_action?'<button class="vc-tariff-cta" data-action="'+_vcAttrEscape(d.cta_action)+'" onclick="cfSendFromGeoAction(this)">'+escapeHtml(d.cta_text||'Drill deeper →')+'</button>':'')
+      +'</div>';
+  }
+  return '<div class="vc-card vc-tariff-card">'
+    +'<div class="vc-banner vc-tariff-banner">'
+      +'<div class="vc-banner-left"><div class="vc-banner-dot vc-tariff-dot"></div>TARIFF EXPOSURE · TRADE POLICY ANALYSIS</div>'
+      +(d.regime?'<div class="vc-banner-right">Regime: <strong>'+escapeHtml(d.regime)+'</strong></div>':'<div class="vc-banner-right">Based on <strong>your sourcing profile</strong></div>')
+    +'</div>'
+    +'<div class="vc-tariff-body">'
+      +'<div class="vc-section-label" style="margin-bottom:10px;">Tariff risk by sourcing country</div>'
+      +'<div class="vc-tariff-list">'+rows+'</div>'
+      +footer
+    +'</div>'
+    +'</div>';
+}
 function buildChipsHtml(chips){
   var html='<div class="vc-chips">';
   chips.forEach(function(ch){
@@ -6331,6 +6382,7 @@ function renderBlocks(blocks){
   blocks.forEach(function(block){
     if(block.type==='incident_card'){html+=buildIncidentCardHtml(block.data);}
     else if(block.type==='geo_exposure_card'){html+=buildGeoExposureHtml(block.data);}
+    else if(block.type==='tariff_exposure_card'){html+=buildTariffExposureHtml(block.data);}
     else if(block.type==='follow_up_chips'){html+=buildChipsHtml(block.options);}
     else if(block.type==='text'){html+='<p style="margin:8px 0">'+block.content+'</p>';}
   });
