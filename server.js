@@ -1364,11 +1364,12 @@ app.get('/api/email/digest-data', requireDataKey, (req, res) => {
         pubDate: a.pubDate || a.isoDate
     }));
     const criticalRe = /\bwar\b|bombing|invasion|military.strike|armed.conflict|port.closure|factory.explosion/i;
-    const highRe = /strike|shortage|recession|congestion|disrupt|halt|suspend|crisis/i;
+  const highRe = /labor.strike|supply.shortage|port.congestion|major.disruption|operations.halted|trade.suspension|financial.crisis/i;
     let criticalCount = 0, highCount = 0, mediumCount = 0, lowCount = 0;
     combined.forEach(a => {
         const t = (a.title || '').toLowerCase();
-        if (criticalRe.test(t)) criticalCount++;
+      if (criticalRe.test(t) && t.length > 30) criticalCount++;
+else if (criticalRe.test(t)) highCount++;
         else if (highRe.test(t)) highCount++;
         else if (/tariff|regulation|compliance|cost.*rise|review|probe/i.test(t)) mediumCount++;
         else lowCount++;
