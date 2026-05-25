@@ -41,6 +41,13 @@ const chatLimiter = rateLimit({
     message: { error: 'Too many requests, please try again later.' }
 });
 
+// Demo request — low volume, high bot risk
+const demoLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { error: 'Too many requests, please try again later.' }
+});
+
 // General limit on all routes
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -53,11 +60,24 @@ app.use('/api/audit-custom', claudeLimiter);
 app.use('/api/price-extract', claudeLimiter);
 app.use('/api/terminal/news', claudeLimiter);
 app.use('/api/chat', chatLimiter);
+app.use('/api/demo-request', demoLimiter);
 
 // Input sanitisation helper — strips HTML tags
 function stripHtml(str) {
     if (typeof str !== 'string') return str;
     return str.replace(/<[^>]*>/g, '').trim();
+}
+
+// Sanitise user-supplied strings before embedding in Discord messages.
+// Strips @ (prevents @everyone/@here pings) and Discord markdown injection chars.
+function sanitizeForDiscord(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/@/g, '(at)')
+        .replace(/`/g, "'")
+        .replace(/[*_~|\\]/g, '')
+        .trim()
+        .slice(0, 200);
 }
 
 const MAX_INPUT = 5000;
@@ -1391,6 +1411,29 @@ app.post('/api/subscription/cancel-request', async (req, res) => {
   }
   try {
     const content = `🚨 **CANCELLATION REQUEST**\n**Plan:** ${plan || 'unknown'}\n**Email:** ${email || 'not provided'}\n**Timestamp:** ${timestamp}\n**Action needed:** Cancel in Shopify admin → Subscriptions → Contracts`;
+    const resp = await axios.post(webhookUrl, { content }, { headers: { 'Content-Type': 'application/json' } });
+    if (resp.status >= 200 && resp.status < 300) {
+      return res.json({ success: true });
+    }
+    return res.status(500).json({ success: false, error: 'internal' });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: 'internal' });
+  }
+});
+
+app.post('/api/demo-request', async (req, res) => {
+  const { name, email, phone, preferredTime, website } = req.body;
+  // honeypot — bots fill this, real users never see it
+  if (website) return res.json({ success: true });
+  if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ success: false, error: 'invalid' });
+  }
+  const webhookUrl = process.env.DISCORD_CANCEL_WEBHOOK_URL;
+  if (!webhookUrl) {
+    return res.status(500).json({ success: false, error: 'internal' });
+  }
+  try {
+    const content = `📅 **DEMO REQUEST**\n**Name:** ${sanitizeForDiscord(name)}\n**Email:** ${sanitizeForDiscord(email)}\n**Phone:** ${sanitizeForDiscord(phone) || 'not provided'}\n**Preferred time:** ${sanitizeForDiscord(preferredTime) || 'not specified'}`;
     const resp = await axios.post(webhookUrl, { content }, { headers: { 'Content-Type': 'application/json' } });
     if (resp.status >= 200 && resp.status < 300) {
       return res.json({ success: true });

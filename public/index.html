@@ -245,6 +245,30 @@
     .rm-btn-cancel { background: none; border: none; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.2); transition: color 0.2s; padding: 0.4rem; }
     .rm-btn-cancel:hover { color: rgba(255,255,255,0.48); }
 
+    /* Demo request modal */
+    #demoModal { position: fixed; inset: 0; z-index: 100004; background: rgba(0,0,0,0.82); display: none; align-items: center; justify-content: center; }
+    #demoModal.active { display: flex; }
+    .dm-box { background: #111; border: 1px solid rgba(255,255,255,0.1); padding: 2.5rem; max-width: 440px; width: 90%; }
+    .dm-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(255,255,255,0.22); display: block; margin-bottom: 1rem; }
+    .dm-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.25rem; color: #fff; margin-bottom: 0.6rem; }
+    .dm-sub { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 0.86rem; color: rgba(255,255,255,0.42); line-height: 1.65; margin-bottom: 1.6rem; }
+    .dm-field { margin-bottom: 1rem; }
+    .dm-field-label { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.3); display: block; margin-bottom: 0.4rem; }
+    .dm-input { width: 100%; padding: 0.65rem 0.85rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); font-family: 'DM Sans', sans-serif; font-size: 0.88rem; box-sizing: border-box; outline: none; transition: border-color 0.2s; }
+    .dm-input:focus { border-color: rgba(255,255,255,0.35); }
+    .dm-honeypot { position: absolute; left: -9999px; opacity: 0; height: 0; overflow: hidden; }
+    .dm-error { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: rgba(255,120,100,0.85); min-height: 1.1rem; margin-bottom: 0.8rem; }
+    .dm-btns { display: flex; gap: 0.75rem; }
+    .dm-btn-submit { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; background: #fff; color: #000; border: none; padding: 0.75rem 1.6rem; cursor: pointer; transition: background 0.2s; }
+    .dm-btn-submit:hover:not(:disabled) { background: #e8e8e8; }
+    .dm-btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .dm-btn-cancel { background: none; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; padding: 0.75rem 1.2rem; cursor: pointer; transition: border-color 0.2s; }
+    .dm-btn-cancel:hover { border-color: rgba(255,255,255,0.35); }
+    .dm-success { text-align: center; padding: 1rem 0; }
+    .dm-success-check { font-size: 1.8rem; margin-bottom: 0.8rem; }
+    .dm-success-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem; }
+    .dm-success-sub { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 0.86rem; color: rgba(255,255,255,0.42); }
+
     /* Demo banner */
     #demoBanner { position: fixed; top: 0; left: 0; right: 0; z-index: 9000; background: #080808; border-bottom: 1px solid rgba(255,255,255,0.07); display: none; align-items: center; height: 42px; padding: 0 1.5rem; gap: 1.25rem; }
     #demoBanner.active { display: flex; }
@@ -3355,6 +3379,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <div class="lp-hero-ctas">
         <button class="lp-btn-primary" onclick="lpStartTrial()">Start free trial</button>
         <button class="lp-btn-secondary" onclick="lpBrowseProduct()">Browse the product</button>
+        <button class="lp-btn-secondary" onclick="openDemoModal()">Request a demo</button>
       </div>
       <div class="lp-trust">First month free &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Cancel anytime</div>
       <button class="lp-restore-link" onclick="openRestoreModal()">Already a customer? Restore access →</button>
@@ -3512,6 +3537,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <div class="lp-final-ctas">
         <button class="lp-btn-primary" onclick="lpStartTrial()">Start free trial</button>
         <button class="lp-btn-secondary" onclick="lpBrowseProduct()">Browse the product</button>
+        <button class="lp-btn-secondary" onclick="openDemoModal()">Request a demo</button>
       </div>
     </div>
   </section>
@@ -3560,6 +3586,46 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <div class="rm-btns">
       <button class="rm-btn-primary" id="rmSubmitBtn" onclick="submitLandingRestoreAccess()">Restore access</button>
       <button class="rm-btn-cancel" onclick="closeRestoreModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DEMO REQUEST MODAL ===== -->
+<div id="demoModal">
+  <div class="dm-box">
+    <span class="dm-eyebrow">Book a call</span>
+    <div class="dm-title">Request a demo</div>
+    <div class="dm-sub">We'll reach out to schedule a 20-minute walkthrough — no sales pressure, just the product.</div>
+    <div id="dmForm">
+      <div class="dm-field">
+        <label class="dm-field-label" for="dmName">Name *</label>
+        <input class="dm-input" id="dmName" type="text" placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="dm-field">
+        <label class="dm-field-label" for="dmEmail">Email *</label>
+        <input class="dm-input" id="dmEmail" type="email" placeholder="you@company.com" autocomplete="email">
+      </div>
+      <div class="dm-field">
+        <label class="dm-field-label" for="dmPhone">Phone</label>
+        <input class="dm-input" id="dmPhone" type="tel" placeholder="Optional" autocomplete="tel">
+      </div>
+      <div class="dm-field">
+        <label class="dm-field-label" for="dmTime">Preferred time</label>
+        <input class="dm-input" id="dmTime" type="text" placeholder="e.g. Mornings, Mon–Fri, AEST">
+      </div>
+      <div class="dm-honeypot" aria-hidden="true">
+        <input id="dmWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <div class="dm-error" id="dmError"></div>
+      <div class="dm-btns">
+        <button class="dm-btn-submit" id="dmSubmitBtn" onclick="submitDemoRequest()">Request demo</button>
+        <button class="dm-btn-cancel" onclick="closeDemoModal()">Cancel</button>
+      </div>
+    </div>
+    <div class="dm-success" id="dmSuccess" style="display:none">
+      <div class="dm-success-check">✓</div>
+      <div class="dm-success-title">Request received</div>
+      <div class="dm-success-sub">We'll be in touch within one business day to schedule your demo.</div>
     </div>
   </div>
 </div>
@@ -8909,6 +8975,67 @@ function openRestoreModal() {
 function closeRestoreModal() {
   var m = document.getElementById('restoreModal');
   if (m) m.classList.remove('active');
+}
+
+function openDemoModal() {
+  var m = document.getElementById('demoModal');
+  if (!m) return;
+  document.getElementById('dmName').value = '';
+  document.getElementById('dmEmail').value = '';
+  document.getElementById('dmPhone').value = '';
+  document.getElementById('dmTime').value = '';
+  document.getElementById('dmWebsite').value = '';
+  document.getElementById('dmError').textContent = '';
+  document.getElementById('dmForm').style.display = '';
+  document.getElementById('dmSuccess').style.display = 'none';
+  var btn = document.getElementById('dmSubmitBtn');
+  btn.disabled = false;
+  btn.textContent = 'Request demo';
+  m.classList.add('active');
+  setTimeout(function() { document.getElementById('dmName').focus(); }, 80);
+}
+
+function closeDemoModal() {
+  var m = document.getElementById('demoModal');
+  if (m) m.classList.remove('active');
+}
+
+async function submitDemoRequest() {
+  var name = (document.getElementById('dmName').value || '').trim();
+  var email = (document.getElementById('dmEmail').value || '').trim();
+  var phone = (document.getElementById('dmPhone').value || '').trim();
+  var time = (document.getElementById('dmTime').value || '').trim();
+  var honeypot = document.getElementById('dmWebsite').value;
+  var errEl = document.getElementById('dmError');
+  var btn = document.getElementById('dmSubmitBtn');
+  errEl.textContent = '';
+  if (!name) { errEl.textContent = 'Name is required.'; return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.textContent = 'Please enter a valid email address.';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    var resp = await fetch('/api/demo-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, email: email, phone: phone, preferredTime: time, website: honeypot })
+    });
+    var data = await resp.json();
+    if (data.success) {
+      document.getElementById('dmForm').style.display = 'none';
+      document.getElementById('dmSuccess').style.display = '';
+    } else {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      btn.disabled = false;
+      btn.textContent = 'Request demo';
+    }
+  } catch(e) {
+    errEl.textContent = 'Network error. Please try again.';
+    btn.disabled = false;
+    btn.textContent = 'Request demo';
+  }
 }
 
 async function submitLandingRestoreAccess() {
