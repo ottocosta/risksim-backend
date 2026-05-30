@@ -3859,9 +3859,9 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <div class="em-footer">
       <div><button class="em-btn-ghost" id="emBtnLater" onclick="emFinishLater()" style="display:none">Save &amp; finish later</button></div>
       <div class="em-footer-right">
-        <button class="em-btn-secondary" id="emBtnBack" onclick="emGoToStep(_emStep-1)" style="display:none">← Back</button>
-        <button class="em-btn-secondary" id="emBtnSkipStep" onclick="emGoToStep(_emStep+1)" style="display:none">Skip →</button>
-        <button class="em-btn-primary" id="emBtnNext" onclick="emGoToStep(_emStep+1)">Next →</button>
+        <button class="em-btn-secondary" id="emBtnBack" onclick="emGoToPrev()" style="display:none">← Back</button>
+        <button class="em-btn-secondary" id="emBtnSkipStep" onclick="emGoToNext()" style="display:none">Skip →</button>
+        <button class="em-btn-primary" id="emBtnNext" onclick="emGoToNext()">Next →</button>
         <button class="em-btn-primary" id="emBtnSave" onclick="emSaveAndComplete()" style="display:none">Save &amp; complete</button>
       </div>
     </div>
@@ -11342,7 +11342,6 @@ function emSaveAndComplete(){
 
 function emFinishLater(){
   emSaveProfile(emReadFormData());
-  localStorage.setItem('risksim_enterprise_profile_complete','true');
   emClose();emHideCtaBanner();
 }
 
@@ -11371,6 +11370,8 @@ function emSnoozeCtaBanner(){
   emHideCtaBanner();
 }
 
+window.emGoToNext=function(){emGoToStep(_emStep+1);};
+window.emGoToPrev=function(){emGoToStep(_emStep-1);};
 window.openEnterpriseOnboarding=openEnterpriseOnboarding;
 window.emClose=emClose;
 window.emGoToStep=emGoToStep;
