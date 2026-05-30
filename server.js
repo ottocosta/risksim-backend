@@ -80,6 +80,19 @@ function sanitizeForDiscord(str) {
         .slice(0, 200);
 }
 
+// Sanitise free-text fields before injecting into AI system prompts.
+// Strips HTML, collapses newlines (prevents prompt injection via multi-line field values),
+// removes [] delimiters that our card block parser uses, and caps length.
+function sanitizeForPrompt(str) {
+    if (!str) return '';
+    return stripHtml(String(str))
+        .replace(/[\r\n]+/g, ' ')
+        .replace(/\[|\]/g, '')
+        .replace(/#+/g, '')
+        .trim()
+        .slice(0, 300);
+}
+
 const MAX_INPUT = 5000;
 
 // ============================================================
@@ -352,6 +365,76 @@ function buildSystemPrompt(profile) {
             'When they ask about costs, reference THEIR sourcing regions and industry. ' +
             'When they ask about suppliers, consider THEIR listed key suppliers. ' +
             'Make every response feel like it was written specifically for this company, not generic advice.';
+    }
+
+    // Enterprise intelligence profile — server-gated on plan === 'enterprise'
+    if (profile && profile.plan === 'enterprise' && profile.enterprise) {
+        const ep = profile.enterprise;
+        const hasMeaningfulData = (Array.isArray(ep.productCategories) && ep.productCategories.length > 0) ||
+                                   (Array.isArray(ep.suppliers) && ep.suppliers.length > 0) ||
+                                   ep.spendBand || ep.leadTimeBand;
+        if (hasMeaningfulData) {
+            prompt += '\n\n## Enterprise Intelligence Profile\n' +
+                'This user has provided detailed supply chain context. Use it to make analysis operationally specific — ' +
+                'reference suppliers by name, flag concentration risk, and apply their operational parameters when assessing resilience.\n\n';
+
+            if (Array.isArray(ep.productCategories) && ep.productCategories.length > 0) {
+                const cats = ep.productCategories.map(c =>
+                    [sanitizeForPrompt(c.broadCategory), sanitizeForPrompt(c.subCategory)].filter(Boolean).join(' › ')
+                ).filter(Boolean).join('; ');
+                if (cats) prompt += `Product focus: ${cats}\n`;
+            }
+            if (ep.spendBand) prompt += `Annual sourced spend: ${sanitizeForPrompt(ep.spendBand)}\n`;
+            if (ep.leadTimeBand) prompt += `Typical supplier lead time: ${sanitizeForPrompt(ep.leadTimeBand)}\n`;
+            if (Array.isArray(ep.freightMethods) && ep.freightMethods.length) {
+                prompt += `Primary freight: ${ep.freightMethods.map(sanitizeForPrompt).join(', ')}\n`;
+            }
+            if (Array.isArray(ep.portsOfEntry) && ep.portsOfEntry.length) {
+                prompt += `Ports of entry: ${ep.portsOfEntry.map(sanitizeForPrompt).join(', ')}\n`;
+            }
+            if (Array.isArray(ep.incoterms) && ep.incoterms.length) {
+                prompt += `Incoterms: ${ep.incoterms.map(sanitizeForPrompt).join(', ')}\n`;
+            }
+
+            if (Array.isArray(ep.suppliers) && ep.suppliers.length > 0) {
+                prompt += '\nKey suppliers:\n';
+                const singleSourcedCritical = [];
+                ep.suppliers.forEach(s => {
+                    const name = sanitizeForPrompt(s.name || '');
+                    if (!name) return;
+                    const country = sanitizeForPrompt(s.country || '');
+                    const crit = sanitizeForPrompt(s.criticality || 'important').toUpperCase();
+                    const ss = s.singleSource ? ' · SINGLE-SOURCED' : '';
+                    const sw = s.switchability ? ` · switchability ${s.switchability}/5` : '';
+                    prompt += `  - ${name}${country ? ' (' + country + ')' : ''}: ${crit}${ss}${sw}\n`;
+                    if (s.singleSource && s.criticality === 'critical') singleSourcedCritical.push(name);
+                });
+                if (singleSourcedCritical.length > 0) {
+                    const names = singleSourcedCritical.join(', ');
+                    prompt += `CONCENTRATION RISK: ${names} ${singleSourcedCritical.length === 1 ? 'is a' : 'are'} single-sourced critical supplier${singleSourcedCritical.length > 1 ? 's' : ''} — proactively flag this when discussing disruption or resilience.\n`;
+                }
+            }
+
+            if (Array.isArray(ep.spendByCountry) && ep.spendByCountry.length > 0) {
+                const sbc = ep.spendByCountry
+                    .filter(s => s.country && s.pctOfTotal > 0)
+                    .map(s => `${sanitizeForPrompt(s.country)} ${s.pctOfTotal}%`)
+                    .join(', ');
+                if (sbc) prompt += `\nSpend by country: ${sbc}\n`;
+            }
+
+            const resLines = [];
+            if (ep.hasBackupSuppliers) resLines.push(`backup suppliers: ${sanitizeForPrompt(ep.hasBackupSuppliers)} categories covered`);
+            if (ep.supplierSwitchTime) resLines.push(`switch time: ${sanitizeForPrompt(ep.supplierSwitchTime)}`);
+            if (ep.leadTimeTolerance) resLines.push(`delay tolerance: ${sanitizeForPrompt(ep.leadTimeTolerance)}`);
+            if (ep.inventoryBufferDays) resLines.push(`inventory buffer: ${sanitizeForPrompt(ep.inventoryBufferDays)}`);
+            if (resLines.length) prompt += `\nResilience parameters: ${resLines.join('; ')}\n`;
+
+            prompt += '\nWhen asked about risk: reference named suppliers and their criticality. ' +
+                'When asked about tariffs: reference spend-by-country if provided. ' +
+                'When asked about resilience or disruption: apply buffer, switch time, and delay tolerance as operative constraints. ' +
+                'Make every response reflect these specific operational parameters.';
+        }
     }
 
     return prompt;

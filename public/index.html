@@ -270,6 +270,80 @@
     .dm-success-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem; }
     .dm-success-sub { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 0.86rem; color: rgba(255,255,255,0.42); }
 
+    /* Enterprise profile modal */
+    #enterpriseModal { position:fixed; inset:0; z-index:100005; background:rgba(0,0,0,0.88); display:none; align-items:flex-start; justify-content:center; overflow-y:auto; padding:24px 0 40px; }
+    #enterpriseModal.active { display:flex; }
+    .em-box { background:#111; border:1px solid rgba(255,255,255,0.1); max-width:560px; width:90%; position:relative; flex-shrink:0; }
+    .em-header { display:flex; align-items:center; justify-content:space-between; padding:1.6rem 2rem 0; }
+    .em-eyebrow { font-family:'JetBrains Mono',monospace; font-size:0.55rem; letter-spacing:0.28em; text-transform:uppercase; color:rgba(255,255,255,0.22); }
+    .em-close { background:none; border:none; color:rgba(255,255,255,0.28); font-size:1rem; cursor:pointer; padding:0; transition:color 0.2s; line-height:1; }
+    .em-close:hover { color:#fff; }
+    .em-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.22rem; color:#fff; padding:0.55rem 2rem 0.25rem; }
+    .em-sub { font-family:'DM Sans',sans-serif; font-weight:300; font-size:0.84rem; color:rgba(255,255,255,0.38); padding:0 2rem 1.2rem; line-height:1.6; }
+    .em-progress { display:flex; align-items:center; padding:0 2rem 1.4rem; }
+    .em-progress-step { display:flex; flex-direction:column; align-items:center; gap:5px; }
+    .em-step-dot { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.14); transition:all 0.2s; cursor:pointer; flex-shrink:0; }
+    .em-step-dot.active { background:rgba(45,212,191,0.85); border-color:rgba(45,212,191,0.85); box-shadow:0 0 8px rgba(45,212,191,0.45); }
+    .em-step-dot.done { background:rgba(45,212,191,0.28); border-color:rgba(45,212,191,0.5); }
+    .em-step-label { font-family:'JetBrains Mono',monospace; font-size:0.46rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.2); white-space:nowrap; }
+    .em-progress-line { flex:1; height:1px; background:rgba(255,255,255,0.07); margin:0 5px 16px; }
+    .em-panel { padding:0 2rem 0.5rem; max-height:52vh; overflow-y:auto; }
+    .em-panel::-webkit-scrollbar { width:4px; }
+    .em-panel::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+    .em-step-title { font-family:'JetBrains Mono',monospace; font-size:0.58rem; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.45); margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
+    .em-step-sub { font-family:'DM Sans',sans-serif; font-size:0.8rem; color:rgba(255,255,255,0.3); margin:-0.5rem 0 1rem; line-height:1.55; }
+    .em-req { font-size:0.46rem; color:rgba(239,68,68,0.65); letter-spacing:0.12em; }
+    .em-opt { font-size:0.46rem; color:rgba(45,212,191,0.5); letter-spacing:0.12em; }
+    .em-field { margin-bottom:1rem; }
+    .em-field-label { font-family:'JetBrains Mono',monospace; font-size:0.52rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.26); display:block; margin-bottom:0.38rem; }
+    .em-select { width:100%; padding:0.56rem 0.72rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.68); font-family:'DM Sans',sans-serif; font-size:0.84rem; appearance:none; cursor:pointer; box-sizing:border-box; }
+    .em-select option { background:#1a1a1a; }
+    .em-select:focus { outline:none; border-color:rgba(255,255,255,0.24); }
+    .em-input { width:100%; padding:0.54rem 0.72rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.78); font-family:'DM Sans',sans-serif; font-size:0.84rem; outline:none; transition:border-color 0.2s; box-sizing:border-box; }
+    .em-input:focus { border-color:rgba(255,255,255,0.26); }
+    .em-cat-adder { display:grid; grid-template-columns:1fr 1fr auto; gap:6px; margin-bottom:8px; }
+    .em-pill-row { display:flex; flex-wrap:wrap; gap:5px; min-height:4px; margin-top:4px; }
+    .em-pill { display:inline-flex; align-items:center; gap:5px; font-family:'DM Sans',sans-serif; font-size:0.74rem; color:rgba(255,255,255,0.68); background:rgba(45,212,191,0.06); border:1px solid rgba(45,212,191,0.18); border-radius:20px; padding:3px 8px 3px 10px; }
+    .em-pill-remove { background:none; border:none; color:rgba(255,255,255,0.28); cursor:pointer; font-size:0.78rem; padding:0; line-height:1; transition:color 0.15s; }
+    .em-pill-remove:hover { color:rgba(239,68,68,0.75); }
+    .em-chips { display:flex; flex-wrap:wrap; gap:5px; }
+    .em-chip { font-family:'JetBrains Mono',monospace; font-size:0.56rem; letter-spacing:0.09em; text-transform:uppercase; padding:5px 10px; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.38); cursor:pointer; transition:all 0.14s; border-radius:3px; user-select:none; }
+    .em-chip.selected { background:rgba(45,212,191,0.1); border-color:rgba(45,212,191,0.38); color:rgba(45,212,191,0.88); }
+    .em-add-row-btn { font-family:'JetBrains Mono',monospace; font-size:0.53rem; letter-spacing:0.11em; text-transform:uppercase; background:none; border:1px solid rgba(255,255,255,0.09); color:rgba(255,255,255,0.32); padding:5px 10px; cursor:pointer; transition:all 0.14s; }
+    .em-add-row-btn:hover { border-color:rgba(255,255,255,0.22); color:rgba(255,255,255,0.62); }
+    .em-add-sup-btn { display:block; margin-top:8px; }
+    .em-sup-row { position:relative; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); padding:9px 34px 9px 9px; margin-bottom:5px; }
+    .em-sup-row-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+    .em-sup-single-label { display:flex; align-items:center; gap:5px; font-family:'DM Sans',sans-serif; font-size:0.76rem; color:rgba(255,255,255,0.42); cursor:pointer; padding:4px 0; }
+    .em-sup-del { position:absolute; top:8px; right:8px; background:none; border:none; color:rgba(255,255,255,0.18); cursor:pointer; font-size:0.88rem; padding:0; transition:color 0.14s; line-height:1; }
+    .em-sup-del:hover { color:rgba(239,68,68,0.65); }
+    .em-port-adder { display:grid; grid-template-columns:1fr auto; gap:6px; margin-bottom:8px; }
+    .em-sbc-row { display:grid; grid-template-columns:1fr 72px auto; gap:5px; margin-bottom:5px; align-items:center; }
+    .em-error { font-family:'DM Sans',sans-serif; font-size:0.76rem; color:rgba(239,68,68,0.78); padding:5px 0 2px; }
+    .em-footer { display:flex; align-items:center; justify-content:space-between; padding:1rem 2rem 1.4rem; border-top:1px solid rgba(255,255,255,0.05); margin-top:0.5rem; }
+    .em-footer-right { display:flex; gap:7px; align-items:center; }
+    .em-btn-primary { font-family:'JetBrains Mono',monospace; font-size:0.6rem; font-weight:600; letter-spacing:0.13em; text-transform:uppercase; background:#fff; color:#000; border:none; padding:0.68rem 1.35rem; cursor:pointer; transition:background 0.2s; }
+    .em-btn-primary:hover { background:#e8e8e8; }
+    .em-btn-secondary { font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:0.13em; text-transform:uppercase; background:none; border:1px solid rgba(255,255,255,0.14); color:rgba(255,255,255,0.46); padding:0.68rem 1.1rem; cursor:pointer; transition:all 0.14s; }
+    .em-btn-secondary:hover { border-color:rgba(255,255,255,0.32); color:rgba(255,255,255,0.75); }
+    .em-btn-ghost { background:none; border:none; font-family:'JetBrains Mono',monospace; font-size:0.53rem; letter-spacing:0.11em; text-transform:uppercase; color:rgba(255,255,255,0.2); cursor:pointer; transition:color 0.14s; padding:0; }
+    .em-btn-ghost:hover { color:rgba(255,255,255,0.52); }
+    /* Enterprise profile CTA banner */
+    #emCtaBanner { position:fixed; bottom:0; left:0; right:0; z-index:9001; background:#0c0c0c; border-top:1px solid rgba(45,212,191,0.18); display:flex; align-items:center; justify-content:center; gap:1rem; padding:0.6rem 1.5rem; }
+    .em-cta-text { font-family:'DM Sans',sans-serif; font-size:0.8rem; color:rgba(255,255,255,0.4); }
+    .em-cta-link { font-family:'JetBrains Mono',monospace; font-size:0.55rem; letter-spacing:0.11em; text-transform:uppercase; background:none; border:1px solid rgba(45,212,191,0.32); color:rgba(45,212,191,0.75); padding:0.28rem 0.85rem; cursor:pointer; transition:all 0.14s; flex-shrink:0; }
+    .em-cta-link:hover { background:rgba(45,212,191,0.07); border-color:rgba(45,212,191,0.55); }
+    .em-cta-dismiss { background:none; border:none; color:rgba(255,255,255,0.18); cursor:pointer; font-size:0.82rem; padding:0 0 0 0.4rem; transition:color 0.18s; }
+    .em-cta-dismiss:hover { color:rgba(255,255,255,0.48); }
+    @media (max-width:560px) {
+      .em-box { max-width:100%; width:100%; }
+      .em-sup-row-grid { grid-template-columns:1fr; }
+      .em-cat-adder { grid-template-columns:1fr 1fr; }
+      .em-cat-adder .em-add-row-btn { grid-column:1/-1; }
+      .em-sbc-row { grid-template-columns:1fr 58px auto; }
+      .em-cta-text { display:none; }
+    }
+
     /* Demo banner */
     #demoBanner { position: fixed; top: 0; left: 0; right: 0; z-index: 9000; background: #080808; border-bottom: 1px solid rgba(255,255,255,0.07); display: none; align-items: center; height: 42px; padding: 0 1.5rem; gap: 1.25rem; }
     #demoBanner.active { display: flex; }
@@ -2994,6 +3068,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   if (typeof updatePlanBadge === 'function') updatePlanBadge();
+  if (typeof emInitCtaBanner === 'function') emInitCtaBanner();
 });
 </script>
 
@@ -3631,6 +3706,168 @@ window.addEventListener('keydown',__handleIntroKey,true);
   </div>
 </div>
 
+<!-- ===== ENTERPRISE PROFILE MODAL ===== -->
+<div id="enterpriseModal">
+  <div class="em-box">
+    <div class="em-header">
+      <span class="em-eyebrow">Enterprise Setup</span>
+      <button class="em-close" onclick="emClose()">✕</button>
+    </div>
+    <div class="em-title">Complete your enterprise profile</div>
+    <div class="em-sub">Help the AI reason precisely about your operations. Progress saves automatically.</div>
+    <div class="em-progress">
+      <div class="em-progress-step"><div class="em-step-dot active" id="emDot1" onclick="emGoToStep(1)"></div><span class="em-step-label">Products</span></div>
+      <div class="em-progress-line"></div>
+      <div class="em-progress-step"><div class="em-step-dot" id="emDot2" onclick="emGoToStep(2)"></div><span class="em-step-label">Suppliers</span></div>
+      <div class="em-progress-line"></div>
+      <div class="em-progress-step"><div class="em-step-dot" id="emDot3"></div><span class="em-step-label">Logistics</span></div>
+      <div class="em-progress-line"></div>
+      <div class="em-progress-step"><div class="em-step-dot" id="emDot4"></div><span class="em-step-label">Resilience</span></div>
+    </div>
+
+    <!-- Step 1: Products + Spend + Lead Time -->
+    <div id="emPanel1" class="em-panel">
+      <div class="em-step-title">Products &amp; Scale <span class="em-req">Required</span></div>
+      <div class="em-field">
+        <label class="em-field-label">Product categories</label>
+        <div class="em-cat-adder">
+          <select class="em-select" id="emBroadCat" onchange="emOnBroadCatChange(this)"><option value="">Broad category…</option></select>
+          <select class="em-select" id="emSubCat" disabled><option value="">Sub-category…</option></select>
+          <button class="em-add-row-btn" onclick="emAddCatFromSelectors()">+ Add</button>
+        </div>
+        <div class="em-pill-row" id="emCatPills"></div>
+      </div>
+      <div class="em-field">
+        <label class="em-field-label">Annual sourced spend</label>
+        <select class="em-select" id="emSpendBand" onchange="emDebouncedSave()">
+          <option value="">Select range…</option>
+          <option value="under100k">Under $100k</option>
+          <option value="100k-500k">$100k – $500k</option>
+          <option value="500k-1m">$500k – $1M</option>
+          <option value="1m-5m">$1M – $5M</option>
+          <option value="5m+">$5M+</option>
+        </select>
+      </div>
+      <div class="em-field">
+        <label class="em-field-label">Typical supplier lead time</label>
+        <select class="em-select" id="emLeadTimeBand" onchange="emDebouncedSave()">
+          <option value="">Select range…</option>
+          <option value="under2wk">Under 2 weeks</option>
+          <option value="2-4wk">2–4 weeks</option>
+          <option value="1-2mo">1–2 months</option>
+          <option value="2-3mo">2–3 months</option>
+          <option value="3+mo">3+ months</option>
+        </select>
+      </div>
+      <div class="em-error" id="emError1" style="display:none"></div>
+    </div>
+
+    <!-- Step 2: Suppliers -->
+    <div id="emPanel2" class="em-panel" style="display:none">
+      <div class="em-step-title">Key Suppliers <span class="em-req">Required</span></div>
+      <div class="em-step-sub">Name and country required per row. Criticality, single-source, and switchability are optional but help flag concentration risk.</div>
+      <div id="emSupplierRows"></div>
+      <button class="em-add-row-btn em-add-sup-btn" onclick="emAddSupplierRow()">+ Add supplier</button>
+      <div class="em-error" id="emError2" style="display:none"></div>
+    </div>
+
+    <!-- Step 3: Logistics (optional) -->
+    <div id="emPanel3" class="em-panel" style="display:none">
+      <div class="em-step-title">Logistics <span class="em-opt">Optional</span></div>
+      <div class="em-field">
+        <label class="em-field-label">Primary freight methods</label>
+        <div class="em-chips">
+          <div class="em-chip" data-group="freight" data-value="sea" onclick="emToggleChip(this)">Sea</div>
+          <div class="em-chip" data-group="freight" data-value="air" onclick="emToggleChip(this)">Air</div>
+          <div class="em-chip" data-group="freight" data-value="land" onclick="emToggleChip(this)">Land</div>
+          <div class="em-chip" data-group="freight" data-value="mixed" onclick="emToggleChip(this)">Mixed</div>
+        </div>
+      </div>
+      <div class="em-field">
+        <label class="em-field-label">Ports of entry</label>
+        <div class="em-port-adder">
+          <select class="em-select" id="emPortSelect"><option value="">Select port…</option></select>
+          <button class="em-add-row-btn" onclick="emAddPortFromSelect()">+ Add</button>
+        </div>
+        <div class="em-pill-row" id="emPortPills"></div>
+      </div>
+      <div class="em-field">
+        <label class="em-field-label">Incoterms</label>
+        <div class="em-chips">
+          <div class="em-chip" data-group="incoterms" data-value="FOB" onclick="emToggleChip(this)">FOB</div>
+          <div class="em-chip" data-group="incoterms" data-value="CIF" onclick="emToggleChip(this)">CIF</div>
+          <div class="em-chip" data-group="incoterms" data-value="DDP" onclick="emToggleChip(this)">DDP</div>
+          <div class="em-chip" data-group="incoterms" data-value="EXW" onclick="emToggleChip(this)">EXW</div>
+          <div class="em-chip" data-group="incoterms" data-value="other" onclick="emToggleChip(this)">Other</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Resilience (optional) -->
+    <div id="emPanel4" class="em-panel" style="display:none">
+      <div class="em-step-title">Operational Resilience <span class="em-opt">Optional</span></div>
+      <div class="em-field">
+        <label class="em-field-label">How long to switch a critical supplier?</label>
+        <select class="em-select" id="emSwitchTime" onchange="emDebouncedSave()">
+          <option value="">Select…</option>
+          <option value="under2wk">Under 2 weeks</option>
+          <option value="2-4wk">2–4 weeks</option>
+          <option value="1-3mo">1–3 months</option>
+          <option value="3+mo">3+ months</option>
+          <option value="unknown">Don't know</option>
+        </select>
+      </div>
+      <div class="em-field">
+        <label class="em-field-label">Do you have backup suppliers?</label>
+        <select class="em-select" id="emBackupSuppliers" onchange="emDebouncedSave()">
+          <option value="">Select…</option>
+          <option value="all">Yes, for all critical suppliers</option>
+          <option value="some">Yes, for some</option>
+          <option value="none">No backup suppliers</option>
+        </select>
+      </div>
+      <div class="em-field">
+        <label class="em-field-label">How long can you absorb a supply delay?</label>
+        <select class="em-select" id="emLeadTimeTolerance" onchange="emDebouncedSave()">
+          <option value="">Select…</option>
+          <option value="under1wk">Under 1 week</option>
+          <option value="1-2wk">1–2 weeks</option>
+          <option value="2-4wk">2–4 weeks</option>
+          <option value="1mo+">1 month+</option>
+          <option value="flexible">Flexible</option>
+        </select>
+      </div>
+      <div class="em-field">
+        <label class="em-field-label">Safety stock / inventory buffer</label>
+        <select class="em-select" id="emInventoryBuffer" onchange="emDebouncedSave()">
+          <option value="">Select…</option>
+          <option value="under7d">Under 7 days</option>
+          <option value="7-14d">7–14 days</option>
+          <option value="14-30d">14–30 days</option>
+          <option value="30-60d">30–60 days</option>
+          <option value="60d+">60+ days</option>
+        </select>
+      </div>
+      <div class="em-field">
+        <label class="em-field-label">Spend by country <span style="color:rgba(255,255,255,0.18);font-style:normal"> — optional, partial totals OK</span></label>
+        <div id="emSbcRows"></div>
+        <button class="em-add-row-btn" onclick="emAddSbcRow()" style="margin-top:6px">+ Add country</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="em-footer">
+      <div><button class="em-btn-ghost" id="emBtnLater" onclick="emFinishLater()" style="display:none">Save &amp; finish later</button></div>
+      <div class="em-footer-right">
+        <button class="em-btn-secondary" id="emBtnBack" onclick="emGoToStep(_emStep-1)" style="display:none">← Back</button>
+        <button class="em-btn-secondary" id="emBtnSkipStep" onclick="emGoToStep(_emStep+1)" style="display:none">Skip →</button>
+        <button class="em-btn-primary" id="emBtnNext" onclick="emGoToStep(_emStep+1)">Next →</button>
+        <button class="em-btn-primary" id="emBtnSave" onclick="emSaveAndComplete()" style="display:none">Save &amp; complete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ===== POST-CHECKOUT QUESTIONNAIRE ===== -->
 <div id="postCheckoutModal">
   <div class="pcm-box">
@@ -3667,6 +3904,13 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <button class="pcm-btn-skip" onclick="skipPostCheckoutQuestionnaire()">Skip for now</button>
     </div>
   </div>
+</div>
+
+<!-- ===== ENTERPRISE PROFILE CTA BANNER ===== -->
+<div id="emCtaBanner" style="display:none">
+  <span class="em-cta-text">Enterprise profile incomplete — complete it to unlock deeper AI analysis</span>
+  <button class="em-cta-link" onclick="openEnterpriseOnboarding()">Complete profile →</button>
+  <button class="em-cta-dismiss" onclick="emSnoozeCtaBanner()" title="Dismiss for 24h">✕</button>
 </div>
 
 <!-- ===== SKELETON ===== -->
@@ -4547,7 +4791,7 @@ function addUserMessage(t){var m=document.getElementById('chatMessages'),d=docum
 function addAIMessage(t){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.innerHTML='<span class="msg-label">RiskSim AI</span>'+t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function addTypingIndicator(){var m=document.getElementById('chatMessages'),d=document.createElement('div');d.className='chat-msg ai';d.id='typing';d.innerHTML='<span class="msg-label">RiskSim AI</span><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}
 function removeTypingIndicator(){var t=document.getElementById('typing');if(t)t.remove();}
-async function sendMessage(userText){if(!checkPaywall('AI Chat'))return;addUserMessage(userText);addTypingIndicator();try{var profilePayload={companyType:PS_TYPE_LABELS[userProfile.type]||userProfile.type||'',homeCountry:userProfile.country||'',industry:PS_IND_LABELS[userProfile.industry]||userProfile.industry||'',sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||'',companyName:userProfile.companyName||'',products:userProfile.products||'',suppliers:userProfile.suppliers||'',concern:userProfile.concern||'',businessDescription:userProfile.context||''};var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,profile:profilePayload})});var d=await r.json();removeTypingIndicator();addAIMessage(d.reply||d.error||'Unable to process.');}catch(e){removeTypingIndicator();addAIMessage('Connection error.');}}
+async function sendMessage(userText){if(!checkPaywall('AI Chat'))return;addUserMessage(userText);addTypingIndicator();try{var profilePayload={companyType:PS_TYPE_LABELS[userProfile.type]||userProfile.type||'',homeCountry:userProfile.country||'',industry:PS_IND_LABELS[userProfile.industry]||userProfile.industry||'',sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||'',companyName:userProfile.companyName||'',products:userProfile.products||'',suppliers:userProfile.suppliers||'',concern:userProfile.concern||'',businessDescription:userProfile.context||'',plan:localStorage.getItem('risksim_plan')||'',enterprise:(function(){try{return JSON.parse(localStorage.getItem('risksim_enterprise_profile')||'null');}catch(e){return null;}}())};var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:userText,profile:profilePayload})});var d=await r.json();removeTypingIndicator();addAIMessage(d.reply||d.error||'Unable to process.');}catch(e){removeTypingIndicator();addAIMessage('Connection error.');}}
 
 document.addEventListener('DOMContentLoaded',function(){
   initMap();
@@ -6598,7 +6842,7 @@ async function cfSendMessage(userText){
   msgEl.scrollTop=msgEl.scrollHeight;
 
   try{
-    var profilePayload={companyType:(typeof PS_TYPE_LABELS!=='undefined'&&PS_TYPE_LABELS[userProfile.type])||userProfile.type||'',homeCountry:userProfile.country||'',industry:(typeof PS_IND_LABELS!=='undefined'&&PS_IND_LABELS[userProfile.industry])||userProfile.industry||'',sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||'',companyName:userProfile.companyName||'',products:userProfile.products||'',suppliers:userProfile.suppliers||'',concern:userProfile.concern||'',businessDescription:userProfile.context||''};
+    var profilePayload={companyType:(typeof PS_TYPE_LABELS!=='undefined'&&PS_TYPE_LABELS[userProfile.type])||userProfile.type||'',homeCountry:userProfile.country||'',industry:(typeof PS_IND_LABELS!=='undefined'&&PS_IND_LABELS[userProfile.industry])||userProfile.industry||'',sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||'',companyName:userProfile.companyName||'',products:userProfile.products||'',suppliers:userProfile.suppliers||'',concern:userProfile.concern||'',businessDescription:userProfile.context||'',plan:localStorage.getItem('risksim_plan')||'',enterprise:(function(){try{return JSON.parse(localStorage.getItem('risksim_enterprise_profile')||'null');}catch(e){return null;}}())};
     var contextPrefix=_cfChatSource==='terminal'?'[TERMINAL] ':'[MAP] ';
     if(userProfile.industry)contextPrefix+='Industry:'+(profilePayload.industry)+'. ';
     if(userProfile.type)contextPrefix+='CompanyType:'+(profilePayload.companyType)+'. ';
@@ -9146,6 +9390,11 @@ function routeAfterCheckout(plan) {
   localStorage.setItem('risksim_onboarded', 'true');
   if (typeof updatePlanBadge === 'function') updatePlanBadge();
   if (typeof switchModule === 'function') switchModule('map');
+  if (plan === 'enterprise' && localStorage.getItem('risksim_enterprise_profile_complete') !== 'true') {
+    setTimeout(function() {
+      if (typeof openEnterpriseOnboarding === 'function') openEnterpriseOnboarding();
+    }, 900);
+  }
 }
 </script>
 
@@ -10822,6 +11071,324 @@ body.oob-active #rsNav{display:none!important;}
   window._oobBilling=oobSetBilling;
   window._oobEnter=oobEnterApp;
   window._oobCO=function(vid,spid){if(typeof goToCheckout==='function')goToCheckout(vid,spid);oobEnterApp();};
+})();
+</script>
+
+<script>
+// ===== ENTERPRISE ONBOARDING =====
+(function(){
+
+var EM_PRODUCT_CATEGORIES={
+  'Electronics & Technology':['Semiconductors','PCBs & Components','Consumer Electronics','Telecom Equipment','Batteries & Energy Storage'],
+  'Textiles & Apparel':['Garments & Apparel','Fabrics & Yarn','Footwear','Home Textiles','Technical Textiles'],
+  'Automotive & Transportation':['Vehicles & Assemblies','Parts & Components','EV Components','Tires & Rubber','Aftermarket Parts'],
+  'Food & Agriculture':['Grains & Staples','Proteins & Dairy','Fresh Produce','Processed & Packaged','Beverages'],
+  'Pharmaceuticals & Healthcare':['APIs','Finished Dosage Forms','Medical Devices','OTC & Supplements','Lab Supplies'],
+  'Raw Materials & Commodities':['Metals & Ores','Lumber & Wood','Plastics & Polymers','Rubber','Minerals & Aggregates'],
+  'Consumer Goods & Retail':['Toys & Games','Beauty & Personal Care','Household Products','Sporting Goods','Pet Products'],
+  'Industrial Equipment':['Machinery & Tools','Safety Equipment','Valves & Piping','Electrical Equipment','MRO Supplies'],
+  'Chemicals & Materials':['Specialty Chemicals','Commodity Chemicals','Adhesives & Coatings','Agrochem','Cleaning Products'],
+  'Furniture & Home Goods':['Office Furniture','Home Furniture','Storage Solutions','Fixtures & Fittings','Outdoor Furniture'],
+  'Packaging & Print':['Corrugated & Cardboard','Plastic Packaging','Labels & Print','Glass & Metal Packaging','Flexible Packaging'],
+  'Energy & Sustainability':['Solar Components','Wind Equipment','EV Parts','Electrical Infrastructure','Green Materials']
+};
+
+var EM_PORTS=['Los Angeles / Long Beach','New York / Newark','Savannah','Seattle / Tacoma','Houston','Chicago (Rail Hub)','Dallas / Fort Worth (Rail Hub)','Rotterdam','Hamburg','Antwerp','Felixstowe','Bremerhaven','Singapore','Hong Kong','Shanghai','Busan','Dubai / Jebel Ali','Sydney','Mumbai'];
+
+var _emStep=1;
+var _emSaveTimer=null;
+
+function emGetProfile(){try{return JSON.parse(localStorage.getItem('risksim_enterprise_profile')||'{}');}catch(e){return {};}}
+function emSaveProfile(data){try{localStorage.setItem('risksim_enterprise_profile',JSON.stringify(data));}catch(e){}}
+
+function emReadFormData(){
+  var ep=emGetProfile();
+  var spendBand=document.getElementById('emSpendBand');
+  if(spendBand&&spendBand.value)ep.spendBand=spendBand.value;
+  var ltBand=document.getElementById('emLeadTimeBand');
+  if(ltBand&&ltBand.value)ep.leadTimeBand=ltBand.value;
+  var supRows=document.querySelectorAll('.em-sup-row');
+  if(supRows.length){
+    var suppliers=[];
+    supRows.forEach(function(row){
+      var nm=row.querySelector('.em-sup-name');
+      var co=row.querySelector('.em-sup-country');
+      if(nm&&nm.value.trim()){
+        var cr=row.querySelector('.em-sup-criticality');
+        var ss=row.querySelector('.em-sup-single');
+        var sw=row.querySelector('.em-sup-switch');
+        suppliers.push({name:nm.value.trim(),country:(co&&co.value)||'',criticality:(cr&&cr.value)||'important',singleSource:!!(ss&&ss.checked),switchability:sw?parseInt(sw.value)||3:3});
+      }
+    });
+    if(suppliers.length)ep.suppliers=suppliers;
+  }
+  var freight=[];
+  document.querySelectorAll('.em-chip[data-group="freight"].selected').forEach(function(el){freight.push(el.dataset.value);});
+  if(freight.length)ep.freightMethods=freight; else delete ep.freightMethods;
+  var ports=[];
+  document.querySelectorAll('.em-port-pill').forEach(function(el){ports.push(el.dataset.value);});
+  if(ports.length)ep.portsOfEntry=ports; else delete ep.portsOfEntry;
+  var inco=[];
+  document.querySelectorAll('.em-chip[data-group="incoterms"].selected').forEach(function(el){inco.push(el.dataset.value);});
+  if(inco.length)ep.incoterms=inco; else delete ep.incoterms;
+  var st=document.getElementById('emSwitchTime');if(st&&st.value)ep.supplierSwitchTime=st.value;
+  var bs=document.getElementById('emBackupSuppliers');if(bs&&bs.value)ep.hasBackupSuppliers=bs.value;
+  var ltt=document.getElementById('emLeadTimeTolerance');if(ltt&&ltt.value)ep.leadTimeTolerance=ltt.value;
+  var ib=document.getElementById('emInventoryBuffer');if(ib&&ib.value)ep.inventoryBufferDays=ib.value;
+  var sbcRows=document.querySelectorAll('.em-sbc-row');
+  var sbc=[];
+  sbcRows.forEach(function(row){
+    var c=row.querySelector('.em-sbc-country');var p=row.querySelector('.em-sbc-pct');
+    if(c&&c.value&&p&&p.value)sbc.push({country:c.value,pctOfTotal:parseInt(p.value)||0});
+  });
+  if(sbc.length)ep.spendByCountry=sbc; else delete ep.spendByCountry;
+  return ep;
+}
+
+function emDebouncedSave(){
+  if(_emSaveTimer)clearTimeout(_emSaveTimer);
+  _emSaveTimer=setTimeout(function(){emSaveProfile(emReadFormData());},800);
+}
+
+function emValidateStep(step){
+  if(step===1){
+    var ep=emGetProfile();
+    if(!ep.productCategories||ep.productCategories.length===0)return 'Add at least one product category.';
+    var sb=document.getElementById('emSpendBand');if(!sb||!sb.value)return 'Select your annual sourced spend.';
+    var lt=document.getElementById('emLeadTimeBand');if(!lt||!lt.value)return 'Select your typical lead time.';
+  }
+  if(step===2){
+    var rows=document.querySelectorAll('.em-sup-row');var ok=false;
+    rows.forEach(function(row){var nm=row.querySelector('.em-sup-name');var co=row.querySelector('.em-sup-country');if(nm&&nm.value.trim()&&co&&co.value)ok=true;});
+    if(!ok)return 'Add at least one supplier with a name and country.';
+  }
+  return null;
+}
+
+function emGoToStep(n){
+  if(n<1||n>4)return;
+  var data=emReadFormData();emSaveProfile(data);
+  if(n>_emStep){
+    var err=emValidateStep(_emStep);
+    if(err){var errEl=document.getElementById('emError'+_emStep);if(errEl){errEl.textContent=err;errEl.style.display='';}return;}
+  }
+  for(var i=1;i<=4;i++){var e=document.getElementById('emError'+i);if(e)e.style.display='none';}
+  _emStep=n;
+  for(var i=1;i<=4;i++){
+    var dot=document.getElementById('emDot'+i);
+    if(dot){dot.classList.remove('active','done');if(i<n)dot.classList.add('done');else if(i===n)dot.classList.add('active');}
+    var panel=document.getElementById('emPanel'+i);
+    if(panel)panel.style.display=(i===n)?'':'none';
+  }
+  emUpdateNavButtons();
+  var box=document.querySelector('.em-box');if(box)box.scrollTop=0;
+}
+
+function emUpdateNavButtons(){
+  var back=document.getElementById('emBtnBack');
+  var next=document.getElementById('emBtnNext');
+  var skip=document.getElementById('emBtnSkipStep');
+  var save=document.getElementById('emBtnSave');
+  var later=document.getElementById('emBtnLater');
+  if(back)back.style.display=_emStep>1?'':'none';
+  if(next)next.style.display=_emStep<4?'':'none';
+  if(save)save.style.display=_emStep===4?'':'none';
+  if(skip)skip.style.display=_emStep>=3?'':'none';
+  if(later)later.style.display=_emStep>=3?'':'none';
+}
+
+function emGetCountryOptions(){
+  var countries=typeof COUNTRY_DATA!=='undefined'?COUNTRY_DATA.map(function(c){return c.name;}).sort():[];
+  return '<option value="">Country…</option>'+countries.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('');
+}
+
+function emAddSupplierRow(data){
+  var container=document.getElementById('emSupplierRows');if(!container)return;
+  var d=data||{};
+  var row=document.createElement('div');row.className='em-sup-row';
+  row.innerHTML='<div class="em-sup-row-grid">'
+    +'<input class="em-input em-sup-name" type="text" placeholder="Supplier name *" value="'+(d.name||'')+'" oninput="emDebouncedSave()">'
+    +'<select class="em-select em-sup-country" onchange="emDebouncedSave()">'+emGetCountryOptions()+'</select>'
+    +'<select class="em-select em-sup-criticality" onchange="emDebouncedSave()">'
+      +'<option value="important"'+(d.criticality==='important'?' selected':'')+'>Important</option>'
+      +'<option value="critical"'+(d.criticality==='critical'?' selected':'')+'>Critical</option>'
+      +'<option value="minor"'+(d.criticality==='minor'?' selected':'')+'>Minor</option>'
+    +'</select>'
+    +'<label class="em-sup-single-label"><input type="checkbox" class="em-sup-single"'+(d.singleSource?' checked':'')+' onchange="emDebouncedSave()"> Single source</label>'
+    +'<select class="em-select em-sup-switch" onchange="emDebouncedSave()" title="Switchability 1=Very Hard 5=Easy">'
+      +[1,2,3,4,5].map(function(v){return '<option value="'+v+'"'+(d.switchability===v?' selected':'')+'>Switchability '+v+(v===1?' (Very Hard)':v===5?' (Easy)':'')+'</option>';}).join('')
+    +'</select>'
+    +'</div>'
+    +'<button class="em-sup-del" onclick="emRemoveSupplierRow(this)" title="Remove">×</button>';
+  container.appendChild(row);
+  if(d.country){var cs=row.querySelector('.em-sup-country');if(cs)cs.value=d.country;}
+}
+
+function emRemoveSupplierRow(btn){
+  var rows=document.querySelectorAll('.em-sup-row');if(rows.length<=1)return;
+  btn.parentElement.remove();emDebouncedSave();
+}
+
+function emOnBroadCatChange(sel){
+  var sub=sel.parentElement.querySelector('.em-sub-cat-select')||document.getElementById('emSubCat');
+  if(!sub)return;
+  sub.innerHTML='<option value="">Sub-category…</option>';
+  if(sel.value&&EM_PRODUCT_CATEGORIES[sel.value]){
+    EM_PRODUCT_CATEGORIES[sel.value].forEach(function(s){var o=document.createElement('option');o.value=s;o.textContent=s;sub.appendChild(o);});
+    sub.disabled=false;
+  }else{sub.disabled=true;}
+}
+
+function emAddCatFromSelectors(){
+  var broad=document.getElementById('emBroadCat');var sub=document.getElementById('emSubCat');
+  if(!broad||!broad.value)return;
+  var b=broad.value;var s=(sub&&!sub.disabled)?sub.value:'';
+  var ep=emGetProfile();var cats=ep.productCategories||[];
+  var exists=cats.some(function(c){return c.broadCategory===b&&c.subCategory===s;});
+  if(exists)return;
+  cats.push({broadCategory:b,subCategory:s});ep.productCategories=cats;emSaveProfile(ep);
+  emAddCatPill(b,s);
+  broad.value='';if(sub){sub.innerHTML='<option value="">Sub-category…</option>';sub.disabled=true;}
+}
+
+function emAddCatPill(broad,sub){
+  var container=document.getElementById('emCatPills');if(!container)return;
+  var pill=document.createElement('div');pill.className='em-pill';pill.dataset.broad=broad;pill.dataset.sub=sub||'';
+  var lbl=broad+(sub?' › '+sub:'');
+  pill.innerHTML='<span>'+lbl+'</span><button class="em-pill-remove" onclick="emRemoveCatPill(this)" title="Remove">×</button>';
+  container.appendChild(pill);
+}
+
+function emRemoveCatPill(btn){
+  var pill=btn.parentElement;
+  var b=pill.dataset.broad;var s=pill.dataset.sub;
+  var ep=emGetProfile();
+  ep.productCategories=(ep.productCategories||[]).filter(function(c){return!(c.broadCategory===b&&c.subCategory===s);});
+  emSaveProfile(ep);pill.remove();
+}
+
+function emAddPortFromSelect(){
+  var sel=document.getElementById('emPortSelect');if(!sel||!sel.value)return;
+  var val=sel.value;
+  if(document.querySelector('.em-port-pill[data-value="'+CSS.escape(val)+'"]'))return;
+  emAddPortPill(val);sel.value='';emDebouncedSave();
+}
+
+function emAddPortPill(val){
+  var container=document.getElementById('emPortPills');if(!container)return;
+  var pill=document.createElement('div');pill.className='em-pill em-port-pill';pill.dataset.value=val;
+  pill.innerHTML='<span>'+val+'</span><button class="em-pill-remove" onclick="emRemovePortPill(this)">×</button>';
+  container.appendChild(pill);
+}
+
+function emRemovePortPill(btn){btn.parentElement.remove();emDebouncedSave();}
+
+function emToggleChip(el){el.classList.toggle('selected');emDebouncedSave();}
+
+function emAddSbcRow(data){
+  var container=document.getElementById('emSbcRows');if(!container)return;
+  var d=data||{};
+  var row=document.createElement('div');row.className='em-sbc-row';
+  row.innerHTML='<select class="em-select em-sbc-country" onchange="emDebouncedSave()">'+emGetCountryOptions()+'</select>'
+    +'<input class="em-input em-sbc-pct" type="number" min="1" max="100" placeholder="%" value="'+(d.pctOfTotal||'')+'" oninput="emDebouncedSave()">'
+    +'<button class="em-sup-del" onclick="this.parentElement.remove();emDebouncedSave()" title="Remove">×</button>';
+  container.appendChild(row);
+  if(d.country){var cs=row.querySelector('.em-sbc-country');if(cs)cs.value=d.country;}
+}
+
+function emPopulateBroadCatSelect(){
+  var sel=document.getElementById('emBroadCat');if(!sel)return;
+  sel.innerHTML='<option value="">Broad category…</option>';
+  Object.keys(EM_PRODUCT_CATEGORIES).forEach(function(cat){
+    var o=document.createElement('option');o.value=cat;o.textContent=cat;sel.appendChild(o);
+  });
+}
+
+function emPopulatePortSelect(){
+  var sel=document.getElementById('emPortSelect');if(!sel)return;
+  sel.innerHTML='<option value="">Select port…</option>';
+  EM_PORTS.forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
+}
+
+function emPopulateFromStorage(){
+  var ep=emGetProfile();
+  emPopulateBroadCatSelect();emPopulatePortSelect();
+  var pills=document.getElementById('emCatPills');if(pills){pills.innerHTML='';(ep.productCategories||[]).forEach(function(c){emAddCatPill(c.broadCategory,c.subCategory);});}
+  var sb=document.getElementById('emSpendBand');if(sb&&ep.spendBand)sb.value=ep.spendBand;
+  var lt=document.getElementById('emLeadTimeBand');if(lt&&ep.leadTimeBand)lt.value=ep.leadTimeBand;
+  var supCont=document.getElementById('emSupplierRows');
+  if(supCont){supCont.innerHTML='';var sups=ep.suppliers||[];if(sups.length===0)emAddSupplierRow();else sups.forEach(function(s){emAddSupplierRow(s);});}
+  document.querySelectorAll('.em-chip[data-group="freight"]').forEach(function(el){el.classList.remove('selected');});
+  (ep.freightMethods||[]).forEach(function(v){var c=document.querySelector('.em-chip[data-group="freight"][data-value="'+v+'"]');if(c)c.classList.add('selected');});
+  document.querySelectorAll('.em-chip[data-group="incoterms"]').forEach(function(el){el.classList.remove('selected');});
+  (ep.incoterms||[]).forEach(function(v){var c=document.querySelector('.em-chip[data-group="incoterms"][data-value="'+v+'"]');if(c)c.classList.add('selected');});
+  var portPills=document.getElementById('emPortPills');if(portPills){portPills.innerHTML='';(ep.portsOfEntry||[]).forEach(function(p){emAddPortPill(p);});}
+  var st=document.getElementById('emSwitchTime');if(st&&ep.supplierSwitchTime)st.value=ep.supplierSwitchTime;
+  var bs=document.getElementById('emBackupSuppliers');if(bs&&ep.hasBackupSuppliers)bs.value=ep.hasBackupSuppliers;
+  var ltt=document.getElementById('emLeadTimeTolerance');if(ltt&&ep.leadTimeTolerance)ltt.value=ep.leadTimeTolerance;
+  var ib=document.getElementById('emInventoryBuffer');if(ib&&ep.inventoryBufferDays)ib.value=ep.inventoryBufferDays;
+  var sbcCont=document.getElementById('emSbcRows');
+  if(sbcCont){sbcCont.innerHTML='';var sbcs=ep.spendByCountry||[];if(sbcs.length===0)emAddSbcRow();else sbcs.forEach(function(s){emAddSbcRow(s);});}
+}
+
+function emSaveAndComplete(){
+  var data=emReadFormData();
+  var e1=emValidateStep(1);if(e1){var el=document.getElementById('emError1');if(el){el.textContent=e1;el.style.display='';}emGoToStep(1);return;}
+  var e2=emValidateStep(2);if(e2){var el=document.getElementById('emError2');if(el){el.textContent=e2;el.style.display='';}emGoToStep(2);return;}
+  emSaveProfile(data);
+  localStorage.setItem('risksim_enterprise_profile_complete','true');
+  emClose();emHideCtaBanner();
+}
+
+function emFinishLater(){
+  emSaveProfile(emReadFormData());
+  localStorage.setItem('risksim_enterprise_profile_complete','true');
+  emClose();emHideCtaBanner();
+}
+
+function emClose(){var m=document.getElementById('enterpriseModal');if(m)m.classList.remove('active');}
+
+function openEnterpriseOnboarding(){
+  var m=document.getElementById('enterpriseModal');if(!m)return;
+  _emStep=1;emPopulateFromStorage();emGoToStep(1);
+  m.classList.add('active');
+}
+
+function emInitCtaBanner(){
+  var plan=localStorage.getItem('risksim_plan');
+  var paid=localStorage.getItem('risksim_paid');
+  var complete=localStorage.getItem('risksim_enterprise_profile_complete');
+  if(plan!=='enterprise'||paid!=='true'||complete==='true')return;
+  var snoozed=localStorage.getItem('risksim_enterprise_cta_snoozed');
+  if(snoozed&&(Date.now()-parseInt(snoozed))<86400000)return;
+  var b=document.getElementById('emCtaBanner');if(b)b.style.display='flex';
+}
+
+function emHideCtaBanner(){var b=document.getElementById('emCtaBanner');if(b)b.style.display='none';}
+
+function emSnoozeCtaBanner(){
+  localStorage.setItem('risksim_enterprise_cta_snoozed',Date.now().toString());
+  emHideCtaBanner();
+}
+
+window.openEnterpriseOnboarding=openEnterpriseOnboarding;
+window.emClose=emClose;
+window.emGoToStep=emGoToStep;
+window.emSaveAndComplete=emSaveAndComplete;
+window.emFinishLater=emFinishLater;
+window.emInitCtaBanner=emInitCtaBanner;
+window.emSnoozeCtaBanner=emSnoozeCtaBanner;
+window.emDebouncedSave=emDebouncedSave;
+window.emAddSupplierRow=emAddSupplierRow;
+window.emRemoveSupplierRow=emRemoveSupplierRow;
+window.emAddCatFromSelectors=emAddCatFromSelectors;
+window.emRemoveCatPill=emRemoveCatPill;
+window.emOnBroadCatChange=emOnBroadCatChange;
+window.emAddPortFromSelect=emAddPortFromSelect;
+window.emRemovePortPill=emRemovePortPill;
+window.emToggleChip=emToggleChip;
+window.emAddSbcRow=emAddSbcRow;
+
 })();
 </script>
 
