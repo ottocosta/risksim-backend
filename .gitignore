@@ -2,3 +2,5 @@
 node_modules/
 dist/
 .env
+test-prompt.js
+docs/claude-design-yantian-reference.html

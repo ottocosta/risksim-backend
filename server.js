@@ -148,10 +148,95 @@ const dataStore = {
 };
 
 // ============================================================
-// EMAIL SUBSCRIBER STORE — in-memory, resets on deploy
+// SUBSCRIBER STORE — Upstash Redis via axios REST, in-memory fallback
+// Architecture: server exposes data endpoints for n8n (push/poll) and
+// handles direct email delivery via Resend REST API — no extra npm packages.
+// Subscriber records survive deploys when UPSTASH_* env vars are set.
 // ============================================================
-const emailSubscribers = {};
-// Format: { "user@email.com": { email, industry, sourcingCountries, companyName, preferences: { weeklyDigest, criticalAlerts }, subscribedAt, updatedAt } }
+
+const redisAvailable = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+if (!redisAvailable) {
+    console.warn('[Redis] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN not set — subscriber data will reset on deploy');
+}
+
+const emailSubscribersFallback = {};
+
+async function redisCmd(command) {
+    const r = await axios.post(process.env.UPSTASH_REDIS_REST_URL, command, {
+        headers: { Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`, 'Content-Type': 'application/json' },
+        timeout: 5000
+    });
+    return r.data.result;
+}
+
+async function redisPipeline(commands) {
+    const r = await axios.post(process.env.UPSTASH_REDIS_REST_URL + '/pipeline', commands, {
+        headers: { Authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`, 'Content-Type': 'application/json' },
+        timeout: 8000
+    });
+    return r.data.map(item => item.result);
+}
+
+const SUB_KEY = e => `email:subscriber:${e}`;
+const SUB_INDEX = 'email:subscribers';
+
+async function getSubscriber(email) {
+    const key = email.toLowerCase();
+    if (!redisAvailable) return emailSubscribersFallback[key] || null;
+    try {
+        const val = await redisCmd(['GET', SUB_KEY(key)]);
+        return val ? JSON.parse(val) : null;
+    } catch (e) {
+        console.error('[Redis] getSubscriber error:', e.message);
+        return emailSubscribersFallback[key] || null;
+    }
+}
+
+async function setSubscriber(email, data) {
+    const key = email.toLowerCase();
+    emailSubscribersFallback[key] = data;
+    if (!redisAvailable) return;
+    try {
+        await redisPipeline([
+            ['SET', SUB_KEY(key), JSON.stringify(data)],
+            ['SADD', SUB_INDEX, key]
+        ]);
+    } catch (e) {
+        console.error('[Redis] setSubscriber error:', e.message);
+    }
+}
+
+async function deleteSubscriber(email) {
+    const key = email.toLowerCase();
+    delete emailSubscribersFallback[key];
+    if (!redisAvailable) return;
+    try {
+        await redisPipeline([
+            ['DEL', SUB_KEY(key)],
+            ['SREM', SUB_INDEX, key]
+        ]);
+    } catch (e) {
+        console.error('[Redis] deleteSubscriber error:', e.message);
+    }
+}
+
+async function listSubscribers(filterByPreference) {
+    if (!redisAvailable) {
+        const subs = Object.values(emailSubscribersFallback);
+        return filterByPreference ? subs.filter(s => s.preferences?.[filterByPreference] === true) : subs;
+    }
+    try {
+        const emails = await redisCmd(['SMEMBERS', SUB_INDEX]) || [];
+        if (emails.length === 0) return [];
+        const values = await redisPipeline(emails.map(e => ['GET', SUB_KEY(e)]));
+        const subs = values.map(v => v ? JSON.parse(v) : null).filter(Boolean);
+        return filterByPreference ? subs.filter(s => s.preferences?.[filterByPreference] === true) : subs;
+    } catch (e) {
+        console.error('[Redis] listSubscribers error:', e.message);
+        const subs = Object.values(emailSubscribersFallback);
+        return filterByPreference ? subs.filter(s => s.preferences?.[filterByPreference] === true) : subs;
+    }
+}
 
 // Auth middleware for n8n POST routes
 function requireDataKey(req, res, next) {
@@ -1368,17 +1453,149 @@ app.post('/api/restore-access', async (req, res) => {
 });
 
 // ============================================================
+// EMAIL SENDING — Resend REST API via axios (no extra npm package)
+// ============================================================
+
+// TODO: change FROM to alerts@risksim.ai once domain is verified in Resend
+const EMAIL_FROM = 'RiskSim AI <onboarding@resend.dev>';
+
+function escHtml(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function sendEmail(to, subject, html, text) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+        console.warn('[Email] RESEND_API_KEY not set — skipping send to', to);
+        return false;
+    }
+    try {
+        const r = await axios.post('https://api.resend.com/emails', { from: EMAIL_FROM, to: [to], subject, html, text }, {
+            headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            timeout: 10000
+        });
+        console.log('[Email] Sent to', to, '— id:', r.data?.id);
+        return true;
+    } catch (err) {
+        console.error('[Email] Resend error for', to, '—', err.response?.data?.message || err.message);
+        return false;
+    }
+}
+
+function buildCriticalAlertHtml(alert, subscriber) {
+    const unsubUrl = `https://risksim.ai/api/email/unsubscribe?email=${encodeURIComponent(subscriber.email)}`;
+    const linkHtml = alert.link
+        ? `<p style="margin:16px 0"><a href="${escHtml(alert.link)}" style="color:#4a9eff;font-size:13px">Read full report →</a></p>`
+        : '';
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px">
+  <div style="font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:28px">RISKSIM AI &middot; CRITICAL SUPPLY CHAIN ALERT</div>
+  <h1 style="font-size:20px;font-weight:700;margin:0 0 12px;line-height:1.35;color:#fff">${escHtml(alert.title)}</h1>
+  <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:24px;letter-spacing:0.05em">${alert.industry ? escHtml(alert.industry.toUpperCase()) + ' &nbsp;&middot;&nbsp; ' : ''}${alert.pubDate ? new Date(alert.pubDate).toUTCString() : ''}</div>
+  <p style="color:rgba(255,255,255,0.65);font-size:14px;line-height:1.75;margin:0 0 8px">This event was flagged by RiskSim's critical alert system. Review your supply chain exposure immediately.</p>
+  ${linkHtml}
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:32px 0">
+  <p style="font-size:11px;color:rgba(255,255,255,0.22);line-height:1.6;margin:0">You're receiving this because you subscribed to critical alerts on RiskSim AI.<br><a href="${unsubUrl}" style="color:rgba(255,255,255,0.22)">Unsubscribe</a></p>
+</body></html>`;
+}
+
+function buildCriticalAlertText(alert, subscriber) {
+    const unsubUrl = `https://risksim.ai/api/email/unsubscribe?email=${encodeURIComponent(subscriber.email)}`;
+    const lines = [
+        'RISKSIM AI — CRITICAL SUPPLY CHAIN ALERT',
+        '',
+        alert.title,
+        alert.industry ? alert.industry.toUpperCase() : '',
+        alert.pubDate ? new Date(alert.pubDate).toUTCString() : '',
+        '',
+        "This event was flagged by RiskSim's critical alert system. Review your supply chain exposure immediately."
+    ];
+    if (alert.link) lines.push('', 'Read more: ' + alert.link);
+    lines.push('', '---', 'Unsubscribe: ' + unsubUrl);
+    return lines.join('\n');
+}
+
+const CRITICAL_RE = /\bwar\b|bombing|invasion|military.strike|armed.conflict|port.closure|factory.explosion/i;
+
+async function processCriticalAlertsNow() {
+    const criticalAlerts = [];
+    for (const [industry, alerts] of Object.entries(dataStore.alertsByIndustry)) {
+        for (const alert of alerts) {
+            const title = alert.title || '';
+            if (!CRITICAL_RE.test(title)) continue;
+            const pubDate = new Date(alert.pubDate || alert.isoDate || 0);
+            if ((Date.now() - pubDate.getTime()) / 3600000 > 6) continue;
+            criticalAlerts.push({ title, industry, pubDate: alert.pubDate || alert.isoDate, link: alert.link });
+        }
+    }
+
+    if (criticalAlerts.length === 0) {
+        console.log('[Email] processCriticalAlertsNow: no critical alerts in window');
+        return { sent: 0, skipped: 0, alerts: 0 };
+    }
+
+    const subscribers = await listSubscribers('criticalAlerts');
+    if (subscribers.length === 0) {
+        console.log('[Email] processCriticalAlertsNow: no criticalAlerts subscribers');
+        return { sent: 0, skipped: 0, alerts: criticalAlerts.length };
+    }
+
+    let sent = 0, skipped = 0;
+
+    for (const alert of criticalAlerts) {
+        const alertId = Buffer.from((alert.title + alert.industry).slice(0, 60)).toString('base64').replace(/[+/=]/g, '').slice(0, 24);
+
+        for (const sub of subscribers) {
+            // Industry filter: skip if alert and subscriber have known, mismatched industries
+            const alertInd = (alert.industry || '').toLowerCase();
+            const subInd = (sub.industry || '').toLowerCase();
+            if (alertInd && alertInd !== 'general' && subInd && alertInd !== subInd) {
+                skipped++;
+                continue;
+            }
+
+            // Dedup: skip if this (alert, subscriber) pair was already sent (7-day TTL)
+            const sentKey = `email:sent:${alertId}:${sub.email}`;
+            if (redisAvailable) {
+                try {
+                    const already = await redisCmd(['EXISTS', sentKey]);
+                    if (already === 1) { skipped++; continue; }
+                } catch (e) { /* dedup check failed — allow send rather than skip silently */ }
+            }
+
+            const subject = `Critical Alert: ${alert.title.slice(0, 80)}`;
+            const ok = await sendEmail(
+                sub.email,
+                subject,
+                buildCriticalAlertHtml(alert, sub),
+                buildCriticalAlertText(alert, sub)
+            );
+            if (ok) {
+                sent++;
+                if (redisAvailable) {
+                    try { await redisCmd(['SET', sentKey, '1', 'EX', String(7 * 24 * 3600)]); } catch (e) {}
+                }
+            }
+        }
+    }
+
+    console.log(`[Email] processCriticalAlertsNow — sent: ${sent}, skipped: ${skipped}, alerts found: ${criticalAlerts.length}`);
+    return { sent, skipped, alerts: criticalAlerts.length };
+}
+
+// ============================================================
 // EMAIL SUBSCRIBER ENDPOINTS
 // ============================================================
 
 // Subscribe / update preferences
-app.post('/api/email/subscribe', (req, res) => {
+app.post('/api/email/subscribe', async (req, res) => {
     const { email, industry, sourcingCountries, companyName, preferences } = req.body;
     if (!email || !email.includes('@')) {
         return res.status(400).json({ error: 'Valid email required' });
     }
     const key = email.toLowerCase();
-    emailSubscribers[key] = {
+    const existing = await getSubscriber(key);
+    const record = {
         email: key,
         industry: industry || 'technology',
         sourcingCountries: sourcingCountries || [],
@@ -1387,44 +1604,44 @@ app.post('/api/email/subscribe', (req, res) => {
             weeklyDigest: preferences?.weeklyDigest !== false,
             criticalAlerts: preferences?.criticalAlerts !== false
         },
-        subscribedAt: emailSubscribers[key]?.subscribedAt || new Date().toISOString(),
+        subscribedAt: existing?.subscribedAt || new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
+    await setSubscriber(key, record);
     console.log('[Email] Subscriber updated:', key);
-    res.json({ success: true, subscriber: emailSubscribers[key] });
+    res.json({ success: true, subscriber: record });
 });
 
 // Unsubscribe
-app.post('/api/email/unsubscribe', (req, res) => {
+app.post('/api/email/unsubscribe', async (req, res) => {
     const email = (req.body.email || req.query.email || '').toLowerCase();
-    if (email && emailSubscribers[email]) {
-        delete emailSubscribers[email];
+    if (email) {
+        await deleteSubscriber(email);
         console.log('[Email] Unsubscribed:', email);
     }
     res.json({ success: true });
 });
 
 // GET unsubscribe (for email link clicks)
-app.get('/api/email/unsubscribe', (req, res) => {
+app.get('/api/email/unsubscribe', async (req, res) => {
     const email = (req.query.email || '').toLowerCase();
-    if (email && emailSubscribers[email]) {
-        delete emailSubscribers[email];
+    if (email) {
+        await deleteSubscriber(email);
         console.log('[Email] Unsubscribed via link:', email);
     }
     res.send('<html><body style="background:#111;color:#fff;font-family:monospace;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;"><div style="text-align:center"><div style="font-size:14px;letter-spacing:3px;margin-bottom:16px;">RISKSIM</div><div style="color:rgba(255,255,255,0.5);font-size:13px;">You have been unsubscribed.</div></div></body></html>');
 });
 
 // Get all subscribers — n8n uses this (protected)
-app.get('/api/email/subscribers', requireDataKey, (req, res) => {
-    const type = req.query.type;
-    let subs = Object.values(emailSubscribers);
-    if (type) subs = subs.filter(s => s.preferences[type] === true);
+app.get('/api/email/subscribers', requireDataKey, async (req, res) => {
+    const type = req.query.type || null;
+    const subs = await listSubscribers(type);
     res.json(subs);
 });
 
 // Get preferences for one email — frontend uses this
-app.get('/api/email/preferences/:email', (req, res) => {
-    const sub = emailSubscribers[req.params.email.toLowerCase()];
+app.get('/api/email/preferences/:email', async (req, res) => {
+    const sub = await getSubscriber(req.params.email);
     if (!sub) return res.json({ subscribed: false, preferences: { weeklyDigest: false, criticalAlerts: false } });
     res.json({ subscribed: true, preferences: sub.preferences });
 });
@@ -1485,6 +1702,26 @@ else if (criticalRe.test(t)) highCount++;
         generatedAt: new Date().toISOString()
     });
 });
+
+// Manual trigger + n8n callback — protected by DATA_API_KEY
+app.post('/api/email/process-critical-now', requireDataKey, async (req, res) => {
+    try {
+        const result = await processCriticalAlertsNow();
+        res.json({ success: true, ...result });
+    } catch (err) {
+        console.error('[Email] process-critical-now error:', err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Internal poller — only active when ALERT_POLLER_ENABLED=true
+if (process.env.ALERT_POLLER_ENABLED === 'true') {
+    setInterval(async () => {
+        try { await processCriticalAlertsNow(); }
+        catch (err) { console.error('[Email] Poller error:', err.message); }
+    }, 10 * 60 * 1000); // 10 minutes
+    console.log('[Email] Critical alert poller enabled — running every 10 minutes');
+}
 
 app.post('/api/subscription/cancel-request', async (req, res) => {
   const { email, plan, timestamp } = req.body;
