@@ -1724,13 +1724,35 @@ if (process.env.ALERT_POLLER_ENABLED === 'true') {
 }
 
 app.post('/api/subscription/cancel-request', async (req, res) => {
-  const { email, plan, timestamp } = req.body;
+  const { email, plan, timestamp, customerId } = req.body;
   const webhookUrl = process.env.DISCORD_CANCEL_WEBHOOK_URL;
   if (!webhookUrl) {
     return res.status(500).json({ success: false, error: 'internal' });
   }
+
+  let resolvedEmail = email;
+  if ((!resolvedEmail || resolvedEmail === 'not provided') && customerId) {
+      try {
+          const token = await getShopifyAdminToken();
+          const shopDomain = process.env.SHOPIFY_SHOP_DOMAIN;
+          const customerRes = await fetch(
+              `https://${shopDomain}/admin/api/2024-10/customers/${customerId}.json`,
+              {
+                  headers: {
+                      'X-Shopify-Access-Token': token,
+                      'Content-Type': 'application/json'
+                  }
+              }
+          );
+          const customerData = await customerRes.json();
+          resolvedEmail = customerData?.customer?.email || 'not found';
+      } catch (e) {
+          resolvedEmail = 'lookup failed';
+      }
+  }
+
   try {
-    const content = `🚨 **CANCELLATION REQUEST**\n**Plan:** ${plan || 'unknown'}\n**Email:** ${email || 'not provided'}\n**Timestamp:** ${timestamp}\n**Action needed:** Cancel in Shopify admin → Subscriptions → Contracts`;
+    const content = `🚨 **CANCELLATION REQUEST**\n**Plan:** ${plan || 'unknown'}\n**Email:** ${resolvedEmail || 'not provided'}\n**Timestamp:** ${timestamp}\n**Action needed:** Cancel in Shopify admin → Subscriptions → Contracts`;
     const resp = await axios.post(webhookUrl, { content }, { headers: { 'Content-Type': 'application/json' } });
     if (resp.status >= 200 && resp.status < 300) {
       return res.json({ success: true });
