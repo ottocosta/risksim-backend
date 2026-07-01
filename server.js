@@ -543,7 +543,7 @@ app.post('/api/chat', async (req, res) => {
         const allMessages = [...history, { role: 'user', content: message }];
 
         const response = await client.messages.create({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: 1500,
             system: buildSystemPrompt(profile),
             messages: allMessages
