@@ -1456,8 +1456,7 @@ app.post('/api/restore-access', async (req, res) => {
 // EMAIL SENDING — Resend REST API via axios (no extra npm package)
 // ============================================================
 
-// TODO: change FROM to alerts@risksim.ai once domain is verified in Resend
-const EMAIL_FROM = 'RiskSim AI <onboarding@resend.dev>';
+const EMAIL_FROM = 'RiskSim AI <alerts@risksim.ai>';
 
 function escHtml(s) {
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
