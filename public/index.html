@@ -1961,6 +1961,9 @@
     .sim-compare-header-q { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#fff; padding:12px 0 10px; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:2px; }
     .sim-compare-back { padding:6px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:rgba(255,255,255,0.5); font-family:'JetBrains Mono',monospace; font-size:9px; cursor:pointer; transition:all 0.2s; letter-spacing:0.08em; }
     .sim-compare-back:hover { color:#fff; border-color:rgba(255,255,255,0.2); }
+    .sim-back-row { padding:12px 28px 4px; display:flex; align-items:center; flex-shrink:0; }
+    .sim-back-btn { background:none; border:none; color:rgba(255,255,255,0.5); cursor:pointer; padding:6px; transition:color 0.15s; display:flex; align-items:center; }
+    .sim-back-btn:hover { color:white; }
     /* Mobile */
     @media (max-width:768px) {
       .sim-sidebar { display:none; }
@@ -4158,6 +4161,11 @@ window.addEventListener('keydown',__handleIntroKey,true);
         </div>
         <!-- Analysis view (shown after submit) -->
         <div id="simAnalysisView" style="display:none;flex-direction:column;height:100%;">
+          <div class="sim-back-row">
+            <button class="sim-back-btn" onclick="showSimEmpty()" title="Back to Simulator">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
           <div class="sim-input-pinned">
             <div class="sim-input-wrap">
               <input type="text" id="simInputPinned" placeholder="What if..." autocomplete="off" onkeydown="if(event.key==='Enter')submitSimScenarioFromPinned()" />
@@ -7592,7 +7600,7 @@ var SIM_STEPS=['Parsing scenario parameters...','Loading supply chain model...',
 var simCurrentScenarioId=null,simCompareMode=false;
 
 function initSimulatorData(){
-  loadSimScenarios();
+  showSimEmpty(); // reset to home view on module mount; calls loadSimScenarios internally
   renderSimHistoryDropdown();
   renderSimTrending();
 }
