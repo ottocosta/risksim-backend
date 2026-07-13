@@ -289,7 +289,7 @@
     .em-progress-line { flex:1; height:1px; background:rgba(255,255,255,0.07); margin:0 5px 16px; }
     .em-panel { padding:0 2rem 0.5rem; max-height:52vh; overflow-y:auto; }
     .em-panel::-webkit-scrollbar { width:4px; }
-    .em-panel::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+    .em-panel::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.18); border-radius:4px; }
     .em-step-title { font-family:'JetBrains Mono',monospace; font-size:0.58rem; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.45); margin-bottom:1rem; display:flex; align-items:center; gap:8px; }
     .em-step-sub { font-family:'DM Sans',sans-serif; font-size:0.8rem; color:rgba(255,255,255,0.3); margin:-0.5rem 0 1rem; line-height:1.55; }
     .em-req { font-size:0.46rem; color:rgba(239,68,68,0.65); letter-spacing:0.12em; }
@@ -695,7 +695,9 @@
 
     ::-webkit-scrollbar { width:4px; }
     ::-webkit-scrollbar-track { background:transparent; }
-    ::-webkit-scrollbar-thumb { background:#1e293b; border-radius:2px; }
+    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.18); border-radius:2px; }
+    * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.18) transparent; }
+    .settings-content:focus, .em-panel:focus, .am-left:focus, .am-analysis-wrap:focus, .wm-page:focus, .sb-history-section:focus { outline: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
 
     /* ===== PROFILE SECTION ===== */
     #profileSection {
@@ -934,7 +936,7 @@
       border-right:1px solid rgba(255,255,255,0.06); overflow-y:auto;
     }
     .am-left::-webkit-scrollbar { width:3px; }
-    .am-left::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:3px; }
+    .am-left::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.18); border-radius:3px; }
     .am-search-wrap { padding:16px 14px 0; position:relative; }
     .am-search-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; color:rgba(255,255,255,0.28); text-transform:uppercase; display:block; margin-bottom:8px; }
     .am-search-input {
@@ -996,7 +998,7 @@
     .am-right { flex:1; display:flex; flex-direction:column; padding:58px 0 0; overflow:hidden; }
     .am-analysis-wrap { flex:1; overflow-y:auto; padding:20px 26px 28px; }
     .am-analysis-wrap::-webkit-scrollbar { width:3px; }
-    .am-analysis-wrap::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:3px; }
+    .am-analysis-wrap::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.18); border-radius:3px; }
     /* Empty state */
     .am-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:40px; }
     .am-empty-icon { width:72px; height:72px; border-radius:50%; border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 22px; background:rgba(255,255,255,0.02); }
@@ -1211,7 +1213,7 @@
     .wm-page.right { transform:translateX(100%); opacity:0; pointer-events:none; }
     .wm-page::-webkit-scrollbar { width:4px; }
     .wm-page::-webkit-scrollbar-track { background:transparent; }
-    .wm-page::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.12); border-radius:4px; }
+    .wm-page::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.18); border-radius:4px; }
     .wm-page::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.2); }
 
     .wm-section { margin-bottom:24px; }
@@ -2181,7 +2183,7 @@
   .sb-nav-code { margin-left: auto; font-size: 9px; color: rgba(255,255,255,0.15); font-family: 'JetBrains Mono', monospace; }
   .sb-history-section { flex: 1; overflow-y: auto; border-top: 1px solid rgba(255,255,255,0.06); min-height: 0; }
   .sb-history-section::-webkit-scrollbar { width: 3px; }
-  .sb-history-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+  .sb-history-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 3px; }
   .sb-new-chat {
     margin: 8px 12px; padding: 8px 12px; background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: rgba(255,255,255,0.6);
@@ -2235,9 +2237,9 @@
   body.sidebar-collapsed #pricingOverlay { left: 0; }
   body.sidebar-collapsed #profileSection { left: 0; }
 
-  /* Hamburger — hidden by default, shown via JS when sidebar is collapsed; z-index above all modules */
+  /* Hamburger — hidden by default, shown via JS when sidebar is collapsed */
   #sbHamburger {
-    position: fixed; top: 14px; left: 14px; z-index: 100002;
+    position: fixed; top: 14px; left: 14px; z-index: 10000;
     background: rgba(13,13,13,0.95); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px; width: 36px; height: 36px; cursor: pointer;
     display: none; align-items: center; justify-content: center;
@@ -2263,23 +2265,21 @@
 
   /* Settings Modal */
   .settings-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100000;
-    display: flex; align-items: center; justify-content: center; display: none;
+    position: fixed; inset: 0; background: #000; z-index: 100000;
+    display: flex; flex-direction: column; align-items: center; overflow-y: auto; display: none;
   }
   .settings-overlay.open { display: flex; }
   .settings-modal {
-    background: #111; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px;
-    width: 620px; max-width: calc(100vw - 40px); max-height: 85vh;
-    overflow: hidden; display: flex; flex-direction: column;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.8);
+    width: 100%; max-width: 680px; padding: 0 24px 60px;
+    display: flex; flex-direction: column; flex: 1;
   }
   .settings-modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
+    display: flex; align-items: center; gap: 16px;
+    padding: 24px 0 20px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
   }
   .settings-modal-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: white; }
-  .settings-close { background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 18px; padding: 4px; transition: color 0.15s; }
-  .settings-close:hover { color: white; }
+  .settings-back { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; padding: 6px; transition: color 0.15s; display: flex; align-items: center; }
+  .settings-back:hover { color: white; }
   .settings-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
   .settings-tab {
     flex: 1; padding: 13px 14px; text-align: center; font-size: 11px; letter-spacing: 1.5px;
@@ -2288,7 +2288,7 @@
   }
   .settings-tab.active { color: white; border-bottom-color: white; }
   .settings-tab:hover { color: rgba(255,255,255,0.7); }
-  .settings-content { padding: 24px; overflow-y: auto; flex: 1; }
+  .settings-content { padding: 24px 0; flex: 1; }
   .settings-field { margin-bottom: 16px; }
   .settings-field label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.18em; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 6px; }
   .settings-field input, .settings-field select, .settings-field textarea {
@@ -2331,7 +2331,7 @@
   .settings-billing-placeholder { padding: 18px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; text-align: center; color: rgba(255,255,255,0.25); font-size: 13px; margin-top: 16px; }
 
   /* Coming soon toast */
-  #sbToast { position: fixed; bottom: 24px; left: 284px; background: rgba(20,20,20,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 18px; font-size: 13px; color: rgba(255,255,255,0.8); z-index: 100001; opacity: 0; transform: translateY(8px); transition: all 0.25s cubic-bezier(0.16,1,0.3,1); pointer-events: none; }
+  #sbToast { position: fixed; bottom: 24px; left: 284px; background: rgba(20,20,20,0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 18px; font-size: 13px; color: rgba(255,255,255,0.8); z-index: 10001; opacity: 0; transform: translateY(8px); transition: all 0.25s cubic-bezier(0.16,1,0.3,1); pointer-events: none; }
   #sbToast.show { opacity: 1; transform: translateY(0); }
 
   @media (max-width: 768px) {
@@ -3403,11 +3403,13 @@ window.addEventListener('keydown',__handleIntroKey,true);
 </div>
 
 <!-- ===== SETTINGS MODAL ===== -->
-<div class="settings-overlay" id="settingsOverlay" onclick="if(event.target===this)closeSettings()">
+<div class="settings-overlay" id="settingsOverlay">
   <div class="settings-modal">
     <div class="settings-modal-header">
+      <button class="settings-back" onclick="closeSettings()" title="Back">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <div class="settings-modal-title">Settings</div>
-      <button class="settings-close" onclick="closeSettings()">✕</button>
     </div>
     <div class="settings-tabs">
       <div class="settings-tab active" onclick="switchSettingsTab('profile',this)">Profile</div>
@@ -3441,7 +3443,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
     </div>
     <div class="lp-topnav-right">
       <button class="lp-topnav-signin" onclick="openRestoreModal()">Sign in</button>
-      <button class="lp-topnav-cta" onclick="lpStartTrial()">Start Free Trial</button>
+      <button class="lp-topnav-cta" onclick="openDemoModal()">Book a Demo</button>
     </div>
     <button class="lp-topnav-hamburger" onclick="document.getElementById('lpNavLinks').classList.toggle('lp-nav-open')" aria-label="Menu">☰</button>
   </nav>
@@ -3453,11 +3455,9 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <h1 class="lp-headline">Save hours of spreadsheets, thousands in tariffs, and the supplier risk you didn't see coming.</h1>
       <p class="lp-hero-desc">Self-serve supply chain intelligence for procurement teams who can't justify a Palantir contract — but can't run on spreadsheets either.</p>
       <div class="lp-hero-ctas">
-        <button class="lp-btn-primary" onclick="lpStartTrial()">Start free trial</button>
+        <button class="lp-btn-primary" onclick="openDemoModal()">Book a Demo</button>
         <button class="lp-btn-secondary" onclick="lpBrowseProduct()">Browse the product</button>
-        <button class="lp-btn-secondary" onclick="openDemoModal()">Request a demo</button>
       </div>
-      <div class="lp-trust">First month free &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Cancel anytime</div>
       <button class="lp-restore-link" onclick="openRestoreModal()">Already a customer? Restore access →</button>
     </div>
     <div class="lp-scroll-hint">
@@ -3579,7 +3579,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
             <li>Scenario Simulator</li>
             <li>Full AI Terminal</li>
           </ul>
-          <button class="lp-plan-btn lp-primary" onclick="lpStartTrial()">Start free trial</button>
+          <button class="lp-plan-btn lp-primary" onclick="openDemoModal()">Book a Demo</button>
         </div>
         <div class="lp-plan-card">
           <span class="lp-plan-name">Enterprise</span>
@@ -3591,7 +3591,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
             <li>Price Intelligence</li>
             <li>Jarvis AI Voice Assistant</li>
           </ul>
-          <button class="lp-plan-btn" onclick="lpStartTrial()">Start free trial</button>
+          <button class="lp-plan-btn lp-primary" onclick="openDemoModal()">Book a Demo</button>
         </div>
       </div>
       <p class="lp-contact-sales">Need something custom? <a href="mailto:risksim.ai@gmail.com?subject=RiskSim%20Custom%20Plan%20Inquiry">Contact sales →</a></p>
@@ -3611,9 +3611,8 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <p class="lp-founder-quote">"I watched procurement teams spend weeks gathering data that should have taken minutes. The intelligence existed — it just wasn't accessible. RiskSim is what we built to fix that."</p>
       <span class="lp-founder-sig">— Founder, RiskSim</span>
       <div class="lp-final-ctas">
-        <button class="lp-btn-primary" onclick="lpStartTrial()">Start free trial</button>
+        <button class="lp-btn-primary" onclick="openDemoModal()">Book a Demo</button>
         <button class="lp-btn-secondary" onclick="lpBrowseProduct()">Browse the product</button>
-        <button class="lp-btn-secondary" onclick="openDemoModal()">Request a demo</button>
       </div>
     </div>
   </section>
@@ -3633,7 +3632,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
   <span class="demo-banner-label">Demo</span>
   <span class="demo-banner-text">You're browsing in demo mode — sign up to use the full product</span>
   <button class="demo-banner-cta" onclick="goBackToLanding()">HOME</button>
-  <button class="demo-banner-cta" onclick="lpStartTrialFromApp()">Start free trial →</button>
+  <button class="demo-banner-cta" onclick="openDemoModal()">Book a Demo →</button>
   <button class="demo-banner-dismiss" onclick="dismissDemoBanner()">✕</button>
 </div>
 
@@ -3642,9 +3641,9 @@ window.addEventListener('keydown',__handleIntroKey,true);
   <div class="dum-box">
     <span class="dum-label">Demo Mode</span>
     <div class="dum-title">Sign up to use this</div>
-    <div class="dum-sub">You're browsing in demo mode. Start a free trial to unlock the full product.</div>
+    <div class="dum-sub">You're browsing in demo mode. Book a demo to see the full product.</div>
     <div class="dum-btns">
-      <button class="dum-btn-primary" onclick="lpStartTrialFromApp()">Start free trial</button>
+      <button class="dum-btn-primary" onclick="openDemoModal()">Book a Demo</button>
       <button class="dum-btn-secondary" onclick="closeDemoUpgradeModal()">Keep browsing</button>
     </div>
   </div>
@@ -9151,8 +9150,18 @@ window.addEventListener('load',function(){
     });
   };
 
-  // Enter/Escape → start trial
-  window.__dismissIntro = window.lpStartTrial;
+  // Enter/Escape → open demo modal (mirrors primary CTA)
+  window.__dismissIntro = openDemoModal;
+
+  // Keyboard scroll — give tabindex to all major scrollable containers so arrow keys work
+  document.addEventListener('DOMContentLoaded', function() {
+    var scrollClasses = ['settings-content', 'em-panel', 'am-left', 'am-analysis-wrap', 'wm-page', 'sb-history-section'];
+    scrollClasses.forEach(function(cls) {
+      document.querySelectorAll('.' + cls).forEach(function(el) {
+        if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      });
+    });
+  });
 
   // Scroll-based fade-in for landing sections
   if ('IntersectionObserver' in window) {
