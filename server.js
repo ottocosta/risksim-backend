@@ -639,7 +639,7 @@ ${profile && profile.sourcingCountries ? 'Requesting Company Sourcing Countries:
 Analyze this supplier thoroughly. If you have knowledge about this company, use it. If this is a smaller or unknown company, make reasonable assessments based on the country, industry, and any context provided.`;
 
         const response = await client.messages.create({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: 2000,
             system: systemPrompt,
             messages: [{ role: 'user', content: userMessage }]
@@ -725,7 +725,7 @@ Focus on: tariffs, port disruptions, strikes, geopolitical risk, freight rate ch
 Search query: ${searchQuery}`;
 
         const response = await client.messages.create({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: 2000,
             tools: [{ type: 'web_search_20250305', name: 'web_search' }],
             messages: [{ role: 'user', content: userMessage }]
@@ -846,7 +846,7 @@ If oldPrice is not present in the document, set oldPrice to null. Extract every 
         }
 
         const response = await client.messages.create({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: 4000,
             system: systemPrompt,
             messages: [{ role: 'user', content: messageContent }]
