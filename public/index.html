@@ -861,6 +861,10 @@
       .map-overlay-header { display:none; }
       .map-legend { bottom:90px; left:8px; }
       #onboardingPanel { right:8px; left:8px; width:auto; }
+      /* Hamburger clearance — push first-content right of 36px button at x:14–50 */
+      .sim-back-row, .pi-header, .lc-header, .cf-topbar,
+      .wm-stats-bar { padding-left: 58px !important; }
+      .am-left { padding-left: 58px !important; }
     }
 
 
@@ -1671,15 +1675,12 @@
     body:has(#rs-intro) .map-legend,
     body:has(#rs-intro) #psReopenBtn { display: none !important; }
 
-    /* ===== JARVIS VISIBILITY (hide during intro / profile / pricing / demo) ===== */
-    body:has(#rs-intro) #jarvisToggle,
-    body:has(#rs-intro) #jarvisBorder,
-    body:has(#profileSection.ps-visible) #jarvisToggle,
-    body:has(#profileSection.ps-visible) #jarvisBorder,
-    body:has(#pricingOverlay.po-visible) #jarvisToggle,
-    body:has(#pricingOverlay.po-visible) #jarvisBorder,
-    body.demo-mode #jarvisToggle,
-    body.demo-mode #jarvisBorder { display: none !important; }
+    /* ===== JARVIS SURFACE — hidden (1-line revert: remove this block) ===== */
+    #jarvisToggle, #jarvisToggleBtn, #jarvisUpsellModal,
+    #jarvisListeningBubble, #jarvisResponseBubble { display: none !important; }
+    #dbJarvisLine { display: none !important; }
+    .obs-jarvis-opts { display: none !important; }
+    .lc-ai-label { display: none !important; }
 
     /* ===== JARVIS MODE ===== */
     #jarvisBorder {
@@ -2207,6 +2208,14 @@
   body.sidebar-collapsed #jarvisBorder { left: 0 !important; }
   body.sidebar-collapsed #pricingOverlay { left: 0; }
   body.sidebar-collapsed #profileSection { left: 0; }
+
+  /* Hamburger clearance — push first-content right of 36px button at x:14–50 */
+  body.sidebar-collapsed .sim-back-row,
+  body.sidebar-collapsed .pi-header,
+  body.sidebar-collapsed .lc-header,
+  body.sidebar-collapsed .cf-topbar,
+  body.sidebar-collapsed .wm-stats-bar { padding-left: 58px !important; }
+  body.sidebar-collapsed .am-left { padding-left: 58px !important; }
 
   /* Hamburger — hidden by default, shown via JS when sidebar is collapsed */
   #sbHamburger {
@@ -3560,7 +3569,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
             <li>Everything in Pro</li>
             <li>Cost Engine</li>
             <li>Price Intelligence</li>
-            <li>Jarvis AI Voice Assistant</li>
           </ul>
           <button class="lp-plan-btn lp-primary" onclick="openDemoModal()">Book a Demo</button>
         </div>
@@ -7174,7 +7182,7 @@ function buildSettingsBilling(){
       features:[
         {label:'Full supplier audit module',yes:true},
         {label:'Scenario simulator',yes:true},
-        {label:'AI chat (Jarvis)',yes:true},
+        {label:'AI chat',yes:true},
         {label:'Real-time alerts',yes:true},
         {label:'Price Intelligence',yes:true},
         {label:'Cost Engine',yes:false},
@@ -8961,52 +8969,78 @@ function closeOnboardSlides(){
   localStorage.setItem('risksim_onboarding_done','1');
 }
 
-// ===== DAILY BRIEFING =====
-var DB_ALERTS=[
-  {sev:'high',tag:'Port Alert',text:'Port of Shanghai operating at 89% capacity — container backlogs forming. Expected 4–7 day delay on trans-Pacific routes.',src:'Port Authority Feed'},
-  {sev:'medium',tag:'Tariff Watch',text:'US Section 301 tariff review ongoing — potential 15% increase on electronics components from China in Q2 2026.',src:'Trade Intelligence'},
-  {sev:'medium',tag:'Labour Risk',text:'Dock worker negotiations in Rotterdam break down. Strike action possible within 72 hours.',src:'Labour Monitor'},
-  {sev:'low',tag:'Commodity',text:'Global semiconductor lead times down 15% from Q4 2025 peak — supply easing across consumer electronics sector.',src:'Bloomberg Terminal'}
-];
-
+// ===== WEEKLY DIGEST =====
 function showDailyBriefing(){
-  var today=new Date().toDateString();
-  var last=localStorage.getItem('risksim_last_briefing');
-  if(last===today)return;
+  // OOB guard — skip if either onboarding overlay is active
+  if(document.body.classList.contains('oob-active'))return;
+  var emOv=document.getElementById('emOobOverlay');
+  if(emOv&&emOv.classList.contains('em-oob-active'))return;
+
+  // Monday-only + 6-day gap
+  var today=new Date();
+  if(today.getDay()!==1)return;
+  var lastISO=localStorage.getItem('risksim_last_digest_shown_iso');
+  if(lastISO&&(today-new Date(lastISO))/86400000<6)return;
 
   var profile=null;
   try{profile=JSON.parse(localStorage.getItem('risksim_profile'));}catch(e){}
+  var industry=(profile&&profile.industry)?profile.industry.toLowerCase().replace(/\s+/g,'_'):'general';
   var name=profile&&profile.name?profile.name.split(' ')[0]:'';
-  var hour=new Date().getHours();
-  var greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
 
-  var titleEl=document.getElementById('dbTitle');
-  if(titleEl)titleEl.textContent=greeting+(name?', '+name:'')+'.';
+  fetch('/api/data/alerts/'+industry)
+    .then(function(r){return r.json();})
+    .then(function(items){
+      if(!Array.isArray(items)||items.length===0)return;
+      var sevenDaysAgo=Date.now()-(7*24*60*60*1000);
+      var recent=items.filter(function(item){
+        return new Date(item.pubDate||item.isoDate||0).getTime()>=sevenDaysAgo;
+      }).slice(0,15);
+      if(recent.length===0)return;
+      var titleEl=document.getElementById('dbTitle');
+      if(titleEl)titleEl.textContent='Good morning'+(name?', '+name:'')+'.';
+      var alertsEl=document.getElementById('dbAlerts');
+      if(alertsEl)_renderDigestAlerts(recent,alertsEl);
+      document.getElementById('dailyBriefing').classList.add('db-open');
+    })
+    .catch(function(){});
+}
 
-  var alertsEl=document.getElementById('dbAlerts');
-  if(alertsEl){
-    alertsEl.innerHTML=DB_ALERTS.map(function(a){
-      return'<div class="db-alert '+a.sev+'">'
-        +'<div class="db-alert-tag">'+a.tag+'</div>'
-        +'<div class="db-alert-text">'+a.text+'</div>'
-        +'<div class="db-alert-src">'+a.src+'</div>'
-        +'</div>';
-    }).join('');
+function _renderDigestAlerts(items,el){
+  function timeAgo(s){
+    if(!s)return'';
+    var ms=Date.now()-new Date(s).getTime();
+    var h=Math.floor(ms/3600000);
+    return h<24?h+'h ago':Math.floor(h/24)+'d ago';
   }
-
-  var jarvisLine=document.getElementById('dbJarvisLine');
-  if(jarvisLine&&localStorage.getItem('jarvis_enabled')==='1'&&localStorage.getItem('risksim_plan')==='enterprise'){
-    var h=localStorage.getItem('jarvis_honorific')||'Sir';
-    jarvisLine.textContent='Good '+(['morning','afternoon','evening'][hour<12?0:hour<17?1:2])+', '+h+'. Four intelligence items require your attention. Port pressure in Shanghai is your highest priority. Shall I navigate there?';
-    jarvisLine.style.display='block';
-    setTimeout(function(){jarvisSpeak(jarvisLine.textContent);},800);
-  }
-
-  document.getElementById('dailyBriefing').classList.add('db-open');
+  var sc={critical:'wm-severity-critical',high:'wm-severity-high',medium:'wm-severity-medium',low:'wm-severity-low'};
+  var h='<div class="wm-alerts-grid">';
+  items.forEach(function(item,i){
+    var full=item.title||'Untitled';
+    var parts=full.split(' - ');
+    var title=parts.length>1?parts.slice(0,-1).join(' - ').trim():full;
+    var src=parts.length>1?parts[parts.length-1].trim():'Live Feed';
+    var snippet=item.contentSnippet?(item.contentSnippet.length>180?item.contentSnippet.substring(0,177)+'...':item.contentSnippet):'';
+    var time=timeAgo(item.pubDate||item.isoDate);
+    var t=full.toLowerCase();
+    var sev=t.match(/critical|strike|ban|halt|collapse|shut|force.majeure/)?'critical'
+      :t.match(/risk|war|sanctions|shortage|disruption|delay|tariff|warning/)?'high'
+      :t.match(/increase|decrease|pressure|tension|monitor|concern|alert/)?'medium':'low';
+    var dot=sev==='critical'?'<span class="wm-pulse-dot" style="width:6px;height:6px;margin-right:4px;"></span>':'';
+    h+='<div class="wm-alert-card sev-'+sev+'" style="animation-delay:'+(i*0.06)+'s">';
+    h+='<div class="wm-alert-header">'+dot+'<span class="wm-severity '+(sc[sev]||'')+'">'+sev.toUpperCase()+'</span>';
+    h+='<span class="wm-alert-title">'+escapeHtml(title)+'</span></div>';
+    if(snippet)h+='<div class="wm-alert-desc">'+escapeHtml(snippet)+'</div>';
+    h+='<div class="wm-alert-footer"><span class="wm-alert-country">'+escapeHtml(src)+'</span>';
+    h+='<span class="wm-alert-time">'+escapeHtml(time)+'</span>';
+    if(item.link)h+='<a href="'+escapeHtml(item.link)+'" target="_blank" rel="noopener" class="wm-alert-action" style="text-decoration:none">Read More →</a>';
+    h+='</div></div>';
+  });
+  h+='</div>';
+  el.innerHTML=h;
 }
 
 function closeDailyBriefing(){
-  localStorage.setItem('risksim_last_briefing',new Date().toDateString());
+  localStorage.setItem('risksim_last_digest_shown_iso',new Date().toISOString());
   document.getElementById('dailyBriefing').classList.remove('db-open');
 }
 
@@ -9019,6 +9053,8 @@ window.addEventListener('load',function(){
   // Close daily briefing on backdrop click
   var db=document.getElementById('dailyBriefing');
   if(db)db.addEventListener('click',function(e){if(e.target===this)closeDailyBriefing();});
+  // Weekly digest for returning users (Monday + gap guard inside the function)
+  setTimeout(function(){if(typeof showDailyBriefing==='function')showDailyBriefing();},2000);
   // Close onboard slides on backdrop click
   var obs=document.getElementById('onboardSlides');
   if(obs)obs.addEventListener('click',function(e){if(e.target===this)closeOnboardSlides();});
@@ -9079,7 +9115,7 @@ window.addEventListener('load',function(){
   <div class="db-card">
     <div class="db-header">
       <div class="db-title-wrap">
-        <div class="db-label">Morning Intelligence Brief</div>
+        <div class="db-label">Weekly Intelligence Digest</div>
         <div class="db-title" id="dbTitle">Good morning.</div>
       </div>
       <button class="db-close" onclick="closeDailyBriefing()">✕</button>
