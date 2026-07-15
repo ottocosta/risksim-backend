@@ -862,7 +862,7 @@
       .map-legend { bottom:90px; left:8px; }
       #onboardingPanel { right:8px; left:8px; width:auto; }
       /* Hamburger clearance — push first-content right of 36px button at x:14–50 */
-      .sim-back-row, .pi-header, .lc-header, .cf-topbar,
+      .sim-back-row, .sim-topbar, .pi-header, .lc-header, .cf-topbar,
       .wm-stats-bar { padding-left: 58px !important; }
       .am-left { padding-left: 58px !important; }
     }
@@ -2211,11 +2211,13 @@
 
   /* Hamburger clearance — push first-content right of 36px button at x:14–50 */
   body.sidebar-collapsed .sim-back-row,
+  body.sidebar-collapsed .sim-topbar,
   body.sidebar-collapsed .pi-header,
   body.sidebar-collapsed .lc-header,
   body.sidebar-collapsed .cf-topbar,
   body.sidebar-collapsed .wm-stats-bar { padding-left: 58px !important; }
   body.sidebar-collapsed .am-left { padding-left: 58px !important; }
+  body.sidebar-collapsed .map-overlay-header { left: 58px !important; }
 
   /* Hamburger — hidden by default, shown via JS when sidebar is collapsed */
   #sbHamburger {
