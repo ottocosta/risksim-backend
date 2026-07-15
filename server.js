@@ -1763,7 +1763,7 @@ app.post('/api/subscription/cancel-request', async (req, res) => {
 });
 
 app.post('/api/demo-request', async (req, res) => {
-  const { name, email, phone, preferredTime, website } = req.body;
+  const { name, email, meetingPlatform, preferredTime, website } = req.body;
   // honeypot — bots fill this, real users never see it
   if (website) return res.json({ success: true });
   if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -1774,7 +1774,7 @@ app.post('/api/demo-request', async (req, res) => {
     return res.status(500).json({ success: false, error: 'internal' });
   }
   try {
-    const content = `📅 **DEMO REQUEST**\n**Name:** ${sanitizeForDiscord(name)}\n**Email:** ${sanitizeForDiscord(email)}\n**Phone:** ${sanitizeForDiscord(phone) || 'not provided'}\n**Preferred time:** ${sanitizeForDiscord(preferredTime) || 'not specified'}`;
+    const content = `📅 **DEMO REQUEST**\n**Name:** ${sanitizeForDiscord(name)}\n**Email:** ${sanitizeForDiscord(email)}\n**Preferred platform:** ${sanitizeForDiscord(meetingPlatform) || 'not specified'}\n**Preferred time:** ${sanitizeForDiscord(preferredTime) || 'not specified'}`;
     const resp = await axios.post(webhookUrl, { content }, { headers: { 'Content-Type': 'application/json' } });
     if (resp.status >= 200 && resp.status < 300) {
       return res.json({ success: true });

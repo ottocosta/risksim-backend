@@ -265,6 +265,9 @@
     .dm-btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
     .dm-btn-cancel { background: none; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; padding: 0.75rem 1.2rem; cursor: pointer; transition: border-color 0.2s; }
     .dm-btn-cancel:hover { border-color: rgba(255,255,255,0.35); }
+    .dm-select { appearance: none; -webkit-appearance: none; cursor: pointer; }
+    .dm-select option { background: #0a0a0a; color: rgba(255,255,255,0.85); }
+    .dm-helper { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 0.4rem; margin-bottom: 0; }
     .dm-success { text-align: center; padding: 1rem 0; }
     .dm-success-check { font-size: 1.8rem; margin-bottom: 0.8rem; }
     .dm-success-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem; }
@@ -3575,7 +3578,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
           <button class="lp-plan-btn lp-primary" onclick="openDemoModal()">Book a Demo</button>
         </div>
       </div>
-      <p class="lp-contact-sales">Need something custom? <a href="mailto:risksim.ai@gmail.com?subject=RiskSim%20Custom%20Plan%20Inquiry">Contact sales →</a></p>
+      <p class="lp-contact-sales">Need something custom? <a href="mailto:info@risksim.ai?subject=RiskSim%20Custom%20Plan%20Inquiry">Contact sales →</a></p>
     </div>
   </section>
 
@@ -3662,8 +3665,15 @@ window.addEventListener('keydown',__handleIntroKey,true);
         <input class="dm-input" id="dmEmail" type="email" placeholder="you@company.com" autocomplete="email">
       </div>
       <div class="dm-field">
-        <label class="dm-field-label" for="dmPhone">Phone</label>
-        <input class="dm-input" id="dmPhone" type="tel" placeholder="Optional" autocomplete="tel">
+        <label class="dm-field-label" for="dmMeetingPlatform">Preferred meeting platform *</label>
+        <select class="dm-input dm-select" id="dmMeetingPlatform" required>
+          <option value="">Select a platform</option>
+          <option value="Zoom">Zoom</option>
+          <option value="Google Meet">Google Meet</option>
+          <option value="Microsoft Teams">Microsoft Teams</option>
+          <option value="Discord">Discord</option>
+        </select>
+        <p class="dm-helper">You'll get a room link in your confirmation email.</p>
       </div>
       <div class="dm-field">
         <label class="dm-field-label" for="dmTime">Preferred time</label>
@@ -7213,7 +7223,7 @@ function buildSettingsBilling(){
       id:'custom',name:'Custom',
       monthlyPrice:1299,annualPrice:1082,
       monthlyFounder:909,annualFounder:758,
-      link:'mailto:risksim.ai@gmail.com?subject=Custom%20Plan%20Inquiry',
+      link:'mailto:info@risksim.ai?subject=Custom%20Plan%20Inquiry',
       features:[
         {label:'Everything in Enterprise',yes:true},
         {label:'Dedicated account manager',yes:true},
@@ -7250,7 +7260,7 @@ function buildSettingsBilling(){
       var spId=isAnnual?p.annualPlan:p.monthlyPlan;
       h+='<button class="settings-plan-btn" onclick="goToCheckout(\''+vId+'\',\''+spId+'\')">Upgrade</button>';
     }else{
-      h+='<button class="settings-plan-btn" onclick="window.location.href=\'mailto:risksim.ai@gmail.com?subject=RiskSim%20Custom%20Plan%20Inquiry\'">Contact Sales</button>';
+      h+='<button class="settings-plan-btn" onclick="window.location.href=\'mailto:info@risksim.ai?subject=RiskSim%20Custom%20Plan%20Inquiry\'">Contact Sales</button>';
     }
     h+='</div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">';
@@ -9284,7 +9294,7 @@ function openDemoModal() {
   if (!m) return;
   document.getElementById('dmName').value = '';
   document.getElementById('dmEmail').value = '';
-  document.getElementById('dmPhone').value = '';
+  document.getElementById('dmMeetingPlatform').value = '';
   document.getElementById('dmTime').value = '';
   document.getElementById('dmWebsite').value = '';
   document.getElementById('dmError').textContent = '';
@@ -9305,7 +9315,7 @@ function closeDemoModal() {
 async function submitDemoRequest() {
   var name = (document.getElementById('dmName').value || '').trim();
   var email = (document.getElementById('dmEmail').value || '').trim();
-  var phone = (document.getElementById('dmPhone').value || '').trim();
+  var meetingPlatform = (document.getElementById('dmMeetingPlatform').value || '').trim();
   var time = (document.getElementById('dmTime').value || '').trim();
   var honeypot = document.getElementById('dmWebsite').value;
   var errEl = document.getElementById('dmError');
@@ -9316,13 +9326,14 @@ async function submitDemoRequest() {
     errEl.textContent = 'Please enter a valid email address.';
     return;
   }
+  if (!meetingPlatform) { errEl.textContent = 'Please select a meeting platform.'; return; }
   btn.disabled = true;
   btn.textContent = 'Sending…';
   try {
     var resp = await fetch('/api/demo-request', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name, email: email, phone: phone, preferredTime: time, website: honeypot })
+      body: JSON.stringify({ name: name, email: email, meetingPlatform: meetingPlatform, preferredTime: time, website: honeypot })
     });
     var data = await resp.json();
     if (data.success) {
@@ -9389,7 +9400,7 @@ async function submitLandingRestoreAccess() {
       closeRestoreModal();
       window.location.reload();
     } else {
-      errorEl.textContent = (data.error || 'No active subscription found.') + ' Need help? Contact risksim.ai@gmail.com';
+      errorEl.textContent = (data.error || 'No active subscription found.') + ' Need help? Contact info@risksim.ai';
       btn.disabled = false;
       btn.textContent = 'Restore access';
     }
@@ -9550,12 +9561,12 @@ function routeAfterCheckout(plan) {
           <li class="po-feature"><span class="po-feature-check">✓</span> White-glove onboarding &amp; setup</li>
           <li class="po-feature"><span class="po-feature-check">✓</span> Dedicated account support</li>
         </ul>
-        <button class="po-cta" onclick="window.location.href='mailto:risksim.ai@gmail.com'">Contact Sales</button>
+        <button class="po-cta" onclick="window.location.href='mailto:info@risksim.ai'">Contact Sales</button>
       </div>
 
     </div><!-- /.po-cards -->
 
-    <div class="po-bottom-text">All plans include a personalized demo call. Questions? Contact risksim.ai@gmail.com</div>
+    <div class="po-bottom-text">All plans include a personalized demo call. Questions? Contact info@risksim.ai</div>
 
   </div><!-- /.po-container -->
 </div><!-- /#pricingOverlay -->
@@ -9687,7 +9698,7 @@ function renderCancelModal(state) {
   } else if (state === 'error') {
     body.innerHTML =
       '<div style="font-size:18px;font-weight:700;font-family:\'Syne\',sans-serif;margin-bottom:12px;color:white;">Something went wrong</div>' +
-      '<div style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.6;margin-bottom:28px;">Please try again or contact us at <a href="mailto:risksim.ai@gmail.com" style="color:rgba(255,255,255,0.7);text-decoration:none;">risksim.ai@gmail.com</a>.</div>' +
+      '<div style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.6;margin-bottom:28px;">Please try again or contact us at <a href="mailto:info@risksim.ai" style="color:rgba(255,255,255,0.7);text-decoration:none;">info@risksim.ai</a>.</div>' +
       '<div style="display:flex;gap:10px;">' +
         '<button onclick="submitCancelRequest()" style="flex:1;padding:13px;background:#fff;color:#000;border:none;border-radius:8px;font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:800;letter-spacing:1px;cursor:pointer;">RETRY</button>' +
         '<button onclick="closeCancelModal()" style="flex:1;padding:13px;background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-family:\'JetBrains Mono\',monospace;font-size:11px;cursor:pointer;">Dismiss</button>' +
@@ -10945,7 +10956,7 @@ body.oob-active #rsNav{display:none!important;}
       +'<div class="oob-plan-price">\u20ac1,299+</div>'
       +'<div class="oob-plan-price-sub">/mo \u00b7 let\'s talk</div>'
       +'<ul class="oob-plan-features">'+feats([[1,'Everything in Enterprise'],[1,'Unlimited users'],[1,'Custom integrations & API'],[1,'Dedicated success manager'],[1,'Custom SLAs']])+'</ul>'
-      +'<button class="oob-plan-contact-cta" onclick="window.location.href=\'mailto:risksim.ai@gmail.com?subject=Custom%20Plan%20Inquiry\'">BOOK A CALL</button>'
+      +'<button class="oob-plan-contact-cta" onclick="window.location.href=\'mailto:info@risksim.ai?subject=Custom%20Plan%20Inquiry\'">BOOK A CALL</button>'
       +'</div>';
 
     return pro+ent+cust;
