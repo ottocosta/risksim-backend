@@ -2232,6 +2232,18 @@
   }
   #sbHamburger:hover { color: white; border-color: rgba(255,255,255,0.2); }
 
+  /* Demo back arrow — visible only in demo mode, floats just inside content area */
+  #demoBrowseBack {
+    position: fixed; top: 14px; left: 270px; z-index: 10001;
+    background: rgba(13,13,13,0.95); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; width: 36px; height: 36px; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.5); transition: color 0.15s, border-color 0.15s;
+  }
+  #demoBrowseBack:hover { color: white; border-color: rgba(255,255,255,0.2); }
+  body.demo-mode #demoBrowseBack { display: flex; }
+  body.sidebar-collapsed #demoBrowseBack { left: 62px; }
+
   /* Remove jarvis blue/teal border completely */
   #jarvisBorder { border: none !important; box-shadow: none !important; }
   #jarvisBorder.jarvis-active { opacity: 0 !important; }
@@ -2323,6 +2335,7 @@
     .risksim-sidebar { transform: translateX(-260px); }
     .risksim-sidebar.open { transform: translateX(0); }
     #sbHamburger { display: flex; }
+    #demoBrowseBack { left: 62px; }
     #auditModule { left: 0 !important; }
     #warRoomModule { left: 0 !important; }
     #simulatorModule { left: 0 !important; }
@@ -3103,6 +3116,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
 
 <!-- ===== MOBILE HAMBURGER ===== -->
 <button id="sbHamburger" onclick="toggleSidebar()">☰</button>
+<button id="demoBrowseBack" onclick="exitDemoMode()" title="Back to homepage"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 
 <!-- ===== LEFT SIDEBAR ===== -->
 <div class="risksim-sidebar" id="rsSidebar">
@@ -9249,6 +9263,12 @@ function initDemoMode() {
   if (banner && localStorage.getItem('risksim_demo_banner_dismissed') !== 'true') {
     banner.classList.add('active');
   }
+}
+
+function exitDemoMode() {
+  localStorage.removeItem('risksim_demo');
+  localStorage.removeItem('risksim_demo_banner_dismissed');
+  window.location.reload();
 }
 
 function dismissDemoBanner() {
