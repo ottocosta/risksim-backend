@@ -4344,7 +4344,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
 
 <script>
 var map=null,countryMarkers={},currentLayer='risk',currentCategory='technology',userProfile={},selectedSourcingCountries=[];
-var VISUAL_CHAT_DEV=localStorage.getItem('rs_visual_chat_dev')==='true';
 
 // ===== LOAD PROFILE FROM LOCALSTORAGE =====
 (function(){
@@ -6427,9 +6426,9 @@ function buildRecommendedActionsHtml(actions){
     return '<div class="vc-ra-item'+(isPri?' p1':'')+'">'
       +'<div class="vc-ra-num'+(isPri?' p1':'')+'">'+num+'</div>'
       +'<div class="vc-ra-body">'
-        +'<div class="vc-ra-text">'+(a.text||'')+'</div>'
-        +'<div class="vc-ra-impact">'+(a.impact||'')+'</div>'
-        +(a.impact2?'<div class="vc-ra-impact2">'+a.impact2+'</div>':'')
+        +'<div class="vc-ra-text">'+escapeHtml(a.text||'')+'</div>'
+        +'<div class="vc-ra-impact">'+escapeHtml(a.impact||'')+'</div>'
+        +(a.impact2?'<div class="vc-ra-impact2">'+escapeHtml(a.impact2)+'</div>':'')
       +'</div>'
       +'<button class="vc-ra-cta '+(isPri?'p1':'neutral')+'" data-action="'+_vcAttrEscape(a.text||'')+'" onclick="cfSendFromAction(this)">'+(a.cta||'')+'</button>'
     +'</div>';
@@ -6632,6 +6631,7 @@ function buildIncidentCardHtml(c){
     :'';
   var expVal=c.direct_exposure_usd>0?_vcFmtUsd(c.direct_exposure_usd):'–';
   var expCls=c.direct_exposure_usd>0?'vc-stat-value vc-stat-value--money':'vc-stat-value';
+  var ra=c.recommended_action||{};
   return '<div class="vc-card">'
     +'<div class="vc-banner">'
       +'<div class="vc-banner-left"><div class="vc-banner-dot vc-incident-dot"></div>ACTIVE INCIDENT · <span class="vc-banner-sev">'+escapeHtml(c.severity||'P1')+' CRITICAL</span></div>'
@@ -6640,7 +6640,7 @@ function buildIncidentCardHtml(c){
     +'<div class="vc-card-body">'
       +'<div class="vc-card-left">'
         +'<div class="vc-card-header">'
-          +'<div class="vc-sev '+c.severity.toLowerCase()+'">'+escapeHtml(c.severity||'P1')+'</div>'
+          +'<div class="vc-sev '+(c.severity||'p1').toLowerCase()+'">'+escapeHtml(c.severity||'P1')+'</div>'
           +'<div class="vc-card-titles">'
             +'<div class="vc-cat-pill"><span class="vc-cat-pill-dot"></span>'+(c.category?escapeHtml(c.category.toUpperCase()):'INCIDENT')+'</div>'
             +'<div class="vc-card-title">'+escapeHtml(c.title||'')+'</div>'
@@ -6657,8 +6657,8 @@ function buildIncidentCardHtml(c){
         +'<div class="vc-sup-grid">'+pills+'</div>'
         +'<div class="vc-action">'
           +'<div class="vc-action-icon"></div>'
-          +'<div class="vc-action-text">'+escapeHtml(c.recommended_action.text||'')+'<div class="vc-action-impact">'+escapeHtml(c.recommended_action.impact_estimate||'')+'</div></div>'
-          +'<div class="vc-action-cta">'+escapeHtml(c.recommended_action.cta_label||'')+'</div>'
+          +'<div class="vc-action-text">'+escapeHtml(ra.text||'')+'<div class="vc-action-impact">'+escapeHtml(ra.impact_estimate||'')+'</div></div>'
+          +'<button class="vc-action-cta" data-action="'+_vcAttrEscape(ra.text||'')+'" onclick="cfSendFromAction(this)">'+escapeHtml(ra.cta_label||'')+'</button>'
         +'</div>'
       +'</div>'
       +'<div class="vc-card-right">'+buildMapGlyphHtml(c.location)+'</div>'
@@ -6776,11 +6776,13 @@ window.selectSupplierRecAction=function(el){
 function renderBlocks(blocks){
   var html='';
   blocks.forEach(function(block){
-    if(block.type==='incident_card'){html+=buildIncidentCardHtml(block.data);}
-    else if(block.type==='geo_exposure_card'){html+=buildGeoExposureHtml(block.data);}
-    else if(block.type==='tariff_exposure_card'){html+=buildTariffExposureHtml(block.data);}
-    else if(block.type==='follow_up_chips'){html+=buildChipsHtml(block.options);}
-    else if(block.type==='text'){html+='<p style="margin:8px 0">'+block.content+'</p>';}
+    try {
+      if(block.type==='incident_card'){html+=buildIncidentCardHtml(block.data);}
+      else if(block.type==='geo_exposure_card'){html+=buildGeoExposureHtml(block.data);}
+      else if(block.type==='tariff_exposure_card'){html+=buildTariffExposureHtml(block.data);}
+      else if(block.type==='follow_up_chips'){html+=buildChipsHtml(block.options);}
+      else if(block.type==='text'){html+='<p style="margin:8px 0">'+block.content+'</p>';}
+    } catch(e){console.error('renderBlocks error on type '+block.type+':', e.message);}
   });
   return html;
 }
@@ -6918,7 +6920,7 @@ async function cfSendMessage(userText){
     var tp=document.getElementById('cfTyping');if(tp)tp.remove();
     // Build full reply: real blocks or plain text
     var fullReply=reply;
-    if(localStorage.getItem('rs_visual_chat_dev')==='true'&&blocks.length>0){
+    if(blocks.length>0){
       fullReply+=renderBlocks(blocks);
     }
     cfAddMessage(_cfActiveConv,'ai',fullReply);
