@@ -48,6 +48,13 @@ const demoLimiter = rateLimit({
     message: { error: 'Too many requests, please try again later.' }
 });
 
+// OTP sign-in — tight per-IP limit to stop brute force on send + verify
+const otpLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { error: 'Too many sign-in attempts. Try again in 15 minutes.' }
+});
+
 // General limit on all routes
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -61,6 +68,8 @@ app.use('/api/price-extract', claudeLimiter);
 app.use('/api/terminal/news', claudeLimiter);
 app.use('/api/chat', chatLimiter);
 app.use('/api/demo-request', demoLimiter);
+app.use('/api/send-otp', otpLimiter);
+app.use('/api/verify-otp', otpLimiter);
 
 // Input sanitisation helper — strips HTML tags
 function stripHtml(str) {
@@ -1450,6 +1459,218 @@ app.post('/api/restore-access', async (req, res) => {
     console.error('[Restore Access] Error:', err);
     return res.status(500).json({ error: 'Server error, please try again' });
   }
+});
+
+// ============================================================
+// OTP SIGN-IN — two-step email verification
+// ============================================================
+
+const OTP_KEY     = e => `otp:${e}`;
+const OTP_SENDS   = e => `otp:sends:${e}`;
+const OTP_LOCKOUT = ip => `otp:lockout:${ip}`;
+
+// Shared Shopify plan-ID map (same set as /api/restore-access)
+const SHOPIFY_PLAN_IDS = {
+    'gid://shopify/SellingPlan/692427948370': 'pro',
+    'gid://shopify/SellingPlan/692434501970': 'pro',
+    'gid://shopify/SellingPlan/692427981138': 'enterprise',
+    'gid://shopify/SellingPlan/692442923346': 'enterprise'
+};
+
+app.post('/api/send-otp', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email || !email.includes('@')) {
+            return res.status(400).json({ error: 'Valid email required' });
+        }
+        const key = email.toLowerCase().trim();
+        const ip = req.ip;
+
+        // Fail closed — OTP requires Redis
+        if (!redisAvailable) {
+            return res.status(503).json({ error: 'Sign-in temporarily unavailable. Please try again later.' });
+        }
+
+        // IP lockout check
+        const locked = await redisCmd(['EXISTS', OTP_LOCKOUT(ip)]);
+        if (locked === 1) {
+            return res.status(429).json({ error: 'Too many failed attempts. Try again in 15 minutes.' });
+        }
+
+        // Per-email send rate limit: INCR-first so check+increment are one atomic sequence (no race)
+        const newSendCount = await redisCmd(['INCR', OTP_SENDS(key)]);
+        if (newSendCount === 1) {
+            await redisCmd(['EXPIRE', OTP_SENDS(key), '3600']);
+        }
+        if (newSendCount > 3) {
+            return res.status(429).json({ error: "You've requested the maximum codes for this email. Try again in an hour, or email info@risksim.ai for help." });
+        }
+
+        // Shopify lookup — verify customer and active subscription before issuing code
+        const token = await getShopifyAdminToken();
+        const shopDomain = 'risksim-ai.myshopify.com';
+
+        const customerRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
+            body: JSON.stringify({
+                query: `query getCustomerByEmail($query: String!) {
+                    customers(first: 1, query: $query) {
+                        edges { node { id email } }
+                    }
+                }`,
+                variables: { query: `email:${key}` }
+            })
+        });
+        const customerData = await customerRes.json();
+        const customer = customerData?.data?.customers?.edges?.[0]?.node;
+        if (!customer) {
+            return res.status(404).json({ error: 'No account found with this email' });
+        }
+
+        const ordersRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
+            body: JSON.stringify({
+                query: `query getCustomerOrders($customerId: ID!) {
+                    customer(id: $customerId) {
+                        orders(first: 20, sortKey: CREATED_AT, reverse: true) {
+                            edges {
+                                node {
+                                    cancelledAt
+                                    lineItems(first: 10) {
+                                        edges { node { sellingPlan { sellingPlanId } } }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }`,
+                variables: { customerId: customer.id }
+            })
+        });
+        const ordersData = await ordersRes.json();
+        const orders = ordersData?.data?.customer?.orders?.edges || [];
+        let plan = null;
+        for (const { node: order } of orders) {
+            if (order.cancelledAt) continue;
+            for (const { node: line } of (order.lineItems?.edges || [])) {
+                const pid = line.sellingPlan?.sellingPlanId;
+                if (pid && SHOPIFY_PLAN_IDS[pid]) { plan = SHOPIFY_PLAN_IDS[pid]; break; }
+            }
+            if (plan) break;
+        }
+        if (!plan) {
+            return res.status(404).json({ error: 'No active subscription found for this email' });
+        }
+
+        let profile = null;
+        try {
+            const profileRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
+                body: JSON.stringify({
+                    query: `query getCustomerProfile($customerId: ID!) {
+                        customer(id: $customerId) {
+                            metafield(namespace: "risksim", key: "profile") { value }
+                        }
+                    }`,
+                    variables: { customerId: customer.id }
+                })
+            });
+            const profileData = await profileRes.json();
+            const mv = profileData?.data?.customer?.metafield?.value;
+            if (mv) profile = JSON.parse(mv);
+        } catch (e) {
+            console.error('[send-otp] Profile fetch error:', e.message);
+        }
+
+        // Generate 6-digit code and store with plan/profile (avoids second Shopify round-trip at verify)
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        await redisCmd(['SET', OTP_KEY(key), JSON.stringify({ code, attempts: 0, plan, profile }), 'EX', '600']);
+
+        // Send OTP email
+        const otpHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px">
+  <div style="font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:28px">RISKSIM AI</div>
+  <p style="font-size:15px;color:rgba(255,255,255,0.85);margin:0 0 24px">Your sign-in code is:</p>
+  <div style="font-size:36px;font-weight:700;letter-spacing:0.15em;font-family:monospace;color:#fff;margin-bottom:24px">${code}</div>
+  <p style="font-size:13px;color:rgba(255,255,255,0.4);margin:0">It expires in 10 minutes. If you didn't request this, ignore this email.</p>
+</body></html>`;
+        const otpText = `Your RiskSim sign-in code is: ${code}\n\nIt expires in 10 minutes.\n\nIf you didn't request this, ignore this email.`;
+        await sendEmail(key, 'Your RiskSim sign-in code', otpHtml, otpText);
+
+        console.log('[send-otp] Code issued for:', key);
+        res.json({ otpSent: true });
+
+    } catch (err) {
+        console.error('[send-otp] Error:', err);
+        res.status(500).json({ error: 'Server error, please try again' });
+    }
+});
+
+app.post('/api/verify-otp', async (req, res) => {
+    try {
+        const { email, code } = req.body;
+        if (!email || !email.includes('@') || !code) {
+            return res.status(400).json({ error: 'Email and code required' });
+        }
+        const key = email.toLowerCase().trim();
+        const ip = req.ip;
+
+        if (!redisAvailable) {
+            return res.status(503).json({ error: 'Sign-in temporarily unavailable. Please try again later.' });
+        }
+
+        // IP lockout check
+        const locked = await redisCmd(['EXISTS', OTP_LOCKOUT(ip)]);
+        if (locked === 1) {
+            return res.status(429).json({ error: 'Too many failed attempts. Try again in 15 minutes.' });
+        }
+
+        // Fetch OTP record
+        const raw = await redisCmd(['GET', OTP_KEY(key)]);
+        if (!raw) {
+            return res.status(400).json({ error: 'Code expired or not found. Please request a new one.' });
+        }
+        const record = JSON.parse(raw);
+
+        // Safety net — should have been caught on previous attempts
+        if (record.attempts >= 5) {
+            await redisCmd(['SET', OTP_LOCKOUT(ip), '1', 'EX', '900']);
+            await redisCmd(['DEL', OTP_KEY(key)]);
+            return res.status(429).json({ error: 'Too many failed attempts. Try again in 15 minutes.' });
+        }
+
+        if (code !== record.code) {
+            const newAttempts = record.attempts + 1;
+
+            if (newAttempts >= 5) {
+                await redisCmd(['SET', OTP_LOCKOUT(ip), '1', 'EX', '900']);
+                await redisCmd(['DEL', OTP_KEY(key)]);
+                return res.status(429).json({ error: 'Too many failed attempts. Try again in 15 minutes.' });
+            }
+
+            // Preserve remaining TTL when writing back incremented attempts (spec requirement B)
+            const ttl = await redisCmd(['TTL', OTP_KEY(key)]);
+            if (!ttl || ttl < 1) {
+                return res.status(400).json({ error: 'Code expired. Please request a new one.' });
+            }
+            record.attempts = newAttempts;
+            await redisCmd(['SETEX', OTP_KEY(key), String(ttl), JSON.stringify(record)]);
+
+            return res.status(400).json({ error: 'Incorrect code.', attemptsLeft: 5 - newAttempts });
+        }
+
+        // Success
+        await redisCmd(['DEL', OTP_KEY(key)]);
+        console.log('[verify-otp] Success for:', key);
+        return res.json({ success: true, plan: record.plan, email: key, profile: record.profile });
+
+    } catch (err) {
+        console.error('[verify-otp] Error:', err);
+        res.status(500).json({ error: 'Server error, please try again' });
+    }
 });
 
 // ============================================================

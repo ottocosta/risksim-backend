@@ -3650,15 +3650,34 @@ window.addEventListener('keydown',__handleIntroKey,true);
 <!-- ===== RESTORE ACCESS MODAL ===== -->
 <div id="restoreModal">
   <div class="rm-box">
-    <span class="rm-label">Returning customer</span>
-    <div class="rm-title">Restore your access</div>
-    <div class="rm-sub">Enter the email you used at checkout. We'll verify your subscription with Shopify and unlock your account.</div>
-    <input class="rm-input" id="rmEmail" type="email" placeholder="you@company.com" autocomplete="email"
-      onkeydown="if(event.key==='Enter')submitLandingRestoreAccess()">
-    <div class="rm-error" id="rmError"></div>
-    <div class="rm-btns">
-      <button class="rm-btn-primary" id="rmSubmitBtn" onclick="submitLandingRestoreAccess()">Restore access</button>
-      <button class="rm-btn-cancel" onclick="closeRestoreModal()">Cancel</button>
+    <!-- Step 1: email -->
+    <div id="rm-step-email">
+      <span class="rm-label">Returning customer</span>
+      <div class="rm-title">Restore your access</div>
+      <div class="rm-sub">Enter the email you used at checkout. We'll send you a 6-digit sign-in code.</div>
+      <input class="rm-input" id="rmEmail" type="email" placeholder="you@company.com" autocomplete="email"
+        onkeydown="if(event.key==='Enter')submitLandingRestoreAccess()">
+      <div class="rm-error" id="rmError"></div>
+      <div class="rm-btns">
+        <button class="rm-btn-primary" id="rmSubmitBtn" onclick="submitLandingRestoreAccess()">Restore access</button>
+        <button class="rm-btn-cancel" onclick="closeRestoreModal()">Cancel</button>
+      </div>
+    </div>
+    <!-- Step 2: OTP -->
+    <div id="rm-step-otp" style="display:none">
+      <span class="rm-label">Check your email</span>
+      <div class="rm-title">Enter your code</div>
+      <div class="rm-sub" id="rmOtpSub">We sent a 6-digit code to your email. It expires in 10 minutes.</div>
+      <input class="rm-input" id="rmOtpInput" type="text" inputmode="numeric" maxlength="6" placeholder="123456"
+        autocomplete="one-time-code" oninput="rmOtpOnInput(this)">
+      <div class="rm-error" id="rmOtpError"></div>
+      <div class="rm-btns">
+        <button class="rm-btn-primary" id="rmOtpBtn" onclick="submitOtpCode()">Verify</button>
+        <button class="rm-btn-cancel" onclick="closeRestoreModal()">Cancel</button>
+      </div>
+      <div style="margin-top:0.8rem;text-align:center">
+        <a id="rmResend" onclick="resendOtp()" style="font-size:0.72rem;color:rgba(255,255,255,0.3);cursor:default;pointer-events:none;text-decoration:none;transition:color 0.15s">Didn't get it? Resend (60s)</a>
+      </div>
     </div>
   </div>
 </div>
@@ -9296,10 +9315,21 @@ function closeDemoUpgradeModal() {
 function openRestoreModal() {
   var m = document.getElementById('restoreModal');
   if (!m) return;
+  // Email step
   document.getElementById('rmEmail').value = '';
   document.getElementById('rmError').textContent = '';
   document.getElementById('rmSubmitBtn').disabled = false;
   document.getElementById('rmSubmitBtn').textContent = 'Restore access';
+  // OTP step
+  document.getElementById('rmOtpInput').value = '';
+  document.getElementById('rmOtpError').textContent = '';
+  document.getElementById('rmOtpBtn').disabled = false;
+  document.getElementById('rmOtpBtn').textContent = 'Verify';
+  _otpAutoSubmitGuard = false;
+  window._rmEmail = null;
+  // Show email step
+  document.getElementById('rm-step-email').style.display = '';
+  document.getElementById('rm-step-otp').style.display = 'none';
   m.classList.add('active');
   setTimeout(function() { document.getElementById('rmEmail').focus(); }, 80);
 }
@@ -9371,6 +9401,42 @@ async function submitDemoRequest() {
   }
 }
 
+// OTP state
+var _otpAutoSubmitGuard = false;
+var _resendTimer = null;
+
+function _handleRestoreSuccess(data) {
+  localStorage.setItem('risksim_paid', 'true');
+  localStorage.setItem('risksim_plan', data.plan);
+  localStorage.setItem('risksim_restored', 'true');
+  localStorage.removeItem('risksim_demo');
+  localStorage.removeItem('risksim_demo_banner_dismissed');
+  if (data.email) localStorage.setItem('risksim_email', data.email);
+  // Remember this device for 30 days
+  localStorage.setItem('risksim_authenticated_until', String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+  if (data.profile) {
+    var p = data.profile;
+    var src = p.sourcingCountries ? p.sourcingCountries.split(',').filter(Boolean) : [];
+    localStorage.setItem('risksim_profile', JSON.stringify({
+      userProfile: {
+        companyName: p.companyName || '',
+        country:     p.homeCountry || '',
+        industry:    p.industry || '',
+        employees:   p.companySize || '',
+        products:    p.products || '',
+        suppliers:   p.keySuppliers || '',
+        concern:     p.primaryConcern || '',
+        context:     p.businessDescription || '',
+        regions:     src.join(', ')
+      },
+      selectedSourcingCountries: src,
+      currentCategory: p.currentCategory || p.industry || 'technology'
+    }));
+  }
+  closeRestoreModal();
+  window.location.reload();
+}
+
 async function submitLandingRestoreAccess() {
   var emailInput = document.getElementById('rmEmail');
   var errorEl = document.getElementById('rmError');
@@ -9383,44 +9449,55 @@ async function submitLandingRestoreAccess() {
   }
   btn.disabled = true;
   btn.textContent = 'Checking…';
+
+  // Remembered device fast path — skip OTP if device was verified within 30 days
+  var until = parseInt(localStorage.getItem('risksim_authenticated_until') || '0', 10);
+  if (Date.now() < until) {
+    try {
+      var fastRes = await fetch('/api/restore-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      });
+      var fastData = await fastRes.json();
+      if (fastData.success && fastData.plan) {
+        _handleRestoreSuccess(fastData);
+      } else {
+        errorEl.textContent = (fastData.error || 'No active subscription found.') + ' Need help? Contact info@risksim.ai';
+        btn.disabled = false;
+        btn.textContent = 'Restore access';
+      }
+    } catch(err) {
+      errorEl.textContent = 'Connection error. Please try again.';
+      btn.disabled = false;
+      btn.textContent = 'Restore access';
+    }
+    return;
+  }
+
+  // New device — send OTP
   try {
-    var res = await fetch('/api/restore-access', {
+    var otpRes = await fetch('/api/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email })
     });
-    var data = await res.json();
-    if (data.success && data.plan) {
-      localStorage.setItem('risksim_paid', 'true');
-      localStorage.setItem('risksim_plan', data.plan);
-      localStorage.setItem('risksim_restored', 'true');
-      localStorage.removeItem('risksim_demo');
-      localStorage.removeItem('risksim_demo_banner_dismissed');
-      if (data.email) localStorage.setItem('risksim_email', data.email);
-      if (data.profile) {
-        var p = data.profile;
-        var src = p.sourcingCountries ? p.sourcingCountries.split(',').filter(Boolean) : [];
-        var restoredProfile = {
-          userProfile: {
-            companyName: p.companyName || '',
-            country:     p.homeCountry || '',
-            industry:    p.industry || '',
-            employees:   p.companySize || '',
-            products:    p.products || '',
-            suppliers:   p.keySuppliers || '',
-            concern:     p.primaryConcern || '',
-            context:     p.businessDescription || '',
-            regions:     src.join(', ')
-          },
-          selectedSourcingCountries: src,
-          currentCategory: p.currentCategory || p.industry || 'technology'
-        };
-        localStorage.setItem('risksim_profile', JSON.stringify(restoredProfile));
-      }
-      closeRestoreModal();
-      window.location.reload();
+    var otpData = await otpRes.json();
+    if (otpData.otpSent) {
+      window._rmEmail = email;
+      document.getElementById('rmOtpSub').textContent =
+        'We sent a 6-digit code to ' + email + '. It expires in 10 minutes.';
+      document.getElementById('rm-step-email').style.display = 'none';
+      document.getElementById('rm-step-otp').style.display = '';
+      document.getElementById('rmOtpInput').value = '';
+      document.getElementById('rmOtpError').textContent = '';
+      document.getElementById('rmOtpBtn').disabled = false;
+      document.getElementById('rmOtpBtn').textContent = 'Verify';
+      _otpAutoSubmitGuard = false;
+      _startResendCountdown();
+      setTimeout(function() { document.getElementById('rmOtpInput').focus(); }, 80);
     } else {
-      errorEl.textContent = (data.error || 'No active subscription found.') + ' Need help? Contact info@risksim.ai';
+      errorEl.textContent = (otpData.error || 'Failed to send code.') + ' Need help? Contact info@risksim.ai';
       btn.disabled = false;
       btn.textContent = 'Restore access';
     }
@@ -9429,6 +9506,106 @@ async function submitLandingRestoreAccess() {
     btn.disabled = false;
     btn.textContent = 'Restore access';
   }
+}
+
+// OTP input: auto-submit when 6 digits entered, guard fires once per entry
+function rmOtpOnInput(el) {
+  if (el.value.length < 6) { _otpAutoSubmitGuard = false; return; }
+  if (el.value.length === 6 && !_otpAutoSubmitGuard) {
+    _otpAutoSubmitGuard = true;
+    submitOtpCode();
+  }
+}
+
+async function submitOtpCode() {
+  var otpInput = document.getElementById('rmOtpInput');
+  var errorEl = document.getElementById('rmOtpError');
+  var btn = document.getElementById('rmOtpBtn');
+  var code = otpInput ? otpInput.value.trim() : '';
+  errorEl.textContent = '';
+  if (!code || code.length !== 6) {
+    errorEl.textContent = 'Please enter the 6-digit code.';
+    return;
+  }
+  if (!window._rmEmail) {
+    errorEl.textContent = 'Session lost — please start over.';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Verifying…';
+  _otpAutoSubmitGuard = false;
+  try {
+    var verRes = await fetch('/api/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: window._rmEmail, code: code })
+    });
+    var verData = await verRes.json();
+    if (verData.success && verData.plan) {
+      _handleRestoreSuccess(verData);
+    } else {
+      var msg = verData.error || 'Incorrect code.';
+      if (verData.attemptsLeft !== undefined) {
+        msg += ' ' + verData.attemptsLeft + ' attempt' + (verData.attemptsLeft === 1 ? '' : 's') + ' remaining.';
+      }
+      errorEl.textContent = msg;
+      btn.disabled = false;
+      btn.textContent = 'Verify';
+      otpInput.value = '';
+      otpInput.focus();
+    }
+  } catch(err) {
+    errorEl.textContent = 'Connection error. Please try again.';
+    btn.disabled = false;
+    btn.textContent = 'Verify';
+  }
+}
+
+async function resendOtp() {
+  if (!window._rmEmail) return;
+  var errorEl = document.getElementById('rmOtpError');
+  errorEl.textContent = '';
+  try {
+    var resendRes = await fetch('/api/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: window._rmEmail })
+    });
+    var resendData = await resendRes.json();
+    if (resendData.otpSent) {
+      document.getElementById('rmOtpInput').value = '';
+      _otpAutoSubmitGuard = false;
+      _startResendCountdown();
+    } else {
+      errorEl.textContent = resendData.error || 'Failed to resend. Please try again.';
+    }
+  } catch(err) {
+    errorEl.textContent = 'Connection error. Please try again.';
+  }
+}
+
+function _startResendCountdown() {
+  var resendEl = document.getElementById('rmResend');
+  if (!resendEl) return;
+  if (_resendTimer) clearInterval(_resendTimer);
+  resendEl.style.pointerEvents = 'none';
+  resendEl.style.color = 'rgba(255,255,255,0.3)';
+  resendEl.style.cursor = 'default';
+  var secs = 60;
+  resendEl.textContent = "Didn't get it? Resend (" + secs + 's)';
+  _resendTimer = setInterval(function() {
+    secs--;
+    if (secs <= 0) {
+      clearInterval(_resendTimer);
+      _resendTimer = null;
+      resendEl.textContent = "Didn't get it? Resend";
+      resendEl.style.pointerEvents = '';
+      resendEl.style.color = 'rgba(255,255,255,0.55)';
+      resendEl.style.cursor = 'pointer';
+    } else {
+      resendEl.textContent = "Didn't get it? Resend (" + secs + 's)';
+    }
+  }, 1000);
 }
 
 function lpStartTrialFromApp() {
