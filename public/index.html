@@ -1359,14 +1359,13 @@
     .cf-messages { flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:12px; max-width:960px; width:100%; margin:0 auto; }
     .cf-messages::-webkit-scrollbar { width:4px; }
     .cf-messages::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:4px; }
-    .cf-msg { max-width:75%; padding:14px 18px; border-radius:16px; font-size:13px; line-height:1.65; animation:cfSlideUp 0.3s cubic-bezier(0.16,1,0.3,1) forwards; word-wrap:break-word; }
-    .cf-msg.user { align-self:flex-end; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; border-bottom-right-radius:4px; }
-    .cf-msg.ai { align-self:flex-start; background:rgba(255,255,255,0.03); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.06); color:rgba(255,255,255,0.75); border-bottom-left-radius:4px; }
-    .cf-msg.ai .cf-msg-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.12em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:6px; display:block; }
-    .cf-typing { display:flex; gap:4px; align-items:center; padding:4px 0; }
-    .cf-typing-dot { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.4); animation:typingDot 1.2s ease-in-out infinite; }
-    .cf-typing-dot:nth-child(2) { animation-delay:0.2s; }
-    .cf-typing-dot:nth-child(3) { animation-delay:0.4s; }
+    .cf-msg { max-width:100%; padding:0; border-radius:0; font-size:13px; line-height:1.65; animation:cfSlideUp 0.3s cubic-bezier(0.16,1,0.3,1) forwards; word-wrap:break-word; }
+    .cf-msg.user { align-self:flex-start; background:none; border:none; border-bottom:1px solid rgba(255,255,255,0.07); color:rgba(255,255,255,0.4); font-size:12px; font-family:var(--font-mono); letter-spacing:0.03em; padding:0 0 14px; }
+    .cf-msg.ai { align-self:flex-start; background:none; border:none; color:rgba(255,255,255,0.82); padding:6px 0 32px; }
+    .cf-msg.ai .cf-msg-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.12em; color:rgba(255,255,255,0.18); text-transform:uppercase; margin-bottom:10px; display:block; }
+    @keyframes cfSpin { to { transform:rotate(360deg); } }
+    .cf-spinner-wrap { display:flex; align-items:center; padding:20px 0; }
+    .cf-spinner { width:18px; height:18px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.1); border-top-color:rgba(255,255,255,0.5); animation:cfSpin 2s linear infinite; }
 
     /* Visual Chat — Incident Card */
     .vc-card { margin-top:12px; border-radius:14px; background:#0a0c10; border:1px solid rgba(200,55,40,0.45); box-shadow:0 0 28px rgba(200,55,40,0.18); overflow:hidden; font-size:12px; width:100%; max-width:900px; }
@@ -1514,7 +1513,6 @@
       .cf-sidebar { position:absolute; left:0; top:0; bottom:0; z-index:10; transform:translateX(-100%); transition:transform 0.3s cubic-bezier(0.16,1,0.3,1); }
       .cf-sidebar.cf-sb-open { transform:translateX(0); box-shadow:8px 0 32px rgba(0,0,0,0.5); }
       .cf-mobile-toggle { display:flex; }
-      .cf-msg { max-width:90%; }
     }
 
     /* ===== SIMULATOR MODULE ===== */
@@ -6901,7 +6899,7 @@ async function cfSendMessage(userText){
   var typingDiv=document.createElement('div');
   typingDiv.className='cf-msg ai';
   typingDiv.id='cfTyping';
-  typingDiv.innerHTML='<span class="cf-msg-label">RiskSim AI</span><div class="cf-typing"><div class="cf-typing-dot"></div><div class="cf-typing-dot"></div><div class="cf-typing-dot"></div></div>';
+  typingDiv.innerHTML='<div class="cf-spinner-wrap"><div class="cf-spinner"></div></div>';
   msgEl.appendChild(typingDiv);
   msgEl.scrollTop=msgEl.scrollHeight;
 
@@ -6915,6 +6913,7 @@ async function cfSendMessage(userText){
     var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:body});
     var d=await r.json();
     var reply=d.reply||d.response||d.error||'Unable to process.';
+    reply=reply.replace(/\n\n+/g,'<br><br>').replace(/\n/g,'<br>');
     var blocks=Array.isArray(d.blocks)?d.blocks:[];
     // Remove typing
     var tp=document.getElementById('cfTyping');if(tp)tp.remove();
