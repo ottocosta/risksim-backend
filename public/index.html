@@ -1365,7 +1365,7 @@
     .cf-msg.ai .cf-msg-label { font-family:var(--font-mono); font-size:8px; letter-spacing:0.12em; color:rgba(255,255,255,0.18); text-transform:uppercase; margin-bottom:10px; display:block; }
     @keyframes cfSpin { to { transform:rotate(360deg); } }
     .cf-spinner-wrap { display:flex; align-items:center; padding:20px 0; }
-    .cf-spinner { width:18px; height:18px; border-radius:50%; border:1.5px solid rgba(255,255,255,0.1); border-top-color:rgba(255,255,255,0.5); animation:cfSpin 2s linear infinite; }
+    .cf-spinner { width:28px; height:28px; animation:cfSpin 2s linear infinite; opacity:0.6; }
 
     /* Visual Chat — Incident Card */
     .vc-card { margin-top:12px; border-radius:14px; background:#0a0c10; border:1px solid rgba(200,55,40,0.45); box-shadow:0 0 28px rgba(200,55,40,0.18); overflow:hidden; font-size:12px; width:100%; max-width:900px; }
@@ -6899,7 +6899,7 @@ async function cfSendMessage(userText){
   var typingDiv=document.createElement('div');
   typingDiv.className='cf-msg ai';
   typingDiv.id='cfTyping';
-  typingDiv.innerHTML='<div class="cf-spinner-wrap"><div class="cf-spinner"></div></div>';
+  typingDiv.innerHTML='<div class="cf-spinner-wrap"><img src="/lgogog.jpg" class="cf-spinner" alt="" /></div>';
   msgEl.appendChild(typingDiv);
   msgEl.scrollTop=msgEl.scrollHeight;
 
