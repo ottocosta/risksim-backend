@@ -3038,20 +3038,6 @@ function dismissReviewerSplash() {
   localStorage.setItem('risksim_reviewer_splash_seen', 'true');
 }
 function _completeReviewerSignIn() {
-  var _rvwProfile = JSON.stringify({
-    businessName: 'Banana Art',
-    industry: 'Electronics / Tech',
-    homeCountry: 'United States',
-    companyType: 'Retailer',
-    annualRevenue: '$4M',
-    employees: '1-10',
-    sourcingCountries: ['China', 'Taiwan'],
-    productsServices: 'Electronic components (semiconductors, PCB assemblies, connectors)',
-    topSuppliers: 'Foxconn, Oneyac Electronics',
-    additionalContext: 'US-based electronics reseller ($4M annual revenue, 1-10 employees) supplying smaller US OEMs and repair shops with components that our customers can\'t source at their volumes through tier-1 distributors like Digi-Key or Mouser. Volume mostly SMD, legacy chip inventory, PCB assemblies, passive components, and connectors.\n\nSourcing split roughly 60% China (Oneyac Electronics for broad component catalog plus a couple of secondary Shenzhen distributors for spot buys) and 40% Taiwan (Foxconn for higher-quality subassembly work). Annual sourcing spend around $1M-$5M, growing.\n\nMain risk concentration: Oneyac. Lowest-cost source on ~40% of our SKUs. If they get hit by tariffs or export restrictions we don\'t have another China supplier at their price point. Would need 3-4 months to qualify alternates and pricing would jump 15-20% in the meantime. Foxconn less exposed since Taiwan operations are more insulated from PRC-specific tariff shifts.\n\nSea freight from Shenzhen and Kaohsiung into Long Beach and Los Angeles, then truck to our Midwest warehouse. 30-45 days door-to-door. Very sensitive to US West Coast port disruption. Also using air freight for time-critical or lower-volume SKUs.\n\nTariff exposure has been our biggest surprise pain since 2025. Chinese electronics hit repeatedly and we\'ve been caught twice with in-transit shipments where the duty rate changed between order and arrival. We track USTR announcements manually now but we\'re always reacting, never ahead.\n\nNo supply chain analyst, no procurement team. Me and one part-time ops person handling all sourcing decisions. Built risksim to have something that reads the world and tells us what to actually do about our specific supply chain, not generic AI advice.',
-    email: 'reviewer@banana-art.example',
-    plan: 'enterprise'
-  });
   var _rvwEP = JSON.stringify({
     productCategories: [{broadCategory: 'Electronics', subCategory: 'Consumer Electronics'}],
     spendBand: '$1M-$5M',
@@ -3077,7 +3063,23 @@ function _completeReviewerSignIn() {
   localStorage.setItem('risksim_email', 'reviewer@banana-art.example');
   localStorage.setItem('risksim_authenticated_until', String(Date.now() + 30 * 24 * 60 * 60 * 1000));
   localStorage.setItem('risksim_reviewer_mode', 'true');
-  localStorage.setItem('risksim_profile', _rvwProfile);
+  localStorage.setItem('risksim_profile', JSON.stringify({
+    userProfile: {
+      companyName: 'Banana Art',
+      country: 'United States',
+      type: 'retailer',
+      industry: 'technology',
+      revenue: '1m10m',
+      employees: '1-10',
+      products: 'Electronic components (semiconductors, PCB assemblies, connectors)',
+      suppliers: 'Foxconn, Oneyac Electronics',
+      concern: 'tariffs',
+      context: 'US-based electronics reseller ($4M annual revenue, 1-10 employees) supplying smaller US OEMs and repair shops with components that our customers can\'t source at their volumes through tier-1 distributors like Digi-Key or Mouser. Volume mostly SMD, legacy chip inventory, PCB assemblies, passive components, and connectors.\n\nSourcing split roughly 60% China (Oneyac Electronics for broad component catalog plus a couple of secondary Shenzhen distributors for spot buys) and 40% Taiwan (Foxconn for higher-quality subassembly work). Annual sourcing spend around $1M-$5M, growing.\n\nMain risk concentration: Oneyac. Lowest-cost source on ~40% of our SKUs. If they get hit by tariffs or export restrictions we don\'t have another China supplier at their price point. Would need 3-4 months to qualify alternates and pricing would jump 15-20% in the meantime. Foxconn less exposed since Taiwan operations are more insulated from PRC-specific tariff shifts.\n\nSea freight from Shenzhen and Kaohsiung into Long Beach and Los Angeles, then truck to our Midwest warehouse. 30-45 days door-to-door. Very sensitive to US West Coast port disruption. Also using air freight for time-critical or lower-volume SKUs.\n\nTariff exposure has been our biggest surprise pain since 2025. Chinese electronics hit repeatedly and we\'ve been caught twice with in-transit shipments where the duty rate changed between order and arrival. We track USTR announcements manually now but we\'re always reacting, never ahead.\n\nNo supply chain analyst, no procurement team. Me and one part-time ops person handling all sourcing decisions. Built risksim to have something that reads the world and tells us what to actually do about our specific supply chain, not generic AI advice.',
+      regions: 'China, Taiwan'
+    },
+    selectedSourcingCountries: ['China', 'Taiwan'],
+    currentCategory: 'technology'
+  }));
   localStorage.setItem('risksim_enterprise_profile', _rvwEP);
   localStorage.setItem('risksim_enterprise_profile_complete', 'true');
   localStorage.setItem('risksim_reviewer_password_verified', 'true');
