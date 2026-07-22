@@ -3083,6 +3083,7 @@ function _completeReviewerSignIn() {
   localStorage.setItem('risksim_reviewer_password_verified', 'true');
   localStorage.setItem('risksim_onboarding_done', 'true');
   localStorage.setItem('risksim_onboarding_complete', 'true');
+  window.location.reload();
 }
 function openReviewerPasswordStep() {
   _rmMode = 'reviewer';
@@ -3122,8 +3123,6 @@ function submitReviewerModalPassword() {
   .then(function(res) {
     if (res.status === 200 && res.data.success) {
       _completeReviewerSignIn();
-      closeRestoreModal();
-      window.location.reload();
     } else if (res.status === 429) {
       err.textContent = res.data.error || 'Too many attempts. Try again in 10 minutes.';
       err.style.display = 'block';
