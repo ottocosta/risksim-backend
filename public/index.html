@@ -4538,6 +4538,30 @@ var COUNTRY_DATA=[{name:'North Korea',lat:40.3,lng:127.5,risk:98,shipping:9,labo
 ,{name:'Ecuador',lat:-1.8,lng:-78.2,risk:58,shipping:5,labor:3,tariff:10,infra:5,costIndex:38,mfgCapacity:15,exportInfra:30,supplierDensity:10,leadTimeReliability:38,sourcing:{technology:4,textiles:8,generalMfg:12,consumerGoods:8,automotive:3,pharma:5}},{name:'Finland',lat:61.9,lng:25.7,risk:12,shipping:4,labor:8,tariff:3,infra:9,costIndex:52,mfgCapacity:42,exportInfra:68,supplierDensity:35,leadTimeReliability:85,sourcing:{technology:35,textiles:5,generalMfg:32,consumerGoods:18,automotive:10,pharma:25}},{name:'Sweden',lat:60.1,lng:18.6,risk:10,shipping:4,labor:8,tariff:3,infra:9,costIndex:55,mfgCapacity:55,exportInfra:75,supplierDensity:48,leadTimeReliability:88,sourcing:{technology:45,textiles:8,generalMfg:48,consumerGoods:30,automotive:55,pharma:40}},{name:'Norway',lat:60.5,lng:8.5,risk:8,shipping:4,labor:9,tariff:3,infra:9,costIndex:62,mfgCapacity:30,exportInfra:65,supplierDensity:22,leadTimeReliability:88,sourcing:{technology:28,textiles:3,generalMfg:22,consumerGoods:12,automotive:8,pharma:18}},{name:'Denmark',lat:56.3,lng:9.5,risk:10,shipping:4,labor:8,tariff:3,infra:9,costIndex:55,mfgCapacity:45,exportInfra:72,supplierDensity:38,leadTimeReliability:90,sourcing:{technology:32,textiles:5,generalMfg:35,consumerGoods:22,automotive:12,pharma:55}},{name:'Iceland',lat:64.9,lng:-19.0,risk:6,shipping:5,labor:9,tariff:3,infra:8,costIndex:68,mfgCapacity:8,exportInfra:30,supplierDensity:5,leadTimeReliability:80,sourcing:{technology:12,textiles:2,generalMfg:5,consumerGoods:5,automotive:1,pharma:8}}];
 var COUNTRY_MAP=(function(){var m={};for(var i=0;i<COUNTRY_DATA.length;i++)m[COUNTRY_DATA[i].name]=COUNTRY_DATA[i];return m;})();
 
+// ===== REGIONAL MAP DATA (personalised per home trade region) =====
+// Fetches the region-appropriate dataset from the backend and swaps it in for the
+// inline COUNTRY_DATA baseline (which is the "us" region). Fully guarded: on any
+// failure, or for anonymous / US users, the inline baseline is kept, so the map
+// behaves exactly as before. userProfile.regionOverride (Settings) wins over the
+// derived home-country region.
+window.currentMapRegion='us';
+function loadRegionalMapData(){
+  try{
+    var override=(userProfile&&userProfile.regionOverride)||'';
+    var country=(userProfile&&userProfile.country)||'';
+    if(!override&&!country)return; // anonymous -> keep inline "us" baseline
+    var qs=override?('region='+encodeURIComponent(override)):('country='+encodeURIComponent(country));
+    fetch('/api/map-data?'+qs).then(function(r){return r.json();}).then(function(res){
+      if(!res||!Array.isArray(res.data)||!res.data.length)return; // keep baseline on bad payload
+      COUNTRY_DATA=res.data;
+      COUNTRY_MAP=(function(){var m={};for(var i=0;i<COUNTRY_DATA.length;i++)m[COUNTRY_DATA[i].name]=COUNTRY_DATA[i];return m;})();
+      window.currentMapRegion=res.region;
+      if(map&&typeof renderMarkers==='function'){renderMarkers();if(typeof buildLegend==='function')buildLegend(currentLayer);}
+      console.log('[Map] Regional dataset applied:',res.region,'('+res.data.length+' countries)');
+    })['catch'](function(){/* network error -> keep inline baseline */});
+  }catch(e){/* keep inline baseline */}
+}
+
 var LAYER_CONFIG={risk:{name:'Risk Levels',sub:'Geopolitical & operational risk by country',legendTitle:'Risk Score',items:[{color:'#ff1a4a',label:'Critical (80–100)'},{color:'#ff8c00',label:'High (60–79)'},{color:'#f5c518',label:'Medium-High (45–59)'},{color:'#8bc34a',label:'Medium (30–44)'},{color:'#00e676',label:'Low-Medium (15–29)'},{color:'#00e5ff',label:'Low (0–14)'}]},shipping:{name:'Shipping Cost',sub:'Relative container shipping cost index',legendTitle:'Shipping Cost',items:[{color:'#ff1a4a',label:'Very High (9–10)'},{color:'#ff8c00',label:'High (7–8)'},{color:'#f5c518',label:'Moderate (5–6)'},{color:'#00e676',label:'Low (3–4)'},{color:'#00e5ff',label:'Very Low (1–2)'}]},labor:{name:'Labor Cost',sub:'Relative labor cost index',legendTitle:'Labor Cost',items:[{color:'#ff1a4a',label:'Very High (9–10)'},{color:'#ff8c00',label:'High (7–8)'},{color:'#f5c518',label:'Moderate (5–6)'},{color:'#00e676',label:'Low (3–4)'},{color:'#00e5ff',label:'Very Low (1–2)'}]},cost:{name:'Total Cost Index',sub:'Combined tariff, shipping, labor & infrastructure cost',legendTitle:'Cost Index',items:[{color:'#ff1a4a',label:'Very High (70–100)'},{color:'#ff8c00',label:'High (50–69)'},{color:'#f5c518',label:'Moderate (35–49)'},{color:'#8bc34a',label:'Below Average (25–34)'},{color:'#00e676',label:'Low (15–24)'},{color:'#00e5ff',label:'Very Low (0–14)'}]},sourcing:{name:'Sourcing Attractiveness',sub:'How attractive each country is as a sourcing destination',legendTitle:'Sourcing Attractiveness',items:[{color:'#00e5ff',label:'Top Tier (80–100)'},{color:'#00e676',label:'Strong (60–79)'},{color:'#8bc34a',label:'Good (40–59)'},{color:'#f5c518',label:'Moderate (20–39)'},{color:'#ff8c00',label:'Limited (10–19)'},{color:'#ff1a4a',label:'Minimal (0–9)'}]}};
 
 function getRiskColor(s){return s>=80?'#ff1a4a':s>=60?'#ff8c00':s>=45?'#f5c518':s>=30?'#8bc34a':s>=15?'#00e676':'#00e5ff';}
@@ -4568,6 +4592,7 @@ function handleOnboardSubmit(){
   saveProfileToStorage();
   document.getElementById('onboardingPanel').style.display='none';
   renderMarkers();
+  loadRegionalMapData();
   updateHeroStats();
   renderProfileContent();
   var g='Welcome! Profile set';if(type)g+=' as '+type;if(selectedSourcingCountries.length)g+=' sourcing from '+selectedSourcingCountries.join(', ');g+='. How can I help?';addAIMessage(g);
@@ -5004,6 +5029,7 @@ async function sendMessage(userText){if(!checkPaywall('AI Chat'))return;addUserM
 
 document.addEventListener('DOMContentLoaded',function(){
   initMap();
+  loadRegionalMapData();
   initGlassTilt();
   initOnboardScrollIndicator();
   // Sync onboarding chips if profile was loaded from localStorage

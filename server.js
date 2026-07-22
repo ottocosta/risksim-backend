@@ -267,6 +267,358 @@ function requireDataKey(req, res, next) {
     next();
 }
 
+// ============================================================================
+// REGIONAL MAP DATA  (Regional Map Data Project -- Day 1 scaffold)
+// ----------------------------------------------------------------------------
+// The Risk Intelligence Map is rendered client-side from an inline COUNTRY_DATA
+// array in public/index.html. This module makes that dataset region-aware so an
+// authenticated user can see supply-chain intelligence calibrated to their own
+// home trade region rather than the default US import lens.
+//
+// Model:
+//   - US_MAP_DATA is a verbatim copy of the current inline COUNTRY_DATA (85
+//     countries). It IS the "us" region, so unauthenticated / US-assigned users
+//     see byte-identical data to today (no behaviour change for existing users).
+//   - regionalMapData holds one dataset per region. Region-specific values
+//     (importer-relative tariff, proximity-based shipping cost, combined
+//     costIndex) are calibrated per region; intrinsic country attributes
+//     (risk, labor, infra, mfgCapacity, sourcing, coordinates) stay constant.
+//   - Day 1 populates ONLY "us". The other 7 regions are scaffolded here and
+//     populated in Day 2.
+//
+// Schema of one record (unchanged from the frontend):
+//   { name, lat, lng, risk(0-100), shipping(1-10), labor(1-10), tariff(%),
+//     infra(1-10), costIndex(0-100), mfgCapacity, exportInfra, supplierDensity,
+//     leadTimeReliability, sourcing:{technology,textiles,generalMfg,
+//     consumerGoods,automotive,pharma} }
+// ============================================================================
+
+const US_MAP_DATA = [
+    {name:'North Korea',lat:40.3,lng:127.5,risk:98,shipping:9,labor:4,tariff:25,infra:3,costIndex:80,mfgCapacity:5,exportInfra:2,supplierDensity:2,leadTimeReliability:10,sourcing:{technology:2,textiles:3,generalMfg:3,consumerGoods:2,automotive:1,pharma:1}},
+    {name:'Russia',lat:61.5,lng:90,risk:95,shipping:8,labor:5,tariff:35,infra:6,costIndex:75,mfgCapacity:55,exportInfra:50,supplierDensity:45,leadTimeReliability:40,sourcing:{technology:10,textiles:5,generalMfg:25,consumerGoods:10,automotive:15,pharma:20}},
+    {name:'Iran',lat:32.4,lng:53.7,risk:93,shipping:7,labor:4,tariff:30,infra:5,costIndex:72,mfgCapacity:25,exportInfra:20,supplierDensity:18,leadTimeReliability:25,sourcing:{technology:5,textiles:15,generalMfg:15,consumerGoods:8,automotive:10,pharma:12}},
+    {name:'Venezuela',lat:6.4,lng:-66.6,risk:89,shipping:6,labor:3,tariff:25,infra:3,costIndex:72,mfgCapacity:15,exportInfra:20,supplierDensity:10,leadTimeReliability:20,sourcing:{technology:3,textiles:5,generalMfg:8,consumerGoods:5,automotive:5,pharma:5}},
+    {name:'Iraq',lat:33.2,lng:43.7,risk:88,shipping:7,labor:3,tariff:15,infra:3,costIndex:70,mfgCapacity:10,exportInfra:15,supplierDensity:8,leadTimeReliability:15,sourcing:{technology:2,textiles:3,generalMfg:5,consumerGoods:3,automotive:2,pharma:5}},
+    {name:'Ukraine',lat:48.4,lng:31.2,risk:88,shipping:5,labor:3,tariff:10,infra:6,costIndex:60,mfgCapacity:35,exportInfra:40,supplierDensity:30,leadTimeReliability:25,sourcing:{technology:15,textiles:10,generalMfg:20,consumerGoods:10,automotive:15,pharma:10}},
+    {name:'Myanmar',lat:17.1,lng:95.9,risk:85,shipping:8,labor:2,tariff:15,infra:3,costIndex:58,mfgCapacity:18,exportInfra:15,supplierDensity:12,leadTimeReliability:20,sourcing:{technology:2,textiles:25,generalMfg:10,consumerGoods:8,automotive:1,pharma:2}},
+    {name:'Lebanon',lat:33.9,lng:35.5,risk:79,shipping:6,labor:4,tariff:15,infra:4,costIndex:65,mfgCapacity:8,exportInfra:15,supplierDensity:5,leadTimeReliability:10,sourcing:{technology:5,textiles:5,generalMfg:5,consumerGoods:5,automotive:2,pharma:8}},
+    {name:'China',lat:35.8,lng:104.2,risk:28,shipping:7,labor:3,tariff:25,infra:7,costIndex:30,mfgCapacity:98,exportInfra:95,supplierDensity:99,leadTimeReliability:80,sourcing:{technology:95,textiles:75,generalMfg:95,consumerGoods:92,automotive:70,pharma:65}},
+    {name:'Pakistan',lat:30.4,lng:69.3,risk:76,shipping:8,labor:2,tariff:17,infra:4,costIndex:55,mfgCapacity:40,exportInfra:35,supplierDensity:35,leadTimeReliability:45,sourcing:{technology:10,textiles:60,generalMfg:30,consumerGoods:25,automotive:8,pharma:15}},
+    {name:'Nigeria',lat:9.1,lng:8.7,risk:72,shipping:7,labor:2,tariff:20,infra:4,costIndex:58,mfgCapacity:15,exportInfra:20,supplierDensity:12,leadTimeReliability:30,sourcing:{technology:3,textiles:10,generalMfg:10,consumerGoods:8,automotive:3,pharma:5}},
+    {name:'India',lat:20.6,lng:79,risk:35,shipping:7,labor:2,tariff:10,infra:6,costIndex:25,mfgCapacity:80,exportInfra:68,supplierDensity:75,leadTimeReliability:60,sourcing:{technology:45,textiles:70,generalMfg:72,consumerGoods:65,automotive:50,pharma:92}},
+    {name:'Turkey',lat:38.9,lng:35.2,risk:42,shipping:5,labor:4,tariff:5,infra:7,costIndex:32,mfgCapacity:60,exportInfra:65,supplierDensity:55,leadTimeReliability:65,sourcing:{technology:20,textiles:70,generalMfg:55,consumerGoods:40,automotive:55,pharma:20}},
+    {name:'Bangladesh',lat:23.7,lng:90.4,risk:62,shipping:8,labor:1,tariff:12,infra:5,costIndex:42,mfgCapacity:60,exportInfra:50,supplierDensity:55,leadTimeReliability:55,sourcing:{technology:5,textiles:88,generalMfg:30,consumerGoods:35,automotive:3,pharma:5}},
+    {name:'Vietnam',lat:14.1,lng:108.3,risk:32,shipping:7,labor:2,tariff:6,infra:6,costIndex:22,mfgCapacity:72,exportInfra:70,supplierDensity:65,leadTimeReliability:65,sourcing:{technology:55,textiles:85,generalMfg:65,consumerGoods:62,automotive:20,pharma:10}},
+    {name:'Thailand',lat:15.9,lng:100.9,risk:30,shipping:7,labor:3,tariff:5,infra:7,costIndex:24,mfgCapacity:65,exportInfra:70,supplierDensity:58,leadTimeReliability:70,sourcing:{technology:40,textiles:30,generalMfg:55,consumerGoods:55,automotive:60,pharma:15}},
+    {name:'Indonesia',lat:-0.8,lng:113.9,risk:38,shipping:7,labor:2,tariff:10,infra:5,costIndex:28,mfgCapacity:55,exportInfra:50,supplierDensity:45,leadTimeReliability:55,sourcing:{technology:15,textiles:40,generalMfg:40,consumerGoods:45,automotive:25,pharma:10}},
+    {name:'Cambodia',lat:12.6,lng:104.9,risk:48,shipping:8,labor:2,tariff:12,infra:4,costIndex:38,mfgCapacity:30,exportInfra:30,supplierDensity:25,leadTimeReliability:50,sourcing:{technology:5,textiles:65,generalMfg:22,consumerGoods:18,automotive:2,pharma:3}},
+    {name:'Brazil',lat:-14.2,lng:-51.9,risk:50,shipping:6,labor:4,tariff:18,infra:6,costIndex:42,mfgCapacity:60,exportInfra:60,supplierDensity:55,leadTimeReliability:55,sourcing:{technology:20,textiles:25,generalMfg:50,consumerGoods:35,automotive:45,pharma:30}},
+    {name:'Mexico',lat:23.6,lng:-102.6,risk:42,shipping:4,labor:3,tariff:2,infra:7,costIndex:25,mfgCapacity:78,exportInfra:80,supplierDensity:72,leadTimeReliability:70,sourcing:{technology:35,textiles:30,generalMfg:78,consumerGoods:45,automotive:88,pharma:15}},
+    {name:'Romania',lat:45.9,lng:24.9,risk:22,shipping:5,labor:4,tariff:3,infra:7,costIndex:26,mfgCapacity:40,exportInfra:50,supplierDensity:35,leadTimeReliability:65,sourcing:{technology:20,textiles:30,generalMfg:35,consumerGoods:25,automotive:50,pharma:20}},
+    {name:'UAE',lat:23.4,lng:53.8,risk:30,shipping:6,labor:5,tariff:5,infra:9,costIndex:32,mfgCapacity:25,exportInfra:75,supplierDensity:20,leadTimeReliability:75,sourcing:{technology:10,textiles:5,generalMfg:18,consumerGoods:15,automotive:5,pharma:12}},
+    {name:'South Korea',lat:35.9,lng:127.8,risk:28,shipping:7,labor:6,tariff:3,infra:9,costIndex:35,mfgCapacity:85,exportInfra:90,supplierDensity:82,leadTimeReliability:88,sourcing:{technology:88,textiles:10,generalMfg:70,consumerGoods:55,automotive:80,pharma:30}},
+    {name:'Taiwan',lat:23.7,lng:120.9,risk:45,shipping:7,labor:6,tariff:5,infra:9,costIndex:30,mfgCapacity:82,exportInfra:88,supplierDensity:80,leadTimeReliability:85,sourcing:{technology:95,textiles:10,generalMfg:55,consumerGoods:40,automotive:25,pharma:20}},
+    {name:'Czech Republic',lat:49.8,lng:15.5,risk:16,shipping:5,labor:5,tariff:3,infra:8,costIndex:26,mfgCapacity:55,exportInfra:65,supplierDensity:48,leadTimeReliability:75,sourcing:{technology:28,textiles:12,generalMfg:50,consumerGoods:30,automotive:72,pharma:30}},
+    {name:'United States',lat:37.1,lng:-95.7,risk:18,shipping:4,labor:9,tariff:0,infra:9,costIndex:45,mfgCapacity:80,exportInfra:88,supplierDensity:75,leadTimeReliability:90,sourcing:{technology:70,textiles:8,generalMfg:65,consumerGoods:55,automotive:60,pharma:70}},
+    {name:'Germany',lat:51.2,lng:10.4,risk:14,shipping:5,labor:8,tariff:3,infra:9,costIndex:48,mfgCapacity:90,exportInfra:92,supplierDensity:88,leadTimeReliability:92,sourcing:{technology:72,textiles:10,generalMfg:78,consumerGoods:55,automotive:95,pharma:65}},
+    {name:'Japan',lat:36.2,lng:138.3,risk:18,shipping:7,labor:8,tariff:3,infra:9,costIndex:50,mfgCapacity:88,exportInfra:90,supplierDensity:85,leadTimeReliability:85,sourcing:{technology:88,textiles:10,generalMfg:75,consumerGoods:60,automotive:92,pharma:35}},
+    {name:'Singapore',lat:1.4,lng:103.8,risk:10,shipping:6,labor:9,tariff:0,infra:10,costIndex:55,mfgCapacity:35,exportInfra:95,supplierDensity:30,leadTimeReliability:95,sourcing:{technology:50,textiles:2,generalMfg:25,consumerGoods:15,automotive:5,pharma:40}},
+    {name:'Malaysia',lat:4.2,lng:101.9,risk:28,shipping:7,labor:3,tariff:5,infra:7,costIndex:24,mfgCapacity:60,exportInfra:68,supplierDensity:55,leadTimeReliability:72,sourcing:{technology:60,textiles:15,generalMfg:50,consumerGoods:40,automotive:25,pharma:15}},
+    {name:'Philippines',lat:12.9,lng:121.8,risk:40,shipping:7,labor:2,tariff:10,infra:5,costIndex:28,mfgCapacity:40,exportInfra:45,supplierDensity:35,leadTimeReliability:55,sourcing:{technology:35,textiles:15,generalMfg:30,consumerGoods:25,automotive:10,pharma:8}},
+    {name:'France',lat:46.2,lng:2.2,risk:16,shipping:5,labor:8,tariff:3,infra:9,costIndex:45,mfgCapacity:65,exportInfra:78,supplierDensity:60,leadTimeReliability:82,sourcing:{technology:38,textiles:15,generalMfg:48,consumerGoods:42,automotive:55,pharma:50}},
+    {name:'Italy',lat:41.9,lng:12.6,risk:18,shipping:5,labor:7,tariff:3,infra:8,costIndex:40,mfgCapacity:65,exportInfra:72,supplierDensity:62,leadTimeReliability:78,sourcing:{technology:25,textiles:55,generalMfg:55,consumerGoods:50,automotive:50,pharma:40}},
+    {name:'Netherlands',lat:52.1,lng:5.3,risk:12,shipping:5,labor:8,tariff:3,infra:10,costIndex:45,mfgCapacity:40,exportInfra:90,supplierDensity:35,leadTimeReliability:90,sourcing:{technology:30,textiles:5,generalMfg:30,consumerGoods:25,automotive:15,pharma:35}},
+    {name:'Poland',lat:51.9,lng:19.1,risk:18,shipping:5,labor:5,tariff:3,infra:8,costIndex:25,mfgCapacity:55,exportInfra:62,supplierDensity:48,leadTimeReliability:72,sourcing:{technology:22,textiles:18,generalMfg:45,consumerGoods:30,automotive:55,pharma:20}},
+    {name:'Morocco',lat:31.8,lng:-7.1,risk:38,shipping:5,labor:2,tariff:8,infra:6,costIndex:22,mfgCapacity:35,exportInfra:45,supplierDensity:28,leadTimeReliability:55,sourcing:{technology:10,textiles:40,generalMfg:30,consumerGoods:20,automotive:35,pharma:8}},
+    {name:'South Africa',lat:-30.6,lng:22.9,risk:45,shipping:7,labor:3,tariff:10,infra:6,costIndex:30,mfgCapacity:40,exportInfra:50,supplierDensity:32,leadTimeReliability:55,sourcing:{technology:10,textiles:12,generalMfg:25,consumerGoods:18,automotive:30,pharma:15}},
+    {name:'Saudi Arabia',lat:23.9,lng:45.1,risk:32,shipping:6,labor:4,tariff:5,infra:8,costIndex:35,mfgCapacity:20,exportInfra:65,supplierDensity:12,leadTimeReliability:70,sourcing:{technology:8,textiles:3,generalMfg:15,consumerGoods:10,automotive:5,pharma:10}},
+    {name:'Egypt',lat:26.8,lng:30.8,risk:52,shipping:5,labor:2,tariff:15,infra:5,costIndex:38,mfgCapacity:30,exportInfra:38,supplierDensity:22,leadTimeReliability:45,sourcing:{technology:5,textiles:30,generalMfg:20,consumerGoods:15,automotive:10,pharma:8}},
+    {name:'Australia',lat:-25.3,lng:133.8,risk:16,shipping:8,labor:8,tariff:5,infra:9,costIndex:48,mfgCapacity:30,exportInfra:65,supplierDensity:25,leadTimeReliability:78,sourcing:{technology:15,textiles:5,generalMfg:20,consumerGoods:15,automotive:5,pharma:15}},
+    {name:'Canada',lat:56.1,lng:-106.3,risk:14,shipping:5,labor:8,tariff:1,infra:9,costIndex:40,mfgCapacity:50,exportInfra:70,supplierDensity:45,leadTimeReliability:80,sourcing:{technology:30,textiles:5,generalMfg:40,consumerGoods:30,automotive:45,pharma:40}},
+    {name:'United Kingdom',lat:55.4,lng:-3.4,risk:14,shipping:5,labor:8,tariff:5,infra:9,costIndex:42,mfgCapacity:55,exportInfra:72,supplierDensity:55,leadTimeReliability:82,sourcing:{technology:40,textiles:8,generalMfg:45,consumerGoods:40,automotive:45,pharma:60}},
+    {name:'Hungary',lat:47.2,lng:19.5,risk:20,shipping:5,labor:5,tariff:3,infra:7,costIndex:26,mfgCapacity:45,exportInfra:55,supplierDensity:40,leadTimeReliability:70,sourcing:{technology:20,textiles:15,generalMfg:38,consumerGoods:25,automotive:65,pharma:30}},
+    {name:'Switzerland',lat:46.8,lng:8.2,risk:10,shipping:5,labor:9,tariff:3,infra:10,costIndex:58,mfgCapacity:45,exportInfra:80,supplierDensity:35,leadTimeReliability:92,sourcing:{technology:30,textiles:8,generalMfg:35,consumerGoods:30,automotive:20,pharma:85}},
+    {name:'Ireland',lat:53.1,lng:-7.7,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:48,mfgCapacity:30,exportInfra:68,supplierDensity:25,leadTimeReliability:85,sourcing:{technology:35,textiles:3,generalMfg:20,consumerGoods:15,automotive:8,pharma:88}},
+    {name:'Belgium',lat:50.5,lng:4.5,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:42,mfgCapacity:40,exportInfra:72,supplierDensity:38,leadTimeReliability:80,sourcing:{technology:18,textiles:8,generalMfg:35,consumerGoods:28,automotive:35,pharma:55}},
+    {name:'Portugal',lat:39.4,lng:-8.2,risk:15,shipping:5,labor:6,tariff:3,infra:8,costIndex:30,mfgCapacity:35,exportInfra:60,supplierDensity:28,leadTimeReliability:72,sourcing:{technology:12,textiles:25,generalMfg:28,consumerGoods:20,automotive:22,pharma:18}},
+    {name:'Slovakia',lat:48.7,lng:19.7,risk:18,shipping:5,labor:5,tariff:3,infra:7,costIndex:24,mfgCapacity:40,exportInfra:55,supplierDensity:35,leadTimeReliability:70,sourcing:{technology:15,textiles:10,generalMfg:32,consumerGoods:20,automotive:68,pharma:15}},
+    {name:'Austria',lat:47.5,lng:14.6,risk:12,shipping:5,labor:8,tariff:3,infra:9,costIndex:42,mfgCapacity:48,exportInfra:70,supplierDensity:42,leadTimeReliability:82,sourcing:{technology:25,textiles:8,generalMfg:40,consumerGoods:30,automotive:45,pharma:35}},
+    {name:'Bulgaria',lat:42.7,lng:25.5,risk:22,shipping:5,labor:4,tariff:3,infra:6,costIndex:22,mfgCapacity:30,exportInfra:42,supplierDensity:25,leadTimeReliability:60,sourcing:{technology:12,textiles:22,generalMfg:28,consumerGoods:18,automotive:30,pharma:12}},
+    {name:'Sri Lanka',lat:7.9,lng:80.8,risk:52,shipping:7,labor:2,tariff:10,infra:5,costIndex:35,mfgCapacity:25,exportInfra:30,supplierDensity:20,leadTimeReliability:45,sourcing:{technology:5,textiles:40,generalMfg:15,consumerGoods:12,automotive:3,pharma:5}},
+    {name:'Ethiopia',lat:9.1,lng:40.5,risk:55,shipping:8,labor:1,tariff:15,infra:3,costIndex:42,mfgCapacity:15,exportInfra:12,supplierDensity:10,leadTimeReliability:30,sourcing:{technology:2,textiles:25,generalMfg:8,consumerGoods:5,automotive:1,pharma:2}},
+    {name:'Honduras',lat:14.1,lng:-86.2,risk:62,shipping:5,labor:2,tariff:8,infra:5,costIndex:35,mfgCapacity:25,exportInfra:25,supplierDensity:20,leadTimeReliability:45,sourcing:{technology:5,textiles:35,generalMfg:20,consumerGoods:15,automotive:5,pharma:3}},
+    {name:'Colombia',lat:4.6,lng:-74.1,risk:50,shipping:5,labor:3,tariff:15,infra:6,costIndex:40,mfgCapacity:30,exportInfra:40,supplierDensity:25,leadTimeReliability:50,sourcing:{technology:10,textiles:20,generalMfg:22,consumerGoods:18,automotive:8,pharma:12}},
+    {name:'Peru',lat:-9.2,lng:-75,risk:46,shipping:6,labor:3,tariff:10,infra:6,costIndex:38,mfgCapacity:25,exportInfra:35,supplierDensity:18,leadTimeReliability:50,sourcing:{technology:5,textiles:25,generalMfg:18,consumerGoods:12,automotive:5,pharma:5}},
+    {name:'Argentina',lat:-38.4,lng:-63.6,risk:55,shipping:6,labor:4,tariff:20,infra:6,costIndex:45,mfgCapacity:35,exportInfra:40,supplierDensity:28,leadTimeReliability:45,sourcing:{technology:10,textiles:12,generalMfg:25,consumerGoods:18,automotive:25,pharma:18}},
+    {name:'Chile',lat:-35.7,lng:-71.5,risk:25,shipping:6,labor:5,tariff:5,infra:7,costIndex:32,mfgCapacity:25,exportInfra:55,supplierDensity:18,leadTimeReliability:65,sourcing:{technology:8,textiles:5,generalMfg:15,consumerGoods:10,automotive:5,pharma:10}},
+    {name:'Kazakhstan',lat:48.0,lng:68.0,risk:28,shipping:6,labor:4,tariff:8,infra:5,costIndex:42,mfgCapacity:30,exportInfra:35,supplierDensity:20,leadTimeReliability:45,sourcing:{technology:8,textiles:10,generalMfg:25,consumerGoods:10,automotive:5,pharma:5}},
+    {name:'Uzbekistan',lat:41.3,lng:64.6,risk:38,shipping:7,labor:3,tariff:10,infra:4,costIndex:35,mfgCapacity:20,exportInfra:18,supplierDensity:12,leadTimeReliability:35,sourcing:{technology:5,textiles:30,generalMfg:18,consumerGoods:8,automotive:3,pharma:4}},
+    {name:'Azerbaijan',lat:40.4,lng:49.9,risk:25,shipping:6,labor:4,tariff:7,infra:5,costIndex:45,mfgCapacity:22,exportInfra:40,supplierDensity:15,leadTimeReliability:50,sourcing:{technology:6,textiles:8,generalMfg:20,consumerGoods:7,automotive:4,pharma:3}},
+    {name:'Georgia',lat:42.3,lng:43.4,risk:35,shipping:5,labor:4,tariff:6,infra:5,costIndex:40,mfgCapacity:15,exportInfra:30,supplierDensity:12,leadTimeReliability:48,sourcing:{technology:8,textiles:12,generalMfg:15,consumerGoods:10,automotive:3,pharma:5}},
+    {name:'Lithuania',lat:55.2,lng:23.9,risk:22,shipping:4,labor:6,tariff:3,infra:7,costIndex:58,mfgCapacity:28,exportInfra:55,supplierDensity:30,leadTimeReliability:70,sourcing:{technology:20,textiles:10,generalMfg:30,consumerGoods:18,automotive:15,pharma:12}},
+    {name:'Latvia',lat:56.9,lng:24.1,risk:24,shipping:4,labor:6,tariff:3,infra:7,costIndex:55,mfgCapacity:22,exportInfra:50,supplierDensity:25,leadTimeReliability:68,sourcing:{technology:18,textiles:8,generalMfg:25,consumerGoods:15,automotive:10,pharma:10}},
+    {name:'Estonia',lat:58.6,lng:25.0,risk:15,shipping:4,labor:7,tariff:3,infra:8,costIndex:60,mfgCapacity:25,exportInfra:58,supplierDensity:28,leadTimeReliability:75,sourcing:{technology:30,textiles:5,generalMfg:22,consumerGoods:12,automotive:8,pharma:15}},
+    {name:'Serbia',lat:44.0,lng:21.0,risk:55,shipping:5,labor:5,tariff:12,infra:5,costIndex:42,mfgCapacity:35,exportInfra:38,supplierDensity:28,leadTimeReliability:50,sourcing:{technology:12,textiles:18,generalMfg:35,consumerGoods:20,automotive:25,pharma:8}},
+    {name:'Albania',lat:41.3,lng:20.0,risk:42,shipping:5,labor:3,tariff:8,infra:4,costIndex:35,mfgCapacity:12,exportInfra:20,supplierDensity:10,leadTimeReliability:40,sourcing:{technology:4,textiles:22,generalMfg:12,consumerGoods:8,automotive:3,pharma:3}},
+    {name:'Oman',lat:21.5,lng:57.0,risk:20,shipping:4,labor:4,tariff:5,infra:7,costIndex:55,mfgCapacity:18,exportInfra:60,supplierDensity:15,leadTimeReliability:65,sourcing:{technology:8,textiles:5,generalMfg:15,consumerGoods:6,automotive:3,pharma:5}},
+    {name:'Qatar',lat:25.3,lng:51.2,risk:14,shipping:3,labor:5,tariff:4,infra:8,costIndex:70,mfgCapacity:15,exportInfra:65,supplierDensity:12,leadTimeReliability:72,sourcing:{technology:10,textiles:3,generalMfg:12,consumerGoods:5,automotive:2,pharma:6}},
+    {name:'Kuwait',lat:29.4,lng:47.9,risk:40,shipping:4,labor:5,tariff:5,infra:6,costIndex:65,mfgCapacity:10,exportInfra:45,supplierDensity:8,leadTimeReliability:55,sourcing:{technology:5,textiles:2,generalMfg:8,consumerGoods:4,automotive:2,pharma:4}},
+    {name:'Jordan',lat:31.0,lng:36.6,risk:44,shipping:5,labor:4,tariff:8,infra:6,costIndex:48,mfgCapacity:18,exportInfra:48,supplierDensity:14,leadTimeReliability:55,sourcing:{technology:6,textiles:15,generalMfg:15,consumerGoods:10,automotive:4,pharma:18}},
+    {name:'Kenya',lat:-1.3,lng:36.8,risk:38,shipping:6,labor:3,tariff:10,infra:5,costIndex:38,mfgCapacity:20,exportInfra:35,supplierDensity:18,leadTimeReliability:40,sourcing:{technology:5,textiles:18,generalMfg:15,consumerGoods:12,automotive:3,pharma:8}},
+    {name:'Rwanda',lat:-1.9,lng:29.9,risk:27,shipping:7,labor:3,tariff:8,infra:4,costIndex:40,mfgCapacity:10,exportInfra:18,supplierDensity:8,leadTimeReliability:42,sourcing:{technology:6,textiles:10,generalMfg:8,consumerGoods:5,automotive:2,pharma:4}},
+    {name:'Ghana',lat:7.9,lng:-1.0,risk:39,shipping:6,labor:3,tariff:10,infra:5,costIndex:38,mfgCapacity:18,exportInfra:32,supplierDensity:14,leadTimeReliability:40,sourcing:{technology:5,textiles:12,generalMfg:15,consumerGoods:10,automotive:3,pharma:6}},
+    {name:'Mauritius',lat:-20.3,lng:57.6,risk:16,shipping:5,labor:5,tariff:5,infra:6,costIndex:52,mfgCapacity:12,exportInfra:40,supplierDensity:10,leadTimeReliability:60,sourcing:{technology:8,textiles:25,generalMfg:10,consumerGoods:12,automotive:2,pharma:6}},
+    {name:'Tanzania',lat:-6.4,lng:34.9,risk:26,shipping:6,labor:3,tariff:10,infra:4,costIndex:35,mfgCapacity:15,exportInfra:28,supplierDensity:12,leadTimeReliability:38,sourcing:{technology:3,textiles:12,generalMfg:12,consumerGoods:8,automotive:2,pharma:5}},
+    {name:'Costa Rica',lat:10.0,lng:-84.0,risk:13,shipping:4,labor:5,tariff:4,infra:7,costIndex:55,mfgCapacity:22,exportInfra:52,supplierDensity:20,leadTimeReliability:70,sourcing:{technology:25,textiles:8,generalMfg:20,consumerGoods:15,automotive:8,pharma:22}},
+    {name:'Panama',lat:8.5,lng:-80.0,risk:52,shipping:3,labor:5,tariff:5,infra:7,costIndex:58,mfgCapacity:10,exportInfra:70,supplierDensity:8,leadTimeReliability:55,sourcing:{technology:5,textiles:3,generalMfg:8,consumerGoods:5,automotive:2,pharma:3}},
+    {name:'Uruguay',lat:-34.9,lng:-56.2,risk:11,shipping:5,labor:6,tariff:6,infra:7,costIndex:60,mfgCapacity:15,exportInfra:45,supplierDensity:12,leadTimeReliability:68,sourcing:{technology:8,textiles:10,generalMfg:15,consumerGoods:10,automotive:5,pharma:8}},
+    {name:'Paraguay',lat:-23.4,lng:-58.4,risk:43,shipping:7,labor:3,tariff:9,infra:4,costIndex:32,mfgCapacity:12,exportInfra:20,supplierDensity:8,leadTimeReliability:35,sourcing:{technology:3,textiles:8,generalMfg:10,consumerGoods:6,automotive:3,pharma:3}},
+    {name:'Ecuador',lat:-1.8,lng:-78.2,risk:58,shipping:5,labor:3,tariff:10,infra:5,costIndex:38,mfgCapacity:15,exportInfra:30,supplierDensity:10,leadTimeReliability:38,sourcing:{technology:4,textiles:8,generalMfg:12,consumerGoods:8,automotive:3,pharma:5}},
+    {name:'Finland',lat:61.9,lng:25.7,risk:12,shipping:4,labor:8,tariff:3,infra:9,costIndex:52,mfgCapacity:42,exportInfra:68,supplierDensity:35,leadTimeReliability:85,sourcing:{technology:35,textiles:5,generalMfg:32,consumerGoods:18,automotive:10,pharma:25}},
+    {name:'Sweden',lat:60.1,lng:18.6,risk:10,shipping:4,labor:8,tariff:3,infra:9,costIndex:55,mfgCapacity:55,exportInfra:75,supplierDensity:48,leadTimeReliability:88,sourcing:{technology:45,textiles:8,generalMfg:48,consumerGoods:30,automotive:55,pharma:40}},
+    {name:'Norway',lat:60.5,lng:8.5,risk:8,shipping:4,labor:9,tariff:3,infra:9,costIndex:62,mfgCapacity:30,exportInfra:65,supplierDensity:22,leadTimeReliability:88,sourcing:{technology:28,textiles:3,generalMfg:22,consumerGoods:12,automotive:8,pharma:18}},
+    {name:'Denmark',lat:56.3,lng:9.5,risk:10,shipping:4,labor:8,tariff:3,infra:9,costIndex:55,mfgCapacity:45,exportInfra:72,supplierDensity:38,leadTimeReliability:90,sourcing:{technology:32,textiles:5,generalMfg:35,consumerGoods:22,automotive:12,pharma:55}},
+    {name:'Iceland',lat:64.9,lng:-19.0,risk:6,shipping:5,labor:9,tariff:3,infra:8,costIndex:68,mfgCapacity:8,exportInfra:30,supplierDensity:5,leadTimeReliability:80,sourcing:{technology:12,textiles:2,generalMfg:5,consumerGoods:5,automotive:1,pharma:8}}
+];
+
+// ----------------------------------------------------------------------------
+// Day 2 -- regional derivation engine.
+// Region datasets are DERIVED from the US baseline (US_MAP_DATA) via a per-region
+// trade profile. Only importer-relative fields change:
+//   - tariff:    the tariff a region's importers face on goods FROM a country
+//                (a low preferential rate for the region's own bloc / FTA
+//                partners, an elevated rate for flagged trade-tension partners,
+//                otherwise the region's MFN base rate).
+//   - shipping:  a 1-10 cost index derived from the great-circle distance
+//                between the source country and the region's main import hub.
+//   - costIndex: the curated US costIndex shifted by the tariff & shipping
+//                deltas vs the US baseline, so it stays anchored and realistic.
+// Intrinsic country attributes (risk, labor, infra, mfgCapacity, exportInfra,
+// supplierDensity, leadTimeReliability, sourcing, coordinates) are identical in
+// every region.
+//
+// KNOWN LIMITATION: tariff/sourcing are modelled per single source country. Real
+// supply chains multi-source a SKU across several countries, and the effective
+// duty depends on HS code and rules-of-origin, not origin country alone. This
+// regional layer is a directional lens, not a customs-grade calculation.
+
+const REGION_HUBS = {
+    us:          { lat: 39.0,  lng: -98.0 },   // continental US
+    germany:     { lat: 50.1,  lng: 8.7 },     // Frankfurt
+    china:       { lat: 31.2,  lng: 121.5 },   // Shanghai
+    brazil:      { lat: -23.5, lng: -46.6 },   // Sao Paulo
+    australia:   { lat: -33.9, lng: 151.2 },   // Sydney
+    india:       { lat: 19.1,  lng: 72.9 },    // Mumbai
+    uae:         { lat: 25.2,  lng: 55.3 },     // Dubai
+    southafrica: { lat: -26.2, lng: 28.0 }     // Johannesburg
+};
+
+// Per-region tariff posture. `bloc` lists own-bloc / FTA partners charged the low
+// `blocRate`; `high` maps flagged trade-tension partners to an elevated rate;
+// `mfnBase` applies to everyone else. Rates are directional, not customs-grade.
+const REGION_TARIFF_PROFILES = {
+    germany: { // EU common external tariff + FTA network
+        mfnBase: 6, blocRate: 2,
+        bloc: ['Germany','France','Italy','Netherlands','Poland','Romania','Czech Republic','United Kingdom','Hungary','Switzerland','Ireland','Belgium','Portugal','Slovakia','Austria','Bulgaria','South Korea','Japan','Canada','Vietnam','Singapore','Mexico','Turkey'],
+        high: { 'China': 12, 'Russia': 35 }
+    },
+    china: { // RCEP / ASEAN low, US retaliatory high
+        mfnBase: 8, blocRate: 3,
+        bloc: ['China','Vietnam','Thailand','Indonesia','Malaysia','Singapore','Cambodia','Philippines','Japan','South Korea','Australia'],
+        high: { 'United States': 25 }
+    },
+    brazil: { // Mercosur; high common external tariff otherwise
+        mfnBase: 14, blocRate: 2,
+        bloc: ['Brazil','Argentina','Chile','Colombia','Peru'],
+        high: {}
+    },
+    australia: { // broad FTA network, low tariffs
+        mfnBase: 5, blocRate: 1,
+        bloc: ['Australia','China','Japan','South Korea','United States','Vietnam','Thailand','Malaysia','Singapore','Indonesia','India','United Kingdom'],
+        high: {}
+    },
+    india: { // high MFN, ASEAN/UAE preferential, China elevated
+        mfnBase: 12, blocRate: 4,
+        bloc: ['India','Vietnam','Thailand','Indonesia','Malaysia','Singapore','Japan','South Korea','UAE','Australia'],
+        high: { 'China': 18 }
+    },
+    uae: { // GCC low uniform tariff, hub economy
+        mfnBase: 5, blocRate: 0,
+        bloc: ['UAE','Saudi Arabia','India'],
+        high: {}
+    },
+    southafrica: { // SACU/SADC low, EU EPA low, moderate otherwise
+        mfnBase: 10, blocRate: 2,
+        bloc: ['South Africa','Germany','France','Italy','Netherlands','United Kingdom'],
+        high: {}
+    }
+};
+
+// Great-circle distance in km between two {lat,lng} points.
+function haversineKm(a, b) {
+    const R = 6371, toRad = d => d * Math.PI / 180;
+    const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+    const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
+}
+
+// Map a distance (km) to a 1-10 shipping cost index.
+function shippingIndexFromDistance(km) {
+    if (km < 1000)  return 3;
+    if (km < 3000)  return 4;
+    if (km < 6000)  return 5;
+    if (km < 9000)  return 6;
+    if (km < 12000) return 7;
+    if (km < 15000) return 8;
+    return 9;
+}
+
+// Derive a region's dataset from the US baseline by recomputing only the
+// importer-relative fields (tariff, shipping, costIndex).
+function buildRegionData(regionKey) {
+    const hub = REGION_HUBS[regionKey];
+    const prof = REGION_TARIFF_PROFILES[regionKey];
+    if (!hub || !prof) return US_MAP_DATA.map(c => ({ ...c, sourcing: { ...c.sourcing } }));
+    return US_MAP_DATA.map(base => {
+        let tariff;
+        if (prof.high[base.name] != null)        tariff = prof.high[base.name];
+        else if (prof.bloc.includes(base.name))  tariff = prof.blocRate;
+        else                                     tariff = prof.mfnBase;
+        const dist = haversineKm(hub, { lat: base.lat, lng: base.lng });
+        const shipping = shippingIndexFromDistance(dist);
+        const costIndex = Math.max(5, Math.min(95, Math.round(
+            base.costIndex + 0.4 * (tariff - base.tariff) + 1.5 * (shipping - base.shipping)
+        )));
+        return {
+            name: base.name, lat: base.lat, lng: base.lng,
+            risk: base.risk, shipping, labor: base.labor, tariff, infra: base.infra,
+            costIndex, mfgCapacity: base.mfgCapacity, exportInfra: base.exportInfra,
+            supplierDensity: base.supplierDensity, leadTimeReliability: base.leadTimeReliability,
+            sourcing: { ...base.sourcing }
+        };
+    });
+}
+
+// One materialised dataset per region. "us" is the curated baseline (byte-for-byte
+// identical to the inline COUNTRY_DATA); the other 7 are derived at load time.
+const regionalMapData = {
+    us:          US_MAP_DATA,
+    germany:     buildRegionData('germany'),
+    china:       buildRegionData('china'),
+    brazil:      buildRegionData('brazil'),
+    australia:   buildRegionData('australia'),
+    india:       buildRegionData('india'),
+    uae:         buildRegionData('uae'),
+    southafrica: buildRegionData('southafrica')
+};
+
+// Maps every country in the dataset to one of the 8 region keys. These are
+// coarse trade-bloc groupings used only to pick which regional lens a user gets
+// from their home country; a few countries straddle blocs (e.g. Turkey, Russia)
+// and are assigned to their dominant grouping. Anything unmapped falls back to
+// "us" via assignRegionToUser().
+const countryToRegionMap = {
+    // North America
+    'United States':'us','Canada':'us','Mexico':'us',
+    // Europe (+ western CIS)
+    'Germany':'germany','France':'germany','Italy':'germany','Netherlands':'germany',
+    'Poland':'germany','Romania':'germany','Czech Republic':'germany','United Kingdom':'germany',
+    'Hungary':'germany','Switzerland':'germany','Ireland':'germany','Belgium':'germany',
+    'Portugal':'germany','Slovakia':'germany','Austria':'germany','Bulgaria':'germany',
+    'Ukraine':'germany','Russia':'germany',
+    // East & Southeast Asia
+    'China':'china','North Korea':'china','South Korea':'china','Taiwan':'china','Japan':'china',
+    'Vietnam':'china','Thailand':'china','Indonesia':'china','Cambodia':'china','Malaysia':'china',
+    'Philippines':'china','Singapore':'china','Myanmar':'china',
+    // Latin America
+    'Brazil':'brazil','Argentina':'brazil','Chile':'brazil','Colombia':'brazil','Peru':'brazil',
+    'Venezuela':'brazil','Honduras':'brazil',
+    // Oceania
+    'Australia':'australia',
+    // South Asia
+    'India':'india','Pakistan':'india','Bangladesh':'india','Sri Lanka':'india',
+    // Middle East / GCC
+    'UAE':'uae','Saudi Arabia':'uae','Iran':'uae','Iraq':'uae','Lebanon':'uae','Turkey':'uae','Egypt':'uae',
+    // Africa
+    'South Africa':'southafrica','Nigeria':'southafrica','Ethiopia':'southafrica','Morocco':'southafrica',
+
+    // ---- Extended coverage: remaining Home-Country dropdown options (Day 2) ----
+    // These are offered in the onboarding dropdown but are not among the 85 map
+    // dataset countries. Each is mapped to its dominant trade bloc so a user based
+    // here still gets a sensible regional lens (borderline / landlocked cases go to
+    // the nearest hub). Anything still unmapped falls back to "us".
+    // Latin America & Caribbean
+    'Costa Rica':'brazil','Cuba':'brazil','Dominican Republic':'brazil','El Salvador':'brazil',
+    'Guatemala':'brazil','Nicaragua':'brazil','Panama':'brazil','Bolivia':'brazil','Ecuador':'brazil',
+    'Paraguay':'brazil','Uruguay':'brazil',
+    // Europe
+    'Spain':'germany','Greece':'germany','Denmark':'germany','Sweden':'germany','Finland':'germany',
+    'Norway':'germany','Cyprus':'germany','Malta':'germany','Luxembourg':'germany','Estonia':'germany',
+    'Latvia':'germany','Lithuania':'germany','Slovenia':'germany','Croatia':'germany','Serbia':'germany',
+    'Bosnia':'germany','North Macedonia':'germany','Albania':'germany','Moldova':'germany','Belarus':'germany',
+    // Middle East / Caucasus
+    'United Arab Emirates':'uae','Israel':'uae','Jordan':'uae','Oman':'uae','Qatar':'uae','Syria':'uae',
+    'Yemen':'uae','Armenia':'uae','Azerbaijan':'uae',
+    // South & Central Asia
+    'Afghanistan':'india','Nepal':'india','Kazakhstan':'china','Uzbekistan':'china','Turkmenistan':'china','Laos':'china',
+    // Africa
+    'Algeria':'southafrica','Angola':'southafrica','Cameroon':'southafrica','Congo':'southafrica','Ghana':'southafrica',
+    'Kenya':'southafrica','Mozambique':'southafrica','Senegal':'southafrica','South Sudan':'southafrica','Sudan':'southafrica',
+    'Tanzania':'southafrica','Tunisia':'southafrica','Uganda':'southafrica','Zambia':'southafrica','Zimbabwe':'southafrica',
+    // Oceania
+    'New Zealand':'australia',
+    // Dataset countries not offered in the dropdown (map-coverage completeness)
+    'Georgia':'uae','Kuwait':'uae','Rwanda':'southafrica','Mauritius':'southafrica','Iceland':'germany'
+};
+
+// Common home-country aliases -> canonical dataset name, so profile values like
+// "USA" or "UK" still resolve to a region.
+const REGION_COUNTRY_ALIASES = {
+    'usa':'United States','us':'United States','u.s.':'United States','u.s.a.':'United States',
+    'united states of america':'United States','america':'United States',
+    'uk':'United Kingdom','u.k.':'United Kingdom','great britain':'United Kingdom','england':'United Kingdom',
+    'u.a.e.':'UAE','united arab emirates':'UAE','emirates':'UAE',
+    'republic of korea':'South Korea','czechia':'Czech Republic'
+};
+
+// assignRegionToUser(country) -- takes a user's home country, returns one of the
+// 8 region keys. Falls back to "us" for unknown / empty input.
+function assignRegionToUser(country) {
+    if (!country || typeof country !== 'string') return 'us';
+    const raw = country.trim();
+    if (!raw) return 'us';
+    // exact match first, then alias-normalised match
+    if (countryToRegionMap[raw]) return countryToRegionMap[raw];
+    const canonical = REGION_COUNTRY_ALIASES[raw.toLowerCase()];
+    if (canonical && countryToRegionMap[canonical]) return countryToRegionMap[canonical];
+    // case-insensitive scan as a last resort
+    const lc = raw.toLowerCase();
+    for (const name in countryToRegionMap) {
+        if (name.toLowerCase() === lc) return countryToRegionMap[name];
+    }
+    return 'us';
+}
+
+// Resolve which region dataset to serve from request params.
+//   ?region=<key>   explicit override (Settings manual pick) - wins if valid
+//   ?country=<name> derive region from a home country via assignRegionToUser
+// Falls back to "us" for unauthenticated / unknown callers.
+function resolveRegionKey({ region, country }) {
+    if (region && Object.prototype.hasOwnProperty.call(regionalMapData, region)) return region;
+    if (country) return assignRegionToUser(country);
+    return 'us';
+}
+
+// GET /api/map-data — returns the region-appropriate map dataset. The frontend
+// renders the Risk Intelligence Map from this when a user is signed in; if the
+// call fails or the caller is anonymous it keeps its inline "us" dataset, so
+// existing/anonymous behaviour is unchanged.
+app.get('/api/map-data', (req, res) => {
+    const region = resolveRegionKey({ region: req.query.region, country: req.query.country });
+    const data = regionalMapData[region] || regionalMapData.us;
+    res.json({ region, count: data.length, data });
+});
+
 // ---------- POST routes (n8n pushes data here) ----------
 
 app.post('/api/data/alerts', requireDataKey, (req, res) => {
@@ -1214,7 +1566,14 @@ app.post('/api/save-profile', async (req, res) => {
       return res.status(400).json({ error: 'Email and profile required' });
     }
 
-    console.log('[Save Profile] For:', email);
+    // Assign a supply-chain region from the user's home country so the Risk
+    // Intelligence Map can be personalised (see regionalMapData / assignRegionToUser).
+    // Recomputed on every save so it stays in sync if the home country changes.
+    if (profile.homeCountry) {
+      profile.assignedRegion = assignRegionToUser(profile.homeCountry);
+    }
+
+    console.log('[Save Profile] For:', email, '- assignedRegion:', profile.assignedRegion || '(none)');
 
     const token = await getShopifyAdminToken();
     const shopDomain = 'risksim-ai.myshopify.com';
@@ -1461,6 +1820,11 @@ app.post('/api/restore-access', async (req, res) => {
         profile = JSON.parse(metafieldValue);
         console.log('[Restore Access] Profile loaded from metafield');
       }
+      // Backfill assignedRegion for profiles saved before regional map data existed,
+      // so the map personalises on next login even without a re-save.
+      if (profile && !profile.assignedRegion && profile.homeCountry) {
+        profile.assignedRegion = assignRegionToUser(profile.homeCountry);
+      }
     } catch (e) {
       console.error('[Restore Access] Profile fetch error:', e);
     }
@@ -1677,6 +2041,10 @@ app.post('/api/verify-otp', async (req, res) => {
         // Success
         await redisCmd(['DEL', OTP_KEY(key)]);
         console.log('[verify-otp] Success for:', key);
+        // Backfill assignedRegion if an older cached profile lacks it.
+        if (record.profile && !record.profile.assignedRegion && record.profile.homeCountry) {
+            record.profile.assignedRegion = assignRegionToUser(record.profile.homeCountry);
+        }
         return res.json({ success: true, plan: record.plan, email: key, profile: record.profile });
 
     } catch (err) {
