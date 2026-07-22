@@ -4567,6 +4567,11 @@ var LAYER_CONFIG={risk:{name:'Risk Levels',sub:'Geopolitical & operational risk 
 function getRiskColor(s){return s>=80?'#ff1a4a':s>=60?'#ff8c00':s>=45?'#f5c518':s>=30?'#8bc34a':s>=15?'#00e676':'#00e5ff';}
 function getSourcingColor(s){return s>=80?'#00e5ff':s>=60?'#00e676':s>=40?'#8bc34a':s>=20?'#f5c518':s>=10?'#ff8c00':'#ff1a4a';}
 function getRiskLabel(s){return s>=80?'CRITICAL':s>=60?'HIGH':s>=45?'MED-HIGH':s>=30?'MEDIUM':s>=15?'LOW-MED':'LOW';}
+// KNOWN LIMITATION: sourcing scores (and the regional tariff figures they pair with)
+// are modelled per single source country. Real supply chains multi-source a SKU across
+// several countries at once, and effective duty depends on HS code and rules-of-origin,
+// not origin country alone. Treat this map as a directional lens, not a customs-grade
+// or single-supplier calculation. (Mirrors the note in server.js regionalMapData.)
 function getScoreForLayer(c,l){if(l==='shipping')return c.shipping*10;if(l==='labor')return c.labor*10;if(l==='cost')return c.costIndex;if(l==='sourcing'){var cat=currentCategory;if(cat==='food'||cat==='rawMaterials')cat='generalMfg';return(c.sourcing&&c.sourcing[cat])||0;}return c.risk;}
 function getColorForLayer(s,l){return l==='sourcing'?getSourcingColor(s):getRiskColor(s);}
 function getCountryDotSize(n){if(['China','United States','Germany','Japan','South Korea'].indexOf(n)!==-1)return 9;if(['France','Italy','United Kingdom','Netherlands','Canada','Mexico','India','Vietnam','Taiwan','Singapore','Brazil','Russia'].indexOf(n)!==-1)return 7;return 5;}
@@ -4712,6 +4717,10 @@ function _psWizStep1(){
     '<option value="distributor"'+(userProfile.type==='distributor'?' selected':'')+'>Distributor</option>'+
     '<option value="logistics"'+(userProfile.type==='logistics'?' selected':'')+'>Logistics Provider</option>'+
     '<option value="other"'+(userProfile.type==='other'?' selected':'')+'>Other</option>';
+  // Day 3: optional manual override of the personalised map region (see loadRegionalMapData).
+  // Empty value = auto-derive from home country on the backend.
+  var REGION_OVERRIDE_OPTS=[['','Auto (from home country)'],['us','United States'],['germany','Europe (EU)'],['china','East Asia'],['brazil','Latin America'],['australia','Oceania'],['india','South Asia'],['uae','Middle East (GCC)'],['southafrica','Southern Africa']];
+  var regionOpts=REGION_OVERRIDE_OPTS.map(function(o){return '<option value="'+o[0]+'"'+((userProfile.regionOverride||'')===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('');
   return '<div class="ps-title">Company<br><em>Basics</em></div>'+
     '<p class="ps-subtitle">Tell us about your business to personalize your intelligence feed.</p>'+
     '<div class="ps-divider"></div>'+
@@ -4722,6 +4731,9 @@ function _psWizStep1(){
     '<div class="ps-form-grid" style="margin-top:12px">'+
       '<div class="field-group"><label class="field-label">Company Type</label><select class="field-select" id="ps-companyType">'+typeOpts+'</select></div>'+
       '<div class="field-group"><label class="field-label">Industry</label><select class="field-select" id="ps-industry">'+indOpts+'</select></div>'+
+    '</div>'+
+    '<div class="ps-form-grid" style="margin-top:12px">'+
+      '<div class="field-group"><label class="field-label">Map Region <span style="opacity:.55;font-weight:400">(optional override)</span></label><select class="field-select" id="ps-regionOverride">'+regionOpts+'</select></div>'+
     '</div>'+
     '<div style="margin-top:24px;display:flex;justify-content:flex-end">'+
       '<button class="ps-submit-btn" style="width:auto;padding:12px 28px" onclick="psNextStep()">Next →</button>'+
@@ -4790,6 +4802,7 @@ function psNextStep(){
     userProfile.country=(document.getElementById('ps-homeCountry')||{}).value||'';
     userProfile.type=(document.getElementById('ps-companyType')||{}).value||'';
     userProfile.industry=(document.getElementById('ps-industry')||{}).value||'';
+    userProfile.regionOverride=(document.getElementById('ps-regionOverride')||{}).value||'';
   }else if(psWizardStep===2){
     userProfile.revenue=(document.getElementById('ps-revenue')||{}).value||'';
     userProfile.employees=(document.getElementById('ps-employees')||{}).value||'';
@@ -4847,6 +4860,7 @@ function handlePSSubmit(){
   userProfile.regions=selectedSourcingCountries.join(', ');
   if(userProfile.industry) currentCategory=userProfile.industry;
   saveProfileToStorage();
+  loadRegionalMapData();
   var mtype=document.getElementById('companyType'); if(mtype&&userProfile.type) mtype.value=userProfile.type;
   var mind=document.getElementById('industry'); if(mind&&userProfile.industry) mind.value=userProfile.industry;
   var mrev=document.getElementById('annualRevenue'); if(mrev&&userProfile.revenue) mrev.value=userProfile.revenue;
@@ -4955,7 +4969,8 @@ async function saveProfileToBackend() {
       keySuppliers: up.suppliers || '',
       primaryConcern: up.concern || '',
       businessDescription: up.context || '',
-      currentCategory: currentCategory || ''
+      currentCategory: currentCategory || '',
+      regionOverride: up.regionOverride || ''
     };
     await fetch('/api/save-profile', {
       method: 'POST',

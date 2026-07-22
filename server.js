@@ -619,6 +619,22 @@ app.get('/api/map-data', (req, res) => {
     res.json({ region, count: data.length, data });
 });
 
+// GET /api/debug/region — inspection endpoint (DATA_API_KEY required via x-api-key).
+// Returns the region that would be assigned for the given ?region=/?country= inputs
+// plus the full dataset being served, for debugging the personalisation pipeline.
+app.get('/api/debug/region', requireDataKey, (req, res) => {
+    const assignedRegion = resolveRegionKey({ region: req.query.region, country: req.query.country });
+    const data = regionalMapData[assignedRegion] || regionalMapData.us;
+    res.json({
+        assignedRegion,
+        input: { region: req.query.region || null, country: req.query.country || null },
+        derivedFromCountry: req.query.country ? assignRegionToUser(req.query.country) : null,
+        availableRegions: Object.keys(regionalMapData),
+        count: data.length,
+        data
+    });
+});
+
 // ---------- POST routes (n8n pushes data here) ----------
 
 app.post('/api/data/alerts', requireDataKey, (req, res) => {
@@ -1566,10 +1582,12 @@ app.post('/api/save-profile', async (req, res) => {
       return res.status(400).json({ error: 'Email and profile required' });
     }
 
-    // Assign a supply-chain region from the user's home country so the Risk
-    // Intelligence Map can be personalised (see regionalMapData / assignRegionToUser).
-    // Recomputed on every save so it stays in sync if the home country changes.
-    if (profile.homeCountry) {
+    // Assign a supply-chain region so the Risk Intelligence Map can be personalised
+    // (see regionalMapData / assignRegionToUser). An explicit Settings override wins;
+    // otherwise derive from the home country. Recomputed on every save.
+    if (profile.regionOverride && Object.prototype.hasOwnProperty.call(regionalMapData, profile.regionOverride)) {
+      profile.assignedRegion = profile.regionOverride;
+    } else if (profile.homeCountry) {
       profile.assignedRegion = assignRegionToUser(profile.homeCountry);
     }
 
