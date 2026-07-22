@@ -4,6 +4,7 @@ const Anthropic = require('@anthropic-ai/sdk').default || require('@anthropic-ai
 const axios = require('axios');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -55,6 +56,15 @@ const otpLimiter = rateLimit({
     message: { error: 'Too many sign-in attempts. Try again in 15 minutes.' }
 });
 
+// Reviewer password gate — 5 attempts per 10 min per IP
+const REVIEWER_TOKEN = 'yc-fall-2026-rvw-a3xq7m2h';
+const REVIEWER_PASSWORD_HASH = '$2b$12$3tAfKP6todjnQIHZf0VBMeiGOLZo6e8JM3KGEl47jrPrdavmgbCyi';
+const reviewerLimiter = rateLimit({
+    windowMs: 10 * 60 * 1000,
+    max: 5,
+    message: { error: 'Too many attempts. Try again in 10 minutes.' }
+});
+
 // General limit on all routes
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -70,6 +80,7 @@ app.use('/api/chat', chatLimiter);
 app.use('/api/demo-request', demoLimiter);
 app.use('/api/send-otp', otpLimiter);
 app.use('/api/verify-otp', otpLimiter);
+app.use('/api/verify-reviewer', reviewerLimiter);
 
 // Input sanitisation helper — strips HTML tags
 function stripHtml(str) {
@@ -1670,6 +1681,27 @@ app.post('/api/verify-otp', async (req, res) => {
 
     } catch (err) {
         console.error('[verify-otp] Error:', err);
+        res.status(500).json({ error: 'Server error, please try again' });
+    }
+});
+
+app.post('/api/verify-reviewer', async (req, res) => {
+    try {
+        const { yc_token, password } = req.body;
+        if (!yc_token || !password) {
+            return res.status(400).json({ error: 'Token and password required' });
+        }
+        if (yc_token !== REVIEWER_TOKEN) {
+            return res.status(400).json({ error: 'Invalid token' });
+        }
+        const valid = await bcrypt.compare(String(password), REVIEWER_PASSWORD_HASH);
+        if (!valid) {
+            return res.status(400).json({ success: false, error: 'Incorrect password' });
+        }
+        console.log('[verify-reviewer] Success from IP:', req.ip);
+        return res.json({ success: true });
+    } catch (err) {
+        console.error('[verify-reviewer] Error:', err);
         res.status(500).json({ error: 'Server error, please try again' });
     }
 });

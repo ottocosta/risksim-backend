@@ -3021,16 +3021,26 @@ async function goToCheckout(variantId, sellingPlanId) {
   if (_em) localStorage.setItem('risksim_email', _em);
   var _yc = _up.get('yc');
   if (_yc === 'yc-fall-2026-rvw-a3xq7m2h') {
-    localStorage.setItem('risksim_paid', 'true');
-    localStorage.setItem('risksim_plan', 'enterprise');
-    localStorage.setItem('risksim_restored', 'true');
-    localStorage.removeItem('risksim_demo');
-    localStorage.removeItem('risksim_demo_banner_dismissed');
-    localStorage.setItem('risksim_email', 'reviewer@banana-art.example');
-    localStorage.setItem('risksim_authenticated_until', String(Date.now() + 30 * 24 * 60 * 60 * 1000));
-    localStorage.setItem('risksim_reviewer_mode', 'true');
-    localStorage.setItem('risksim_profile', JSON.stringify({businessName:'Banana Art',industry:'Electronics / Tech',homeCountry:'United States',companyType:'Retailer',annualRevenue:'$4M',employees:'1-10',sourcingCountries:['China','Taiwan'],productsServices:'Electronic components (semiconductors, PCB assemblies, connectors)',topSuppliers:'Foxconn, Oneyac Electronics',additionalContext:'US-based electronics reseller ($4M annual revenue, 1-10 employees) supplying smaller US OEMs and repair shops with components that our customers can\'t source at their volumes through tier-1 distributors like Digi-Key or Mouser. Volume mostly SMD, legacy chip inventory, PCB assemblies, passive components, and connectors.\n\nSourcing split roughly 60% China (Oneyac Electronics for broad component catalog plus a couple of secondary Shenzhen distributors for spot buys) and 40% Taiwan (Foxconn for higher-quality subassembly work). Annual sourcing spend around $1M-$5M, growing.\n\nMain risk concentration: Oneyac. Lowest-cost source on ~40% of our SKUs. If they get hit by tariffs or export restrictions we don\'t have another China supplier at their price point. Would need 3-4 months to qualify alternates and pricing would jump 15-20% in the meantime. Foxconn less exposed since Taiwan operations are more insulated from PRC-specific tariff shifts.\n\nSea freight from Shenzhen and Kaohsiung into Long Beach and Los Angeles, then truck to our Midwest warehouse. 30-45 days door-to-door. Very sensitive to US West Coast port disruption. Also using air freight for time-critical or lower-volume SKUs.\n\nTariff exposure has been our biggest surprise pain since 2025. Chinese electronics hit repeatedly and we\'ve been caught twice with in-transit shipments where the duty rate changed between order and arrival. We track USTR announcements manually now but we\'re always reacting, never ahead.\n\nNo supply chain analyst, no procurement team. Me and one part-time ops person handling all sourcing decisions. Built risksim to have something that reads the world and tells us what to actually do about our specific supply chain, not generic AI advice.',email:'reviewer@banana-art.example',plan:'enterprise'}));
-    localStorage.setItem('risksim_enterprise_profile', JSON.stringify({productCategories:[{broadCategory:'Electronics',subCategory:'Consumer Electronics'}],spendBand:'$1M-$5M',leadTimeBand:'45-60 days',freightMethods:['Ocean FCL','Air freight'],portsOfEntry:['Los Angeles (USLAX)','New York (USNYC)'],incoterms:['FOB','EXW'],suppliers:[{name:'Foxconn',country:'Taiwan',tier:'critical',criticality:'critical',singleSource:false,switchability:2},{name:'Oneyac Electronics',country:'China',tier:'important',criticality:'important',singleSource:false,switchability:3}],spendByCountry:[{country:'China',pctOfTotal:40},{country:'Taiwan',pctOfTotal:60}],hasBackupSuppliers:'partial',supplierSwitchTime:'8-12 weeks',leadTimeTolerance:'2-3 weeks',inventoryBufferDays:'30 days'}));
+    window.__ycReviewerPending = true;
+    window.__rvwProfile = JSON.stringify({businessName:'Banana Art',industry:'Electronics / Tech',homeCountry:'United States',companyType:'Retailer',annualRevenue:'$4M',employees:'1-10',sourcingCountries:['China','Taiwan'],productsServices:'Electronic components (semiconductors, PCB assemblies, connectors)',topSuppliers:'Foxconn, Oneyac Electronics',additionalContext:'US-based electronics reseller ($4M annual revenue, 1-10 employees) supplying smaller US OEMs and repair shops with components that our customers can\'t source at their volumes through tier-1 distributors like Digi-Key or Mouser. Volume mostly SMD, legacy chip inventory, PCB assemblies, passive components, and connectors.\n\nSourcing split roughly 60% China (Oneyac Electronics for broad component catalog plus a couple of secondary Shenzhen distributors for spot buys) and 40% Taiwan (Foxconn for higher-quality subassembly work). Annual sourcing spend around $1M-$5M, growing.\n\nMain risk concentration: Oneyac. Lowest-cost source on ~40% of our SKUs. If they get hit by tariffs or export restrictions we don\'t have another China supplier at their price point. Would need 3-4 months to qualify alternates and pricing would jump 15-20% in the meantime. Foxconn less exposed since Taiwan operations are more insulated from PRC-specific tariff shifts.\n\nSea freight from Shenzhen and Kaohsiung into Long Beach and Los Angeles, then truck to our Midwest warehouse. 30-45 days door-to-door. Very sensitive to US West Coast port disruption. Also using air freight for time-critical or lower-volume SKUs.\n\nTariff exposure has been our biggest surprise pain since 2025. Chinese electronics hit repeatedly and we\'ve been caught twice with in-transit shipments where the duty rate changed between order and arrival. We track USTR announcements manually now but we\'re always reacting, never ahead.\n\nNo supply chain analyst, no procurement team. Me and one part-time ops person handling all sourcing decisions. Built risksim to have something that reads the world and tells us what to actually do about our specific supply chain, not generic AI advice.',email:'reviewer@banana-art.example',plan:'enterprise'});
+    window.__rvwEP = JSON.stringify({productCategories:[{broadCategory:'Electronics',subCategory:'Consumer Electronics'}],spendBand:'$1M-$5M',leadTimeBand:'45-60 days',freightMethods:['Ocean FCL','Air freight'],portsOfEntry:['Los Angeles (USLAX)','New York (USNYC)'],incoterms:['FOB','EXW'],suppliers:[{name:'Foxconn',country:'Taiwan',tier:'critical',criticality:'critical',singleSource:false,switchability:2},{name:'Oneyac Electronics',country:'China',tier:'important',criticality:'important',singleSource:false,switchability:3}],spendByCountry:[{country:'China',pctOfTotal:40},{country:'Taiwan',pctOfTotal:60}],hasBackupSuppliers:'partial',supplierSwitchTime:'8-12 weeks',leadTimeTolerance:'2-3 weeks',inventoryBufferDays:'30 days'});
+    if (localStorage.getItem('risksim_reviewer_password_verified') === 'true') {
+      localStorage.setItem('risksim_paid', 'true');
+      localStorage.setItem('risksim_plan', 'enterprise');
+      localStorage.setItem('risksim_restored', 'true');
+      localStorage.removeItem('risksim_demo');
+      localStorage.removeItem('risksim_demo_banner_dismissed');
+      localStorage.setItem('risksim_email', 'reviewer@banana-art.example');
+      localStorage.setItem('risksim_authenticated_until', String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+      localStorage.setItem('risksim_reviewer_mode', 'true');
+      localStorage.setItem('risksim_profile', window.__rvwProfile);
+      localStorage.setItem('risksim_enterprise_profile', window.__rvwEP);
+      localStorage.setItem('risksim_enterprise_profile_complete', 'true');
+    } else {
+      localStorage.setItem('risksim_paid', 'true');
+      localStorage.setItem('risksim_plan', 'enterprise');
+      localStorage.setItem('risksim_reviewer_mode', 'true');
+    }
     try { window.history.replaceState({}, '', window.location.pathname); } catch(e){}
   }
 })();
@@ -3049,6 +3059,71 @@ function dismissReviewerSplash() {
   el.style.opacity = '0';
   setTimeout(function() { el.style.display = 'none'; }, 400);
   localStorage.setItem('risksim_reviewer_splash_seen', 'true');
+}
+function showReviewerPasswordGate() {
+  var el = document.getElementById('reviewerPasswordGate');
+  if (!el) return;
+  el.style.display = 'flex';
+}
+function _completeReviewerSignIn() {
+  localStorage.setItem('risksim_paid', 'true');
+  localStorage.setItem('risksim_plan', 'enterprise');
+  localStorage.setItem('risksim_restored', 'true');
+  localStorage.removeItem('risksim_demo');
+  localStorage.removeItem('risksim_demo_banner_dismissed');
+  localStorage.setItem('risksim_email', 'reviewer@banana-art.example');
+  localStorage.setItem('risksim_authenticated_until', String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+  localStorage.setItem('risksim_reviewer_mode', 'true');
+  localStorage.setItem('risksim_profile', window.__rvwProfile || '{}');
+  localStorage.setItem('risksim_enterprise_profile', window.__rvwEP || '{}');
+  localStorage.setItem('risksim_enterprise_profile_complete', 'true');
+  localStorage.setItem('risksim_reviewer_password_verified', 'true');
+}
+function submitReviewerPassword() {
+  var input = document.getElementById('reviewerPwInput');
+  var btn = document.getElementById('reviewerPwBtn');
+  var err = document.getElementById('reviewerPwError');
+  if (!input || !btn || !err) return;
+  var pw = input.value;
+  if (!pw) return;
+  btn.disabled = true;
+  err.style.display = 'none';
+  fetch('/api/verify-reviewer', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({yc_token: 'yc-fall-2026-rvw-a3xq7m2h', password: pw})
+  })
+  .then(function(r) { return r.json().then(function(d) { return {status: r.status, data: d}; }); })
+  .then(function(res) {
+    if (res.status === 200 && res.data.success) {
+      _completeReviewerSignIn();
+      var gate = document.getElementById('reviewerPasswordGate');
+      if (gate) {
+        gate.style.transition = 'opacity 0.4s';
+        gate.style.opacity = '0';
+        setTimeout(function() { gate.style.display = 'none'; showReviewerSplash(); }, 400);
+      }
+    } else if (res.status === 429) {
+      localStorage.removeItem('risksim_paid');
+      localStorage.removeItem('risksim_plan');
+      localStorage.removeItem('risksim_reviewer_mode');
+      err.textContent = res.data.error || 'Too many attempts. Try again in 10 minutes.';
+      err.style.display = 'block';
+      input.value = '';
+      btn.disabled = true;
+    } else {
+      err.textContent = res.data.error || 'Incorrect password.';
+      err.style.display = 'block';
+      input.value = '';
+      btn.disabled = false;
+      input.focus();
+    }
+  })
+  .catch(function() {
+    err.textContent = 'Network error. Please try again.';
+    err.style.display = 'block';
+    btn.disabled = false;
+  });
 }
 </script>
 
@@ -3095,9 +3170,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
   if (typeof updatePlanBadge === 'function') updatePlanBadge();
   if (typeof emInitCtaBanner === 'function') emInitCtaBanner();
-  if (localStorage.getItem('risksim_reviewer_mode') === 'true' && localStorage.getItem('risksim_reviewer_splash_seen') !== 'true') {
-    setTimeout(showReviewerSplash, 300);
+  if (localStorage.getItem('risksim_reviewer_mode') === 'true') {
+    if (localStorage.getItem('risksim_reviewer_password_verified') !== 'true') {
+      setTimeout(showReviewerPasswordGate, 300);
+    } else if (localStorage.getItem('risksim_reviewer_splash_seen') !== 'true') {
+      setTimeout(showReviewerSplash, 300);
+    }
   }
+  window.addEventListener('beforeunload', function() {
+    if (localStorage.getItem('risksim_reviewer_mode') === 'true' &&
+        localStorage.getItem('risksim_reviewer_password_verified') !== 'true') {
+      localStorage.removeItem('risksim_paid');
+      localStorage.removeItem('risksim_plan');
+      localStorage.removeItem('risksim_reviewer_mode');
+    }
+  });
 });
 </script>
 
@@ -11056,6 +11143,22 @@ body.oob-active #rsNav{display:none!important;}
   .oob-nav a{font-size:.58rem;letter-spacing:.1em;}
 }
 </style>
+
+<!-- YC REVIEWER PASSWORD GATE -->
+<div id="reviewerPasswordGate" style="display:none;position:fixed;inset:0;z-index:99996;background:#000;align-items:center;justify-content:center;">
+  <div style="max-width:480px;width:100%;padding:60px 40px;text-align:center;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:1.2rem;">YC BATCH F2026 · REVIEWER ACCESS</div>
+    <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.03em;line-height:1.05;color:#fff;margin:0 0 2rem;">Enter reviewer password</h1>
+    <div style="max-width:360px;margin:0 auto;">
+      <input id="reviewerPwInput" type="password" placeholder="Password" autocomplete="current-password"
+        style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.2);color:#fff;font-family:'JetBrains Mono',monospace;font-size:1rem;padding:12px 0;outline:none;text-align:center;box-sizing:border-box;"
+        onkeydown="if(event.key==='Enter')submitReviewerPassword()" />
+      <div id="reviewerPwError" style="display:none;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#ff5555;margin-top:16px;line-height:1.5;"></div>
+      <button id="reviewerPwBtn" onclick="submitReviewerPassword()"
+        style="background:#fff;color:#000;border:none;padding:14px 48px;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:4px;margin-top:24px;">VERIFY</button>
+    </div>
+  </div>
+</div>
 
 <!-- YC REVIEWER SPLASH -->
 <div id="reviewerSplash" style="display:none;position:fixed;inset:0;z-index:99995;background:#000;align-items:center;justify-content:center;">
