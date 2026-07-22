@@ -3004,7 +3004,9 @@ async function goToCheckout(variantId, sellingPlanId) {
 <!-- SYNC: read ?paid= and write localStorage BEFORE the landing IIFE routing decision -->
 <script>
 (function(){
-  var _p = new URLSearchParams(window.location.search).get('paid');
+  // Capture all params ONCE before any replaceState call strips the query string
+  var _up = new URLSearchParams(window.location.search);
+  var _p = _up.get('paid');
   if (_p === 'pro' || _p === 'enterprise') {
     localStorage.setItem('risksim_paid', 'true');
     localStorage.setItem('risksim_plan', _p);
@@ -3015,8 +3017,6 @@ async function goToCheckout(variantId, sellingPlanId) {
     try { var _bc = new BroadcastChannel('risksim_payment'); _bc.postMessage({type:'PAYMENT_SUCCESS',plan:_p}); _bc.close(); } catch(e){}
     try { window.history.replaceState({}, '', window.location.pathname); } catch(e){}
   }
-  // Also capture email from URL if present
-  var _up = new URLSearchParams(window.location.search);
   var _em = _up.get('email') || _up.get('customer_email');
   if (_em) localStorage.setItem('risksim_email', _em);
   var _yc = _up.get('yc');
