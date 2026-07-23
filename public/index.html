@@ -2276,24 +2276,25 @@
   .settings-back { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; padding: 6px; transition: color 0.15s; display: flex; align-items: center; }
   .settings-back:hover { color: white; }
   .settings-body { display: flex; flex: 1; min-height: 0; }
-  .settings-nav { width: 160px; flex-shrink: 0; border-right: 1px solid rgba(255,255,255,0.06); padding: 20px 0; display: flex; flex-direction: column; justify-content: space-between; }
-  .settings-nav-group { display: flex; flex-direction: column; }
-  .settings-nav-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px; margin-top: 12px; }
-  .settings-nav-item { padding: 9px 20px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: rgba(255,255,255,0.38); cursor: pointer; transition: all 0.15s; border-right: 2px solid transparent; margin-right: -1px; }
-  .settings-nav-item:hover { color: rgba(255,255,255,0.75); }
-  .settings-nav-item.active { color: white; border-right-color: white; background: rgba(255,255,255,0.03); }
-  .settings-nav-logout { color: rgba(220,70,60,0.75); }
-  .settings-nav-logout:hover { color: rgba(220,70,60,1); }
-  .settings-nav-logout.active { color: rgba(220,70,60,1); border-right-color: rgba(220,70,60,0.7); background: rgba(220,70,60,0.04); }
+  .settings-nav { width: 210px; flex-shrink: 0; border-right: 1px solid rgba(255,255,255,0.06); padding: 20px 12px; display: flex; flex-direction: column; justify-content: space-between; }
+  .settings-nav-group { display: flex; flex-direction: column; gap: 2px; }
+  .settings-nav-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px; margin-top: 10px; }
+  .settings-nav-item { padding: 10px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: rgba(255,255,255,0.45); cursor: pointer; transition: all 0.15s; border-radius: 6px; position: relative; }
+  .settings-nav-item:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.04); }
+  .settings-nav-item.active { color: white; background: rgba(255,255,255,0.07); }
+  .settings-nav-item.active::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; background: white; border-radius: 2px; }
+  .settings-nav-logout { color: #F76B6B; }
+  .settings-nav-logout:hover { color: #ff8888; background: rgba(247,107,107,0.06); }
+  .settings-nav-logout.active { color: #F76B6B; background: rgba(247,107,107,0.06); }
+  .settings-nav-logout.active::before { background: #F76B6B; }
   .settings-content { padding: 24px 28px 60px; flex: 1; overflow-y: auto; }
   @media (max-width: 768px) {
     .settings-body { flex-direction: column; }
-    .settings-nav { width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); flex-direction: row; padding: 0; overflow-x: auto; justify-content: flex-start; flex-shrink: 0; }
+    .settings-nav { width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); flex-direction: row; padding: 8px 10px; overflow-x: auto; justify-content: flex-start; flex-shrink: 0; gap: 2px; }
     .settings-nav-group { flex-direction: row; }
-    .settings-nav-bottom { border-top: none; border-left: 1px solid rgba(255,255,255,0.06); margin-top: 0; margin-left: 4px; padding-top: 0; padding-left: 4px; }
-    .settings-nav-item { padding: 11px 14px; border-right: none; border-bottom: 2px solid transparent; margin-right: 0; white-space: nowrap; }
-    .settings-nav-item.active { background: transparent; border-right-color: transparent; border-bottom-color: white; }
-    .settings-nav-logout.active { border-bottom-color: rgba(220,70,60,0.7); border-right-color: transparent; }
+    .settings-nav-bottom { border-top: none; border-left: 1px solid rgba(255,255,255,0.06); margin-top: 0; margin-left: 6px; padding-top: 0; padding-left: 6px; }
+    .settings-nav-item { padding: 8px 12px; white-space: nowrap; }
+    .settings-nav-item.active::before { content: none; }
     .settings-content { padding: 20px 18px 40px; overflow-y: visible; }
   }
   .settings-field { margin-bottom: 16px; }
@@ -7563,11 +7564,46 @@ function buildSettingsContact(){
 }
 
 function buildSettingsPrivacy(){
-  return '<span class="settings-section-title">Privacy Policy</span>'+
-    '<div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:20px;">Read our privacy policy to understand how we handle your data.</div>'+
-    '<a href="/privacy.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;color:white;font-family:\'JetBrains Mono\',monospace;font-size:13px;text-decoration:none;padding:12px 20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;">'+
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>'+
-      'Privacy Policy &#8599;</a>';
+  return '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.22em;color:rgba(255,255,255,0.35);margin-bottom:14px;text-transform:uppercase;">Privacy · Last Updated Jul 2026</div>'+
+    '<h2 style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:34px;line-height:1.05;letter-spacing:-0.02em;margin:0 0 16px;color:#fff;">Your data, your rights.</h2>'+
+    '<p style="font-family:Inter,sans-serif;font-size:14px;line-height:1.7;color:rgba(255,255,255,0.55);margin:0 0 28px;max-width:500px;">RiskSim stores only what\'s needed to run your account and deliver alerts. We never sell your data, train external models on your inputs, or share your supplier lists.</p>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:28px;">'+
+      '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:16px 14px;">'+
+        '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.18em;color:rgba(255,255,255,0.35);margin-bottom:10px;">01 · ACCESS</div>'+
+        '<div style="font-family:Inter,sans-serif;font-size:12px;color:rgba(255,255,255,0.75);line-height:1.55;">Request a full export of your data at any time.</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:16px 14px;">'+
+        '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.18em;color:rgba(255,255,255,0.35);margin-bottom:10px;">02 · CORRECT</div>'+
+        '<div style="font-family:Inter,sans-serif;font-size:12px;color:rgba(255,255,255,0.75);line-height:1.55;">Update or fix any information we hold on you.</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:16px 14px;">'+
+        '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.18em;color:rgba(255,255,255,0.35);margin-bottom:10px;">03 · DELETE</div>'+
+        '<div style="font-family:Inter,sans-serif;font-size:12px;color:rgba(255,255,255,0.75);line-height:1.55;">Wipe your account and all associated data.</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="margin-bottom:28px;">'+
+      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.22em;color:rgba(255,255,255,0.35);margin-bottom:12px;text-transform:uppercase;">What We Collect</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'+
+        '<span style="font-family:Inter,sans-serif;font-size:13px;color:rgba(255,255,255,0.85);">Company profile</span>'+
+        '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.08em;color:rgba(255,255,255,0.35);">industry · countries · suppliers</span>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'+
+        '<span style="font-family:Inter,sans-serif;font-size:13px;color:rgba(255,255,255,0.85);">Usage data</span>'+
+        '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.08em;color:rgba(255,255,255,0.35);">audits · simulations · chats</span>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">'+
+        '<span style="font-family:Inter,sans-serif;font-size:13px;color:rgba(255,255,255,0.85);">Account info</span>'+
+        '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.08em;color:rgba(255,255,255,0.35);">email · plan · subscription</span>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;">'+
+        '<span style="font-family:Inter,sans-serif;font-size:13px;color:rgba(255,255,255,0.85);">Payment info</span>'+
+        '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.08em;color:rgba(255,255,255,0.35);">handled by Shopify · not stored</span>'+
+      '</div>'+
+    '</div>'+
+    '<div style="display:flex;gap:10px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.06);">'+
+      '<a href="/privacy.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#050608;padding:11px 20px;font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:600;letter-spacing:0.1em;border-radius:6px;text-decoration:none;">READ FULL POLICY &#8599;</a>'+
+      '<a href="mailto:info@risksim.ai" style="display:inline-flex;align-items:center;background:transparent;color:rgba(255,255,255,0.65);padding:10px 20px;font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:0.1em;border:1px solid rgba(255,255,255,0.15);border-radius:6px;text-decoration:none;">EMAIL US</a>'+
+    '</div>';
 }
 
 function buildSettingsLogout(){
