@@ -2287,7 +2287,8 @@
   .settings-nav-logout:hover { color: #ff8888; background: rgba(247,107,107,0.06); }
   .settings-nav-logout.active { color: #F76B6B; background: rgba(247,107,107,0.06); }
   .settings-nav-logout.active::before { background: #F76B6B; }
-  .settings-content { padding: 24px 28px 60px; flex: 1; overflow-y: auto; max-width: 720px; }
+  .settings-content { padding: 24px 28px 60px; flex: 1; overflow-y: auto; width: 100%; }
+  .settings-content-inner { max-width: 720px; width: 100%; }
   @media (max-width: 768px) {
     .settings-body { flex-direction: column; }
     .settings-nav { width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); flex-direction: row; padding: 8px 10px; overflow-x: auto; justify-content: flex-start; flex-shrink: 0; gap: 2px; }
@@ -7364,12 +7365,15 @@ function switchSettingsTab(tab,el){
 function renderSettingsTab(tab){
   var c=document.getElementById('settingsContent');
   if(!c)return;
-  if(tab==='profile'){c.innerHTML=buildSettingsProfile();}
-  else if(tab==='billing'){c.innerHTML=buildSettingsBilling();}
-  else if(tab==='notifications'){c.innerHTML=buildSettingsNotifications();loadNotifPreferences();}
-  else if(tab==='contact'){c.innerHTML=buildSettingsContact();}
-  else if(tab==='privacy'){c.innerHTML=buildSettingsPrivacy();}
-  else if(tab==='logout'){c.innerHTML=buildSettingsLogout();}
+  var html='';
+  if(tab==='profile'){html=buildSettingsProfile();}
+  else if(tab==='billing'){html=buildSettingsBilling();}
+  else if(tab==='notifications'){html=buildSettingsNotifications();}
+  else if(tab==='contact'){html=buildSettingsContact();}
+  else if(tab==='privacy'){html=buildSettingsPrivacy();}
+  else if(tab==='logout'){html=buildSettingsLogout();}
+  c.innerHTML='<div class="settings-content-inner">'+html+'</div>';
+  if(tab==='notifications')loadNotifPreferences();
 }
 
 function buildSettingsProfile(){
