@@ -2265,25 +2265,37 @@
   }
   .settings-overlay.open { display: flex; }
   .settings-modal {
-    width: 100%; max-width: 680px; padding: 0 24px 60px;
+    width: 100%; max-width: 780px; padding: 0;
     display: flex; flex-direction: column; flex: 1;
   }
   .settings-modal-header {
     display: flex; align-items: center; gap: 16px;
-    padding: 24px 0 20px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
+    padding: 24px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
   }
   .settings-modal-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: white; }
   .settings-back { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; padding: 6px; transition: color 0.15s; display: flex; align-items: center; }
   .settings-back:hover { color: white; }
-  .settings-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
-  .settings-tab {
-    flex: 1; padding: 13px 14px; text-align: center; font-size: 11px; letter-spacing: 1.5px;
-    text-transform: uppercase; color: rgba(255,255,255,0.35); cursor: pointer;
-    font-family: 'JetBrains Mono', monospace; transition: all 0.15s; border-bottom: 2px solid transparent;
+  .settings-body { display: flex; flex: 1; min-height: 0; }
+  .settings-nav { width: 160px; flex-shrink: 0; border-right: 1px solid rgba(255,255,255,0.06); padding: 20px 0; display: flex; flex-direction: column; justify-content: space-between; }
+  .settings-nav-group { display: flex; flex-direction: column; }
+  .settings-nav-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px; margin-top: 12px; }
+  .settings-nav-item { padding: 9px 20px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: rgba(255,255,255,0.38); cursor: pointer; transition: all 0.15s; border-right: 2px solid transparent; margin-right: -1px; }
+  .settings-nav-item:hover { color: rgba(255,255,255,0.75); }
+  .settings-nav-item.active { color: white; border-right-color: white; background: rgba(255,255,255,0.03); }
+  .settings-nav-logout { color: rgba(220,70,60,0.75); }
+  .settings-nav-logout:hover { color: rgba(220,70,60,1); }
+  .settings-nav-logout.active { color: rgba(220,70,60,1); border-right-color: rgba(220,70,60,0.7); background: rgba(220,70,60,0.04); }
+  .settings-content { padding: 24px 28px 60px; flex: 1; overflow-y: auto; }
+  @media (max-width: 768px) {
+    .settings-body { flex-direction: column; }
+    .settings-nav { width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); flex-direction: row; padding: 0; overflow-x: auto; justify-content: flex-start; flex-shrink: 0; }
+    .settings-nav-group { flex-direction: row; }
+    .settings-nav-bottom { border-top: none; border-left: 1px solid rgba(255,255,255,0.06); margin-top: 0; margin-left: 4px; padding-top: 0; padding-left: 4px; }
+    .settings-nav-item { padding: 11px 14px; border-right: none; border-bottom: 2px solid transparent; margin-right: 0; white-space: nowrap; }
+    .settings-nav-item.active { background: transparent; border-right-color: transparent; border-bottom-color: white; }
+    .settings-nav-logout.active { border-bottom-color: rgba(220,70,60,0.7); border-right-color: transparent; }
+    .settings-content { padding: 20px 18px 40px; overflow-y: visible; }
   }
-  .settings-tab.active { color: white; border-bottom-color: white; }
-  .settings-tab:hover { color: rgba(255,255,255,0.7); }
-  .settings-content { padding: 24px 0; flex: 1; }
   .settings-field { margin-bottom: 16px; }
   .settings-field label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.18em; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 6px; }
   .settings-field input, .settings-field select, .settings-field textarea {
@@ -3539,12 +3551,21 @@ window.addEventListener('keydown',__handleIntroKey,true);
       </button>
       <div class="settings-modal-title">Settings</div>
     </div>
-    <div class="settings-tabs">
-      <div class="settings-tab active" onclick="switchSettingsTab('profile',this)">Profile</div>
-      <div class="settings-tab" onclick="switchSettingsTab('billing',this)">Plans &amp; Billing</div>
-      <div class="settings-tab" onclick="switchSettingsTab('notifications',this)">Notifications</div>
+    <div class="settings-body">
+      <nav class="settings-nav">
+        <div class="settings-nav-group">
+          <div class="settings-nav-item active" onclick="switchSettingsTab('profile',this)">Profile</div>
+          <div class="settings-nav-item" onclick="switchSettingsTab('billing',this)">Plans &amp; Billing</div>
+          <div class="settings-nav-item" onclick="switchSettingsTab('notifications',this)">Notifications</div>
+          <div class="settings-nav-item" onclick="switchSettingsTab('contact',this)">Contact</div>
+          <div class="settings-nav-item" onclick="switchSettingsTab('privacy',this)">Privacy Policy</div>
+        </div>
+        <div class="settings-nav-bottom">
+          <div class="settings-nav-item settings-nav-logout" onclick="switchSettingsTab('logout',this)">Log Out</div>
+        </div>
+      </nav>
+      <div class="settings-content" id="settingsContent"></div>
     </div>
-    <div class="settings-content" id="settingsContent"></div>
   </div>
 </div>
 
@@ -7322,9 +7343,8 @@ function openSettings(){
   var overlay=document.getElementById('settingsOverlay');
   if(overlay){overlay.classList.add('open');}
   renderSettingsTab('profile');
-  // Reset tab UI
-  var tabs=document.querySelectorAll('.settings-tab');
-  tabs.forEach(function(t,i){t.classList.toggle('active',i===0);});
+  var items=document.querySelectorAll('.settings-nav-item');
+  items.forEach(function(t,i){t.classList.toggle('active',i===0);});
 }
 
 function closeSettings(){
@@ -7334,8 +7354,8 @@ function closeSettings(){
 
 function switchSettingsTab(tab,el){
   _settingsTab=tab;
-  var tabs=document.querySelectorAll('.settings-tab');
-  tabs.forEach(function(t){t.classList.remove('active');});
+  var items=document.querySelectorAll('.settings-nav-item');
+  items.forEach(function(t){t.classList.remove('active');});
   if(el)el.classList.add('active');
   renderSettingsTab(tab);
 }
@@ -7346,6 +7366,9 @@ function renderSettingsTab(tab){
   if(tab==='profile'){c.innerHTML=buildSettingsProfile();}
   else if(tab==='billing'){c.innerHTML=buildSettingsBilling();}
   else if(tab==='notifications'){c.innerHTML=buildSettingsNotifications();loadNotifPreferences();}
+  else if(tab==='contact'){c.innerHTML=buildSettingsContact();}
+  else if(tab==='privacy'){c.innerHTML=buildSettingsPrivacy();}
+  else if(tab==='logout'){c.innerHTML=buildSettingsLogout();}
 }
 
 function buildSettingsProfile(){
@@ -7529,6 +7552,43 @@ function buildSettingsNotifications(){
   h+='<div id="nt-success" style="display:none;margin-top:10px;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.1em;color:rgba(100,220,140,0.8);">Preferences saved.</div>';
   h+='<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);"><a href="#" onclick="notifUnsubscribeAll();return false;" style="font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:0.1em;color:rgba(255,255,255,0.2);text-decoration:none;">Unsubscribe from all emails</a></div>';
   return h;
+}
+
+function buildSettingsContact(){
+  return '<span class="settings-section-title">Contact</span>'+
+    '<div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:20px;">Questions, feedback, or need help? Reach us directly.</div>'+
+    '<a href="mailto:info@risksim.ai" style="display:inline-flex;align-items:center;gap:10px;color:white;font-family:\'JetBrains Mono\',monospace;font-size:13px;text-decoration:none;padding:12px 20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;">'+
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>'+
+      'info@risksim.ai</a>';
+}
+
+function buildSettingsPrivacy(){
+  return '<span class="settings-section-title">Privacy Policy</span>'+
+    '<div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:20px;">Read our privacy policy to understand how we handle your data.</div>'+
+    '<a href="/privacy.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;color:white;font-family:\'JetBrains Mono\',monospace;font-size:13px;text-decoration:none;padding:12px 20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;">'+
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>'+
+      'Privacy Policy &#8599;</a>';
+}
+
+function buildSettingsLogout(){
+  return '<span class="settings-section-title">Sign Out</span>'+
+    '<div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;margin-bottom:24px;">You\'ll be signed out on this device. Your account and subscription remain active — you can sign back in any time.</div>'+
+    '<div id="logout-confirm" style="display:none;margin-bottom:16px;padding:16px;background:rgba(220,70,60,0.06);border:1px solid rgba(220,70,60,0.2);border-radius:10px;">'+
+      '<div style="font-size:13px;color:rgba(255,255,255,0.8);margin-bottom:14px;font-weight:600;">Sign out of this device?</div>'+
+      '<div style="display:flex;gap:10px;">'+
+        '<button onclick="document.getElementById(\'logout-confirm\').style.display=\'none\'" style="flex:1;padding:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:rgba(255,255,255,0.65);font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:0.05em;cursor:pointer;">Cancel</button>'+
+        '<button onclick="logOutAccount()" style="flex:1;padding:10px;background:rgba(220,70,60,0.18);border:1px solid rgba(220,70,60,0.4);border-radius:8px;color:rgba(220,70,60,1);font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;letter-spacing:0.08em;cursor:pointer;">Sign Out</button>'+
+      '</div>'+
+    '</div>'+
+    '<button onclick="document.getElementById(\'logout-confirm\').style.display=\'block\'" style="padding:11px 24px;background:rgba(220,70,60,0.1);border:1px solid rgba(220,70,60,0.25);border-radius:10px;color:rgba(220,70,60,0.88);font-family:\'JetBrains Mono\',monospace;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">Log Out</button>';
+}
+
+function logOutAccount(){
+  var toRemove=[];
+  for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.startsWith('risksim_'))toRemove.push(k);}
+  toRemove.forEach(function(k){localStorage.removeItem(k);});
+  localStorage.removeItem('jarvis_enabled');
+  window.location.href='/';
 }
 
 function escHtmlSettings(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
