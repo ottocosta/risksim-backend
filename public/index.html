@@ -3607,6 +3607,7 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <p class="lp-hero-desc">Self-serve supply chain intelligence for procurement teams who can't justify a Palantir contract — but can't run on spreadsheets either.</p>
       <div class="lp-hero-ctas">
         <button class="lp-btn-primary" onclick="openDemoModal()">Book a Demo</button>
+        <button class="lp-btn-primary" onclick="openPlansModal()">Plans</button>
         <button class="lp-btn-secondary" onclick="lpBrowseProduct()">Browse the product</button>
       </div>
       <button class="lp-restore-link" onclick="openRestoreModal()">Already a customer? Restore access →</button>
@@ -3850,6 +3851,29 @@ window.addEventListener('keydown',__handleIntroKey,true);
         <button class="rm-btn-cancel" onclick="closeRestoreModal()">Cancel</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ===== PLANS MODAL ===== -->
+<div id="plansModal" onclick="if(event.target===this)closePlansModal()" style="display:none;position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+  <div style="background:#0c0c0c;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:40px 36px 32px;max-width:580px;width:100%;position:relative;max-height:90vh;overflow-y:auto;">
+    <button onclick="closePlansModal()" style="position:absolute;top:16px;right:18px;background:none;border:none;color:rgba(255,255,255,0.35);cursor:pointer;font-size:20px;line-height:1;padding:4px;" title="Close">✕</button>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.24em;color:rgba(255,255,255,0.32);margin-bottom:22px;text-transform:uppercase;">Pricing</div>
+    <div style="display:flex;gap:14px;margin-bottom:28px;">
+      <div style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:24px 20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;color:rgba(255,255,255,0.42);margin-bottom:10px;">PRO</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:30px;color:#fff;line-height:1;margin-bottom:14px;">€249<span style="font-size:13px;font-weight:400;color:rgba(255,255,255,0.38);margin-left:2px;">/mo</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:22px;">For supply chain analysts and procurement teams who need real-time risk intelligence.</div>
+        <button onclick="closePlansModal();goToCheckout('53221724029266','692427948370');" style="width:100%;background:#fff;color:#000;border:none;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.14em;border-radius:4px;cursor:pointer;">BUY NOW</button>
+      </div>
+      <div style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);border-radius:8px;padding:24px 20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;color:rgba(255,255,255,0.42);margin-bottom:10px;">ENTERPRISE</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:30px;color:#fff;line-height:1;margin-bottom:14px;">€799<span style="font-size:13px;font-weight:400;color:rgba(255,255,255,0.38);margin-left:2px;">/mo</span></div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:22px;">For operations teams managing complex global sourcing with advanced cost modeling.</div>
+        <button onclick="closePlansModal();goToCheckout('53221730910546','692427981138');" style="width:100%;background:#fff;color:#000;border:none;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.14em;border-radius:4px;cursor:pointer;">BUY NOW</button>
+      </div>
+    </div>
+    <div style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35);">Not sure which fits? <button onclick="closePlansModal();openDemoModal();" style="background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;text-decoration:underline;padding:0;">Book a 15-min demo →</button></div>
   </div>
 </div>
 
@@ -9654,6 +9678,15 @@ function openDemoModal() {
 function closeDemoModal() {
   var m = document.getElementById('demoModal');
   if (m) m.classList.remove('active');
+}
+
+function openPlansModal() {
+  var m = document.getElementById('plansModal');
+  if (m) { m.style.display = 'flex'; }
+}
+function closePlansModal() {
+  var m = document.getElementById('plansModal');
+  if (m) { m.style.display = 'none'; }
 }
 
 async function submitDemoRequest() {
