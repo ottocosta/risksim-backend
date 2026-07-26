@@ -131,21 +131,34 @@
     }
 
     /* ===== HERO ===== */
-    .lp-hero { min-height: 100vh; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10vh 2rem 5rem; position: relative; }
-    .lp-hero-content { text-align: center; max-width: 720px; margin: 0 auto; }
-    .lp-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.42); display: block; margin-bottom: 1.6rem; }
+    .lp-hero { min-height: 100vh; background: #000; background-image: radial-gradient(ellipse at 85% 15%, rgba(247,107,107,0.08) 0%, transparent 45%), radial-gradient(circle, rgba(255,255,255,0.038) 1px, transparent 1px); background-size: auto, 36px 36px; background-position: 0 0, 1px 1px; display: grid; grid-template-columns: 55fr 45fr; align-items: center; padding: 0 4% 0 6%; gap: 5rem; position: relative; overflow: hidden; }
+    .lp-hero-content { text-align: left; max-width: none; margin: 0; padding: 9rem 0 4rem; }
+    .lp-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.55); display: flex; align-items: center; gap: 14px; margin-bottom: 1.6rem; }
     .lp-headline { font-family: 'Inter', sans-serif; font-weight: 700; font-size: clamp(2rem, 3.6vw, 3.4rem); color: #fff; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 1.5rem; }
-    .lp-hero-desc { font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: clamp(0.95rem, 1.2vw, 1.08rem); color: rgba(255,255,255,0.55); line-height: 1.72; max-width: 60ch; margin: 0 auto 2.4rem; }
-    .lp-hero-ctas { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.4rem; }
+    .lp-hero-desc { font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: clamp(0.95rem, 1.2vw, 1.08rem); color: rgba(255,255,255,0.55); line-height: 1.72; max-width: 46ch; margin: 0 0 2.4rem; }
+    .lp-hero-ctas { display: flex; gap: 0.75rem; justify-content: flex-start; flex-wrap: wrap; margin-bottom: 1.4rem; }
     .lp-trust { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.22); }
     .lp-btn-primary { font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; background: #fff; color: #000; border: none; padding: 0.82rem 1.8rem; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
     .lp-btn-primary:hover { background: #e8e8e8; }
     .lp-btn-secondary { font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; background: transparent; color: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.28); padding: 0.82rem 1.8rem; border-radius: 4px; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
     .lp-btn-secondary:hover { border-color: rgba(255,255,255,0.55); color: #fff; }
-
-    /* Scroll hint */
-    .lp-scroll-hint { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
-    .lp-scroll-hint svg { animation: lpBounce 2s ease infinite; }
+    .lp-hero-right { display: flex; flex-direction: column; gap: 12px; padding: 9rem 0 4rem; min-width: 0; }
+    .lp-hero-panel { background: rgba(247,107,107,0.05); border: 1px solid rgba(247,107,107,0.28); border-radius: 14px; padding: 24px 28px; position: relative; overflow: hidden; }
+    .lp-hero-panel::before { content: ''; position: absolute; top: 0; left: 30px; right: 30px; height: 1px; background: linear-gradient(90deg, rgba(247,107,107,0) 0%, rgba(247,107,107,0.55) 50%, rgba(247,107,107,0) 100%); }
+    .lp-metric-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .lp-metric-tile { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 14px; }
+    .lp-hero-footer { position: absolute; bottom: 1.5rem; left: 6%; right: 4%; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.28); text-transform: uppercase; pointer-events: none; }
+    .lp-topnav-plans { font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.04em; background: transparent; color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.25); padding: 0.5rem 1.25rem; border-radius: 4px; cursor: pointer; transition: border-color 0.2s, color 0.2s; white-space: nowrap; margin-right: 0.5rem; }
+    .lp-topnav-plans:hover { border-color: #fff; color: #fff; }
+    @media (max-width: 900px) {
+      .lp-hero { grid-template-columns: 1fr; padding: 8rem 1.5rem 5rem; gap: 2rem; }
+      .lp-hero-content { text-align: center; padding: 2rem 0 1rem; }
+      .lp-hero-right { display: none; }
+      .lp-hero-ctas { justify-content: center; }
+      .lp-hero-desc { margin: 0 auto 2.4rem; }
+      .lp-hero-footer { display: none; }
+    }
+    .lp-scroll-hint { display: none; }
     @keyframes lpBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 
     /* Content sections */
@@ -3594,15 +3607,21 @@ window.addEventListener('keydown',__handleIntroKey,true);
     </div>
     <div class="lp-topnav-right">
       <button class="lp-topnav-signin" onclick="openRestoreModal()">Sign in</button>
+      <button class="lp-topnav-plans" onclick="openPlansModal()">Plans</button>
       <button class="lp-topnav-cta" onclick="openDemoModal()">Book a Demo</button>
     </div>
     <button class="lp-topnav-hamburger" onclick="document.getElementById('lpNavLinks').classList.toggle('lp-nav-open')" aria-label="Menu">☰</button>
   </nav>
 
-  <!-- Hero — pure black, no map -->
+  <!-- Hero — split layout -->
   <section class="lp-hero">
+
+    <!-- Left column -->
     <div class="lp-hero-content">
-      <span class="lp-eyebrow">Supply Chain Intelligence</span>
+      <div class="lp-eyebrow">
+        <span style="width:11px;height:11px;border-radius:50%;background:#F76B6B;box-shadow:0 0 0 4px rgba(247,107,107,0.22);flex-shrink:0;display:inline-block;"></span>
+        Tariff Exposure &middot; Trade Policy Analysis
+      </div>
       <h1 class="lp-headline">Save hours of spreadsheets, thousands in tariffs, and the supplier risk you didn't see coming.</h1>
       <p class="lp-hero-desc">Supply chain intelligence without the supply chain team.</p>
       <div class="lp-hero-ctas">
@@ -3610,11 +3629,70 @@ window.addEventListener('keydown',__handleIntroKey,true);
         <button class="lp-btn-primary" onclick="openPlansModal()">Plans</button>
         <button class="lp-btn-secondary" onclick="lpBrowseProduct()">Browse the product</button>
       </div>
-      <button class="lp-restore-link" onclick="openRestoreModal()">Already a customer? Restore access →</button>
+      <button class="lp-restore-link" onclick="openRestoreModal()">Already a customer? Restore access &rarr;</button>
     </div>
-    <div class="lp-scroll-hint">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M7 12l-4-4M7 12l4-4" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+
+    <!-- Right column: product UI card -->
+    <div class="lp-hero-right">
+      <div class="lp-hero-panel">
+        <!-- Card header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="width:9px;height:9px;border-radius:50%;background:#F76B6B;flex-shrink:0;display:inline-block;"></span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;color:rgba(255,255,255,0.72);text-transform:uppercase;">Tariff Exposure &middot; Trade Policy Analysis</span>
+          </div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.5rem;letter-spacing:0.18em;color:rgba(255,255,255,0.35);text-transform:uppercase;">1 Country</span>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,0.06);margin-bottom:18px;"></div>
+        <!-- Section label -->
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.5rem;letter-spacing:0.22em;color:rgba(255,255,255,0.46);text-transform:uppercase;margin-bottom:14px;">Tariff Risk by Sourcing Country</div>
+        <!-- Country row -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.56rem;font-weight:500;letter-spacing:0.1em;color:#F76B6B;background:rgba(247,107,107,0.15);border:1px solid rgba(247,107,107,0.42);padding:4px 10px;border-radius:4px;text-transform:uppercase;">HIGH</span>
+          <span style="font-family:'Inter',sans-serif;font-size:1.25rem;font-weight:500;color:#fff;letter-spacing:-0.03em;">China</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.54rem;color:rgba(247,107,107,0.88);background:rgba(247,107,107,0.08);border:1px solid rgba(247,107,107,0.22);padding:4px 10px;border-radius:4px;">Japan MFN Tariff (no Japan-China FTA)</span>
+        </div>
+        <!-- Body text -->
+        <p style="font-family:'Inter',sans-serif;font-size:0.82rem;color:rgba(255,255,255,0.52);line-height:1.7;margin:0 0 18px;">China does not benefit from any preferential trade agreement with Japan, so all imports of textiles, apparel, and footwear are subject to standard MFN rates. Footwear and apparel categories typically carry among the higher MFN duty rates in Japan&rsquo;s schedule.</p>
+        <!-- Query chip -->
+        <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(247,107,107,0.09);border:1px solid rgba(247,107,107,0.3);border-radius:6px;padding:11px 14px;margin-bottom:18px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.56rem;color:rgba(247,107,107,0.9);">How do I reduce China tariff exposure?</span>
+          <span style="color:rgba(247,107,107,0.65);font-size:0.85rem;">&#8594;</span>
+        </div>
+        <!-- Footer -->
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.48rem;letter-spacing:0.16em;color:rgba(255,255,255,0.28);text-transform:uppercase;">Sourced &middot; Japan Customs Tariff Schedule / RCEP</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.48rem;letter-spacing:0.16em;color:rgba(62,224,122,0.62);text-transform:uppercase;">Updated 12s ago</span>
+        </div>
+      </div>
+
+      <!-- Metric tiles -->
+      <div class="lp-metric-tiles">
+        <div class="lp-metric-tile">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.48rem;letter-spacing:0.18em;color:rgba(255,255,255,0.38);text-transform:uppercase;margin-bottom:8px;">MFN Rate</div>
+          <div style="font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:500;color:#fff;letter-spacing:-0.02em;">12.4%</div>
+        </div>
+        <div class="lp-metric-tile">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.48rem;letter-spacing:0.18em;color:rgba(255,255,255,0.38);text-transform:uppercase;margin-bottom:8px;">RCEP Coverage</div>
+          <div style="font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:500;color:#FFC847;letter-spacing:-0.02em;">Partial</div>
+        </div>
+        <div class="lp-metric-tile">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.48rem;letter-spacing:0.18em;color:rgba(255,255,255,0.38);text-transform:uppercase;margin-bottom:8px;">EPA Status</div>
+          <div style="font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:500;color:#F76B6B;letter-spacing:-0.02em;">None</div>
+        </div>
+        <div class="lp-metric-tile">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.48rem;letter-spacing:0.18em;color:rgba(255,255,255,0.38);text-transform:uppercase;margin-bottom:8px;">Trend</div>
+          <div style="font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:500;color:#F76B6B;letter-spacing:-0.02em;">Elevated &#8593;</div>
+        </div>
+      </div>
     </div>
+
+    <!-- Bottom caption bar -->
+    <div class="lp-hero-footer">
+      <span>Tariffs &middot; Suppliers &middot; Shipping &middot; Regional Risk &middot; Compliance &middot; Simulation</span>
+      <span style="color:rgba(255,255,255,0.45);">risksim.ai</span>
+    </div>
+
   </section>
 
   <div class="lp-outcomes-row">
