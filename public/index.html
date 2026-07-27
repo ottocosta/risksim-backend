@@ -132,7 +132,7 @@
 
     /* ===== HERO ===== */
     .lp-hero { min-height: 100vh; background: #000; background-image: radial-gradient(ellipse at 85% 15%, rgba(247,107,107,0.08) 0%, transparent 45%), radial-gradient(circle, rgba(255,255,255,0.038) 1px, transparent 1px); background-size: auto, 36px 36px; background-position: 0 0, 1px 1px; display: grid; grid-template-columns: 55fr 45fr; align-items: center; padding: 0 4% 0 6%; gap: 5rem; position: relative; overflow: hidden; }
-    .lp-hero-content { text-align: left; max-width: none; margin: 0; padding: 9rem 0 4rem; }
+    .lp-hero-content { text-align: left; max-width: none; margin: 0; padding: 2rem 0; }
     .lp-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.55); display: flex; align-items: center; gap: 14px; margin-bottom: 1.6rem; }
     .lp-headline { font-family: 'Inter', sans-serif; font-weight: 700; font-size: clamp(2rem, 3.6vw, 3.4rem); color: #fff; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 1.5rem; }
     .lp-hero-desc { font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: clamp(0.95rem, 1.2vw, 1.08rem); color: rgba(255,255,255,0.55); line-height: 1.72; max-width: 46ch; margin: 0 0 2.4rem; }
@@ -142,7 +142,7 @@
     .lp-btn-primary:hover { background: #e8e8e8; }
     .lp-btn-secondary { font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; background: transparent; color: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.28); padding: 0.82rem 1.8rem; border-radius: 4px; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
     .lp-btn-secondary:hover { border-color: rgba(255,255,255,0.55); color: #fff; }
-    .lp-hero-right { display: flex; flex-direction: column; gap: 12px; padding: 9rem 0 4rem; min-width: 0; }
+    .lp-hero-right { display: flex; flex-direction: column; gap: 12px; padding: 2rem 0; min-width: 0; }
     .lp-hero-panel { background: rgba(247,107,107,0.05); border: 1px solid rgba(247,107,107,0.28); border-radius: 14px; padding: 24px 28px; position: relative; overflow: hidden; }
     .lp-hero-panel::before { content: ''; position: absolute; top: 0; left: 30px; right: 30px; height: 1px; background: linear-gradient(90deg, rgba(247,107,107,0) 0%, rgba(247,107,107,0.55) 50%, rgba(247,107,107,0) 100%); }
     .lp-metric-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
@@ -3257,6 +3257,9 @@ function __handleIntroKey(e){
   if(e.key==='Enter'||e.key===' '||e.key==='Escape'){
     e.preventDefault();e.stopPropagation();
     if(window.__dismissIntro)window.__dismissIntro();
+  } else if(e.key==='ArrowDown'||e.key==='ArrowUp'||e.key==='PageDown'||e.key==='PageUp'){
+    var _intro=document.getElementById('rs-intro');
+    if(_intro){e.preventDefault();var _d=e.key==='ArrowDown'?120:e.key==='ArrowUp'?-120:e.key==='PageDown'?window.innerHeight*0.85:-window.innerHeight*0.85;_intro.scrollBy({top:_d,behavior:'smooth'});}
   }
 }
 document.addEventListener('keydown',__handleIntroKey,true);
