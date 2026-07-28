@@ -2652,6 +2652,67 @@
   .sa-sidebar-footer-link { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.08em; color:rgba(255,255,255,0.25); cursor:pointer; transition:color 0.15s; }
   .sa-sidebar-footer-link:hover { color:rgba(255,255,255,0.55); }
 
+  /* ===== SYS_05 SHIPMENT ANALYSIS RESULT CARD (redesign) ===== */
+  .sar-card { padding:28px 28px 24px; }
+  .sar-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; }
+  .sar-header-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:8px; }
+  .sar-header-id { font-family:'JetBrains Mono',monospace; font-size:26px; font-weight:400; color:#fff; letter-spacing:0.01em; line-height:1; }
+  .sar-header-ts { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.25); white-space:nowrap; padding-top:24px; }
+  .sar-divider { border:none; border-top:1px solid rgba(255,255,255,0.08); margin:20px 0; }
+  .sar-section-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-bottom:16px; }
+  /* Route diagram */
+  .sar-route-diagram { display:flex; align-items:flex-start; margin-bottom:18px; gap:0; }
+  .sar-route-node { display:flex; flex-direction:column; align-items:flex-start; gap:5px; flex-shrink:0; min-width:90px; }
+  .sar-route-node-mid { flex:1; align-items:center; text-align:center; min-width:0; }
+  .sar-route-node-right { align-items:flex-end; text-align:right; min-width:90px; }
+  .sar-route-line-wrap { flex:1; display:flex; align-items:flex-start; padding-top:3px; }
+  .sar-route-line { width:100%; border-top:1px dashed rgba(255,255,255,0.15); }
+  .sar-route-dot { width:8px; height:8px; border-radius:50%; background:#fff; flex-shrink:0; }
+  .sar-route-dot-mid { background:rgba(255,255,255,0.35); }
+  .sar-route-port { font-family:'JetBrains Mono',monospace; font-size:12px; color:#fff; }
+  .sar-route-country { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.28); text-transform:uppercase; letter-spacing:0.06em; }
+  /* Data rows */
+  .sar-data-rows { display:flex; flex-direction:column; gap:7px; }
+  .sar-data-row { display:flex; }
+  .sar-data-key { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.3); width:90px; flex-shrink:0; }
+  .sar-data-val { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.85); }
+  /* Severity */
+  .sar-severity-row { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .sar-sev-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .sar-sev-dot.low { background:rgba(100,220,140,0.9); }
+  .sar-sev-dot.moderate { background:rgba(255,210,80,0.9); }
+  .sar-sev-dot.high { background:#F76B6B; animation:sarPulseHigh 2s ease-in-out infinite; }
+  .sar-sev-dot.critical { background:#F76B6B; animation:sarPulseCrit 1s ease-in-out infinite; }
+  @keyframes sarPulseHigh { 0%,100%{opacity:0.8;} 50%{opacity:1;box-shadow:0 0 8px rgba(247,107,107,0.6);} }
+  @keyframes sarPulseCrit { 0%,100%{opacity:0.8;} 50%{opacity:1;box-shadow:0 0 12px rgba(247,107,107,0.8);} }
+  .sar-sev-label { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; letter-spacing:0.08em; }
+  .sar-sev-label.low { color:rgba(100,220,140,0.9); }
+  .sar-sev-label.moderate { color:rgba(255,210,80,0.9); }
+  .sar-sev-label.high,.sar-sev-label.critical { color:#F76B6B; }
+  /* Factors */
+  .sar-factors-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px 28px; }
+  .sar-factors-sublabel { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.22); margin-bottom:8px; }
+  .sar-factor { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.55); padding:4px 0 4px 14px; position:relative; line-height:1.55; }
+  .sar-factor::before { content:'•'; position:absolute; left:0; color:rgba(255,255,255,0.2); }
+  /* Actions */
+  .sar-actions { display:flex; flex-direction:column; gap:10px; }
+  .sar-action-item { display:flex; gap:14px; align-items:flex-start; background:rgba(255,255,255,0.02); padding:13px 14px; transition:background 0.15s; cursor:default; }
+  .sar-action-item:hover { background:rgba(255,255,255,0.04); }
+  .sar-action-num { font-family:'JetBrains Mono',monospace; font-size:10px; color:#F76B6B; border:1px solid rgba(247,107,107,0.4); width:26px; height:26px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .sar-action-text { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.78); line-height:1.65; padding-top:4px; }
+  /* Footer */
+  .sar-footer { display:flex; align-items:center; justify-content:space-between; }
+  .sar-autosave { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.22); letter-spacing:0.03em; }
+  .sar-followup-btn { padding:10px 20px; background:#F76B6B; border:none; color:#fff; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; cursor:pointer; transition:opacity 0.15s; white-space:nowrap; }
+  .sar-followup-btn:hover { opacity:0.88; }
+  @media (max-width:768px) {
+    .sar-factors-grid { grid-template-columns:1fr; }
+    .sar-card { padding:20px 16px 18px; }
+    .sar-header-id { font-size:20px; }
+    .sar-route-node { min-width:70px; }
+    .sar-route-node-right { min-width:70px; }
+  }
+
   /* ===== SYS_06 COST ENGINE — NEW COMPONENTS ===== */
   .lc-res-section {
     padding-top: 20px; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.06);
@@ -8412,6 +8473,7 @@ function saAnalyze(){
     setTimeout(function(){_saMarkStep(4,'done');},500);
     setTimeout(function(){
       _saCurrentResult=data;
+      saSaveAnalysis();
       _saShowState('saResult');
       var el=document.getElementById('saResult');
       if(el)el.innerHTML=buildSAResultCardHtml(data);
@@ -8456,30 +8518,98 @@ function saShowSampleResult(){
 
 function buildSAResultCardHtml(d){
   var sev=(d.severity||'moderate').toLowerCase();
-  var routeRows=[['Origin',d.origin],['Destination',d.destination],['Carrier',d.carrier],['Transit',d.transit],['ETA',d.eta]]
-    .map(function(r){return'<div class="sa-route-key">'+r[0]+'</div><div class="sa-route-val">'+(r[1]||'')+'</div>';}).join('');
-  var routeFactors=(d.routeFactors||[]).map(function(f){return'<div class="sa-factor">'+f+'</div>';}).join('');
-  var yourFactors=(d.yourFactors||[]).map(function(f){return'<div class="sa-factor">'+f+'</div>';}).join('');
+  var originPort=_saExtractPort(d.origin);
+  var originCtry=_saExtractCountry(d.origin);
+  var destPort=_saExtractPort(d.destination);
+  var destCtry=_saExtractCountry(d.destination);
+  var midLabel=_saRouteMidLabel(d.origin,d.destination);
+  var routeFactors=(d.routeFactors||[]).map(function(f){return'<div class="sar-factor">'+escHtml(f)+'</div>';}).join('');
+  var yourFactors=(d.yourFactors||[]).map(function(f){return'<div class="sar-factor">'+escHtml(f)+'</div>';}).join('');
   var actions=(d.actions||[]).map(function(a,i){
-    var n=String(i+1).padStart(2,'0');
-    return'<div class="sa-action-row"><div class="sa-action-num">'+n+'</div><div class="sa-action-text">'+a+'</div></div>';
+    return'<div class="sar-action-item">'
+      +'<div class="sar-action-num">'+String(i+1).padStart(2,'0')+'</div>'
+      +'<div class="sar-action-text">'+escHtml(a)+'</div>'
+      +'</div>';
   }).join('');
-  return '<div class="sa-result-header">Route Analysis &middot; '+d.id+'</div>'
-    +'<div class="sa-result-section-label">Route</div>'
-    +'<div class="sa-route-grid">'+routeRows+'</div>'
-    +'<div class="sa-result-sep"></div>'
-    +'<div class="sa-result-section-label">Risk Assessment</div>'
-    +'<div class="sa-severity-row"><div class="sa-sev-dot '+sev+'"></div><div class="sa-sev-label '+sev+'">'+d.severity+'</div></div>'
-    +'<div class="sa-factors-group"><div class="sa-factors-sublabel">Route factors</div>'+routeFactors+'</div>'
-    +'<div class="sa-factors-group"><div class="sa-factors-sublabel">Your factors</div>'+yourFactors+'</div>'
-    +'<div class="sa-result-sep"></div>'
-    +'<div class="sa-result-section-label">Recommended Actions</div>'
-    +'<div>'+actions+'</div>'
-    +'<div class="sa-result-sep"></div>'
-    +'<div class="sa-result-btns">'
-    +'<button class="sa-btn-secondary" onclick="saSaveAnalysis()">Save Analysis</button>'
-    +'<button class="sa-btn-primary" onclick="saOpenFollowUp()">Ask AI a follow-up &rarr;</button>'
+  return '<div class="sar-card">'
+    +'<div class="sar-header">'
+    +'<div><div class="sar-header-label">Route Analysis</div><div class="sar-header-id">'+escHtml(d.id||'—')+'</div></div>'
+    +'<div class="sar-header-ts">Analyzed just now</div>'
+    +'</div>'
+    +'<div class="sar-divider"></div>'
+    +'<div class="sar-section-label">Route</div>'
+    +'<div class="sar-route-diagram">'
+    +'<div class="sar-route-node">'
+    +'<div class="sar-route-dot"></div>'
+    +'<div class="sar-route-port">'+escHtml(originPort||'Origin')+'</div>'
+    +(originCtry?'<div class="sar-route-country">'+escHtml(originCtry)+'</div>':'')
+    +'</div>'
+    +'<div class="sar-route-line-wrap"><div class="sar-route-line"></div></div>'
+    +'<div class="sar-route-node sar-route-node-mid">'
+    +'<div class="sar-route-dot sar-route-dot-mid"></div>'
+    +'<div class="sar-route-port">'+escHtml(midLabel)+'</div>'
+    +'<div class="sar-route-country">In Transit</div>'
+    +'</div>'
+    +'<div class="sar-route-line-wrap"><div class="sar-route-line"></div></div>'
+    +'<div class="sar-route-node sar-route-node-right">'
+    +'<div class="sar-route-dot"></div>'
+    +'<div class="sar-route-port">'+escHtml(destPort||'Destination')+'</div>'
+    +(destCtry?'<div class="sar-route-country">'+escHtml(destCtry)+'</div>':'')
+    +'</div>'
+    +'</div>'
+    +'<div class="sar-data-rows">'
+    +'<div class="sar-data-row"><span class="sar-data-key">Carrier</span><span class="sar-data-val">'+escHtml(d.carrier||'—')+'</span></div>'
+    +'<div class="sar-data-row"><span class="sar-data-key">Transit</span><span class="sar-data-val">'+escHtml(d.transit||'—')+'</span></div>'
+    +'<div class="sar-data-row"><span class="sar-data-key">ETA</span><span class="sar-data-val">'+escHtml(d.eta||'—')+'</span></div>'
+    +'</div>'
+    +'<div class="sar-divider"></div>'
+    +'<div class="sar-section-label">Risk Assessment</div>'
+    +'<div class="sar-severity-row"><div class="sar-sev-dot '+sev+'"></div><div class="sar-sev-label '+sev+'">'+escHtml((d.severity||'').toUpperCase())+'</div></div>'
+    +'<div class="sar-factors-grid">'
+    +(routeFactors?'<div><div class="sar-factors-sublabel">Route Factors</div>'+routeFactors+'</div>':'')
+    +(yourFactors?'<div><div class="sar-factors-sublabel">Your Factors</div>'+yourFactors+'</div>':'')
+    +'</div>'
+    +'<div class="sar-divider"></div>'
+    +'<div class="sar-section-label">Recommended Actions</div>'
+    +'<div class="sar-actions">'+actions+'</div>'
+    +'<div class="sar-divider"></div>'
+    +'<div class="sar-footer">'
+    +'<span class="sar-autosave">&#10003; Auto-saved</span>'
+    +'<button class="sar-followup-btn" onclick="saOpenFollowUp()">Ask AI a follow-up &rarr;</button>'
+    +'</div>'
     +'</div>';
+}
+
+function _saExtractPort(str){
+  if(!str)return'';
+  var s=str.replace(/^(port of|terminal of)\s*/i,'').split(/[,(]/)[0].trim();
+  var skip=['international','container','terminal','port','seaport','harbor','harbour','new'];
+  var words=s.split(/\s+/).filter(function(w){return w&&skip.indexOf(w.toLowerCase())<0;});
+  return(words.slice(0,2).join(' '))||s.split(/\s+/)[0]||'';
+}
+
+function _saExtractCountry(str){
+  if(!str)return'';
+  var paren=str.match(/\(([^)]+)\)/);
+  if(paren){var p=paren[1];if(p.length<=6&&p===p.toUpperCase()&&!/\s/.test(p))return'';return p;}
+  var parts=str.split(',');
+  return parts.length>1?parts[parts.length-1].trim():'';
+}
+
+function _saRouteMidLabel(origin,destination){
+  var o=(origin||'').toLowerCase();var d=(destination||'').toLowerCase();
+  var asia=['china','shenzhen','guangzhou','shanghai','yantian','ningbo','qingdao','tianjin','hong kong','japan','tokyo','osaka','yokohama','korea','busan','taiwan','taipei','vietnam','ho chi minh','singapore','malaysia','indonesia','jakarta','thailand','bangkok','philippines','manila','india','nhava sheva','chennai'];
+  var euro=['rotterdam','hamburg','antwerp','felixstowe','le havre','genoa','barcelona','valencia','piraeus','amsterdam','bremerhaven','gdansk'];
+  var usW=['long beach','los angeles','seattle','tacoma','oakland','portland'];
+  var usE=['new york','newark','charleston','savannah','miami','baltimore','norfolk','boston','houston'];
+  var isAsia=asia.some(function(t){return o.includes(t);});
+  var isEuro=euro.some(function(t){return o.includes(t);});
+  var isUSW=usW.some(function(t){return d.includes(t);});
+  var isUSE=usE.some(function(t){return d.includes(t);});
+  if(isAsia&&(isUSW||isUSE))return'Transpacific';
+  if(isEuro&&(isUSW||isUSE))return'Transatlantic';
+  if(isAsia&&euro.some(function(t){return d.includes(t);}))return'Asia-Europe';
+  return'In Transit';
 }
 
 function saSaveAnalysis(){
@@ -8491,11 +8621,6 @@ function saSaveAnalysis(){
     if(hist.length>10)hist=hist.slice(0,10);
     localStorage.setItem('risksim_sa_history',JSON.stringify(hist));
     saRenderSidebar();
-    var t=document.createElement('div');
-    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(20,20,20,0.97);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.82);font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:0.05em;padding:10px 20px;z-index:99999;pointer-events:none;transition:opacity 0.3s;white-space:nowrap;';
-    t.textContent='Analysis saved';
-    document.body.appendChild(t);
-    setTimeout(function(){t.style.opacity='0';setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},350);},2200);
   }catch(e){}
 }
 
@@ -8534,7 +8659,7 @@ function saRenderSidebar(){
   if(countEl)countEl.textContent=hist.length?hist.length+' saved':'';
   if(footer)footer.style.display=hist.length?'':'none';
   if(!hist.length){
-    list.innerHTML='<div style="padding:20px 20px 12px;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:rgba(255,255,255,0.22);line-height:1.7;">No saved analyses yet.<br><br>Analyze a shipment and click Save Analysis to see it here.</div>';
+    list.innerHTML='<div style="padding:20px 20px 12px;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:rgba(255,255,255,0.22);line-height:1.7;">No saved analyses yet.<br><br>Analyze a shipment — results are saved automatically.</div>';
     return;
   }
   list.innerHTML=hist.map(function(item,i){
