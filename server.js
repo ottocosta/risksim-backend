@@ -2585,6 +2585,72 @@ async function setUserAlerts(email, alerts) {
     catch (e) { console.error('[Alerts] set error:', e.message); }
 }
 
+// ---- Phase 3 hardening: verify the enterprise plan against Shopify (cached) ----
+// /api/shipments/sync is unauthenticated (email in body); never trust a client-asserted
+// plan. Verify against real Shopify subscription state, cached 1h since sync runs often.
+const PLAN_CACHE_KEY = e => `plan:verified:${e.toLowerCase()}`;
+const PLAN_CACHE_TTL = 3600;   // 1 hour
+const planFallback = {};
+
+async function getCachedPlan(email) {
+    const key = email.toLowerCase();
+    if (!redisAvailable) return planFallback[key];   // undefined on miss
+    try {
+        const v = await redisCmd(['GET', PLAN_CACHE_KEY(key)]);
+        return v ? JSON.parse(v) : undefined;
+    } catch (e) { return planFallback[key]; }
+}
+async function setCachedPlan(email, plan) {
+    const key = email.toLowerCase();
+    const rec = { plan, ts: Date.now() };
+    planFallback[key] = rec;
+    if (!redisAvailable) return;
+    try { await redisCmd(['SET', PLAN_CACHE_KEY(key), JSON.stringify(rec), 'EX', String(PLAN_CACHE_TTL)]); }
+    catch (e) { /* cache write best-effort */ }
+}
+// Raw Shopify lookup — mirrors send-otp / restore-access. Returns 'enterprise'|'pro'|null.
+async function shopifyPlanLookup(email) {
+    const shopDomain = 'risksim-ai.myshopify.com';
+    const token = await getShopifyAdminToken();
+    const custRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
+        body: JSON.stringify({ query: `query getCustomerByEmail($query: String!){ customers(first:1, query:$query){ edges{ node{ id } } } }`, variables: { query: `email:${email}` } })
+    });
+    const custData = await custRes.json();
+    const customer = custData?.data?.customers?.edges?.[0]?.node;
+    if (!customer) return null;
+    const ordRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
+        body: JSON.stringify({ query: `query getCustomerOrders($customerId: ID!){ customer(id:$customerId){ orders(first:20, sortKey:CREATED_AT, reverse:true){ edges{ node{ cancelledAt lineItems(first:10){ edges{ node{ sellingPlan{ sellingPlanId } } } } } } } } }`, variables: { customerId: customer.id } })
+    });
+    const ordData = await ordRes.json();
+    const orders = ordData?.data?.customer?.orders?.edges || [];
+    for (const { node: order } of orders) {
+        if (order.cancelledAt) continue;
+        for (const { node: line } of (order.lineItems?.edges || [])) {
+            const pid = line.sellingPlan?.sellingPlanId;
+            if (pid && SHOPIFY_PLAN_IDS[pid]) return SHOPIFY_PLAN_IDS[pid];
+        }
+    }
+    return null;
+}
+// Cached, fail-closed verification used by the sync path.
+async function verifyShopifyPlan(email) {
+    const cached = await getCachedPlan(email);
+    if (cached && typeof cached.plan !== 'undefined') return cached.plan;
+    try {
+        const plan = await shopifyPlanLookup(email);
+        await setCachedPlan(email, plan);
+        return plan;
+    } catch (e) {
+        console.error('[Shipments] Shopify plan verify failed for', email, '—', e.message);
+        // Fail closed: reuse stale cache if any, otherwise treat as not-enterprise.
+        return (cached && typeof cached.plan !== 'undefined') ? cached.plan : null;
+    }
+}
+
 // ---- Part B: severity diff + alert generation ----
 function severityRank(s) {
     const r = SEVERITY_RANK[String(s || '').toUpperCase()];
@@ -2825,9 +2891,11 @@ app.post('/api/shipments/sync', shipmentSyncLimiter, async (req, res) => {
                 notes: s.notes || [], timeline: s.timeline || [], alerts: s.alerts || []
             };
         });
+        // Phase 3 hardening: authoritative plan from Shopify — the client-asserted `plan` is ignored.
+        const verifiedPlan = await verifyShopifyPlan(key);
         const record = {
             email: key, updatedAt: Date.now(),
-            plan: plan || existing.plan || null,
+            plan: verifiedPlan,
             opted_in: optedIn != null ? !!optedIn : !!existing.opted_in,
             profile: profile || existing.profile || null,
             digest: digest || existing.digest || { enabled: true, frequency: 'daily' },
