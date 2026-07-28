@@ -2777,6 +2777,27 @@
   .sw-empty-btn:hover { opacity:0.88; }
   .sw-empty-note { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.18); margin-top:20px; letter-spacing:0.03em; }
   .sw-no-results { padding:32px; font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.28); text-align:center; }
+  /* Phase 4 — portfolio view */
+  .sw-view-tabs { display:flex; gap:6px; padding:0 28px 10px; flex-shrink:0; }
+  .sw-view-tab { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.4); background:none; border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:5px 12px; cursor:pointer; transition:all 0.15s; }
+  .sw-view-tab:hover { color:rgba(255,255,255,0.7); }
+  .sw-view-tab.active { color:#fff; border-color:rgba(255,255,255,0.35); background:rgba(255,255,255,0.05); }
+  .sw-portfolio-scroll { flex:1; overflow-y:auto; padding:20px 28px 40px; }
+  .sw-pf-section { margin-bottom:28px; }
+  .sw-pf-title { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.35); margin-bottom:14px; }
+  .sw-pf-mix { display:flex; gap:10px; flex-wrap:wrap; }
+  .sw-pf-mix-cell { flex:1; min-width:72px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px 12px; display:flex; flex-direction:column; gap:8px; align-items:flex-start; }
+  .sw-pf-mix-count { font-size:22px; font-weight:600; color:rgba(255,255,255,0.9); font-family:'JetBrains Mono',monospace; }
+  .sw-pf-mix-total { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.28); margin-top:10px; }
+  .sw-pf-lane { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+  .sw-pf-lane-name { font-family:'JetBrains Mono',monospace; font-size:12px; color:rgba(255,255,255,0.8); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sw-pf-lane-meta { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.3); flex-shrink:0; }
+  .sw-pf-risk { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; margin-bottom:10px; cursor:pointer; transition:background 0.1s; }
+  .sw-pf-risk:hover { background:rgba(255,255,255,0.04); }
+  .sw-pf-risk-top { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .sw-pf-risk-id { font-family:'JetBrains Mono',monospace; font-size:12px; color:rgba(255,255,255,0.85); flex:1; }
+  .sw-pf-risk-route { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:6px; }
+  .sw-pf-risk-reason { font-size:12px; color:rgba(255,255,255,0.55); line-height:1.5; }
   .sw-detail-topbar { padding:12px 28px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.07); flex-shrink:0; gap:12px; }
   .sw-back-btn { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.4); background:none; border:none; cursor:pointer; padding:0; transition:color 0.15s; letter-spacing:0.04em; }
   .sw-back-btn:hover { color:rgba(255,255,255,0.75); }
@@ -3715,6 +3736,12 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <div class="sa-module-subtitle" id="swHeaderSubtitle">Your active and past shipments</div>
   </div>
 
+  <!-- VIEW TABS (Phase 4) -->
+  <div class="sw-view-tabs" id="swViewTabs">
+    <button class="sw-view-tab active" id="swTabShipments" onclick="_saShowView('workspace')">Shipments</button>
+    <button class="sw-view-tab" id="swTabPortfolio" onclick="_saShowView('portfolio')">Portfolio</button>
+  </div>
+
   <!-- WORKSPACE VIEW -->
   <div id="swWorkspaceView" class="sw-view">
     <div id="swStatsStrip" class="sw-stats-strip" style="display:none"></div>
@@ -3736,6 +3763,11 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <div id="swDetailCard"></div>
       <div id="saDetailExtras"></div>
     </div>
+  </div>
+
+  <!-- PORTFOLIO VIEW (Phase 4) -->
+  <div id="swPortfolioView" class="sw-view" style="display:none;">
+    <div class="sw-portfolio-scroll" id="swPortfolioBody"></div>
   </div>
 
   <!-- ADD-NEW MODAL -->
@@ -8111,8 +8143,8 @@ function buildSettingsNotifications(){
   var prof=p.userProfile||{};
   var savedEmail=localStorage.getItem('risksim_notif_email')||prof.email||'';
   var savedEmail2=localStorage.getItem('risksim_notif_email2')||'';
-  var prefs={weeklyDigest:true,criticalAlerts:true};
-  try{var sp=JSON.parse(localStorage.getItem('risksim_notif_prefs')||'{}');if(sp.weeklyDigest!=null)prefs.weeklyDigest=sp.weeklyDigest;if(sp.criticalAlerts!=null)prefs.criticalAlerts=sp.criticalAlerts;}catch(e){}
+  var prefs={weeklyDigest:true,criticalAlerts:true,shipmentDigest:true,shipmentDigestFrequency:'daily'};
+  try{var sp=JSON.parse(localStorage.getItem('risksim_notif_prefs')||'{}');if(sp.weeklyDigest!=null)prefs.weeklyDigest=sp.weeklyDigest;if(sp.criticalAlerts!=null)prefs.criticalAlerts=sp.criticalAlerts;if(sp.shipmentDigest!=null)prefs.shipmentDigest=sp.shipmentDigest;if(sp.shipmentDigestFrequency)prefs.shipmentDigestFrequency=sp.shipmentDigestFrequency;}catch(e){}
   function toggle(id,label,sub,checked){
     return'<div class="settings-toggle-row">'+
       '<div><div class="settings-toggle-label">'+label+'</div><div class="settings-toggle-sub">'+sub+'</div></div>'+
@@ -8126,6 +8158,10 @@ function buildSettingsNotifications(){
   h+='<div style="margin-bottom:16px;"><a href="#" onclick="notifShowEmail2();return false;" id="nt-add-email-link" style="font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.3);text-decoration:none;'+(savedEmail2?'display:none':'')+'">+ Add Another Email</a></div>';
   h+=toggle('nt-weekly','Weekly Risk Digest','Every Monday morning — top alerts, tariff changes, and market summary for your industry',prefs.weeklyDigest);
   h+=toggle('nt-critical','Critical Alert Notifications','Immediate email when critical events affect your sourcing countries (war, sanctions, major shutdowns)',prefs.criticalAlerts);
+  if(localStorage.getItem('risksim_shipment_analysis_v2')==='true'){
+    h+=toggle('nt-shipdigest','Shipment Digest Emails','Daily summary of your active shipments and any new risk alerts from overnight re-analysis',prefs.shipmentDigest);
+    h+='<div class="settings-field"><label>Digest Frequency</label><select id="nt-shipfreq"><option value="daily"'+(prefs.shipmentDigestFrequency==='daily'?' selected':'')+'>Daily</option><option value="weekly"'+(prefs.shipmentDigestFrequency==='weekly'?' selected':'')+'>Weekly</option><option value="off"'+(prefs.shipmentDigestFrequency==='off'?' selected':'')+'>Off</option></select></div>';
+  }
   h+='<button class="settings-save-btn" style="margin-top:16px" onclick="saveNotifPreferences()">Save Notification Preferences</button>';
   h+='<div id="nt-success" style="display:none;margin-top:10px;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:0.1em;color:rgba(100,220,140,0.8);">Preferences saved.</div>';
   h+='<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05);"><a href="#" onclick="notifUnsubscribeAll();return false;" style="font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:0.1em;color:rgba(255,255,255,0.2);text-decoration:none;">Unsubscribe from all emails</a></div>';
@@ -8216,6 +8252,8 @@ async function saveNotifPreferences(){
   var email2=(document.getElementById('nt-email2')||{}).value||'';
   var weekly=!!(document.getElementById('nt-weekly')||{}).checked;
   var critical=!!(document.getElementById('nt-critical')||{}).checked;
+  var shipDigestEl=document.getElementById('nt-shipdigest');
+  var shipFreqEl=document.getElementById('nt-shipfreq');
   if(!email||!email.includes('@')){
     var s=document.getElementById('nt-success');
     if(s){s.textContent='Please enter a valid email address.';s.style.color='rgba(255,120,100,0.9)';s.style.display='block';setTimeout(function(){s.style.display='none';},3000);}
@@ -8223,7 +8261,11 @@ async function saveNotifPreferences(){
   }
   localStorage.setItem('risksim_notif_email',email);
   if(email2)localStorage.setItem('risksim_notif_email2',email2);
-  localStorage.setItem('risksim_notif_prefs',JSON.stringify({weeklyDigest:weekly,criticalAlerts:critical}));
+  var _existPrefs={};try{_existPrefs=JSON.parse(localStorage.getItem('risksim_notif_prefs')||'{}');}catch(e){}
+  localStorage.setItem('risksim_notif_prefs',JSON.stringify({weeklyDigest:weekly,criticalAlerts:critical,
+    shipmentDigest:shipDigestEl?!!shipDigestEl.checked:(_existPrefs.shipmentDigest!==false),
+    shipmentDigestFrequency:shipFreqEl?shipFreqEl.value:(_existPrefs.shipmentDigestFrequency||'daily')}));
+  if(typeof syncShipmentsToServer==='function')syncShipmentsToServer();
   var p={};try{p=JSON.parse(localStorage.getItem('risksim_profile')||'{}');}catch(e){}
   var prof=p.userProfile||{};
   var payload={
@@ -8689,6 +8731,7 @@ function saConfirmDeleteHistory(idx){
     if(!Array.isArray(hist))hist=[];
     hist.splice(idx,1);
     localStorage.setItem('risksim_sa_history',JSON.stringify(hist));
+    if(typeof syncShipmentsToServer==='function')syncShipmentsToServer();
   }catch(e){}
   saRenderHistoryList();
   saUpdateHistoryBtn();
@@ -8755,6 +8798,7 @@ function saAnalyze(){
   setTimeout(function(){_saMarkStep(1,'done');},600);
   setTimeout(function(){_saMarkStep(2,'active');},1200);
 
+  _saCurrentInput=text;   // Phase 3: retain raw text so the server can re-analyze later
   fetch('/api/analyze-shipment',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -8926,9 +8970,10 @@ function saSaveAnalysis(){
       if(last.id&&last.id===_saCurrentResult.id&&last.origin===_saCurrentResult.origin&&last.destination===_saCurrentResult.destination)return;
     }
     var _swSaveTs=Date.now();
-    hist.unshift({ts:_swSaveTs,data:_saCurrentResult,notes:[],timeline:[{type:'analyzed',ts:_swSaveTs,description:'Shipment analyzed',meta:{}}],alerts:[]});
+    hist.unshift({ts:_swSaveTs,data:_saCurrentResult,shipmentText:_saCurrentInput||'',notes:[],timeline:[{type:'analyzed',ts:_swSaveTs,description:'Shipment analyzed',meta:{}}],alerts:[]});
     if(hist.length>50)hist=hist.slice(0,50);
     localStorage.setItem('risksim_sa_history',JSON.stringify(hist));
+    if(typeof syncShipmentsToServer==='function')syncShipmentsToServer();
     if(typeof saRenderWorkspace==='function')saRenderWorkspace();
   }catch(e){}
 }
@@ -9003,21 +9048,34 @@ function _saShowView(v){
   _saView=v;
   var ws=document.getElementById('swWorkspaceView');
   var dv=document.getElementById('swDetailView');
+  var pv=document.getElementById('swPortfolioView');
   if(!ws||!dv)return;
+  var sub=document.getElementById('swHeaderSubtitle');
+  var tabs=document.getElementById('swViewTabs');
+  var tS=document.getElementById('swTabShipments');
+  var tP=document.getElementById('swTabPortfolio');
+  ws.style.display='none';
+  dv.style.display='none';
+  if(pv)pv.style.display='none';
+  if(tabs)tabs.style.display=(v==='detail')?'none':'flex';   // tabs hidden inside a detail
   if(v==='workspace'){
     ws.style.display='flex';
-    dv.style.display='none';
-    var sub=document.getElementById('swHeaderSubtitle');
     if(sub)sub.textContent='Your active and past shipments';
+    if(tS)tS.classList.add('active');
+    if(tP)tP.classList.remove('active');
     var q=document.getElementById('swSearch');
     saRenderWorkspace(q?q.value:'');
   }else if(v==='detail'){
-    ws.style.display='none';
     dv.style.display='flex';
     dv.style.flexDirection='column';
     var d=_saCurrentResult||{};
-    var sub=document.getElementById('swHeaderSubtitle');
     if(sub)sub.textContent=escHtml(d.id||'Shipment details');
+  }else if(v==='portfolio'){
+    if(pv)pv.style.display='flex';
+    if(sub)sub.textContent='Aggregate risk across your saved shipments';
+    if(tS)tS.classList.remove('active');
+    if(tP)tP.classList.add('active');
+    saRenderPortfolio();
   }
 }
 
@@ -9088,6 +9146,80 @@ function saRenderWorkspace(filter){
       +'<span class="sw-item-chevron">›</span>'
       +'</div>';
   }).join('');
+}
+
+// Phase 4 — aggregate portfolio view over all saved shipments (client-only, existing data).
+function saRenderPortfolio(){
+  var body=document.getElementById('swPortfolioBody');
+  if(!body)return;
+  var hist=[];
+  try{hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
+  if(!Array.isArray(hist))hist=[];
+  if(!hist.length){
+    body.innerHTML='<div class="sw-empty">'
+      +'<div class="sw-empty-label">No portfolio yet</div>'
+      +'<div class="sw-empty-text">Analyze shipments to see aggregate risk across your routes.</div>'
+      +'<button class="sw-empty-btn" onclick="saOpenAddModal()">Analyze first shipment &rarr;</button>'
+      +'</div>';
+    return;
+  }
+  var RANK={low:0,moderate:1,high:2,critical:3};
+  var LABEL={low:'Low',moderate:'Medium',high:'High',critical:'Critical'};
+  var sevOf=function(h){return((h.data&&h.data.severity)||'').toLowerCase();};
+  var firstToken=function(s){return(s||'').split(',')[0].split('(')[0].trim();};
+
+  // Severity mix
+  var mix={low:0,moderate:0,high:0,critical:0};
+  hist.forEach(function(h){var s=sevOf(h);if(mix[s]!=null)mix[s]++;});
+
+  // Lane exposure (origin -> destination), ranked by peak severity then volume
+  var lanes={};
+  hist.forEach(function(h){
+    var d=h.data||{};
+    var key=(firstToken(d.origin)||'?')+' → '+(firstToken(d.destination)||'?');
+    var s=sevOf(h),r=(RANK[s]!=null?RANK[s]:-1);
+    if(!lanes[key])lanes[key]={count:0,maxRank:-1,maxSev:'low'};
+    lanes[key].count++;
+    if(r>lanes[key].maxRank){lanes[key].maxRank=r;lanes[key].maxSev=s||'low';}
+  });
+  var laneArr=Object.keys(lanes).map(function(k){return{lane:k,count:lanes[k].count,maxRank:lanes[k].maxRank,maxSev:lanes[k].maxSev};});
+  laneArr.sort(function(a,b){return(b.maxRank-a.maxRank)||(b.count-a.count);});
+
+  // Top risks — highest severity, then most recent
+  var ranked=hist.map(function(h,i){var s=sevOf(h);return{h:h,idx:i,rank:(RANK[s]!=null?RANK[s]:-1)};});
+  ranked.sort(function(a,b){return(b.rank-a.rank)||((b.h.ts||0)-(a.h.ts||0));});
+  var top=ranked.slice(0,5);
+
+  var html='';
+  html+='<div class="sw-pf-section"><div class="sw-pf-title">Severity mix</div><div class="sw-pf-mix">';
+  ['critical','high','moderate','low'].forEach(function(s){
+    html+='<div class="sw-pf-mix-cell"><span class="sw-item-sev '+s+'">'+LABEL[s]+'</span>'
+      +'<span class="sw-pf-mix-count">'+mix[s]+'</span></div>';
+  });
+  html+='</div><div class="sw-pf-mix-total">'+hist.length+' shipment'+(hist.length===1?'':'s')+' analyzed</div></div>';
+
+  html+='<div class="sw-pf-section"><div class="sw-pf-title">Lane exposure</div>';
+  laneArr.slice(0,8).forEach(function(l){
+    html+='<div class="sw-pf-lane"><span class="sw-item-dot '+l.maxSev+'"></span>'
+      +'<span class="sw-pf-lane-name">'+escHtml(l.lane)+'</span>'
+      +'<span class="sw-pf-lane-meta">'+l.count+' shipment'+(l.count===1?'':'s')+' \xb7 '+escHtml(LABEL[l.maxSev]||'—')+' peak</span></div>';
+  });
+  html+='</div>';
+
+  html+='<div class="sw-pf-section"><div class="sw-pf-title">Top risks</div>';
+  top.forEach(function(t){
+    var d=t.h.data||{},s=sevOf(t.h);
+    var reason=(d.routeFactors&&d.routeFactors[0])||(d.yourFactors&&d.yourFactors[0])||'No specific risk factors noted.';
+    html+='<div class="sw-pf-risk" onclick="saOpenDetail('+t.idx+')">'
+      +'<div class="sw-pf-risk-top"><span class="sw-item-dot '+(s||'low')+'"></span>'
+      +'<span class="sw-pf-risk-id">'+escHtml(d.id||'Untitled shipment')+'</span>'
+      +(s?'<span class="sw-item-sev '+s+'">'+escHtml(s.toUpperCase())+'</span>':'')+'</div>'
+      +'<div class="sw-pf-risk-route">'+escHtml((firstToken(d.origin)||'?')+' → '+(firstToken(d.destination)||'?'))+'</div>'
+      +'<div class="sw-pf-risk-reason">'+escHtml(reason)+'</div></div>';
+  });
+  html+='</div>';
+
+  body.innerHTML=html;
 }
 
 function saOpenDetail(idx){
@@ -9183,12 +9315,89 @@ function saShowToast(msg){
   },3000);
 }
 
+/* ===== SHIPMENTS WORKSPACE — Phase 3: client<->server sync + server alerts ===== */
+var _saCurrentInput='';   // raw text of the last analysis, persisted so the server can re-analyze
+var _saSyncTimer=null;
+var _saServerAlerts=[];   // alerts fetched from GET /api/alerts
+
+function _saSyncEmail(){return localStorage.getItem('risksim_email')||localStorage.getItem('risksim_notif_email')||'';}
+function _saFlagOn(){return localStorage.getItem('risksim_shipment_analysis_v2')==='true';}
+function _saGetDigestPref(){
+  try{var p=JSON.parse(localStorage.getItem('risksim_notif_prefs')||'{}');
+    return {enabled:p.shipmentDigest!==false,frequency:p.shipmentDigestFrequency||'daily'};}
+  catch(e){return {enabled:true,frequency:'daily'};}
+}
+function _saBuildProfilePayload(){
+  try{return {
+    companyType:(typeof PS_TYPE_LABELS!=='undefined'&&PS_TYPE_LABELS[userProfile.type])||userProfile.type||'',
+    homeCountry:userProfile.country||'',
+    industry:(typeof PS_IND_LABELS!=='undefined'&&PS_IND_LABELS[userProfile.industry])||userProfile.industry||'',
+    sourcingCountries:selectedSourcingCountries||[],revenue:userProfile.revenue||'',
+    companyName:userProfile.companyName||'',products:userProfile.products||'',
+    suppliers:userProfile.suppliers||'',businessDescription:userProfile.context||'',
+    enterprise:(function(){try{return JSON.parse(localStorage.getItem('risksim_enterprise_profile')||'null');}catch(e){return null;}})()
+  };}catch(e){return {};}
+}
+
+// Debounced (5s) client->server sync. Only runs for flagged, identified users.
+function syncShipmentsToServer(){
+  if(_saSyncTimer)clearTimeout(_saSyncTimer);
+  _saSyncTimer=setTimeout(_saDoSync,5000);
+}
+function _saDoSync(){
+  try{
+    if(!_saFlagOn())return;
+    var email=_saSyncEmail();if(!email)return;
+    var hist=[];try{hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
+    if(!Array.isArray(hist))hist=[];
+    var shipments=hist.map(function(h){return {ts:h.ts,id:h.id||null,shipmentText:h.shipmentText||'',data:h.data||{},notes:h.notes||[],timeline:h.timeline||[],alerts:h.alerts||[]};});
+    fetch('/api/shipments/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      email:email,plan:localStorage.getItem('risksim_plan')||'',optedIn:true,
+      profile:_saBuildProfilePayload(),digest:_saGetDigestPref(),shipments:shipments
+    })}).then(function(r){return r.json();}).then(function(res){
+      if(!res||!Array.isArray(res.shipments))return;
+      var idByTs={};res.shipments.forEach(function(m){idByTs[m.ts]=m.id;});
+      var h2=[];try{h2=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
+      if(!Array.isArray(h2))return;
+      var changed=false;
+      h2.forEach(function(h){if(!h.id&&idByTs[h.ts]){h.id=idByTs[h.ts];changed=true;}});
+      if(changed)localStorage.setItem('risksim_sa_history',JSON.stringify(h2));
+    })['catch'](function(){});
+  }catch(e){}
+}
+
+// Pull server-generated alerts and refresh the workspace.
+function saLoadServerAlerts(){
+  try{
+    if(!_saFlagOn())return;
+    var email=_saSyncEmail();if(!email)return;
+    fetch('/api/alerts?email='+encodeURIComponent(email)).then(function(r){return r.json();}).then(function(res){
+      _saServerAlerts=(res&&Array.isArray(res.alerts))?res.alerts:[];
+      if(typeof saRenderWorkspace==='function')try{saRenderWorkspace();}catch(e){}
+    })['catch'](function(){});
+  }catch(e){}
+}
+// Unresolved server alerts for a shipment id, normalised to the Phase 2 alert-card shape.
+function _saServerAlertsFor(shipmentId){
+  if(!shipmentId||!Array.isArray(_saServerAlerts))return [];
+  return _saServerAlerts.filter(function(a){return a.shipment_id===shipmentId&&!a.resolved;})
+    .map(function(a){return {id:a.id,severity:a.severity,title:a.title,description:a.description,ts:a.timestamp,action_recommended:a.action_recommended,_server:true};});
+}
+function saResolveAlert(alertId){
+  var email=_saSyncEmail();if(!email||!alertId)return;
+  fetch('/api/alerts/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,alert_id:alertId})})
+    .then(function(r){return r.json();}).then(function(){
+      _saServerAlerts=_saServerAlerts.filter(function(a){return a.id!==alertId;});
+      if(typeof saRenderWorkspace==='function')try{saRenderWorkspace();}catch(e){}
+    })['catch'](function(){});
+}
+
 /* ===== SHIPMENTS WORKSPACE — Phase 2 ===== */
 
 function _saRenderDetailExtras(item){
   var notes=item.notes||[];
   var timeline=item.timeline||[];
-  var alerts=(item.alerts||[]).filter(function(a){return!a.resolved;});
+  var alerts=(item.alerts||[]).filter(function(a){return!a.resolved;}).concat(typeof _saServerAlertsFor==='function'?_saServerAlertsFor(item.id):[]);
   var html='';
 
   /* 1 — Notes */
@@ -9256,7 +9465,8 @@ function _saRenderDetailExtras(item){
           +'<div class="sw-alert-title">'+escHtml(a.title||'')+'</div>'
           +'</div>'
           +(a.description?'<div class="sw-alert-desc">'+escHtml(a.description)+'</div>':'')
-          +'<div class="sw-alert-ts">'+_saTimeAgo(a.ts)+'</div>'
+          +(a.action_recommended?'<div class="sw-alert-desc" style="opacity:.85">&rarr; '+escHtml(a.action_recommended)+'</div>':'')
+          +'<div class="sw-alert-ts">'+_saTimeAgo(a.ts)+(a._server?' <button onclick="saResolveAlert(\''+a.id+'\')" style="margin-left:8px;background:none;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);font-size:9px;padding:2px 8px;border-radius:4px;cursor:pointer;">Resolve</button>':'')+'</div>'
           +'</div>';
       }).join('')
       +'</div>'
@@ -9281,6 +9491,7 @@ function _saSaveDetailEntry(updater){
     if(!Array.isArray(entry.alerts))entry.alerts=[];
     updater(entry);
     localStorage.setItem('risksim_sa_history',JSON.stringify(hist));
+    if(typeof syncShipmentsToServer==='function')syncShipmentsToServer();
     var extrasEl=document.getElementById('saDetailExtras');
     if(extrasEl)extrasEl.innerHTML=_saRenderDetailExtras(entry);
   }catch(e){}
@@ -9484,6 +9695,9 @@ function saTab2Reset(){
   if(localStorage.getItem('risksim_shipment_analysis_v2')==='true'){
     var el=document.getElementById('sbnav-priceintel');
     if(el)el.innerHTML='<span>Shipment Analysis</span><span class="sb-nav-code">SYS_05</span>';
+    // Phase 3: sync local shipments up and pull server alerts on load
+    if(typeof syncShipmentsToServer==='function')syncShipmentsToServer();
+    if(typeof saLoadServerAlerts==='function')saLoadServerAlerts();
   }
 })();
 </script>

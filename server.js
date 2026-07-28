@@ -39,7 +39,11 @@ const claudeLimiter = rateLimit({
 const chatLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 60,
-    message: { error: 'Too many requests, please try again later.' }
+    message: { error: 'Too many requests, please try again later.' },
+    // Phase 3: the internal re-analysis job calls /api/analyze-shipment in a loop
+    // (all from loopback); exempt authenticated internal calls so the daily job
+    // isn't throttled. Normal users never hold DATA_API_KEY, so their limit is unchanged.
+    skip: (req) => !!process.env.DATA_API_KEY && req.headers['x-api-key'] === process.env.DATA_API_KEY
 });
 
 // Demo request — low volume, high bot risk
@@ -2517,5 +2521,455 @@ app.post('/api/demo-request', async (req, res) => {
     return res.status(500).json({ success: false, error: 'internal' });
   }
 });
+
+// ============================================================
+// SHIPMENTS WORKSPACE — PHASE 3
+// Server-side shipment sync, daily re-analysis job, alert store,
+// and email digest. Reuses redisCmd/sendEmail/requireDataKey and the
+// existing /api/analyze-shipment endpoint (called via internal HTTP so
+// that endpoint stays unmodified). All gated on opted-in enterprise users.
+// ============================================================
+
+const { randomUUID } = require('crypto');
+
+const SHIP_KEY    = e => `shipments:${e.toLowerCase()}`;
+const SHIP_INDEX  = 'shipments:index';
+const ALERTS_KEY  = e => `alerts:${e.toLowerCase()}`;
+const SHIP_TTL    = 30 * 24 * 3600;          // 30 days
+const MAX_ALERTS  = 20;
+const SEVERITY_RANK   = { LOW: 0, MODERATE: 1, HIGH: 2, CRITICAL: 3 };
+const ALERT_SEV_RANK  = { INFO: 0, WATCH: 1, WARNING: 2, CRITICAL: 3 };
+const ALERT_SEV_COLOR = { INFO: '#4a9eff', WATCH: '#f5c518', WARNING: '#ff8c00', CRITICAL: '#ff1a4a' };
+
+const shipmentsFallback = {};
+const alertsFallback = {};
+
+// ---- Redis store helpers (mirror the subscriber store: guarded, in-memory fallback) ----
+async function getUserShipments(email) {
+    const key = email.toLowerCase();
+    if (!redisAvailable) return shipmentsFallback[key] || null;
+    try {
+        const val = await redisCmd(['GET', SHIP_KEY(key)]);
+        return val ? JSON.parse(val) : null;
+    } catch (e) { console.error('[Shipments] get error:', e.message); return shipmentsFallback[key] || null; }
+}
+async function setUserShipments(email, data) {
+    const key = email.toLowerCase();
+    shipmentsFallback[key] = data;
+    if (!redisAvailable) return;
+    try {
+        await redisPipeline([
+            ['SET', SHIP_KEY(key), JSON.stringify(data), 'EX', String(SHIP_TTL)],
+            ['SADD', SHIP_INDEX, key]
+        ]);
+    } catch (e) { console.error('[Shipments] set error:', e.message); }
+}
+async function listShipmentEmails() {
+    if (!redisAvailable) return Object.keys(shipmentsFallback);
+    try { return (await redisCmd(['SMEMBERS', SHIP_INDEX])) || []; }
+    catch (e) { console.error('[Shipments] list error:', e.message); return Object.keys(shipmentsFallback); }
+}
+async function getUserAlerts(email) {
+    const key = email.toLowerCase();
+    if (!redisAvailable) return alertsFallback[key] || [];
+    try {
+        const val = await redisCmd(['GET', ALERTS_KEY(key)]);
+        return val ? JSON.parse(val) : [];
+    } catch (e) { console.error('[Alerts] get error:', e.message); return alertsFallback[key] || []; }
+}
+async function setUserAlerts(email, alerts) {
+    const key = email.toLowerCase();
+    alertsFallback[key] = alerts;
+    if (!redisAvailable) return;
+    try { await redisCmd(['SET', ALERTS_KEY(key), JSON.stringify(alerts), 'EX', String(SHIP_TTL)]); }
+    catch (e) { console.error('[Alerts] set error:', e.message); }
+}
+
+// ---- Phase 3 hardening: verify the enterprise plan against Shopify (cached) ----
+// /api/shipments/sync is unauthenticated (email in body); never trust a client-asserted
+// plan. Verify against real Shopify subscription state, cached 1h since sync runs often.
+const PLAN_CACHE_KEY = e => `plan:verified:${e.toLowerCase()}`;
+const PLAN_CACHE_TTL = 3600;   // 1 hour
+const planFallback = {};
+
+async function getCachedPlan(email) {
+    const key = email.toLowerCase();
+    if (!redisAvailable) return planFallback[key];   // undefined on miss
+    try {
+        const v = await redisCmd(['GET', PLAN_CACHE_KEY(key)]);
+        return v ? JSON.parse(v) : undefined;
+    } catch (e) { return planFallback[key]; }
+}
+async function setCachedPlan(email, plan) {
+    const key = email.toLowerCase();
+    const rec = { plan, ts: Date.now() };
+    planFallback[key] = rec;
+    if (!redisAvailable) return;
+    try { await redisCmd(['SET', PLAN_CACHE_KEY(key), JSON.stringify(rec), 'EX', String(PLAN_CACHE_TTL)]); }
+    catch (e) { /* cache write best-effort */ }
+}
+// Raw Shopify lookup — mirrors send-otp / restore-access. Returns 'enterprise'|'pro'|null.
+async function shopifyPlanLookup(email) {
+    const shopDomain = 'risksim-ai.myshopify.com';
+    const token = await getShopifyAdminToken();
+    const custRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
+        body: JSON.stringify({ query: `query getCustomerByEmail($query: String!){ customers(first:1, query:$query){ edges{ node{ id } } } }`, variables: { query: `email:${email}` } })
+    });
+    const custData = await custRes.json();
+    const customer = custData?.data?.customers?.edges?.[0]?.node;
+    if (!customer) return null;
+    const ordRes = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
+        body: JSON.stringify({ query: `query getCustomerOrders($customerId: ID!){ customer(id:$customerId){ orders(first:20, sortKey:CREATED_AT, reverse:true){ edges{ node{ cancelledAt lineItems(first:10){ edges{ node{ sellingPlan{ sellingPlanId } } } } } } } } }`, variables: { customerId: customer.id } })
+    });
+    const ordData = await ordRes.json();
+    const orders = ordData?.data?.customer?.orders?.edges || [];
+    for (const { node: order } of orders) {
+        if (order.cancelledAt) continue;
+        for (const { node: line } of (order.lineItems?.edges || [])) {
+            const pid = line.sellingPlan?.sellingPlanId;
+            if (pid && SHOPIFY_PLAN_IDS[pid]) return SHOPIFY_PLAN_IDS[pid];
+        }
+    }
+    return null;
+}
+// Cached, fail-closed verification used by the sync path.
+async function verifyShopifyPlan(email) {
+    const cached = await getCachedPlan(email);
+    if (cached && typeof cached.plan !== 'undefined') return cached.plan;
+    try {
+        const plan = await shopifyPlanLookup(email);
+        await setCachedPlan(email, plan);
+        return plan;
+    } catch (e) {
+        console.error('[Shipments] Shopify plan verify failed for', email, '—', e.message);
+        // Fail closed: reuse stale cache if any, otherwise treat as not-enterprise.
+        return (cached && typeof cached.plan !== 'undefined') ? cached.plan : null;
+    }
+}
+
+// ---- Part B: severity diff + alert generation ----
+function severityRank(s) {
+    const r = SEVERITY_RANK[String(s || '').toUpperCase()];
+    return r === undefined ? 0 : r;
+}
+function makeAlert(shipmentId, severity, title, description, actionRecommended) {
+    return {
+        id: randomUUID(),
+        shipment_id: shipmentId,
+        severity,                       // INFO | WATCH | WARNING | CRITICAL
+        title, description,
+        timestamp: Date.now(),
+        resolved: false,
+        action_recommended: actionRecommended || null
+    };
+}
+// Returns an alert object when severity changed materially, else null.
+function alertForSeverityChange(shipmentId, prevSeverity, result) {
+    const delta = severityRank(result.severity) - severityRank(prevSeverity);
+    if (delta === 0) return null;
+    const route = `${result.origin || 'origin'} -> ${result.destination || 'destination'}`;
+    const firstAction = (Array.isArray(result.actions) && result.actions.length) ? result.actions[0] : null;
+    if (delta >= 1) {
+        const sevMap = { CRITICAL: 'CRITICAL', HIGH: 'WARNING', MODERATE: 'WATCH', LOW: 'INFO' };
+        const alertSev = sevMap[String(result.severity).toUpperCase()] || 'WATCH';
+        const factor = (Array.isArray(result.routeFactors) && result.routeFactors.length) ? ` Key factor: ${result.routeFactors[0]}` : '';
+        return makeAlert(shipmentId, alertSev,
+            `Risk increased to ${result.severity} — ${route}`,
+            `Re-analysis raised this shipment's risk from ${prevSeverity || 'UNKNOWN'} to ${result.severity}.${factor}`,
+            firstAction);
+    }
+    return makeAlert(shipmentId, 'INFO',
+        `Risk decreased to ${result.severity} — ${route}`,
+        `Re-analysis lowered this shipment's risk from ${prevSeverity || 'UNKNOWN'} to ${result.severity}.`,
+        firstAction);
+}
+// Keep <= MAX_ALERTS, dropping oldest resolved first, then oldest overall.
+function pruneAlerts(alerts) {
+    if (alerts.length <= MAX_ALERTS) return alerts;
+    const dropCount = alerts.length - MAX_ALERTS;
+    const order = [...alerts].sort((a, b) => {
+        if (!!a.resolved !== !!b.resolved) return a.resolved ? -1 : 1; // resolved first (to drop)
+        return a.timestamp - b.timestamp;                              // then oldest first
+    });
+    const dropIds = new Set(order.slice(0, dropCount).map(a => a.id));
+    return alerts.filter(a => !dropIds.has(a.id));
+}
+
+// ---- Part A: re-analysis helpers ----
+function reconstructShipmentText(data) {
+    if (!data) return '';
+    const parts = [];
+    if (data.id && data.id !== 'UNKNOWN') parts.push(`Booking/Container ID: ${data.id}`);
+    if (data.origin) parts.push(`Origin: ${data.origin}`);
+    if (data.destination) parts.push(`Destination: ${data.destination}`);
+    if (data.carrier) parts.push(`Carrier: ${data.carrier}`);
+    if (data.transit) parts.push(`Transit: ${data.transit}`);
+    if (data.eta) parts.push(`ETA: ${data.eta}`);
+    return parts.join('\n');
+}
+function isActiveShipment(entry) {
+    const THIRTY_D = 30 * 24 * 3600 * 1000;
+    const createdRecently = entry.ts && (Date.now() - entry.ts) <= THIRTY_D;
+    let etaFuture = false;
+    const etaStr = entry.data && entry.data.eta;
+    if (etaStr) { const t = Date.parse(etaStr); if (!isNaN(t)) etaFuture = t >= Date.now(); }
+    return !!(createdRecently || etaFuture);
+}
+// Re-run analysis by calling the existing endpoint internally (keeps it unmodified).
+async function reanalyzeShipment(entry, profile) {
+    const text = (entry.shipmentText && entry.shipmentText.trim())
+        ? entry.shipmentText
+        : reconstructShipmentText(entry.data);
+    if (!text) throw new Error('no shipment text available');
+    const r = await axios.post(`http://127.0.0.1:${PORT}/api/analyze-shipment`,
+        { shipmentText: text, profile: profile || {} },
+        { timeout: 30000, headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.DATA_API_KEY || '' } });
+    return r.data;
+}
+
+// ---- Part A + B: the daily re-analysis job ----
+async function runReanalysisJob() {
+    const summary = { users: 0, processed: 0, reanalyzed: 0, alerts: 0, skipped: 0, errors: 0 };
+    let emails;
+    try { emails = await listShipmentEmails(); }
+    catch (e) { console.error('[Job] listShipmentEmails failed:', e.message); return summary; }
+
+    for (const email of emails) {
+        let record;
+        try { record = await getUserShipments(email); }
+        catch (e) { summary.errors++; continue; }
+        if (!record || !Array.isArray(record.shipments)) continue;
+        // Gate: opted-in enterprise only. MVP trusts the client-asserted plan captured
+        // at sync time; hardening TODO: verify via getShopifyAdminToken() before spend.
+        if (!record.opted_in || record.plan !== 'enterprise') { summary.skipped++; continue; }
+        summary.users++;
+
+        let alerts = await getUserAlerts(email);
+        let changed = false;
+        for (const entry of record.shipments) {
+            if (!isActiveShipment(entry)) continue;
+            summary.processed++;
+            try {
+                const result = await reanalyzeShipment(entry, record.profile);
+                summary.reanalyzed++;
+                const prevSeverity = entry.prevSeverity || (entry.data && entry.data.severity) || null;
+                const alert = alertForSeverityChange(entry.id, prevSeverity, result);
+                entry.prevSeverity = result.severity;
+                entry.lastAnalyzedAt = Date.now();
+                if (result && result.severity) {
+                    entry.data = Object.assign({}, entry.data, {
+                        severity: result.severity, routeFactors: result.routeFactors,
+                        yourFactors: result.yourFactors, actions: result.actions
+                    });
+                }
+                if (alert) { alerts.unshift(alert); summary.alerts++; changed = true; }
+            } catch (e) {
+                console.error(`[Job] re-analysis failed (${email} / ${entry.id}):`, e.message);
+                summary.errors++;   // log and continue — never crash the job
+            }
+        }
+        if (changed) { alerts = pruneAlerts(alerts); await setUserAlerts(email, alerts); }
+        record.updatedAt = Date.now();
+        try { await setUserShipments(email, record); } catch (e) { summary.errors++; }
+    }
+    console.log('[Job] runReanalysisJob summary:', JSON.stringify(summary));
+    return summary;
+}
+
+// ---- Part D: email digest ----
+function buildShipmentDigestHtml(email, activeCount, alerts) {
+    const unsubUrl = `https://risksim.ai/api/email/unsubscribe?email=${encodeURIComponent(email)}`;
+    const rows = alerts.length ? alerts.map(a => {
+        const c = ALERT_SEV_COLOR[a.severity] || '#4a9eff';
+        return `<div style="border-left:3px solid ${c};padding:10px 14px;margin:10px 0;background:rgba(255,255,255,0.03)">`
+            + `<div style="font-size:10px;letter-spacing:0.1em;color:${c};text-transform:uppercase;margin-bottom:4px">${escHtml(a.severity)}</div>`
+            + `<div style="font-size:14px;color:#fff;font-weight:600;margin-bottom:4px">${escHtml(a.title)}</div>`
+            + `<div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6">${escHtml(a.description)}</div>`
+            + (a.action_recommended ? `<div style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:6px">&rarr; ${escHtml(a.action_recommended)}</div>` : '')
+            + `</div>`;
+    }).join('') : `<p style="color:rgba(255,255,255,0.5);font-size:13px">No new alerts today. All monitored shipments are steady.</p>`;
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px">
+  <div style="font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:24px">RISKSIM AI &middot; SHIPMENT DIGEST</div>
+  <h1 style="font-size:20px;font-weight:700;margin:0 0 8px;color:#fff">Your shipment update</h1>
+  <p style="color:rgba(255,255,255,0.6);font-size:14px;margin:0 0 20px">${activeCount} active shipment${activeCount === 1 ? '' : 's'} monitored &middot; ${alerts.length} new alert${alerts.length === 1 ? '' : 's'}</p>
+  ${rows}
+  <p style="margin:24px 0 0"><a href="https://risksim.ai" style="color:#4a9eff;font-size:13px">Open Shipments workspace &rarr;</a></p>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:28px 0">
+  <p style="font-size:11px;color:rgba(255,255,255,0.22);line-height:1.6;margin:0">You're receiving this because shipment digests are enabled for ${escHtml(email)}.<br><a href="${unsubUrl}" style="color:rgba(255,255,255,0.22)">Unsubscribe</a></p>
+</body></html>`;
+}
+function buildShipmentDigestText(email, activeCount, alerts) {
+    const lines = ['RISKSIM AI — SHIPMENT DIGEST', '', 'Your shipment update',
+        `${activeCount} active shipments · ${alerts.length} new alerts`, ''];
+    if (alerts.length) alerts.forEach(a => {
+        lines.push(`[${a.severity}] ${a.title}`, a.description);
+        if (a.action_recommended) lines.push('-> ' + a.action_recommended);
+        lines.push('');
+    }); else lines.push('No new alerts today.', '');
+    lines.push('Open workspace: https://risksim.ai', '', '---',
+        `Unsubscribe: https://risksim.ai/api/email/unsubscribe?email=${encodeURIComponent(email)}`);
+    return lines.join('\n');
+}
+async function sendShipmentDigest(email) {
+    const key = email.toLowerCase();
+    const record = await getUserShipments(key);
+    const alerts = await getUserAlerts(key);
+    const active = (record && Array.isArray(record.shipments)) ? record.shipments.filter(isActiveShipment) : [];
+    const dayAgo = Date.now() - 24 * 3600 * 1000;
+    const newAlerts = alerts
+        .filter(a => !a.resolved && a.timestamp >= dayAgo)
+        .sort((a, b) => (ALERT_SEV_RANK[b.severity] || 0) - (ALERT_SEV_RANK[a.severity] || 0))
+        .slice(0, 5);
+    const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return await sendEmail(key, `Your shipment update — ${dateStr}`,
+        buildShipmentDigestHtml(key, active.length, newAlerts),
+        buildShipmentDigestText(key, active.length, newAlerts));
+}
+// Daily digest sweep — respects per-user pref + frequency, idempotent per day.
+async function runDigestJob() {
+    const summary = { candidates: 0, sent: 0, skipped: 0, errors: 0 };
+    const emails = await listShipmentEmails();
+    const today = new Date().toISOString().slice(0, 10);
+    for (const email of emails) {
+        try {
+            const record = await getUserShipments(email);
+            if (!record) continue;
+            if (record.plan !== 'enterprise' || !record.opted_in) { summary.skipped++; continue; }
+            const digest = record.digest || { enabled: true, frequency: 'daily' };
+            if (!digest.enabled || digest.frequency === 'off') { summary.skipped++; continue; }
+            if (digest.frequency === 'weekly' && new Date().getUTCDay() !== 1) { summary.skipped++; continue; }
+            const active = (record.shipments || []).filter(isActiveShipment);
+            if (!active.length) { summary.skipped++; continue; }
+            summary.candidates++;
+            if (redisAvailable) {
+                try {
+                    const set = await redisCmd(['SET', `digest:sent:${email}:${today}`, '1', 'NX', 'EX', '82800']);
+                    if (set === null) { summary.skipped++; continue; }   // already sent today
+                } catch (e) { /* idempotency check failed — send rather than silently skip */ }
+            }
+            const ok = await sendShipmentDigest(email);
+            if (ok) summary.sent++; else { summary.errors++; }   // email failed — log via sendEmail, no retry
+        } catch (e) { console.error('[Digest] job error for', email, '—', e.message); summary.errors++; }
+    }
+    console.log('[Digest] runDigestJob summary:', JSON.stringify(summary));
+    return summary;
+}
+
+// ---- Part C: client-facing endpoints ----
+const shipmentSyncLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, max: 120,
+    message: { error: 'Too many sync requests, please slow down.' }
+});
+
+// POST /api/shipments/sync — upsert a user's shipments, assign UUIDs, return id map for write-back.
+app.post('/api/shipments/sync', shipmentSyncLimiter, async (req, res) => {
+    try {
+        const { email, plan, optedIn, profile, digest, shipments } = req.body;
+        if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
+        if (!Array.isArray(shipments)) return res.status(400).json({ error: 'shipments array required' });
+        const key = email.toLowerCase();
+        const existing = (await getUserShipments(key)) || { shipments: [] };
+        const prevByTs = {};
+        for (const s of (existing.shipments || [])) if (s.ts != null) prevByTs[s.ts] = s;
+
+        const idMap = [];
+        const merged = shipments.slice(0, 100).map(s => {
+            const prev = prevByTs[s.ts] || {};
+            const id = s.id || prev.id || randomUUID();
+            idMap.push({ ts: s.ts, id });
+            return {
+                id, ts: s.ts || Date.now(),
+                shipmentText: s.shipmentText || prev.shipmentText || '',
+                data: s.data || prev.data || {},
+                prevSeverity: prev.prevSeverity || (s.data && s.data.severity) || null,
+                lastAnalyzedAt: prev.lastAnalyzedAt || null,
+                notes: s.notes || [], timeline: s.timeline || [], alerts: s.alerts || []
+            };
+        });
+        // Phase 3 hardening: authoritative plan from Shopify — the client-asserted `plan` is ignored.
+        const verifiedPlan = await verifyShopifyPlan(key);
+        const record = {
+            email: key, updatedAt: Date.now(),
+            plan: verifiedPlan,
+            opted_in: optedIn != null ? !!optedIn : !!existing.opted_in,
+            profile: profile || existing.profile || null,
+            digest: digest || existing.digest || { enabled: true, frequency: 'daily' },
+            shipments: merged
+        };
+        await setUserShipments(key, record);
+        res.json({ success: true, count: merged.length, shipments: idMap });
+    } catch (e) {
+        console.error('[Shipments] sync error:', e.message);
+        res.status(500).json({ error: 'Sync failed' });
+    }
+});
+
+// GET /api/alerts?email= — all alerts for a user (degrades to [] if Redis down).
+app.get('/api/alerts', async (req, res) => {
+    const email = (req.query.email || '').toLowerCase();
+    if (!email || !email.includes('@')) return res.status(400).json({ error: 'email required' });
+    const alerts = await getUserAlerts(email);
+    res.json({ alerts });
+});
+
+// POST /api/alerts/resolve — mark an alert resolved.
+app.post('/api/alerts/resolve', async (req, res) => {
+    const email = (req.body.email || '').toLowerCase();
+    const alertId = req.body.alert_id;
+    if (!email || !email.includes('@') || !alertId) return res.status(400).json({ error: 'email and alert_id required' });
+    const alerts = await getUserAlerts(email);
+    let found = false;
+    for (const a of alerts) if (a.id === alertId) { a.resolved = true; a.resolvedAt = Date.now(); found = true; }
+    if (found) await setUserAlerts(email, alerts);
+    res.json({ success: true, resolved: found });
+});
+
+// ---- Admin manual triggers (DATA_API_KEY) ----
+app.post('/api/admin/run-analysis-job', requireDataKey, async (req, res) => {
+    try { const summary = await runReanalysisJob(); res.json({ success: true, ...summary }); }
+    catch (e) { console.error('[Job] run-analysis-job error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
+app.post('/api/admin/send-test-digest', requireDataKey, async (req, res) => {
+    try {
+        const email = (req.body.email || '').toLowerCase();
+        if (!email || !email.includes('@')) return res.status(400).json({ error: 'email required' });
+        const ok = await sendShipmentDigest(email);
+        res.json({ success: ok });
+    } catch (e) { console.error('[Digest] send-test-digest error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
+// Daily digest SWEEP for all eligible users — the cron-triggerable counterpart to the
+// in-process poller (unreliable on Render free tier). Respects per-user pref/gating and
+// the digest:sent:{email}:{date} idempotency lock. Returns summary counts only.
+app.post('/api/admin/run-digest-job', requireDataKey, async (req, res) => {
+    try { const summary = await runDigestJob(); res.json({ success: true, ...summary }); }
+    catch (e) { console.error('[Digest] run-digest-job error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ---- Scheduled poller (mirrors ALERT_POLLER_ENABLED). Env-gated + Redis day-lock so it
+// runs at most once/day even across cold starts. For free-tier reliability, also point an
+// external cron at the two /api/admin/* endpoints. ----
+if (process.env.SHIPMENT_JOB_POLLER_ENABLED === 'true') {
+    const REANALYSIS_HOUR = 4, DIGEST_HOUR = 10;   // UTC
+    setInterval(async () => {
+        try {
+            if (!redisAvailable) return;
+            const now = new Date(), hour = now.getUTCHours(), day = now.toISOString().slice(0, 10);
+            if (hour === REANALYSIS_HOUR) {
+                const lock = await redisCmd(['SET', `job:reanalysis:${day}`, '1', 'NX', 'EX', '82800']);
+                if (lock !== null) { console.log('[Job] poller: running daily re-analysis'); await runReanalysisJob(); }
+            }
+            if (hour === DIGEST_HOUR) {
+                const lock = await redisCmd(['SET', `job:digest:${day}`, '1', 'NX', 'EX', '82800']);
+                if (lock !== null) { console.log('[Digest] poller: running daily digest'); await runDigestJob(); }
+            }
+        } catch (e) { console.error('[Job] poller error:', e.message); }
+    }, 15 * 60 * 1000);   // every 15 minutes
+    console.log('[Job] Shipment job poller enabled — re-analysis 04:00 UTC, digest 10:00 UTC');
+}
 
 app.listen(PORT, () => console.log(`RiskSim running on ${PORT}`));
