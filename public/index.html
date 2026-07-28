@@ -3504,7 +3504,6 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <div class="sa-header" id="saHeader">
       <div class="sa-header-top">
         <span class="sa-module-label">Shipment Analysis &middot; Module 05</span>
-        <div class="sa-conn-indicator"><span class="sa-conn-dot"></span>14 carrier APIs connected</div>
       </div>
       <div class="sa-module-subtitle">Route intelligence + landed cost breakdown</div>
     </div>
@@ -3602,31 +3601,15 @@ window.addEventListener('keydown',__handleIntroKey,true);
       </div>
     </div>
   </div>
-  <!-- Right sidebar -->
+  <!-- Right sidebar — saved analyses -->
   <div class="sa-sidebar">
     <div class="sa-sidebar-header">
-      <span class="sa-sidebar-title">Manage My Shipments</span>
-      <span class="sa-sidebar-count">4 active</span>
+      <span class="sa-sidebar-title">Saved Analyses</span>
+      <span class="sa-sidebar-count" id="saSidebarCount"></span>
     </div>
-    <div class="sa-shipment-item" onclick="saFillExample(0)">
-      <div class="sa-shipment-top"><span class="sa-shipment-id">MSCU7834219</span><span class="sa-severity-badge low">LOW</span></div>
-      <div class="sa-shipment-route">Shenzhen &rarr; Long Beach</div>
-    </div>
-    <div class="sa-shipment-item">
-      <div class="sa-shipment-top"><span class="sa-shipment-id">BOL 4567321</span><span class="sa-severity-badge low-med">LOW/MED</span></div>
-      <div class="sa-shipment-route">Shenzhen &rarr; Oakland</div>
-    </div>
-    <div class="sa-shipment-item">
-      <div class="sa-shipment-top"><span class="sa-shipment-id">TCLU9012456</span><span class="sa-severity-badge low">LOW</span></div>
-      <div class="sa-shipment-route">Ningbo &rarr; Oakland</div>
-    </div>
-    <div class="sa-shipment-item">
-      <div class="sa-shipment-top"><span class="sa-shipment-id">CMAU3321087</span><span class="sa-severity-badge alert">&bull; ALERT</span></div>
-      <div class="sa-shipment-route">Yantian &rarr; Los Angeles</div>
-      <div class="sa-shipment-alert-text">New MFN tariff ruling adds ~4.1% landed cost</div>
-    </div>
-    <div class="sa-sidebar-footer">
-      <span class="sa-sidebar-footer-link">Manage all shipments &rarr;</span>
+    <div id="saSidebarList"></div>
+    <div class="sa-sidebar-footer" id="saSidebarFooter" style="display:none">
+      <span class="sa-sidebar-footer-link" onclick="saClearHistory()">Clear all</span>
     </div>
   </div>
 </div>
@@ -8444,20 +8427,14 @@ function saAnalyze(){
 function saShowLoadingSteps(){
   var cl=document.getElementById('saCheckList');if(!cl)return;
   cl.innerHTML=SA_STEPS.map(function(s,i){
-    return'<div class="sa-check-row" id="saChk'+i+'"><span class="sa-check-muted" style="opacity:0.3">[ ]</span><span class="sa-check-muted">&nbsp;&nbsp;'+s+'</span></div>';
+    return'<div class="am-step" id="saChk'+i+'"><div class="am-step-dot"></div><span>'+s+'</span></div>';
   }).join('');
-  setTimeout(function(){_saMarkStep(0,'done');},400);
-  setTimeout(function(){_saMarkStep(1,'done');},900);
-  setTimeout(function(){_saMarkStep(2,'active');},1400);
 }
 
 function _saMarkStep(idx,state){
   var el=document.getElementById('saChk'+idx);if(!el)return;
-  if(state==='done'){
-    el.innerHTML='<span style="color:rgba(255,255,255,0.82)">[&#10003;]</span><span class="sa-check-done">&nbsp;&nbsp;'+SA_STEPS[idx]+'</span>';
-  }else if(state==='active'){
-    el.innerHTML='<span style="color:#F76B6B;opacity:0.9">[&rarr;]</span><span class="sa-check-active">&nbsp;&nbsp;'+SA_STEPS[idx]+'</span>';
-  }
+  if(state==='done'){el.classList.remove('active');el.classList.add('done');}
+  else if(state==='active'){el.classList.remove('done');el.classList.add('active');}
 }
 
 function saShowSampleResult(){
@@ -8513,6 +8490,7 @@ function saSaveAnalysis(){
     hist.unshift({ts:Date.now(),data:_saCurrentResult});
     if(hist.length>10)hist=hist.slice(0,10);
     localStorage.setItem('risksim_sa_history',JSON.stringify(hist));
+    saRenderSidebar();
     var t=document.createElement('div');
     t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(20,20,20,0.97);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.82);font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:0.05em;padding:10px 20px;z-index:99999;pointer-events:none;transition:opacity 0.3s;white-space:nowrap;';
     t.textContent='Analysis saved';
@@ -8542,6 +8520,62 @@ function saInit(){
     if(selectedSourcingCountries&&selectedSourcingCountries.length)parts.push(selectedSourcingCountries.slice(0,2).join(', '));
     pt.textContent=parts.length?parts.join(' · '):'No profile configured — analysis will be generic';
   }
+  saRenderSidebar();
+}
+
+function saRenderSidebar(){
+  var list=document.getElementById('saSidebarList');
+  var countEl=document.getElementById('saSidebarCount');
+  var footer=document.getElementById('saSidebarFooter');
+  if(!list)return;
+  var hist=[];
+  try{hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
+  if(!Array.isArray(hist))hist=[];
+  if(countEl)countEl.textContent=hist.length?hist.length+' saved':'';
+  if(footer)footer.style.display=hist.length?'':'none';
+  if(!hist.length){
+    list.innerHTML='<div style="padding:20px 20px 12px;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:rgba(255,255,255,0.22);line-height:1.7;">No saved analyses yet.<br><br>Analyze a shipment and click Save Analysis to see it here.</div>';
+    return;
+  }
+  list.innerHTML=hist.map(function(item,i){
+    var d=item.data||{};
+    var sev=(d.severity||'').toLowerCase();
+    var badgeClass=sev==='critical'||sev==='high'?'alert':sev==='moderate'?'low-med':'low';
+    var badgeText=(d.severity||'').toUpperCase();
+    var origin=(d.origin||'').split(',')[0].trim().split('(')[0].trim();
+    var dest=(d.destination||'').split(',')[0].trim().split('(')[0].trim();
+    var ago=_saTimeAgo(item.ts);
+    return'<div class="sa-shipment-item" onclick="saLoadSaved('+i+')">'
+      +'<div class="sa-shipment-top"><span class="sa-shipment-id">'+escHtml(d.id||'—')+'</span><span class="sa-severity-badge '+badgeClass+'">'+badgeText+'</span></div>'
+      +(origin||dest?'<div class="sa-shipment-route">'+escHtml(origin||'?')+' &rarr; '+escHtml(dest||'?')+'</div>':'')
+      +'<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:rgba(255,255,255,0.18);margin-top:3px;">'+ago+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function _saTimeAgo(ts){
+  if(!ts)return'';
+  var d=Math.floor((Date.now()-ts)/1000);
+  if(d<60)return'just now';
+  if(d<3600)return Math.floor(d/60)+'m ago';
+  if(d<86400)return Math.floor(d/3600)+'h ago';
+  return Math.floor(d/86400)+'d ago';
+}
+
+function saLoadSaved(idx){
+  var hist=[];
+  try{hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
+  var item=hist[idx];if(!item||!item.data)return;
+  _saCurrentResult=item.data;
+  saSwitchTab(1);
+  _saShowState('saResult');
+  var el=document.getElementById('saResult');
+  if(el)el.innerHTML=buildSAResultCardHtml(item.data);
+}
+
+function saClearHistory(){
+  localStorage.removeItem('risksim_sa_history');
+  saRenderSidebar();
 }
 
 /* Tab 2 adapter — same /api/price-extract endpoint, own element IDs */
