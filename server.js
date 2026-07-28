@@ -77,6 +77,7 @@ app.use('/api/audit-custom', claudeLimiter);
 app.use('/api/price-extract', claudeLimiter);
 app.use('/api/terminal/news', claudeLimiter);
 app.use('/api/chat', chatLimiter);
+app.use('/api/analyze-shipment', chatLimiter);
 app.use('/api/demo-request', demoLimiter);
 app.use('/api/send-otp', otpLimiter);
 app.use('/api/verify-otp', otpLimiter);
@@ -1146,6 +1147,98 @@ Search query: ${searchQuery}`;
     } catch (error) {
         console.error('[terminal/news] error:', error.message);
         res.status(500).json({ error: 'fetch_failed', items: [] });
+    }
+});
+
+app.post('/api/analyze-shipment', async (req, res) => {
+    try {
+        let { shipmentText, profile } = req.body;
+
+        if (!shipmentText || typeof shipmentText !== 'string' || shipmentText.trim().length === 0)
+            return res.status(400).json({ error: 'Shipment text is required' });
+        if (shipmentText.length > MAX_INPUT)
+            return res.status(400).json({ error: 'Input exceeds maximum allowed length.' });
+        shipmentText = stripHtml(shipmentText);
+
+        const apiKey = process.env.CLAUDE_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
+
+        const client = new Anthropic({ apiKey });
+
+        const tariffCtx = JSON.stringify((dataStore.tariffs || []).slice(0, 15));
+        const portCtx = JSON.stringify((dataStore.ports || []).slice(0, 15));
+        const alertCtx = JSON.stringify((dataStore.alerts || []).slice(0, 10));
+
+        let profileLines = '';
+        if (profile) {
+            if (profile.companyName) profileLines += `Company: ${profile.companyName}\n`;
+            if (profile.industry) profileLines += `Industry: ${profile.industry}\n`;
+            if (profile.homeCountry) profileLines += `Home country: ${profile.homeCountry}\n`;
+            if (profile.sourcingCountries && profile.sourcingCountries.length)
+                profileLines += `Sourcing countries: ${profile.sourcingCountries.join(', ')}\n`;
+            if (profile.products) profileLines += `Products: ${profile.products}\n`;
+            if (profile.suppliers) profileLines += `Suppliers: ${profile.suppliers}\n`;
+            if (profile.businessDescription) profileLines += `Business context: ${profile.businessDescription.slice(0, 600)}\n`;
+            if (profile.enterprise) profileLines += `Enterprise profile summary: ${JSON.stringify(profile.enterprise).slice(0, 600)}\n`;
+        }
+
+        const systemPrompt = `You are a supply chain intelligence analyst at RiskSim AI. Analyze the shipment information the user provides and return structured risk analysis as ONLY valid JSON — no markdown fences, no backticks, no explanatory text outside the JSON.
+
+USER PROFILE:
+${profileLines || 'No profile provided.'}
+
+LIVE TARIFF DATA (from RiskSim pipelines):
+${tariffCtx}
+
+LIVE PORT CONDITIONS (from RiskSim pipelines):
+${portCtx}
+
+LIVE SUPPLY CHAIN ALERTS (from RiskSim pipelines):
+${alertCtx}
+
+INSTRUCTIONS:
+1. Extract from the user's text: container/booking ID, origin port, destination port, carrier, transit time, and ETA. Make reasonable estimates from context if not explicit.
+2. Assess overall route risk as LOW, MODERATE, HIGH, or CRITICAL — base this on current port conditions, active tariff exposure, carrier performance signals, and any relevant alerts from the pipeline data above.
+3. List up to 5 route factors — objective, data-grounded risks specific to this route right now.
+4. List up to 4 "your factors" — company-specific risks derived from the user profile (single-source exposure, inventory buffers, tariff sensitivity for their products, etc.). Skip if no profile.
+5. Generate 3–5 specific, actionable recommended steps for this shipment. Each should be concrete and immediately useful — not generic supply chain advice.
+6. If a field cannot be extracted, use a reasonable placeholder (e.g. "Unknown" for ID, "Estimated" for transit).
+
+Return ONLY this JSON structure:
+{
+  "id": "container or booking ID, or UNKNOWN",
+  "origin": "origin port with city",
+  "destination": "destination port with city",
+  "carrier": "carrier name",
+  "transit": "~X days or range",
+  "eta": "Month Day, Year",
+  "severity": "LOW|MODERATE|HIGH|CRITICAL",
+  "routeFactors": ["factor 1", "factor 2"],
+  "yourFactors": ["company-specific factor 1"],
+  "actions": ["action 1", "action 2"]
+}`;
+
+        const response = await client.messages.create({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 1200,
+            system: systemPrompt,
+            messages: [{ role: 'user', content: `Analyze this shipment:\n\n${shipmentText}` }]
+        });
+
+        const rawText = response.content[0]?.text || '';
+        let result;
+        try {
+            const cleaned = rawText.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/i, '').trim();
+            result = JSON.parse(cleaned);
+        } catch (e) {
+            console.error('[analyze-shipment] JSON parse error:', e.message, rawText.slice(0, 300));
+            return res.status(500).json({ error: 'Failed to parse analysis result. Please try again.' });
+        }
+
+        res.json(result);
+    } catch (error) {
+        console.error('[analyze-shipment] Error:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 

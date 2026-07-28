@@ -8382,13 +8382,63 @@ function saResetToEmpty(){
   _saShowState('saEmptyState');
 }
 
+var _saCurrentResult=null;
+
 function saAnalyze(){
   var ta=document.getElementById('saTextarea');
   var text=ta?ta.value.trim():'';
   if(!text)return;
   _saShowState('saLoading');
   saShowLoadingSteps();
-  setTimeout(function(){saShowSampleResult();},3500);
+
+  var profilePayload={};
+  try{
+    profilePayload={
+      companyType:(typeof PS_TYPE_LABELS!=='undefined'&&PS_TYPE_LABELS[userProfile.type])||userProfile.type||'',
+      homeCountry:userProfile.country||'',
+      industry:(typeof PS_IND_LABELS!=='undefined'&&PS_IND_LABELS[userProfile.industry])||userProfile.industry||'',
+      sourcingCountries:selectedSourcingCountries||[],
+      revenue:userProfile.revenue||'',
+      companyName:userProfile.companyName||'',
+      products:userProfile.products||'',
+      suppliers:userProfile.suppliers||'',
+      businessDescription:userProfile.context||'',
+      enterprise:(function(){try{return JSON.parse(localStorage.getItem('risksim_enterprise_profile')||'null');}catch(e){return null;}})()
+    };
+  }catch(e){}
+
+  _saMarkStep(0,'done');
+  setTimeout(function(){_saMarkStep(1,'done');},600);
+  setTimeout(function(){_saMarkStep(2,'active');},1200);
+
+  fetch('/api/analyze-shipment',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({shipmentText:text,profile:profilePayload})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data.error){
+      _saShowState('saErrorCard');
+      var ec=document.getElementById('saErrorCard');
+      if(ec){ec.innerHTML='<div class="sa-error-header">Analysis Failed</div><div class="sa-error-text">'+escHtml(data.error)+'</div><button class="sa-btn-secondary" onclick="saResetToEmpty()">Try Again</button>';}
+      return;
+    }
+    _saMarkStep(2,'done');
+    setTimeout(function(){_saMarkStep(3,'done');},200);
+    setTimeout(function(){_saMarkStep(4,'done');},500);
+    setTimeout(function(){
+      _saCurrentResult=data;
+      _saShowState('saResult');
+      var el=document.getElementById('saResult');
+      if(el)el.innerHTML=buildSAResultCardHtml(data);
+    },700);
+  })
+  .catch(function(){
+    _saShowState('saErrorCard');
+    var ec=document.getElementById('saErrorCard');
+    if(ec){ec.innerHTML='<div class="sa-error-header">Connection Error</div><div class="sa-error-text">Could not reach analysis service. Check your connection and try again.</div><button class="sa-btn-secondary" onclick="saResetToEmpty()">Try Again</button>';}
+  });
 }
 
 function saShowLoadingSteps(){
@@ -8450,9 +8500,48 @@ function buildSAResultCardHtml(d){
     +'<div>'+actions+'</div>'
     +'<div class="sa-result-sep"></div>'
     +'<div class="sa-result-btns">'
-    +'<button class="sa-btn-secondary" onclick="saResetToEmpty()">Save Analysis</button>'
-    +'<button class="sa-btn-primary" onclick="saResetToEmpty()">Ask AI a follow-up &rarr;</button>'
+    +'<button class="sa-btn-secondary" onclick="saSaveAnalysis()">Save Analysis</button>'
+    +'<button class="sa-btn-primary" onclick="saOpenFollowUp()">Ask AI a follow-up &rarr;</button>'
     +'</div>';
+}
+
+function saSaveAnalysis(){
+  if(!_saCurrentResult)return;
+  try{
+    var hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');
+    if(!Array.isArray(hist))hist=[];
+    hist.unshift({ts:Date.now(),data:_saCurrentResult});
+    if(hist.length>10)hist=hist.slice(0,10);
+    localStorage.setItem('risksim_sa_history',JSON.stringify(hist));
+    var t=document.createElement('div');
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(20,20,20,0.97);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.82);font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:0.05em;padding:10px 20px;z-index:99999;pointer-events:none;transition:opacity 0.3s;white-space:nowrap;';
+    t.textContent='Analysis saved';
+    document.body.appendChild(t);
+    setTimeout(function(){t.style.opacity='0';setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},350);},2200);
+  }catch(e){}
+}
+
+function saOpenFollowUp(){
+  if(!_saCurrentResult)return;
+  var d=_saCurrentResult;
+  var msg='I want to ask about my shipment analysis. Container/booking: '+d.id+'. Route: '+(d.origin||'')+' to '+(d.destination||'')+'. Carrier: '+(d.carrier||'')+'. Risk level: '+(d.severity||'')+'. '
+    +(d.routeFactors&&d.routeFactors.length?'Route factors: '+d.routeFactors.slice(0,3).join('; ')+'. ':'')
+    +(d.actions&&d.actions.length?'Recommended actions so far: '+d.actions[0]+'. ':'');
+  if(typeof openChatFullscreen==='function')openChatFullscreen(msg,'shipment_analysis');
+}
+
+function saInit(){
+  var pt=document.getElementById('saProfileText');
+  if(pt){
+    var parts=[];
+    if(userProfile&&userProfile.companyName)parts.push(userProfile.companyName);
+    if(userProfile&&userProfile.industry){
+      var il=(typeof PS_IND_LABELS!=='undefined'&&PS_IND_LABELS[userProfile.industry])||userProfile.industry;
+      parts.push(il);
+    }
+    if(selectedSourcingCountries&&selectedSourcingCountries.length)parts.push(selectedSourcingCountries.slice(0,2).join(', '));
+    pt.textContent=parts.length?parts.join(' · '):'No profile configured — analysis will be generic';
+  }
 }
 
 /* Tab 2 adapter — same /api/price-extract endpoint, own element IDs */
