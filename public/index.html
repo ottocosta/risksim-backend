@@ -2775,6 +2775,27 @@
   .sw-empty-btn:hover { opacity:0.85; }
   .sw-empty-note { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.2); margin-top:18px; letter-spacing:0.03em; }
   .sw-no-results { padding:32px; font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.28); text-align:center; }
+  /* Phase 4 — portfolio view */
+  .sw-view-tabs { display:flex; gap:6px; padding:0 28px 10px; flex-shrink:0; }
+  .sw-view-tab { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.4); background:none; border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:5px 12px; cursor:pointer; transition:all 0.15s; }
+  .sw-view-tab:hover { color:rgba(255,255,255,0.7); }
+  .sw-view-tab.active { color:#fff; border-color:rgba(255,255,255,0.35); background:rgba(255,255,255,0.05); }
+  .sw-portfolio-scroll { flex:1; overflow-y:auto; padding:20px 28px 40px; }
+  .sw-pf-section { margin-bottom:28px; }
+  .sw-pf-title { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.35); margin-bottom:14px; }
+  .sw-pf-mix { display:flex; gap:10px; flex-wrap:wrap; }
+  .sw-pf-mix-cell { flex:1; min-width:72px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px 12px; display:flex; flex-direction:column; gap:8px; align-items:flex-start; }
+  .sw-pf-mix-count { font-size:22px; font-weight:600; color:rgba(255,255,255,0.9); font-family:'JetBrains Mono',monospace; }
+  .sw-pf-mix-total { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.28); margin-top:10px; }
+  .sw-pf-lane { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+  .sw-pf-lane-name { font-family:'JetBrains Mono',monospace; font-size:12px; color:rgba(255,255,255,0.8); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sw-pf-lane-meta { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.3); flex-shrink:0; }
+  .sw-pf-risk { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; margin-bottom:10px; cursor:pointer; transition:background 0.1s; }
+  .sw-pf-risk:hover { background:rgba(255,255,255,0.04); }
+  .sw-pf-risk-top { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .sw-pf-risk-id { font-family:'JetBrains Mono',monospace; font-size:12px; color:rgba(255,255,255,0.85); flex:1; }
+  .sw-pf-risk-route { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:6px; }
+  .sw-pf-risk-reason { font-size:12px; color:rgba(255,255,255,0.55); line-height:1.5; }
   .sw-detail-topbar { padding:12px 28px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.07); flex-shrink:0; gap:12px; }
   .sw-back-btn { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.4); background:none; border:none; cursor:pointer; padding:0; transition:color 0.15s; letter-spacing:0.04em; }
   .sw-back-btn:hover { color:rgba(255,255,255,0.75); }
@@ -3713,6 +3734,12 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <div class="sa-module-subtitle" id="swHeaderSubtitle">Your active and past shipments</div>
   </div>
 
+  <!-- VIEW TABS (Phase 4) -->
+  <div class="sw-view-tabs" id="swViewTabs">
+    <button class="sw-view-tab active" id="swTabShipments" onclick="_saShowView('workspace')">Shipments</button>
+    <button class="sw-view-tab" id="swTabPortfolio" onclick="_saShowView('portfolio')">Portfolio</button>
+  </div>
+
   <!-- WORKSPACE VIEW -->
   <div id="swWorkspaceView" class="sw-view">
     <div id="swStatsStrip" class="sw-stats-strip" style="display:none"></div>
@@ -3734,6 +3761,11 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <div id="swDetailCard"></div>
       <div id="saDetailExtras"></div>
     </div>
+  </div>
+
+  <!-- PORTFOLIO VIEW (Phase 4) -->
+  <div id="swPortfolioView" class="sw-view" style="display:none;">
+    <div class="sw-portfolio-scroll" id="swPortfolioBody"></div>
   </div>
 
   <!-- ADD-NEW MODAL -->
@@ -9014,21 +9046,34 @@ function _saShowView(v){
   _saView=v;
   var ws=document.getElementById('swWorkspaceView');
   var dv=document.getElementById('swDetailView');
+  var pv=document.getElementById('swPortfolioView');
   if(!ws||!dv)return;
+  var sub=document.getElementById('swHeaderSubtitle');
+  var tabs=document.getElementById('swViewTabs');
+  var tS=document.getElementById('swTabShipments');
+  var tP=document.getElementById('swTabPortfolio');
+  ws.style.display='none';
+  dv.style.display='none';
+  if(pv)pv.style.display='none';
+  if(tabs)tabs.style.display=(v==='detail')?'none':'flex';   // tabs hidden inside a detail
   if(v==='workspace'){
     ws.style.display='flex';
-    dv.style.display='none';
-    var sub=document.getElementById('swHeaderSubtitle');
     if(sub)sub.textContent='Your active and past shipments';
+    if(tS)tS.classList.add('active');
+    if(tP)tP.classList.remove('active');
     var q=document.getElementById('swSearch');
     saRenderWorkspace(q?q.value:'');
   }else if(v==='detail'){
-    ws.style.display='none';
     dv.style.display='flex';
     dv.style.flexDirection='column';
     var d=_saCurrentResult||{};
-    var sub=document.getElementById('swHeaderSubtitle');
     if(sub)sub.textContent=escHtml(d.id||'Shipment details');
+  }else if(v==='portfolio'){
+    if(pv)pv.style.display='flex';
+    if(sub)sub.textContent='Aggregate risk across your saved shipments';
+    if(tS)tS.classList.remove('active');
+    if(tP)tP.classList.add('active');
+    saRenderPortfolio();
   }
 }
 
@@ -9097,6 +9142,80 @@ function saRenderWorkspace(filter){
       +'<span class="sw-item-chevron">›</span>'
       +'</div>';
   }).join('');
+}
+
+// Phase 4 — aggregate portfolio view over all saved shipments (client-only, existing data).
+function saRenderPortfolio(){
+  var body=document.getElementById('swPortfolioBody');
+  if(!body)return;
+  var hist=[];
+  try{hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
+  if(!Array.isArray(hist))hist=[];
+  if(!hist.length){
+    body.innerHTML='<div class="sw-empty">'
+      +'<div class="sw-empty-label">No portfolio yet</div>'
+      +'<div class="sw-empty-text">Analyze shipments to see aggregate risk across your routes.</div>'
+      +'<button class="sw-empty-btn" onclick="saOpenAddModal()">Analyze first shipment &rarr;</button>'
+      +'</div>';
+    return;
+  }
+  var RANK={low:0,moderate:1,high:2,critical:3};
+  var LABEL={low:'Low',moderate:'Medium',high:'High',critical:'Critical'};
+  var sevOf=function(h){return((h.data&&h.data.severity)||'').toLowerCase();};
+  var firstToken=function(s){return(s||'').split(',')[0].split('(')[0].trim();};
+
+  // Severity mix
+  var mix={low:0,moderate:0,high:0,critical:0};
+  hist.forEach(function(h){var s=sevOf(h);if(mix[s]!=null)mix[s]++;});
+
+  // Lane exposure (origin -> destination), ranked by peak severity then volume
+  var lanes={};
+  hist.forEach(function(h){
+    var d=h.data||{};
+    var key=(firstToken(d.origin)||'?')+' → '+(firstToken(d.destination)||'?');
+    var s=sevOf(h),r=(RANK[s]!=null?RANK[s]:-1);
+    if(!lanes[key])lanes[key]={count:0,maxRank:-1,maxSev:'low'};
+    lanes[key].count++;
+    if(r>lanes[key].maxRank){lanes[key].maxRank=r;lanes[key].maxSev=s||'low';}
+  });
+  var laneArr=Object.keys(lanes).map(function(k){return{lane:k,count:lanes[k].count,maxRank:lanes[k].maxRank,maxSev:lanes[k].maxSev};});
+  laneArr.sort(function(a,b){return(b.maxRank-a.maxRank)||(b.count-a.count);});
+
+  // Top risks — highest severity, then most recent
+  var ranked=hist.map(function(h,i){var s=sevOf(h);return{h:h,idx:i,rank:(RANK[s]!=null?RANK[s]:-1)};});
+  ranked.sort(function(a,b){return(b.rank-a.rank)||((b.h.ts||0)-(a.h.ts||0));});
+  var top=ranked.slice(0,5);
+
+  var html='';
+  html+='<div class="sw-pf-section"><div class="sw-pf-title">Severity mix</div><div class="sw-pf-mix">';
+  ['critical','high','moderate','low'].forEach(function(s){
+    html+='<div class="sw-pf-mix-cell"><span class="sw-item-sev '+s+'">'+LABEL[s]+'</span>'
+      +'<span class="sw-pf-mix-count">'+mix[s]+'</span></div>';
+  });
+  html+='</div><div class="sw-pf-mix-total">'+hist.length+' shipment'+(hist.length===1?'':'s')+' analyzed</div></div>';
+
+  html+='<div class="sw-pf-section"><div class="sw-pf-title">Lane exposure</div>';
+  laneArr.slice(0,8).forEach(function(l){
+    html+='<div class="sw-pf-lane"><span class="sw-item-dot '+l.maxSev+'"></span>'
+      +'<span class="sw-pf-lane-name">'+escHtml(l.lane)+'</span>'
+      +'<span class="sw-pf-lane-meta">'+l.count+' shipment'+(l.count===1?'':'s')+' \xb7 '+escHtml(LABEL[l.maxSev]||'—')+' peak</span></div>';
+  });
+  html+='</div>';
+
+  html+='<div class="sw-pf-section"><div class="sw-pf-title">Top risks</div>';
+  top.forEach(function(t){
+    var d=t.h.data||{},s=sevOf(t.h);
+    var reason=(d.routeFactors&&d.routeFactors[0])||(d.yourFactors&&d.yourFactors[0])||'No specific risk factors noted.';
+    html+='<div class="sw-pf-risk" onclick="saOpenDetail('+t.idx+')">'
+      +'<div class="sw-pf-risk-top"><span class="sw-item-dot '+(s||'low')+'"></span>'
+      +'<span class="sw-pf-risk-id">'+escHtml(d.id||'Untitled shipment')+'</span>'
+      +(s?'<span class="sw-item-sev '+s+'">'+escHtml(s.toUpperCase())+'</span>':'')+'</div>'
+      +'<div class="sw-pf-risk-route">'+escHtml((firstToken(d.origin)||'?')+' → '+(firstToken(d.destination)||'?'))+'</div>'
+      +'<div class="sw-pf-risk-reason">'+escHtml(reason)+'</div></div>';
+  });
+  html+='</div>';
+
+  body.innerHTML=html;
 }
 
 function saOpenDetail(idx){
