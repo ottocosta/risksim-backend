@@ -2740,6 +2740,78 @@
     .sar-route-node-right { min-width:70px; }
   }
 
+  /* ===== SHIPMENTS WORKSPACE — Phase 1 ===== */
+  .sw-view { display:flex; flex-direction:column; flex:1; overflow:hidden; }
+  .sw-analyze-btn { padding:6px 14px; background:#F76B6B; border:none; color:#fff; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:opacity 0.15s; white-space:nowrap; }
+  .sw-analyze-btn:hover { opacity:0.85; }
+  .sw-stats-strip { padding:9px 28px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+  .sw-stats-text { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.3); letter-spacing:0.03em; }
+  .sw-search-wrap { padding:10px 28px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+  .sw-search { width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.75); font-family:'JetBrains Mono',monospace; font-size:11px; padding:8px 12px; outline:none; transition:border-color 0.15s; letter-spacing:0.02em; }
+  .sw-search::placeholder { color:rgba(255,255,255,0.16); }
+  .sw-search:focus { border-color:rgba(255,255,255,0.2); }
+  .sw-list { flex:1; overflow-y:auto; }
+  .sw-list::-webkit-scrollbar { width:4px; } .sw-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); }
+  .sw-item { display:flex; align-items:center; padding:14px 28px; border-bottom:1px solid rgba(255,255,255,0.06); cursor:pointer; transition:background 0.1s; gap:14px; }
+  .sw-item:hover { background:rgba(255,255,255,0.02); }
+  .sw-item-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .sw-item-dot.low { background:rgba(100,220,140,0.9); }
+  .sw-item-dot.moderate { background:rgba(251,189,61,0.9); }
+  .sw-item-dot.high,.sw-item-dot.critical { background:#F76B6B; }
+  .sw-item-body { flex:1; min-width:0; }
+  .sw-item-id { font-family:'JetBrains Mono',monospace; font-size:13px; color:rgba(255,255,255,0.82); letter-spacing:0.04em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sw-item-route { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.33); margin-top:3px; }
+  .sw-item-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+  .sw-item-sev { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.1em; }
+  .sw-item-sev.low { color:rgba(100,220,140,0.8); }
+  .sw-item-sev.moderate { color:rgba(251,189,61,0.8); }
+  .sw-item-sev.high,.sw-item-sev.critical { color:#F76B6B; }
+  .sw-item-ts { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.2); }
+  .sw-item-chevron { font-size:16px; color:rgba(255,255,255,0.16); flex-shrink:0; margin-left:4px; line-height:1; }
+  .sw-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:60px 40px; text-align:center; }
+  .sw-empty-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.28em; text-transform:uppercase; color:rgba(255,255,255,0.2); margin-bottom:16px; }
+  .sw-empty-text { font-family:'JetBrains Mono',monospace; font-size:12px; color:rgba(255,255,255,0.38); line-height:1.75; max-width:380px; margin-bottom:28px; }
+  .sw-empty-btn { padding:10px 24px; background:#F76B6B; border:none; color:#fff; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:opacity 0.15s; }
+  .sw-empty-btn:hover { opacity:0.85; }
+  .sw-empty-note { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.2); margin-top:18px; letter-spacing:0.03em; }
+  .sw-no-results { padding:32px; font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.28); text-align:center; }
+  .sw-detail-topbar { padding:12px 28px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.07); flex-shrink:0; gap:12px; }
+  .sw-back-btn { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.4); background:none; border:none; cursor:pointer; padding:0; transition:color 0.15s; letter-spacing:0.04em; }
+  .sw-back-btn:hover { color:rgba(255,255,255,0.75); }
+  .sw-delete-btn { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.25); background:none; border:1px solid rgba(255,255,255,0.1); cursor:pointer; padding:4px 10px; transition:all 0.15s; letter-spacing:0.05em; white-space:nowrap; }
+  .sw-delete-btn:hover { color:#F76B6B; border-color:rgba(247,107,107,0.3); }
+  .sw-delete-confirm-row { display:flex; align-items:center; gap:10px; }
+  .sw-delete-confirm-text { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.38); }
+  .sw-delete-confirm-yes { font-family:'JetBrains Mono',monospace; font-size:9px; color:#F76B6B; background:none; border:none; cursor:pointer; padding:0; }
+  .sw-delete-confirm-yes:hover { opacity:0.7; }
+  .sw-delete-confirm-no { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.3); background:none; border:none; cursor:pointer; padding:0; transition:color 0.15s; }
+  .sw-delete-confirm-no:hover { color:rgba(255,255,255,0.65); }
+  .sw-detail-scroll { flex:1; overflow-y:auto; padding:28px; }
+  .sw-detail-scroll::-webkit-scrollbar { width:4px; } .sw-detail-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); }
+  #saDetailExtras { margin-top:48px; padding-top:32px; border-top:1px solid rgba(255,255,255,0.07); min-height:1px; }
+  #swAddModal { position:absolute; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; }
+  .sw-modal-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.8); }
+  .sw-modal-panel { position:relative; width:680px; max-width:calc(100% - 40px); max-height:88vh; overflow-y:auto; background:#050505; border:1px solid rgba(255,255,255,0.12); z-index:1; }
+  .sw-modal-panel::-webkit-scrollbar { width:4px; } .sw-modal-panel::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); }
+  .sw-modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-bottom:1px solid rgba(255,255,255,0.07); position:sticky; top:0; background:#050505; z-index:2; }
+  .sw-modal-title { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.5); }
+  .sw-modal-close { background:none; border:none; color:rgba(255,255,255,0.3); font-size:18px; cursor:pointer; padding:0; line-height:1; transition:color 0.15s; }
+  .sw-modal-close:hover { color:rgba(255,255,255,0.7); }
+  .sw-modal-body { padding:24px; }
+  .sw-pdf-link { margin-top:14px; text-align:center; }
+  .sw-pdf-link span { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.28); cursor:pointer; text-decoration:underline; text-underline-offset:3px; letter-spacing:0.03em; transition:color 0.15s; }
+  .sw-pdf-link span:hover { color:rgba(255,255,255,0.55); }
+  .sw-back-to-paste { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.35); background:none; border:none; cursor:pointer; padding:0; margin-bottom:18px; display:block; transition:color 0.15s; letter-spacing:0.04em; }
+  .sw-back-to-paste:hover { color:rgba(255,255,255,0.65); }
+  .sw-toast { position:absolute; bottom:22px; left:50%; transform:translateX(-50%); background:rgba(8,8,8,0.97); border:1px solid rgba(255,255,255,0.1); font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.65); letter-spacing:0.06em; padding:9px 20px; z-index:500; white-space:nowrap; pointer-events:none; transition:opacity 0.3s; }
+  @media (max-width:640px) {
+    .sw-item { padding:12px 16px; gap:10px; }
+    .sw-item-id { font-size:11px; }
+    .sw-detail-scroll { padding:16px; }
+    .sw-detail-topbar { padding:10px 16px; }
+    .sw-modal-body { padding:16px; }
+  }
+
   /* ===== SYS_06 COST ENGINE — NEW COMPONENTS ===== */
   .lc-res-section {
     padding-top: 20px; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.06);
@@ -3588,128 +3660,140 @@ window.addEventListener('keydown',__handleIntroKey,true);
 
 <!-- ===== SYS_05 SHIPMENT ANALYSIS MODULE (flag-gated v2) ===== -->
 <div id="saModule">
-  <div class="sa-main">
-    <div class="sa-header" id="saHeader">
-      <div class="sa-header-top">
-        <span class="sa-module-label">Shipment Analysis &middot; Module 05</span>
-        <div id="saHistoryWrap" style="display:none">
-          <button class="sa-history-btn" id="saHistoryBtn" onclick="saToggleHistory(event)">History (<span id="saHistoryCount">0</span>)</button>
-          <div class="sa-history-dropdown" id="saHistoryDropdown" style="display:none">
-            <div id="saHistoryList"></div>
-          </div>
-        </div>
+
+  <!-- MODULE HEADER -->
+  <div class="sa-header" id="saHeader">
+    <div class="sa-header-top">
+      <span class="sa-module-label">Shipments &middot; Module 05</span>
+      <button class="sw-analyze-btn" onclick="saOpenAddModal()">+ Analyze</button>
+    </div>
+    <div class="sa-module-subtitle" id="swHeaderSubtitle">Your active and past shipments</div>
+  </div>
+
+  <!-- WORKSPACE VIEW -->
+  <div id="swWorkspaceView" class="sw-view">
+    <div id="swStatsStrip" class="sw-stats-strip" style="display:none"></div>
+    <div id="swSearchWrap" class="sw-search-wrap" style="display:none">
+      <input class="sw-search" id="swSearch" type="text" placeholder="Search by shipment ID, origin, destination..." oninput="saRenderWorkspace(this.value)">
+    </div>
+    <div class="sw-list" id="swList"></div>
+  </div>
+
+  <!-- DETAIL VIEW -->
+  <div id="swDetailView" class="sw-view" style="display:none;">
+    <div class="sw-detail-topbar">
+      <button class="sw-back-btn" onclick="_saShowView('workspace')">&larr; All shipments</button>
+      <div id="swDeleteConfirm">
+        <button class="sw-delete-btn" onclick="saStartDeleteDetail()">Delete shipment</button>
       </div>
-      <div class="sa-module-subtitle">Route intelligence + landed cost breakdown</div>
     </div>
-    <div class="sa-notice" id="saNotice" style="display:none">
-      <span class="sa-notice-text">NEW &middot; Shipment Analysis now includes route and risk analysis in Tab 1. PDF cost breakdown continues in Tab 2 (Upload PDF).</span>
-      <button class="sa-notice-close" onclick="saDismissNotice()" title="Dismiss">&times;</button>
+    <div class="sw-detail-scroll">
+      <div id="swDetailCard"></div>
+      <div id="saDetailExtras"></div>
     </div>
-    <div class="sa-tab-bar">
-      <button class="sa-tab-btn active" id="saTab1Btn" onclick="saSwitchTab(1)">Paste Shipment <span class="sa-tab-num">1</span></button>
-      <span class="sa-tab-sep">&middot;</span>
-      <button class="sa-tab-btn" id="saTab2Btn" onclick="saSwitchTab(2)">Upload PDF <span class="sa-tab-num">2</span></button>
-    </div>
-    <div class="sa-profile-strip">
-      <div class="sa-profile-label">Analysis grounded in your profile</div>
-      <div class="sa-profile-text" id="saProfileText">Loading profile...</div>
-    </div>
-    <div class="sa-pages">
-      <!-- Tab 1: Paste Shipment -->
-      <div class="sa-page active" id="saPage1">
-        <div id="saEmptyState">
-          <div id="saGrounding" class="sa-grounding" style="display:none">
-            <div class="sa-grounding-label">Analysis grounded in your profile</div>
-            <div class="sa-grounding-text" id="saGroundingText"></div>
-          </div>
-          <div class="sa-prompt-label">$ Paste any shipment details</div>
-          <div class="sa-prompt-desc">Container ID, ports, dates, carrier, product &mdash; any format works. The AI will extract what it needs and analyze the route against your supply chain profile.</div>
-          <div class="sa-examples-label">Examples</div>
-          <div class="sa-example-row" onclick="saFillExample(0)"><span class="sa-example-num">01</span><span class="sa-example-arrow">&rarr;</span><span class="sa-example-text">Container MSCU7834219, Shenzhen to Long Beach, arriving Aug 5</span></div>
-          <div class="sa-example-row" onclick="saFillExample(1)"><span class="sa-example-num">02</span><span class="sa-example-arrow">&rarr;</span><span class="sa-example-text">BOL 4567321 from Foxconn Shenzhen via MSC, wireless chargers, ETA first week of August</span></div>
-          <div class="sa-example-row" onclick="saFillExample(2)"><span class="sa-example-num">03</span><span class="sa-example-arrow">&rarr;</span><span class="sa-example-text">20 containers of PCBs from Ningbo to Oakland, carrier CMA CGM, expected late August</span></div>
-          <div class="sa-textarea-wrap">
-            <textarea class="sa-textarea" id="saTextarea" placeholder="Paste or type shipment details here..."></textarea>
-            <div class="sa-textarea-footer">
-              <div class="sa-kbd-hint"><kbd class="sa-kbd">&#8984;</kbd><kbd class="sa-kbd">Enter</kbd><span>to analyze</span></div>
-              <button class="sa-submit-btn" onclick="saAnalyze()" title="Analyze"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 11V3M3 7l4-4 4 4" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-            </div>
-          </div>
-        </div>
-        <div id="saLoading" style="display:none">
-          <div class="sa-loading-label">Analyzing Shipment</div>
-          <div id="saCheckList"></div>
-        </div>
-        <div id="saResult" style="display:none"></div>
-        <div id="saErrorCard" style="display:none">
-          <div class="sa-error-header">Need More Detail</div>
-          <div class="sa-error-text">I couldn't identify the origin or destination from your input.</div>
-          <div class="sa-error-text">To analyze this shipment, I need at minimum:</div>
-          <ul class="sa-error-list"><li>Origin port or country</li><li>Destination port</li></ul>
-          <button class="sa-btn-secondary" onclick="saResetToEmpty()">&larr; Edit shipment</button>
-        </div>
+  </div>
+
+  <!-- ADD-NEW MODAL -->
+  <div id="swAddModal" style="display:none;">
+    <div class="sw-modal-overlay" onclick="saCloseAddModal()"></div>
+    <div class="sw-modal-panel">
+      <div class="sw-modal-header">
+        <span class="sw-modal-title">Analyze Shipment</span>
+        <button class="sw-modal-close" onclick="saCloseAddModal()">&times;</button>
       </div>
-      <!-- Tab 2: Upload PDF — restyled wrapper around existing pi* backend -->
-      <div class="sa-page" id="saPage2">
-        <div class="sa-prompt-label">$ Upload price list or shipping document</div>
-        <div id="saPdfUploadState">
-          <div class="sa-pdf-upload-zone" id="saPdfDropZone"
-            ondragover="event.preventDefault();this.classList.add('drag-over')"
-            ondragleave="this.classList.remove('drag-over')"
-            ondrop="saTab2HandleDrop(event)">
-            <div class="sa-pdf-upload-icon">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.5"><path d="M8 1v9M4 6l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12h12v2H2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="sw-modal-body">
+        <div id="saGrounding" class="sa-grounding" style="display:none">
+          <div class="sa-grounding-label">Analysis grounded in your profile</div>
+          <div class="sa-grounding-text" id="saGroundingText"></div>
+        </div>
+        <div id="saProfileText" style="display:none"></div>
+
+        <!-- Paste view -->
+        <div id="swAddPasteView">
+          <div id="saEmptyState">
+            <div class="sa-prompt-label">$ Paste any shipment details</div>
+            <div class="sa-prompt-desc">Container ID, ports, dates, carrier, product &mdash; any format works. The AI will extract what it needs and analyze the route against your supply chain profile.</div>
+            <div class="sa-examples-label">Examples</div>
+            <div class="sa-example-row" onclick="saFillExample(0)"><span class="sa-example-num">01</span><span class="sa-example-arrow">&rarr;</span><span class="sa-example-text">Container MSCU7834219, Shenzhen to Long Beach, arriving Aug 5</span></div>
+            <div class="sa-example-row" onclick="saFillExample(1)"><span class="sa-example-num">02</span><span class="sa-example-arrow">&rarr;</span><span class="sa-example-text">BOL 4567321 from Foxconn Shenzhen via MSC, wireless chargers, ETA first week of August</span></div>
+            <div class="sa-example-row" onclick="saFillExample(2)"><span class="sa-example-num">03</span><span class="sa-example-arrow">&rarr;</span><span class="sa-example-text">20 containers of PCBs from Ningbo to Oakland, carrier CMA CGM, expected late August</span></div>
+            <div class="sa-textarea-wrap">
+              <textarea class="sa-textarea" id="saTextarea" placeholder="Paste or type shipment details here..."></textarea>
+              <div class="sa-textarea-footer">
+                <div class="sa-kbd-hint"><kbd class="sa-kbd">&#8984;</kbd><kbd class="sa-kbd">Enter</kbd><span>to analyze</span></div>
+                <button class="sa-submit-btn" onclick="saAnalyze()" title="Analyze"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 11V3M3 7l4-4 4 4" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              </div>
             </div>
-            <div class="sa-pdf-upload-label">Drop your price list here</div>
-            <div class="sa-pdf-upload-sub">PDF, Excel (.xlsx / .xls) or CSV &mdash; max 10 MB</div>
-            <button class="sa-pdf-browse-btn" onclick="document.getElementById('saPdfFileInput').click()">Browse File</button>
+            <div class="sw-pdf-link"><span onclick="swShowPdfView()">or upload PDF instead</span></div>
           </div>
-          <input type="file" id="saPdfFileInput" accept=".pdf,.xlsx,.xls,.csv" onchange="saTab2HandleFile(this.files[0])" style="display:none">
-          <div class="pi-error" id="saPdfError" style="display:none"></div>
+          <div id="saLoading" style="display:none">
+            <div class="sa-loading-label">Analyzing Shipment</div>
+            <div id="saCheckList"></div>
+          </div>
+          <div id="saResult" style="display:none"></div>
+          <div id="saErrorCard" style="display:none">
+            <div class="sa-error-header">Need More Detail</div>
+            <div class="sa-error-text">I couldn't identify the origin or destination from your input.</div>
+            <div class="sa-error-text">To analyze this shipment, I need at minimum:</div>
+            <ul class="sa-error-list"><li>Origin port or country</li><li>Destination port</li></ul>
+            <button class="sa-btn-secondary" onclick="saResetToEmpty()">&larr; Edit shipment</button>
+          </div>
         </div>
-        <div class="pi-progress" id="saPdfProgress" style="display:none">
-          <div class="pi-progress-title">Extracting Pricing Data</div>
-          <div id="saPdfSteps"></div>
-        </div>
-        <div id="saPdfResults" style="display:none">
-          <div class="pi-summary-grid" id="saPdfSummaryGrid"></div>
-          <div class="pi-table-header">
-            <div class="pi-table-title" id="saPdfTableTitle">Extracted Items</div>
-            <input type="text" class="pi-filter-input" placeholder="Filter items..." oninput="saTab2FilterTable(this.value)" id="saPdfFilterInput">
+
+        <!-- PDF view -->
+        <div id="swAddPdfView" style="display:none">
+          <button class="sw-back-to-paste" onclick="swShowPasteView()">&larr; Back to paste</button>
+          <div id="saPdfUploadState">
+            <div class="sa-pdf-upload-zone" id="saPdfDropZone"
+              ondragover="event.preventDefault();this.classList.add('drag-over')"
+              ondragleave="this.classList.remove('drag-over')"
+              ondrop="saTab2HandleDrop(event)">
+              <div class="sa-pdf-upload-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.5"><path d="M8 1v9M4 6l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12h12v2H2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="sa-pdf-upload-label">Drop your price list here</div>
+              <div class="sa-pdf-upload-sub">PDF, Excel (.xlsx / .xls) or CSV &mdash; max 10 MB</div>
+              <button class="sa-pdf-browse-btn" onclick="document.getElementById('saPdfFileInput').click()">Browse File</button>
+            </div>
+            <input type="file" id="saPdfFileInput" accept=".pdf,.xlsx,.xls,.csv" onchange="saTab2HandleFile(this.files[0])" style="display:none">
+            <div class="pi-error" id="saPdfError" style="display:none"></div>
           </div>
-          <div class="pi-table-wrap">
-            <table class="pi-table" id="saPdfTable">
-              <thead><tr>
-                <th onclick="saTab2SortTable('partNumber')">Part #</th>
-                <th onclick="saTab2SortTable('description')">Description</th>
-                <th onclick="saTab2SortTable('oldPrice')">Old Price</th>
-                <th onclick="saTab2SortTable('newPrice')">New Price</th>
-                <th onclick="saTab2SortTable('changePercent')">Change %</th>
-                <th>Status</th>
-              </tr></thead>
-              <tbody id="saPdfTableBody"></tbody>
-            </table>
+          <div class="pi-progress" id="saPdfProgress" style="display:none">
+            <div class="pi-progress-title">Extracting Pricing Data</div>
+            <div id="saPdfSteps"></div>
           </div>
-          <div class="pi-action-bar">
-            <button class="pi-action-btn primary" onclick="saTab2DownloadCSV()">Download CSV</button>
-            <button class="pi-action-btn" onclick="saTab2CopyClipboard()">Copy to Clipboard</button>
-            <button class="pi-action-btn" onclick="saTab2Reset()">New Upload</button>
+          <div id="saPdfResults" style="display:none">
+            <div class="pi-summary-grid" id="saPdfSummaryGrid"></div>
+            <div class="pi-table-header">
+              <div class="pi-table-title" id="saPdfTableTitle">Extracted Items</div>
+              <input type="text" class="pi-filter-input" placeholder="Filter items..." oninput="saTab2FilterTable(this.value)" id="saPdfFilterInput">
+            </div>
+            <div class="pi-table-wrap">
+              <table class="pi-table" id="saPdfTable">
+                <thead><tr>
+                  <th onclick="saTab2SortTable('partNumber')">Part #</th>
+                  <th onclick="saTab2SortTable('description')">Description</th>
+                  <th onclick="saTab2SortTable('oldPrice')">Old Price</th>
+                  <th onclick="saTab2SortTable('newPrice')">New Price</th>
+                  <th onclick="saTab2SortTable('changePercent')">Change %</th>
+                  <th>Status</th>
+                </tr></thead>
+                <tbody id="saPdfTableBody"></tbody>
+              </table>
+            </div>
+            <div class="pi-action-bar">
+              <button class="pi-action-btn primary" onclick="saTab2DownloadCSV()">Download CSV</button>
+              <button class="pi-action-btn" onclick="saTab2CopyClipboard()">Copy to Clipboard</button>
+              <button class="pi-action-btn" onclick="saTab2Reset()">New Upload</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <!-- Right sidebar — saved analyses -->
-  <div class="sa-sidebar">
-    <div class="sa-sidebar-header">
-      <span class="sa-sidebar-title">Saved Analyses</span>
-      <span class="sa-sidebar-count" id="saSidebarCount"></span>
-    </div>
-    <div id="saSidebarList"></div>
-    <div class="sa-sidebar-footer" id="saSidebarFooter" style="display:none">
-      <span class="sa-sidebar-footer-link" onclick="saClearHistory()">Clear all</span>
-    </div>
-  </div>
+
+  <!-- TOAST -->
+  <div class="sw-toast" id="swToast" style="display:none"></div>
 </div>
 
 <!-- ===== SYS_06 COST ENGINE MODULE ===== -->
@@ -6147,7 +6231,7 @@ function switchModule(name){
     var _saV2=localStorage.getItem('risksim_shipment_analysis_v2')==='true';
     if(_saV2){
       var saEl=document.getElementById('saModule');
-      if(saEl){saEl.style.display='flex';saEl.style.flexDirection='row';}
+      if(saEl){saEl.style.display='flex';saEl.style.flexDirection='column';}
       if(typeof saInit==='function')saInit();
     }else{
       if(pi){pi.style.display='flex';pi.style.flexDirection='column';}
@@ -8397,28 +8481,19 @@ var SA_EXAMPLES=[
 var SA_STEPS=['Extracted route details','Identified carrier and product','Cross-referencing 8 data pipelines','Analyzing against your profile','Generating recommendations'];
 
 var _saHistoryListenerAdded=false;
+var _saAddModalOpen=false;
+var _saView='workspace';
+var _saDetailIdx=-1;
 
 function saInit(){
-  saUpdateProfileStrip();
   saRenderGroundingLine();
-  saRenderSidebar();
-  saUpdateHistoryBtn();
-  if(localStorage.getItem('risksim_shipment_analysis_notice_seen')!=='true'){
-    var n=document.getElementById('saNotice');if(n)n.style.display='flex';
-  }
+  saRenderWorkspace();
+  _saShowView('workspace');
   var ta=document.getElementById('saTextarea');
   if(ta&&!ta._saKbBound){
     ta._saKbBound=true;
     ta.addEventListener('keydown',function(e){
       if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();saAnalyze();}
-    });
-  }
-  if(!_saHistoryListenerAdded){
-    _saHistoryListenerAdded=true;
-    document.addEventListener('click',function(e){
-      var wrap=document.getElementById('saHistoryWrap');
-      var dd=document.getElementById('saHistoryDropdown');
-      if(dd&&dd.style.display!=='none'&&wrap&&!wrap.contains(e.target))dd.style.display='none';
     });
   }
 }
@@ -8654,9 +8729,13 @@ function saAnalyze(){
     setTimeout(function(){
       _saCurrentResult=data;
       saSaveAnalysis();
-      _saShowState('saResult');
-      var el=document.getElementById('saResult');
-      if(el)el.innerHTML=buildSAResultCardHtml(data);
+      if(_saAddModalOpen){
+        saWorkspaceOnAnalyzeSuccess();
+      }else{
+        _saShowState('saResult');
+        var el=document.getElementById('saResult');
+        if(el)el.innerHTML=buildSAResultCardHtml(data);
+      }
     },700);
   })
   .catch(function(){
@@ -8804,8 +8883,7 @@ function saSaveAnalysis(){
     hist.unshift({ts:Date.now(),data:_saCurrentResult});
     if(hist.length>50)hist=hist.slice(0,50);
     localStorage.setItem('risksim_sa_history',JSON.stringify(hist));
-    saRenderSidebar();
-    saUpdateHistoryBtn();
+    if(typeof saRenderWorkspace==='function')saRenderWorkspace();
   }catch(e){}
 }
 
@@ -8816,21 +8894,6 @@ function saOpenFollowUp(){
     +(d.routeFactors&&d.routeFactors.length?'Route factors: '+d.routeFactors.slice(0,3).join('; ')+'. ':'')
     +(d.actions&&d.actions.length?'Recommended actions so far: '+d.actions[0]+'. ':'');
   if(typeof openChatFullscreen==='function')openChatFullscreen(msg,'shipment_analysis');
-}
-
-function saInit(){
-  var pt=document.getElementById('saProfileText');
-  if(pt){
-    var parts=[];
-    if(userProfile&&userProfile.companyName)parts.push(userProfile.companyName);
-    if(userProfile&&userProfile.industry){
-      var il=(typeof PS_IND_LABELS!=='undefined'&&PS_IND_LABELS[userProfile.industry])||userProfile.industry;
-      parts.push(il);
-    }
-    if(selectedSourcingCountries&&selectedSourcingCountries.length)parts.push(selectedSourcingCountries.slice(0,2).join(', '));
-    pt.textContent=parts.length?parts.join(' · '):'No profile configured — analysis will be generic';
-  }
-  saRenderSidebar();
 }
 
 function saRenderSidebar(){
@@ -8886,6 +8949,188 @@ function saLoadSaved(idx){
 function saClearHistory(){
   localStorage.removeItem('risksim_sa_history');
   saRenderSidebar();
+}
+
+/* ===== SHIPMENTS WORKSPACE — Phase 1 ===== */
+
+function _saShowView(v){
+  _saView=v;
+  var ws=document.getElementById('swWorkspaceView');
+  var dv=document.getElementById('swDetailView');
+  if(!ws||!dv)return;
+  if(v==='workspace'){
+    ws.style.display='flex';
+    dv.style.display='none';
+    var sub=document.getElementById('swHeaderSubtitle');
+    if(sub)sub.textContent='Your active and past shipments';
+    var q=document.getElementById('swSearch');
+    saRenderWorkspace(q?q.value:'');
+  }else if(v==='detail'){
+    ws.style.display='none';
+    dv.style.display='flex';
+    dv.style.flexDirection='column';
+    var d=_saCurrentResult||{};
+    var sub=document.getElementById('swHeaderSubtitle');
+    if(sub)sub.textContent=escHtml(d.id||'Shipment details');
+  }
+}
+
+function saRenderWorkspace(filter){
+  var hist=[];
+  try{hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
+  if(!Array.isArray(hist))hist=[];
+  var list=document.getElementById('swList');
+  var statsEl=document.getElementById('swStatsStrip');
+  var searchWrap=document.getElementById('swSearchWrap');
+  if(!list)return;
+  if(hist.length>0&&statsEl){
+    var mod=hist.filter(function(h){return(h.data&&h.data.severity||'').toLowerCase()==='moderate';}).length;
+    var high=hist.filter(function(h){var s=(h.data&&h.data.severity||'').toLowerCase();return s==='high'||s==='critical';}).length;
+    var oldest=hist[hist.length-1];
+    var oldestDate=oldest&&oldest.ts?new Date(oldest.ts).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'';
+    var statParts=[hist.length+' shipment'+(hist.length===1?'':'s')];
+    if(mod>0)statParts.push(mod+' moderate');
+    if(high>0)statParts.push(high+' high risk');
+    if(oldestDate)statParts.push('since '+oldestDate);
+    statsEl.innerHTML='<span class="sw-stats-text">'+escHtml(statParts.join(' \xb7 '))+'</span>';
+    statsEl.style.display='block';
+    if(searchWrap)searchWrap.style.display='block';
+  }else if(statsEl){
+    statsEl.style.display='none';
+    if(searchWrap)searchWrap.style.display='none';
+  }
+  if(hist.length===0){
+    list.innerHTML='<div class="sw-empty">'
+      +'<div class="sw-empty-label">No shipments yet</div>'
+      +'<div class="sw-empty-text">Analyze your first shipment to build your workspace. Paste details or upload a PDF.</div>'
+      +'<button class="sw-empty-btn" onclick="saOpenAddModal()">Analyze first shipment &rarr;</button>'
+      +'<div class="sw-empty-note">Everything you analyze is saved here automatically.</div>'
+      +'</div>';
+    return;
+  }
+  var q=(filter||'').toLowerCase().trim();
+  var filtered=q?hist.filter(function(h){
+    var d=h.data||{};
+    return(d.id||'').toLowerCase().indexOf(q)>-1
+      ||(d.origin||'').toLowerCase().indexOf(q)>-1
+      ||(d.destination||'').toLowerCase().indexOf(q)>-1
+      ||(d.carrier||'').toLowerCase().indexOf(q)>-1;
+  }):hist;
+  if(!filtered.length){
+    list.innerHTML='<div class="sw-no-results">No shipments match your search.</div>';
+    return;
+  }
+  list.innerHTML=filtered.map(function(item){
+    var d=item.data||{};
+    var sev=(d.severity||'').toLowerCase();
+    var origin=(d.origin||'').split(',')[0].split('(')[0].trim();
+    var dest=(d.destination||'').split(',')[0].split('(')[0].trim();
+    var ago=_saTimeAgo(item.ts);
+    var realIdx=hist.indexOf(item);
+    return'<div class="sw-item" onclick="saOpenDetail('+realIdx+')">'
+      +'<div class="sw-item-dot '+(sev||'low')+'"></div>'
+      +'<div class="sw-item-body">'
+      +'<div class="sw-item-id">'+escHtml(d.id||'Untitled shipment')+'</div>'
+      +(origin||dest?'<div class="sw-item-route">'+escHtml((origin||'?')+' → '+(dest||'?'))+'</div>':'')
+      +'</div>'
+      +'<div class="sw-item-right">'
+      +(sev?'<span class="sw-item-sev '+(sev||'')+'">'+escHtml(sev.toUpperCase())+'</span>':'')
+      +'<span class="sw-item-ts">'+escHtml(ago)+'</span>'
+      +'</div>'
+      +'<span class="sw-item-chevron">›</span>'
+      +'</div>';
+  }).join('');
+}
+
+function saOpenDetail(idx){
+  var hist=[];
+  try{hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
+  var item=hist[idx];if(!item||!item.data)return;
+  _saDetailIdx=idx;
+  _saCurrentResult=item.data;
+  var dt=item.ts?new Date(item.ts).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'history';
+  var cardEl=document.getElementById('swDetailCard');
+  if(cardEl)cardEl.innerHTML=buildSAResultCardHtml(item.data,{fromHistory:true,loadedDate:dt});
+  _saResetDeleteBtn();
+  _saShowView('detail');
+}
+
+function _saResetDeleteBtn(){
+  var wrap=document.getElementById('swDeleteConfirm');
+  if(!wrap)return;
+  wrap.innerHTML='<button class="sw-delete-btn" onclick="saStartDeleteDetail()">Delete shipment</button>';
+}
+
+function saStartDeleteDetail(){
+  var wrap=document.getElementById('swDeleteConfirm');
+  if(!wrap)return;
+  wrap.innerHTML='<div class="sw-delete-confirm-row">'
+    +'<span class="sw-delete-confirm-text">Remove this shipment?</span>'
+    +'<button class="sw-delete-confirm-yes" onclick="saConfirmDeleteDetail()">Remove</button>'
+    +'<button class="sw-delete-confirm-no" onclick="_saResetDeleteBtn()">Cancel</button>'
+    +'</div>';
+}
+
+function saConfirmDeleteDetail(){
+  try{
+    var hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');
+    if(!Array.isArray(hist))hist=[];
+    hist.splice(_saDetailIdx,1);
+    localStorage.setItem('risksim_sa_history',JSON.stringify(hist));
+  }catch(e){}
+  _saDetailIdx=-1;
+  _saCurrentResult=null;
+  _saShowView('workspace');
+}
+
+function saOpenAddModal(){
+  _saAddModalOpen=true;
+  var m=document.getElementById('swAddModal');
+  if(m)m.style.display='flex';
+  saRenderGroundingLine();
+  saResetToEmpty();
+  swShowPasteView();
+}
+
+function saCloseAddModal(){
+  _saAddModalOpen=false;
+  var m=document.getElementById('swAddModal');
+  if(m)m.style.display='none';
+  saResetToEmpty();
+  swShowPasteView();
+}
+
+function swShowPdfView(){
+  var pv=document.getElementById('swAddPasteView');
+  var pdfv=document.getElementById('swAddPdfView');
+  if(pv)pv.style.display='none';
+  if(pdfv)pdfv.style.display='block';
+}
+
+function swShowPasteView(){
+  var pv=document.getElementById('swAddPasteView');
+  var pdfv=document.getElementById('swAddPdfView');
+  if(pdfv)pdfv.style.display='none';
+  if(pv)pv.style.display='block';
+}
+
+function saWorkspaceOnAnalyzeSuccess(){
+  saCloseAddModal();
+  saOpenDetail(0);
+  saShowToast('Analysis saved ✔');
+}
+
+function saShowToast(msg){
+  var t=document.getElementById('swToast');
+  if(!t)return;
+  t.textContent=msg;
+  t.style.display='block';
+  t.style.opacity='1';
+  clearTimeout(t._hideTimer);
+  t._hideTimer=setTimeout(function(){
+    t.style.opacity='0';
+    setTimeout(function(){t.style.display='none';t.style.opacity='1';},300);
+  },3000);
 }
 
 /* Tab 2 adapter — same /api/price-extract endpoint, own element IDs */
