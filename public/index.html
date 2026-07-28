@@ -859,7 +859,7 @@
       body.sidebar-collapsed #rsSidebar { transform:translateX(-260px) !important; }
       /* All modules go full width */
       #auditModule, #warRoomModule, #simulatorModule, #priceIntelModule,
-      #costEngineModule, #chatPanel, #jarvisBorder { left: 0 !important; }
+      #saModule, #costEngineModule, #chatPanel, #jarvisBorder { left: 0 !important; }
       /* Chat input full width */
       #chatInputWrap { max-width:calc(100% - 32px); }
       #chatMessages { left: 0 !important; width: 100% !important; }
@@ -1683,6 +1683,7 @@
     body:has(#rs-intro) #auditModule,
     body:has(#rs-intro) #simulatorModule,
     body:has(#rs-intro) #priceIntelModule,
+    body:has(#rs-intro) #saModule,
     body:has(#rs-intro) #costEngineModule,
     body:has(#rs-intro) #profileSection,
     body:has(#rs-intro) .map-overlay-header,
@@ -2200,6 +2201,7 @@
   #warRoomModule { left: 260px !important; transition: left 0.3s ease; }
   #simulatorModule { left: 260px !important; transition: left 0.3s ease; }
   #priceIntelModule { left: 260px !important; transition: left 0.3s ease; }
+  #saModule { left: 260px !important; transition: left 0.3s ease; }
   #costEngineModule { left: 260px !important; transition: left 0.3s ease; }
   #chatPanel { left: 260px !important; transition: left 0.3s ease; }
   #heroPanel { left: 276px !important; transition: left 0.3s ease; }
@@ -2215,6 +2217,7 @@
   body.sidebar-collapsed #warRoomModule { left: 0 !important; }
   body.sidebar-collapsed #simulatorModule { left: 0 !important; }
   body.sidebar-collapsed #priceIntelModule { left: 0 !important; }
+  body.sidebar-collapsed #saModule { left: 0 !important; }
   body.sidebar-collapsed #costEngineModule { left: 0 !important; }
   body.sidebar-collapsed #chatPanel { left: 0 !important; }
   body.sidebar-collapsed #heroPanel { left: 16px !important; }
@@ -2227,6 +2230,7 @@
   body.sidebar-collapsed .sim-back-row,
   body.sidebar-collapsed .sim-topbar,
   body.sidebar-collapsed .pi-header,
+  body.sidebar-collapsed .sa-header,
   body.sidebar-collapsed .lc-header,
   body.sidebar-collapsed .cf-topbar,
   body.sidebar-collapsed .wm-stats-bar { padding-left: 58px !important; }
@@ -2365,6 +2369,7 @@
     #warRoomModule { left: 0 !important; }
     #simulatorModule { left: 0 !important; }
     #priceIntelModule { left: 0 !important; }
+    #saModule { left: 0 !important; }
     #costEngineModule { left: 0 !important; }
     #chatPanel { left: 0 !important; }
     #heroPanel { left: 16px !important; }
@@ -2534,6 +2539,118 @@
     background: rgba(255,80,80,0.06); border: 1px solid rgba(255,80,80,0.2);
     color: rgba(255,120,100,0.9); font-size: 12px; font-family: 'JetBrains Mono', monospace;
   }
+
+  /* ===== SYS_05 SHIPMENT ANALYSIS (flag-gated, v2) ===== */
+  #saModule { position:fixed; left:260px; right:0; top:0; bottom:0; background:#000; display:none; flex-direction:row; z-index:8000; transition:left 0.3s ease; overflow:hidden; }
+  .sa-main { flex:1; min-width:0; display:flex; flex-direction:column; overflow:hidden; border-right:1px solid rgba(255,255,255,0.07); }
+  .sa-sidebar { width:280px; flex-shrink:0; display:flex; flex-direction:column; overflow-y:auto; }
+  .sa-sidebar::-webkit-scrollbar { width:4px; } .sa-sidebar::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); }
+  .sa-header { padding:18px 24px 14px; flex-shrink:0; }
+  .sa-header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:3px; }
+  .sa-module-label { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.4); }
+  .sa-conn-indicator { display:flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.08em; color:rgba(100,220,140,0.75); }
+  .sa-conn-dot { width:6px; height:6px; border-radius:50%; background:rgba(100,220,140,0.9); flex-shrink:0; }
+  .sa-module-subtitle { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.3); letter-spacing:0.04em; }
+  .sa-notice { margin:0 24px 0; padding:9px 12px; border:1px solid rgba(247,107,107,0.18); background:rgba(247,107,107,0.04); display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-shrink:0; }
+  .sa-notice-text { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.45); line-height:1.65; }
+  .sa-notice-close { background:transparent; border:none; color:rgba(255,255,255,0.28); cursor:pointer; font-size:13px; padding:0; flex-shrink:0; line-height:1; transition:color 0.15s; }
+  .sa-notice-close:hover { color:rgba(255,255,255,0.65); }
+  .sa-tab-bar { display:flex; align-items:center; padding:0 24px; border-top:1px solid rgba(255,255,255,0.07); border-bottom:1px solid rgba(255,255,255,0.07); flex-shrink:0; }
+  .sa-tab-btn { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.04em; color:rgba(255,255,255,0.32); background:transparent; border:none; border-bottom:2px solid transparent; padding:10px 0; margin-right:6px; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:7px; position:relative; top:1px; }
+  .sa-tab-btn:hover { color:rgba(255,255,255,0.65); }
+  .sa-tab-btn.active { color:rgba(255,255,255,0.9); border-bottom-color:rgba(255,255,255,0.85); }
+  .sa-tab-num { font-family:'JetBrains Mono',monospace; font-size:8px; color:inherit; border:1px solid currentColor; padding:0 3px; line-height:1.5; opacity:0.6; }
+  .sa-tab-sep { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.15); margin:0 10px; position:relative; top:1px; }
+  .sa-profile-strip { padding:8px 24px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
+  .sa-profile-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.22); margin-bottom:2px; }
+  .sa-profile-text { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.45); letter-spacing:0.02em; }
+  .sa-pages { flex:1; position:relative; overflow:hidden; }
+  .sa-page { position:absolute; inset:0; overflow-y:auto; padding:20px 24px 40px; display:none; }
+  .sa-page.active { display:block; }
+  .sa-page::-webkit-scrollbar { width:4px; } .sa-page::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:2px; }
+  .sa-prompt-label { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.32); margin-bottom:10px; }
+  .sa-prompt-desc { font-family:'JetBrains Mono',monospace; font-size:12px; color:rgba(255,255,255,0.6); line-height:1.75; max-width:580px; margin-bottom:22px; }
+  .sa-examples-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.22); margin-bottom:8px; }
+  .sa-example-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; transition:opacity 0.1s; }
+  .sa-example-row:last-child { border-bottom:none; }
+  .sa-example-row:hover .sa-example-text { color:rgba(255,255,255,0.8); }
+  .sa-example-num { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.18); width:18px; flex-shrink:0; }
+  .sa-example-arrow { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(247,107,107,0.65); flex-shrink:0; }
+  .sa-example-text { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.45); transition:color 0.1s; }
+  .sa-textarea-wrap { margin-top:18px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.015); position:relative; }
+  .sa-textarea { width:100%; min-height:120px; background:transparent; border:none; outline:none; resize:vertical; font-family:'JetBrains Mono',monospace; font-size:12px; color:rgba(255,255,255,0.8); padding:14px 14px 48px; line-height:1.7; letter-spacing:0.02em; }
+  .sa-textarea::placeholder { color:rgba(255,255,255,0.16); }
+  .sa-textarea-footer { position:absolute; bottom:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; padding:7px 10px; border-top:1px solid rgba(255,255,255,0.06); }
+  .sa-kbd-hint { display:flex; align-items:center; gap:5px; font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.18); letter-spacing:0.06em; }
+  .sa-kbd { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:3px; padding:1px 5px; font-size:9px; font-family:'JetBrains Mono',monospace; color:rgba(255,255,255,0.3); }
+  .sa-submit-btn { width:30px; height:30px; border-radius:50%; background:white; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
+  .sa-submit-btn:hover { background:rgba(255,255,255,0.88); transform:scale(1.06); }
+  .sa-loading { padding:4px 0; }
+  .sa-loading-label { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-bottom:18px; }
+  .sa-check-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .sa-check-row:last-child { border-bottom:none; }
+  .sa-check-done { color:rgba(255,255,255,0.8); }
+  .sa-check-active { color:rgba(255,255,255,0.65); }
+  .sa-check-muted { color:rgba(255,255,255,0.28); }
+  .sa-result-header { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.5); padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.12); margin-bottom:16px; }
+  .sa-result-section-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:10px; }
+  .sa-result-sep { border:none; border-bottom:1px solid rgba(255,255,255,0.1); margin:16px 0; }
+  .sa-route-grid { display:grid; grid-template-columns:140px 1fr; gap:6px 0; margin-bottom:4px; }
+  .sa-route-key { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.32); }
+  .sa-route-val { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.82); }
+  .sa-severity-row { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+  .sa-sev-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .sa-sev-dot.low { background:rgba(100,220,140,0.9); }
+  .sa-sev-dot.moderate { background:rgba(255,210,80,0.9); }
+  .sa-sev-dot.high { background:#F76B6B; }
+  .sa-sev-dot.critical { background:#F76B6B; animation:saPulse 1.2s infinite; }
+  @keyframes saPulse { 0%,100%{box-shadow:0 0 0 0 rgba(247,107,107,0.5);} 50%{box-shadow:0 0 0 6px rgba(247,107,107,0);} }
+  .sa-sev-label { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.12em; font-weight:700; }
+  .sa-sev-label.low { color:rgba(100,220,140,0.9); }
+  .sa-sev-label.moderate { color:rgba(255,210,80,0.9); }
+  .sa-sev-label.high, .sa-sev-label.critical { color:#F76B6B; }
+  .sa-factors-group { margin-bottom:14px; }
+  .sa-factors-sublabel { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.12em; color:rgba(255,255,255,0.22); margin-bottom:6px; text-transform:uppercase; }
+  .sa-factor { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.58); padding:4px 0 4px 14px; position:relative; line-height:1.5; }
+  .sa-factor::before { content:'•'; position:absolute; left:0; color:rgba(255,255,255,0.2); }
+  .sa-action-row { display:flex; gap:14px; align-items:flex-start; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+  .sa-action-row:last-child { border-bottom:none; }
+  .sa-action-num { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.28); flex-shrink:0; width:22px; }
+  .sa-action-text { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.65); line-height:1.65; }
+  .sa-result-btns { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
+  .sa-btn-secondary { padding:8px 16px; border:1px solid rgba(255,255,255,0.15); background:transparent; color:rgba(255,255,255,0.55); font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; cursor:pointer; border-radius:0; transition:all 0.15s; }
+  .sa-btn-secondary:hover { border-color:rgba(255,255,255,0.35); color:white; }
+  .sa-btn-primary { padding:8px 16px; border:1px solid rgba(247,107,107,0.5); background:rgba(247,107,107,0.12); color:#F76B6B; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; cursor:pointer; border-radius:0; transition:all 0.15s; }
+  .sa-btn-primary:hover { background:rgba(247,107,107,0.22); }
+  .sa-thin-note { margin-top:14px; font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.35); font-style:italic; }
+  .sa-error-header { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.5); padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.12); margin-bottom:14px; }
+  .sa-error-text { font-family:'JetBrains Mono',monospace; font-size:12px; color:rgba(255,255,255,0.5); line-height:1.75; margin-bottom:12px; }
+  .sa-error-list { list-style:none; margin:10px 0 20px; padding:0; }
+  .sa-error-list li { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.42); padding:5px 0 5px 14px; position:relative; }
+  .sa-error-list li::before { content:'•'; position:absolute; left:0; color:rgba(255,255,255,0.18); }
+  .sa-pdf-upload-zone { border:1px dashed rgba(255,255,255,0.11); padding:40px 24px; text-align:center; cursor:pointer; transition:all 0.2s; background:rgba(255,255,255,0.01); display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:4px; }
+  .sa-pdf-upload-zone:hover, .sa-pdf-upload-zone.drag-over { border-color:rgba(255,255,255,0.26); background:rgba(255,255,255,0.025); }
+  .sa-pdf-upload-icon { width:38px; height:38px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.02); display:flex; align-items:center; justify-content:center; }
+  .sa-pdf-upload-label { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.45); }
+  .sa-pdf-upload-sub { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.2); }
+  .sa-pdf-browse-btn { padding:6px 16px; border:1px solid rgba(255,255,255,0.13); background:transparent; color:rgba(255,255,255,0.45); font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.2s; border-radius:0; margin-top:4px; }
+  .sa-pdf-browse-btn:hover { border-color:rgba(255,255,255,0.28); color:rgba(255,255,255,0.75); }
+  .sa-sidebar-header { padding:20px 20px 10px; display:flex; align-items:baseline; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:4px; }
+  .sa-sidebar-title { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.38); }
+  .sa-sidebar-count { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.2); }
+  .sa-shipment-item { padding:11px 20px; border-bottom:1px solid rgba(255,255,255,0.04); cursor:pointer; transition:background 0.1s; }
+  .sa-shipment-item:hover { background:rgba(255,255,255,0.02); }
+  .sa-shipment-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:3px; }
+  .sa-shipment-id { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.72); letter-spacing:0.04em; }
+  .sa-shipment-route { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.28); }
+  .sa-shipment-alert-text { font-family:'JetBrains Mono',monospace; font-size:9px; color:#F76B6B; margin-top:3px; line-height:1.4; }
+  .sa-severity-badge { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.08em; padding:2px 5px; border:1px solid; white-space:nowrap; }
+  .sa-severity-badge.low { color:rgba(100,220,140,0.88); border-color:rgba(100,220,140,0.28); background:rgba(100,220,140,0.05); }
+  .sa-severity-badge.low-med { color:rgba(255,210,80,0.88); border-color:rgba(255,210,80,0.28); background:rgba(255,210,80,0.05); }
+  .sa-severity-badge.alert { color:#F76B6B; border-color:rgba(247,107,107,0.28); background:rgba(247,107,107,0.05); }
+  .sa-sidebar-footer { padding:14px 20px; }
+  .sa-sidebar-footer-link { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.08em; color:rgba(255,255,255,0.25); cursor:pointer; transition:color 0.15s; }
+  .sa-sidebar-footer-link:hover { color:rgba(255,255,255,0.55); }
 
   /* ===== SYS_06 COST ENGINE — NEW COMPONENTS ===== */
   .lc-res-section {
@@ -3377,6 +3494,139 @@ window.addEventListener('keydown',__handleIntroKey,true);
         <button class="pi-action-btn" onclick="piCopyClipboard()">Copy to Clipboard</button>
         <button class="pi-action-btn" onclick="piReset()">New Upload</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SYS_05 SHIPMENT ANALYSIS MODULE (flag-gated v2) ===== -->
+<div id="saModule">
+  <div class="sa-main">
+    <div class="sa-header" id="saHeader">
+      <div class="sa-header-top">
+        <span class="sa-module-label">Shipment Analysis &middot; Module 05</span>
+        <div class="sa-conn-indicator"><span class="sa-conn-dot"></span>14 carrier APIs connected</div>
+      </div>
+      <div class="sa-module-subtitle">Route intelligence + landed cost breakdown</div>
+    </div>
+    <div class="sa-notice" id="saNotice" style="display:none">
+      <span class="sa-notice-text">NEW &middot; Shipment Analysis now includes route and risk analysis in Tab 1. PDF cost breakdown continues in Tab 2 (Upload PDF).</span>
+      <button class="sa-notice-close" onclick="saDismissNotice()" title="Dismiss">&times;</button>
+    </div>
+    <div class="sa-tab-bar">
+      <button class="sa-tab-btn active" id="saTab1Btn" onclick="saSwitchTab(1)">Paste Shipment <span class="sa-tab-num">1</span></button>
+      <span class="sa-tab-sep">&middot;</span>
+      <button class="sa-tab-btn" id="saTab2Btn" onclick="saSwitchTab(2)">Upload PDF <span class="sa-tab-num">2</span></button>
+    </div>
+    <div class="sa-profile-strip">
+      <div class="sa-profile-label">Analysis grounded in your profile</div>
+      <div class="sa-profile-text" id="saProfileText">Loading profile...</div>
+    </div>
+    <div class="sa-pages">
+      <!-- Tab 1: Paste Shipment -->
+      <div class="sa-page active" id="saPage1">
+        <div id="saEmptyState">
+          <div class="sa-prompt-label">$ Paste any shipment details</div>
+          <div class="sa-prompt-desc">Container ID, ports, dates, carrier, product &mdash; any format works. The AI will extract what it needs and analyze the route against your supply chain profile.</div>
+          <div class="sa-examples-label">Examples</div>
+          <div class="sa-example-row" onclick="saFillExample(0)"><span class="sa-example-num">01</span><span class="sa-example-arrow">&rarr;</span><span class="sa-example-text">Container MSCU7834219, Shenzhen to Long Beach, arriving Aug 5</span></div>
+          <div class="sa-example-row" onclick="saFillExample(1)"><span class="sa-example-num">02</span><span class="sa-example-arrow">&rarr;</span><span class="sa-example-text">BOL 4567321 from Foxconn Shenzhen via MSC, wireless chargers, ETA first week of August</span></div>
+          <div class="sa-example-row" onclick="saFillExample(2)"><span class="sa-example-num">03</span><span class="sa-example-arrow">&rarr;</span><span class="sa-example-text">20 containers of PCBs from Ningbo to Oakland, carrier CMA CGM, expected late August</span></div>
+          <div class="sa-textarea-wrap">
+            <textarea class="sa-textarea" id="saTextarea" placeholder="Paste or type shipment details here..."></textarea>
+            <div class="sa-textarea-footer">
+              <div class="sa-kbd-hint"><kbd class="sa-kbd">&#8984;</kbd><kbd class="sa-kbd">Enter</kbd><span>to analyze</span></div>
+              <button class="sa-submit-btn" onclick="saAnalyze()" title="Analyze"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 11V3M3 7l4-4 4 4" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div id="saLoading" style="display:none">
+          <div class="sa-loading-label">Analyzing Shipment</div>
+          <div id="saCheckList"></div>
+        </div>
+        <div id="saResult" style="display:none"></div>
+        <div id="saErrorCard" style="display:none">
+          <div class="sa-error-header">Need More Detail</div>
+          <div class="sa-error-text">I couldn't identify the origin or destination from your input.</div>
+          <div class="sa-error-text">To analyze this shipment, I need at minimum:</div>
+          <ul class="sa-error-list"><li>Origin port or country</li><li>Destination port</li></ul>
+          <button class="sa-btn-secondary" onclick="saResetToEmpty()">&larr; Edit shipment</button>
+        </div>
+      </div>
+      <!-- Tab 2: Upload PDF — restyled wrapper around existing pi* backend -->
+      <div class="sa-page" id="saPage2">
+        <div class="sa-prompt-label">$ Upload price list or shipping document</div>
+        <div id="saPdfUploadState">
+          <div class="sa-pdf-upload-zone" id="saPdfDropZone"
+            ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="saTab2HandleDrop(event)">
+            <div class="sa-pdf-upload-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.5"><path d="M8 1v9M4 6l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12h12v2H2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="sa-pdf-upload-label">Drop your price list here</div>
+            <div class="sa-pdf-upload-sub">PDF, Excel (.xlsx / .xls) or CSV &mdash; max 10 MB</div>
+            <button class="sa-pdf-browse-btn" onclick="document.getElementById('saPdfFileInput').click()">Browse File</button>
+          </div>
+          <input type="file" id="saPdfFileInput" accept=".pdf,.xlsx,.xls,.csv" onchange="saTab2HandleFile(this.files[0])" style="display:none">
+          <div class="pi-error" id="saPdfError" style="display:none"></div>
+        </div>
+        <div class="pi-progress" id="saPdfProgress" style="display:none">
+          <div class="pi-progress-title">Extracting Pricing Data</div>
+          <div id="saPdfSteps"></div>
+        </div>
+        <div id="saPdfResults" style="display:none">
+          <div class="pi-summary-grid" id="saPdfSummaryGrid"></div>
+          <div class="pi-table-header">
+            <div class="pi-table-title" id="saPdfTableTitle">Extracted Items</div>
+            <input type="text" class="pi-filter-input" placeholder="Filter items..." oninput="saTab2FilterTable(this.value)" id="saPdfFilterInput">
+          </div>
+          <div class="pi-table-wrap">
+            <table class="pi-table" id="saPdfTable">
+              <thead><tr>
+                <th onclick="saTab2SortTable('partNumber')">Part #</th>
+                <th onclick="saTab2SortTable('description')">Description</th>
+                <th onclick="saTab2SortTable('oldPrice')">Old Price</th>
+                <th onclick="saTab2SortTable('newPrice')">New Price</th>
+                <th onclick="saTab2SortTable('changePercent')">Change %</th>
+                <th>Status</th>
+              </tr></thead>
+              <tbody id="saPdfTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pi-action-bar">
+            <button class="pi-action-btn primary" onclick="saTab2DownloadCSV()">Download CSV</button>
+            <button class="pi-action-btn" onclick="saTab2CopyClipboard()">Copy to Clipboard</button>
+            <button class="pi-action-btn" onclick="saTab2Reset()">New Upload</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Right sidebar -->
+  <div class="sa-sidebar">
+    <div class="sa-sidebar-header">
+      <span class="sa-sidebar-title">Manage My Shipments</span>
+      <span class="sa-sidebar-count">4 active</span>
+    </div>
+    <div class="sa-shipment-item" onclick="saFillExample(0)">
+      <div class="sa-shipment-top"><span class="sa-shipment-id">MSCU7834219</span><span class="sa-severity-badge low">LOW</span></div>
+      <div class="sa-shipment-route">Shenzhen &rarr; Long Beach</div>
+    </div>
+    <div class="sa-shipment-item">
+      <div class="sa-shipment-top"><span class="sa-shipment-id">BOL 4567321</span><span class="sa-severity-badge low-med">LOW/MED</span></div>
+      <div class="sa-shipment-route">Shenzhen &rarr; Oakland</div>
+    </div>
+    <div class="sa-shipment-item">
+      <div class="sa-shipment-top"><span class="sa-shipment-id">TCLU9012456</span><span class="sa-severity-badge low">LOW</span></div>
+      <div class="sa-shipment-route">Ningbo &rarr; Oakland</div>
+    </div>
+    <div class="sa-shipment-item">
+      <div class="sa-shipment-top"><span class="sa-shipment-id">CMAU3321087</span><span class="sa-severity-badge alert">&bull; ALERT</span></div>
+      <div class="sa-shipment-route">Yantian &rarr; Los Angeles</div>
+      <div class="sa-shipment-alert-text">New MFN tariff ruling adds ~4.1% landed cost</div>
+    </div>
+    <div class="sa-sidebar-footer">
+      <span class="sa-sidebar-footer-link">Manage all shipments &rarr;</span>
     </div>
   </div>
 </div>
@@ -5776,6 +6026,7 @@ function switchModule(name){
   if(am)am.style.display='none';
   if(sim)sim.style.display='none';
   if(pi)pi.style.display='none';
+  var saEl2=document.getElementById('saModule');if(saEl2)saEl2.style.display='none';
   if(ce)ce.style.display='none';
   if(oldNav)oldNav.style.display='none';
   for(var i=0;i<navBtns.length;i++)navBtns[i].classList.remove('active');
@@ -5812,7 +6063,14 @@ function switchModule(name){
     if(typeof initSimulatorData==='function')initSimulatorData();
     if(navBtns[3])navBtns[3].classList.add('active');
   }else if(name==='priceintel'){
-    if(pi){pi.style.display='flex';pi.style.flexDirection='column';}
+    var _saV2=localStorage.getItem('risksim_shipment_analysis_v2')==='true';
+    if(_saV2){
+      var saEl=document.getElementById('saModule');
+      if(saEl){saEl.style.display='flex';saEl.style.flexDirection='row';}
+      if(typeof saInit==='function')saInit();
+    }else{
+      if(pi){pi.style.display='flex';pi.style.flexDirection='column';}
+    }
   }else if(name==='costengine'){
     if(localStorage.getItem('risksim_bypass')!=='junior'&&localStorage.getItem('risksim_paid')!=='true'&&localStorage.getItem('risksim_demo')!=='true'){
       showPricing();return;
@@ -8044,6 +8302,304 @@ function piShowError(msg){
   if(msg){el.textContent=msg;el.style.display='block';}
   else{el.style.display='none';}
 }
+</script>
+
+<!-- ===== SYS_05 SHIPMENT ANALYSIS JS (flag-gated v2) ===== -->
+<script>
+var _saCurrentTab=1;
+var _sa2AllItems=[];var _sa2SortCol='changePercent';var _sa2SortDir=-1;var _sa2CurrentFilter='';var _sa2CurrentData=null;
+var SA_EXAMPLES=[
+  'Container MSCU7834219, Shenzhen to Long Beach, arriving Aug 5',
+  'BOL 4567321 from Foxconn Shenzhen via MSC, wireless chargers, ETA first week of August',
+  '20 containers of PCBs from Ningbo to Oakland, carrier CMA CGM, expected late August'
+];
+var SA_STEPS=['Extracted route details','Identified carrier and product','Cross-referencing 8 data pipelines','Analyzing against your profile','Generating recommendations'];
+
+function saInit(){
+  saUpdateProfileStrip();
+  if(localStorage.getItem('risksim_shipment_analysis_notice_seen')!=='true'){
+    var n=document.getElementById('saNotice');if(n)n.style.display='flex';
+  }
+  var ta=document.getElementById('saTextarea');
+  if(ta&&!ta._saKbBound){
+    ta._saKbBound=true;
+    ta.addEventListener('keydown',function(e){
+      if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();saAnalyze();}
+    });
+  }
+}
+
+function saUpdateProfileStrip(){
+  var el=document.getElementById('saProfileText');if(!el)return;
+  try{
+    var prof=JSON.parse(localStorage.getItem('risksim_profile')||'{}');
+    var up=prof.userProfile||{};
+    var parts=[];
+    var suppliers=up.suppliers||[];
+    if(suppliers.length>0){
+      parts.push(suppliers.slice(0,2).map(function(s){
+        var name=typeof s==='string'?s:(s.name||s.company||'');
+        var country=typeof s==='object'?(s.country||s.originCountry||''):'';
+        return name+(country?' ('+country+')':'');
+      }).filter(Boolean).join(' · '));
+    }
+    var ports=up.destinationPorts||up.ports||[];
+    if(ports.length>0)parts.push(ports.slice(0,2).join(' + ')+' ports');
+    var cat=up.productCategory||up.category||up.industry||'';
+    if(cat)parts.push(cat+' category');
+    el.textContent=parts.filter(Boolean).join(' · ')||'Complete your enterprise profile for tailored analysis';
+  }catch(e){el.textContent='Profile not loaded';}
+}
+
+function saDismissNotice(){
+  localStorage.setItem('risksim_shipment_analysis_notice_seen','true');
+  var n=document.getElementById('saNotice');if(n)n.style.display='none';
+}
+
+function saSwitchTab(tab){
+  _saCurrentTab=tab;
+  var b1=document.getElementById('saTab1Btn'),b2=document.getElementById('saTab2Btn');
+  var p1=document.getElementById('saPage1'),p2=document.getElementById('saPage2');
+  if(!b1||!b2||!p1||!p2)return;
+  if(tab===1){b1.classList.add('active');b2.classList.remove('active');p1.classList.add('active');p2.classList.remove('active');}
+  else{b2.classList.add('active');b1.classList.remove('active');p2.classList.add('active');p1.classList.remove('active');}
+}
+
+function saFillExample(idx){
+  var ta=document.getElementById('saTextarea');
+  if(ta){ta.value=SA_EXAMPLES[idx];ta.focus();}
+}
+
+function _saShowState(state){
+  ['saEmptyState','saLoading','saResult','saErrorCard'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.style.display=(id===state)?'block':'none';
+  });
+}
+
+function saResetToEmpty(){
+  var ta=document.getElementById('saTextarea');if(ta)ta.value='';
+  _saShowState('saEmptyState');
+}
+
+function saAnalyze(){
+  var ta=document.getElementById('saTextarea');
+  var text=ta?ta.value.trim():'';
+  if(!text)return;
+  _saShowState('saLoading');
+  saShowLoadingSteps();
+  setTimeout(function(){saShowSampleResult();},3500);
+}
+
+function saShowLoadingSteps(){
+  var cl=document.getElementById('saCheckList');if(!cl)return;
+  cl.innerHTML=SA_STEPS.map(function(s,i){
+    return'<div class="sa-check-row" id="saChk'+i+'"><span class="sa-check-muted" style="opacity:0.3">[ ]</span><span class="sa-check-muted">&nbsp;&nbsp;'+s+'</span></div>';
+  }).join('');
+  setTimeout(function(){_saMarkStep(0,'done');},400);
+  setTimeout(function(){_saMarkStep(1,'done');},900);
+  setTimeout(function(){_saMarkStep(2,'active');},1400);
+}
+
+function _saMarkStep(idx,state){
+  var el=document.getElementById('saChk'+idx);if(!el)return;
+  if(state==='done'){
+    el.innerHTML='<span style="color:rgba(255,255,255,0.82)">[&#10003;]</span><span class="sa-check-done">&nbsp;&nbsp;'+SA_STEPS[idx]+'</span>';
+  }else if(state==='active'){
+    el.innerHTML='<span style="color:#F76B6B;opacity:0.9">[&rarr;]</span><span class="sa-check-active">&nbsp;&nbsp;'+SA_STEPS[idx]+'</span>';
+  }
+}
+
+function saShowSampleResult(){
+  _saShowState('saResult');
+  var el=document.getElementById('saResult');if(!el)return;
+  el.innerHTML=buildSAResultCardHtml({
+    id:'MSCU7834219',origin:'Yantian (Shenzhen)',destination:'Long Beach (USLAX)',
+    carrier:'MSC',transit:'~18 days',eta:'August 5, 2026',severity:'MODERATE',
+    routeFactors:['South China Sea typhoon season active','Yantian: 2-day avg outbound delay this week','Long Beach: 4.2-day dwell (up from 2.1)','MSC on-time performance Q3: 89%'],
+    yourFactors:['Single-source on this SKU category','Backup supplier lead time: 3–6 weeks','Inventory buffer: 30 days at current burn'],
+    actions:[
+      'Confirm current vessel position with your freight forwarder. Real-time tracking will tighten the 3–5 day delay window.',
+      'Start customs pre-clearance now. Won\'t help transit but saves 2–3 days on Long Beach arrival.',
+      'Given single-source plus tariff volatility, qualify a backup supplier in next 6 weeks.',
+      'Move retail launch to August 12 (7-day buffer from ETA).'
+    ]
+  });
+}
+
+function buildSAResultCardHtml(d){
+  var sev=(d.severity||'moderate').toLowerCase();
+  var routeRows=[['Origin',d.origin],['Destination',d.destination],['Carrier',d.carrier],['Transit',d.transit],['ETA',d.eta]]
+    .map(function(r){return'<div class="sa-route-key">'+r[0]+'</div><div class="sa-route-val">'+(r[1]||'')+'</div>';}).join('');
+  var routeFactors=(d.routeFactors||[]).map(function(f){return'<div class="sa-factor">'+f+'</div>';}).join('');
+  var yourFactors=(d.yourFactors||[]).map(function(f){return'<div class="sa-factor">'+f+'</div>';}).join('');
+  var actions=(d.actions||[]).map(function(a,i){
+    var n=String(i+1).padStart(2,'0');
+    return'<div class="sa-action-row"><div class="sa-action-num">'+n+'</div><div class="sa-action-text">'+a+'</div></div>';
+  }).join('');
+  return '<div class="sa-result-header">Route Analysis &middot; '+d.id+'</div>'
+    +'<div class="sa-result-section-label">Route</div>'
+    +'<div class="sa-route-grid">'+routeRows+'</div>'
+    +'<div class="sa-result-sep"></div>'
+    +'<div class="sa-result-section-label">Risk Assessment</div>'
+    +'<div class="sa-severity-row"><div class="sa-sev-dot '+sev+'"></div><div class="sa-sev-label '+sev+'">'+d.severity+'</div></div>'
+    +'<div class="sa-factors-group"><div class="sa-factors-sublabel">Route factors</div>'+routeFactors+'</div>'
+    +'<div class="sa-factors-group"><div class="sa-factors-sublabel">Your factors</div>'+yourFactors+'</div>'
+    +'<div class="sa-result-sep"></div>'
+    +'<div class="sa-result-section-label">Recommended Actions</div>'
+    +'<div>'+actions+'</div>'
+    +'<div class="sa-result-sep"></div>'
+    +'<div class="sa-result-btns">'
+    +'<button class="sa-btn-secondary" onclick="saResetToEmpty()">Save Analysis</button>'
+    +'<button class="sa-btn-primary" onclick="saResetToEmpty()">Ask AI a follow-up &rarr;</button>'
+    +'</div>';
+}
+
+/* Tab 2 adapter — same /api/price-extract endpoint, own element IDs */
+var SA2_STEPS=['Reading file structure...','Identifying pricing columns...','Extracting line items...','Computing price changes...','Building summary report...'];
+
+function saTab2HandleDrop(e){
+  e.preventDefault();
+  document.getElementById('saPdfDropZone').classList.remove('drag-over');
+  var f=e.dataTransfer.files[0];if(f)saTab2HandleFile(f);
+}
+
+function saTab2HandleFile(file){
+  var _pw=checkPaywall('Price Intelligence');if(_pw==='upgrade'){showUpgradeModal();return;}if(!_pw)return;
+  if(!file)return;
+  var maxMB=10;
+  if(file.size>maxMB*1024*1024){saTab2ShowError('File too large. Maximum size is '+maxMB+' MB.');return;}
+  var ext=file.name.split('.').pop().toLowerCase();
+  if(!['pdf','xlsx','xls','csv'].includes(ext)){saTab2ShowError('Unsupported file type. Please upload PDF, Excel, or CSV.');return;}
+  saTab2ShowError('');saTab2ShowProgress();
+  var reader=new FileReader();
+  if(ext==='csv'){
+    reader.onload=function(ev){saTab2SendToAPI({fileType:'csv',fileName:file.name,fileContent:ev.target.result});};
+    reader.readAsText(file);
+  }else{
+    reader.onload=function(ev){
+      var b64=ev.target.result.split(',')[1];
+      var mimeMap={pdf:'application/pdf',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',xls:'application/vnd.ms-excel'};
+      saTab2SendToAPI({fileType:ext==='pdf'?'pdf':'excel',fileName:file.name,fileData:b64,mimeType:mimeMap[ext]||'application/octet-stream'});
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function saTab2ShowProgress(){
+  document.getElementById('saPdfUploadState').style.display='none';
+  document.getElementById('saPdfProgress').style.display='block';
+  document.getElementById('saPdfResults').style.display='none';
+  var stepsEl=document.getElementById('saPdfSteps');
+  stepsEl.innerHTML=SA2_STEPS.map(function(s,i){return'<div class="pi-step" id="sa2step'+i+'"><div class="pi-step-dot"></div><span>'+s+'</span></div>';}).join('');
+  var delay=0;
+  for(var i=0;i<SA2_STEPS.length;i++){
+    (function(idx){setTimeout(function(){if(idx>0){var p=document.getElementById('sa2step'+(idx-1));if(p){p.classList.remove('active');p.classList.add('done');}}var el=document.getElementById('sa2step'+idx);if(el)el.classList.add('active');},delay);})(i);
+    delay+=800+Math.floor(Math.random()*400);
+  }
+}
+
+function saTab2SendToAPI(payload){
+  fetch('/api/price-extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  .then(function(r){return r.json();})
+  .then(function(resp){
+    document.getElementById('saPdfProgress').style.display='none';
+    if(resp.error){saTab2ShowUpload();saTab2ShowError(resp.error);return;}
+    _sa2CurrentData=resp.data;
+    saTab2RenderResults(resp.data);
+    if(typeof saveToHistory==='function')saveToHistory({id:'price_'+Date.now(),type:'price',title:'Price: '+(payload.fileName||'Upload'),timestamp:new Date().toISOString(),data:{result:resp.data}});
+  })
+  .catch(function(){document.getElementById('saPdfProgress').style.display='none';saTab2ShowUpload();saTab2ShowError('Could not reach the server. Please try again.');});
+}
+
+function saTab2RenderResults(data){
+  _sa2CurrentData=data;var items=data.items||[];_sa2AllItems=items;
+  var sum=data.summary||{};
+  var totalItems=sum.totalItems||items.length;
+  var avgChange=(sum.avgChangePercent!=null?sum.avgChangePercent:0).toFixed(1);
+  var largest=(sum.largestIncrease!=null?sum.largestIncrease:0).toFixed(1);
+  var smallest=(sum.smallestChange!=null?Math.abs(sum.smallestChange):0).toFixed(1);
+  document.getElementById('saPdfSummaryGrid').innerHTML=[
+    {label:'Items Extracted',value:totalItems,sub:data.manufacturer||'',valClass:''},
+    {label:'Avg Price Change',value:(avgChange>0?'+':'')+avgChange+'%',sub:'across all items',valClass:avgChange>0?'up':(avgChange<0?'down':'')},
+    {label:'Largest Increase',value:'+'+largest+'%',sub:'single item',valClass:'up'},
+    {label:'Smallest Change',value:smallest+'%',sub:'closest to unchanged',valClass:''}
+  ].map(function(c){return'<div class="pi-summary-card"><div class="pi-card-label">'+c.label+'</div><div class="pi-card-value '+c.valClass+'">'+c.value+'</div><div class="pi-card-sub">'+c.sub+'</div></div>';}).join('');
+  var tbl=document.getElementById('saPdfTableTitle');
+  if(tbl)tbl.textContent=totalItems+' Items'+(data.effectiveDate?' — Effective '+data.effectiveDate:'')+(data.currency?' ('+data.currency+')':'');
+  saTab2RenderTable(items);
+  document.getElementById('saPdfUploadState').style.display='none';
+  document.getElementById('saPdfProgress').style.display='none';
+  document.getElementById('saPdfResults').style.display='block';
+}
+
+function saTab2RenderTable(items){
+  var sorted=items.slice().sort(function(a,b){var av=a[_sa2SortCol],bv=b[_sa2SortCol];if(av==null)av=_sa2SortDir>0?Infinity:-Infinity;if(bv==null)bv=_sa2SortDir>0?Infinity:-Infinity;return _sa2SortDir*(av>bv?1:av<bv?-1:0);});
+  var tbody=document.getElementById('saPdfTableBody');if(!tbody)return;
+  tbody.innerHTML=sorted.map(function(item){
+    var chg=item.changePercent;
+    var chgStr=chg!=null?(chg>0?'+':'')+chg.toFixed(1)+'%':'—';
+    var status=chg==null?'<span class="pi-status-flat">Unknown</span>':(chg>0.05?'<span class="pi-status-up">Up</span>':(chg<-0.05?'<span class="pi-status-down">Down</span>':'<span class="pi-status-flat">Flat</span>'));
+    var oldP=item.oldPrice!=null?'$'+parseFloat(item.oldPrice).toFixed(2):'—';
+    var newP=item.newPrice!=null?'$'+parseFloat(item.newPrice).toFixed(2):'—';
+    return'<tr><td style="font-family:\'JetBrains Mono\',monospace;font-size:11px;">'+escHtml(item.partNumber||'—')+'</td><td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;color:rgba(255,255,255,0.8)">'+escHtml(item.description||'—')+'</td><td>'+oldP+'</td><td style="font-weight:600;color:white;">'+newP+'</td><td style="font-family:\'JetBrains Mono\',monospace;color:'+(chg!=null&&chg>0?'rgba(255,120,80,0.9)':(chg!=null&&chg<0?'rgba(100,220,140,0.9)':'rgba(255,255,255,0.4)'))+';font-weight:700;">'+chgStr+'</td><td>'+status+'</td></tr>';
+  }).join('');
+}
+
+function saTab2SortTable(col){
+  if(_sa2SortCol===col)_sa2SortDir*=-1;else{_sa2SortCol=col;_sa2SortDir=-1;}
+  var filtered=_sa2CurrentFilter?_sa2AllItems.filter(function(i){var q=_sa2CurrentFilter.toLowerCase();return(i.partNumber||'').toLowerCase().includes(q)||(i.description||'').toLowerCase().includes(q);}):_sa2AllItems;
+  saTab2RenderTable(filtered);
+}
+
+function saTab2FilterTable(q){
+  _sa2CurrentFilter=q;
+  var filtered=q?_sa2AllItems.filter(function(i){var lq=q.toLowerCase();return(i.partNumber||'').toLowerCase().includes(lq)||(i.description||'').toLowerCase().includes(lq);}):_sa2AllItems;
+  saTab2RenderTable(filtered);
+}
+
+function saTab2DownloadCSV(){
+  if(!_sa2AllItems.length)return;
+  var rows=[['Part #','Description','Old Price','New Price','Change %','Status']];
+  _sa2AllItems.forEach(function(i){var chg=i.changePercent;var status=chg==null?'Unknown':(chg>0.05?'Up':(chg<-0.05?'Down':'Flat'));rows.push([i.partNumber||'',i.description||'',i.oldPrice!=null?i.oldPrice:'',i.newPrice!=null?i.newPrice:'',chg!=null?chg.toFixed(2)+'%':'',status]);});
+  var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='price-extract-'+Date.now()+'.csv';a.click();
+}
+
+function saTab2CopyClipboard(){
+  if(!_sa2AllItems.length)return;
+  var lines=_sa2AllItems.map(function(i){return[i.partNumber||'',i.description||'',i.oldPrice!=null?'$'+i.oldPrice:'',i.newPrice!=null?'$'+i.newPrice:'',(i.changePercent!=null?i.changePercent.toFixed(2)+'%':'')].join('\t');});
+  navigator.clipboard.writeText('Part #\tDescription\tOld Price\tNew Price\tChange %\n'+lines.join('\n')).then(function(){
+    var btn=document.querySelector('#saPdfResults .pi-action-btn:not(.primary)');
+    if(btn){var old=btn.textContent;btn.textContent='Copied!';setTimeout(function(){btn.textContent=old;},1800);}
+  });
+}
+
+function saTab2ShowUpload(){
+  document.getElementById('saPdfUploadState').style.display='block';
+  document.getElementById('saPdfProgress').style.display='none';
+  document.getElementById('saPdfResults').style.display='none';
+}
+
+function saTab2ShowError(msg){
+  var el=document.getElementById('saPdfError');if(!el)return;
+  if(msg){el.textContent=msg;el.style.display='block';}else{el.style.display='none';}
+}
+
+function saTab2Reset(){
+  _sa2AllItems=[];_sa2CurrentData=null;_sa2CurrentFilter='';
+  var fi=document.getElementById('saPdfFilterInput');if(fi)fi.value='';
+  var pi2=document.getElementById('saPdfFileInput');if(pi2)pi2.value='';
+  saTab2ShowUpload();saTab2ShowError('');
+}
+
+/* Sidebar label swap on page load */
+(function(){
+  if(localStorage.getItem('risksim_shipment_analysis_v2')==='true'){
+    var el=document.getElementById('sbnav-priceintel');
+    if(el)el.innerHTML='<span>Shipment Analysis</span><span class="sb-nav-code">SYS_05</span>';
+  }
+})();
 </script>
 
 <!-- ===== SIMULATOR MODULE JS ===== -->
