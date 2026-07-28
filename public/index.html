@@ -2564,6 +2564,30 @@
   .sa-profile-strip { padding:8px 24px; border-bottom:1px solid rgba(255,255,255,0.06); flex-shrink:0; }
   .sa-profile-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.22); margin-bottom:2px; }
   .sa-profile-text { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.45); letter-spacing:0.02em; }
+  /* Grounding line — inside empty state */
+  .sa-grounding { margin-bottom:20px; padding:10px 14px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.015); }
+  .sa-grounding-label { font-family:'JetBrains Mono',monospace; font-size:7px; letter-spacing:0.26em; text-transform:uppercase; color:rgba(255,255,255,0.18); margin-bottom:5px; }
+  .sa-grounding-text { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.38); line-height:1.6; letter-spacing:0.02em; }
+  /* History button in module header */
+  .sa-history-btn { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); background:transparent; border:1px solid rgba(255,255,255,0.12); padding:4px 10px; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+  .sa-history-btn:hover { color:rgba(255,255,255,0.6); border-color:rgba(255,255,255,0.25); }
+  .sa-history-dropdown { position:fixed; width:320px; max-height:380px; overflow-y:auto; background:#080808; border:1px solid rgba(255,255,255,0.12); z-index:9500; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
+  .sa-history-dropdown::-webkit-scrollbar { width:4px; } .sa-history-dropdown::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); }
+  .sa-history-item { display:flex; align-items:flex-start; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); gap:6px; }
+  .sa-history-item:last-child { border-bottom:none; }
+  .sa-history-item-body { flex:1; min-width:0; padding:11px 14px; cursor:pointer; }
+  .sa-history-item-body:hover { background:rgba(255,255,255,0.025); }
+  .sa-history-item-id { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.75); letter-spacing:0.04em; }
+  .sa-history-item-route { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.3); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sa-history-item-ts { font-family:'JetBrains Mono',monospace; font-size:8px; color:rgba(255,255,255,0.18); margin-top:4px; }
+  .sa-history-item-del { font-family:'JetBrains Mono',monospace; font-size:14px; color:rgba(255,255,255,0.18); background:none; border:none; cursor:pointer; padding:11px 12px 11px 6px; flex-shrink:0; transition:color 0.15s; line-height:1; align-self:flex-start; }
+  .sa-history-item-del:hover { color:rgba(247,107,107,0.8); }
+  .sa-history-confirm { display:flex; align-items:center; gap:10px; padding:11px 14px; background:rgba(247,107,107,0.05); }
+  .sa-history-confirm-text { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.4); flex:1; }
+  .sa-history-confirm-del { font-family:'JetBrains Mono',monospace; font-size:9px; color:#F76B6B; background:none; border:none; cursor:pointer; padding:0; transition:opacity 0.15s; }
+  .sa-history-confirm-del:hover { opacity:0.75; }
+  .sa-history-confirm-cancel { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.3); background:none; border:none; cursor:pointer; padding:0; transition:color 0.15s; }
+  .sa-history-confirm-cancel:hover { color:rgba(255,255,255,0.6); }
   .sa-pages { flex:1; position:relative; overflow:hidden; }
   .sa-page { position:absolute; inset:0; overflow-y:auto; padding:20px 24px 40px; display:none; }
   .sa-page.active { display:block; }
@@ -2653,6 +2677,7 @@
   .sa-sidebar-footer-link:hover { color:rgba(255,255,255,0.55); }
 
   /* ===== SYS_05 SHIPMENT ANALYSIS RESULT CARD (redesign) ===== */
+  .sar-wrap { border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.02); }
   .sar-card { padding:28px 28px 24px; }
   .sar-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; }
   .sar-header-label { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:8px; }
@@ -2668,7 +2693,9 @@
   .sar-route-line-wrap { flex:1; display:flex; align-items:flex-start; padding-top:3px; }
   .sar-route-line { width:100%; border-top:1px dashed rgba(255,255,255,0.15); }
   .sar-route-dot { width:8px; height:8px; border-radius:50%; background:#fff; flex-shrink:0; }
-  .sar-route-dot-mid { background:rgba(255,255,255,0.35); }
+  .sar-route-dot-origin { background:rgba(100,220,140,0.9); }
+  .sar-route-dot-mid { background:rgba(251,189,61,0.9); }
+  .sar-route-dot-dest { background:rgba(247,107,107,0.9); }
   .sar-route-port { font-family:'JetBrains Mono',monospace; font-size:12px; color:#fff; }
   .sar-route-country { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.28); text-transform:uppercase; letter-spacing:0.06em; }
   /* Data rows */
@@ -3565,6 +3592,12 @@ window.addEventListener('keydown',__handleIntroKey,true);
     <div class="sa-header" id="saHeader">
       <div class="sa-header-top">
         <span class="sa-module-label">Shipment Analysis &middot; Module 05</span>
+        <div id="saHistoryWrap" style="display:none">
+          <button class="sa-history-btn" id="saHistoryBtn" onclick="saToggleHistory(event)">History (<span id="saHistoryCount">0</span>)</button>
+          <div class="sa-history-dropdown" id="saHistoryDropdown" style="display:none">
+            <div id="saHistoryList"></div>
+          </div>
+        </div>
       </div>
       <div class="sa-module-subtitle">Route intelligence + landed cost breakdown</div>
     </div>
@@ -3585,6 +3618,10 @@ window.addEventListener('keydown',__handleIntroKey,true);
       <!-- Tab 1: Paste Shipment -->
       <div class="sa-page active" id="saPage1">
         <div id="saEmptyState">
+          <div id="saGrounding" class="sa-grounding" style="display:none">
+            <div class="sa-grounding-label">Analysis grounded in your profile</div>
+            <div class="sa-grounding-text" id="saGroundingText"></div>
+          </div>
           <div class="sa-prompt-label">$ Paste any shipment details</div>
           <div class="sa-prompt-desc">Container ID, ports, dates, carrier, product &mdash; any format works. The AI will extract what it needs and analyze the route against your supply chain profile.</div>
           <div class="sa-examples-label">Examples</div>
@@ -8359,8 +8396,13 @@ var SA_EXAMPLES=[
 ];
 var SA_STEPS=['Extracted route details','Identified carrier and product','Cross-referencing 8 data pipelines','Analyzing against your profile','Generating recommendations'];
 
+var _saHistoryListenerAdded=false;
+
 function saInit(){
   saUpdateProfileStrip();
+  saRenderGroundingLine();
+  saRenderSidebar();
+  saUpdateHistoryBtn();
   if(localStorage.getItem('risksim_shipment_analysis_notice_seen')!=='true'){
     var n=document.getElementById('saNotice');if(n)n.style.display='flex';
   }
@@ -8369,6 +8411,14 @@ function saInit(){
     ta._saKbBound=true;
     ta.addEventListener('keydown',function(e){
       if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();saAnalyze();}
+    });
+  }
+  if(!_saHistoryListenerAdded){
+    _saHistoryListenerAdded=true;
+    document.addEventListener('click',function(e){
+      var wrap=document.getElementById('saHistoryWrap');
+      var dd=document.getElementById('saHistoryDropdown');
+      if(dd&&dd.style.display!=='none'&&wrap&&!wrap.contains(e.target))dd.style.display='none';
     });
   }
 }
@@ -8393,6 +8443,136 @@ function saUpdateProfileStrip(){
     if(cat)parts.push(cat+' category');
     el.textContent=parts.filter(Boolean).join(' · ')||'Complete your enterprise profile for tailored analysis';
   }catch(e){el.textContent='Profile not loaded';}
+}
+
+function saRenderGroundingLine(){
+  var el=document.getElementById('saGroundingText');
+  var wrap=document.getElementById('saGrounding');
+  if(!el||!wrap)return;
+  var parts=[];
+  try{
+    var prof=JSON.parse(localStorage.getItem('risksim_profile')||'{}');
+    var up=prof.userProfile||{};
+    var ep=null;
+    try{ep=JSON.parse(localStorage.getItem('risksim_enterprise_profile')||'null');}catch(e2){}
+    var name=up.companyName||userProfile.companyName||'';
+    if(name)parts.push(name);
+    var ind=up.industry||userProfile.industry||'';
+    if(ind)parts.push((typeof PS_IND_LABELS!=='undefined'&&PS_IND_LABELS[ind])||ind);
+    var supParts=[];
+    if(ep&&Array.isArray(ep.suppliers)&&ep.suppliers.length){
+      supParts=ep.suppliers.slice(0,2).map(function(s){
+        var n=s.name||s.company||'';var c=s.country||s.originCountry||'';
+        return n+(c?' ('+c+')':'');
+      }).filter(Boolean);
+    } else {
+      var supStr=up.suppliers||userProfile.suppliers||'';
+      if(typeof supStr==='string'&&supStr)supParts=supStr.split(',').map(function(s){return s.trim();}).filter(Boolean).slice(0,2);
+    }
+    if(supParts.length)parts.push(supParts.join(' · '));
+    var portParts=[];
+    if(ep&&Array.isArray(ep.portsOfEntry)&&ep.portsOfEntry.length){
+      portParts=ep.portsOfEntry.slice(0,2).map(function(p){return p.replace(/\s*\([A-Z]{4,6}\)\s*/,'').trim();}).filter(Boolean);
+    }
+    if(portParts.length)parts.push(portParts.join(' + ')+' ports');
+    var countries=Array.isArray(prof.selectedSourcingCountries)&&prof.selectedSourcingCountries.length?prof.selectedSourcingCountries:[];
+    if(!countries.length){
+      var r=up.regions||userProfile.regions||'';
+      if(r)countries=r.split(',').map(function(s){return s.trim();}).filter(Boolean);
+    }
+    if(countries.length)parts.push('sourcing '+countries.slice(0,3).join(', '));
+  }catch(e){}
+  el.textContent=parts.length?parts.join(' · '):'Add your suppliers and ports in Settings for tailored analysis';
+  wrap.style.display='block';
+}
+
+function saUpdateHistoryBtn(){
+  var hist=[];
+  try{hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
+  if(!Array.isArray(hist))hist=[];
+  var wrap=document.getElementById('saHistoryWrap');
+  var cnt=document.getElementById('saHistoryCount');
+  if(!wrap)return;
+  if(!hist.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  if(cnt)cnt.textContent=hist.length;
+}
+
+function saToggleHistory(e){
+  e.stopPropagation();
+  var dd=document.getElementById('saHistoryDropdown');
+  var btn=document.getElementById('saHistoryBtn');
+  if(!dd||!btn)return;
+  if(dd.style.display==='none'||!dd.style.display){
+    saRenderHistoryList();
+    var rect=btn.getBoundingClientRect();
+    dd.style.top=(rect.bottom+6)+'px';
+    dd.style.right=(window.innerWidth-rect.right)+'px';
+    dd.style.left='';
+    dd.style.display='block';
+  } else {
+    dd.style.display='none';
+  }
+}
+
+function saRenderHistoryList(){
+  var list=document.getElementById('saHistoryList');
+  if(!list)return;
+  var hist=[];
+  try{hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
+  if(!hist.length){
+    list.innerHTML='<div style="padding:16px 14px;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:rgba(255,255,255,0.2);">No saved analyses.</div>';
+    return;
+  }
+  list.innerHTML=hist.map(function(item,i){
+    var d=item.data||{};
+    var origin=(d.origin||'').split(',')[0].split('(')[0].trim();
+    var dest=(d.destination||'').split(',')[0].split('(')[0].trim();
+    var dt=item.ts?new Date(item.ts).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+    return '<div class="sa-history-item" id="saHItem'+i+'">'
+      +'<div class="sa-history-item-body" onclick="saLoadFromHistory('+i+')">'
+      +'<div class="sa-history-item-id">'+escHtml(d.id||'Untitled shipment')+'</div>'
+      +(origin||dest?'<div class="sa-history-item-route">'+escHtml(origin||'?')+' &rarr; '+escHtml(dest||'?')+'</div>':'')
+      +'<div class="sa-history-item-ts">'+escHtml(dt)+'</div>'
+      +'</div>'
+      +'<button class="sa-history-item-del" onclick="saStartDeleteHistory('+i+',document.getElementById(\'saHItem'+i+'\'))" title="Remove">&times;</button>'
+      +'</div>';
+  }).join('');
+}
+
+function saLoadFromHistory(idx){
+  var hist=[];
+  try{hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
+  var item=hist[idx];if(!item||!item.data)return;
+  var dd=document.getElementById('saHistoryDropdown');
+  if(dd)dd.style.display='none';
+  _saCurrentResult=item.data;
+  saSwitchTab(1);
+  _saShowState('saResult');
+  var el=document.getElementById('saResult');
+  var dt=item.ts?new Date(item.ts).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'history';
+  if(el)el.innerHTML=buildSAResultCardHtml(item.data,{fromHistory:true,loadedDate:dt});
+}
+
+function saStartDeleteHistory(idx,itemEl){
+  if(!itemEl)return;
+  itemEl.innerHTML='<div class="sa-history-confirm">'
+    +'<span class="sa-history-confirm-text">Remove from history?</span>'
+    +'<button class="sa-history-confirm-del" onclick="saConfirmDeleteHistory('+idx+')">Remove</button>'
+    +'<button class="sa-history-confirm-cancel" onclick="saRenderHistoryList()">Cancel</button>'
+    +'</div>';
+}
+
+function saConfirmDeleteHistory(idx){
+  try{
+    var hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');
+    if(!Array.isArray(hist))hist=[];
+    hist.splice(idx,1);
+    localStorage.setItem('risksim_sa_history',JSON.stringify(hist));
+  }catch(e){}
+  saRenderHistoryList();
+  saUpdateHistoryBtn();
+  saRenderSidebar();
 }
 
 function saDismissNotice(){
@@ -8516,7 +8696,7 @@ function saShowSampleResult(){
   });
 }
 
-function buildSAResultCardHtml(d){
+function buildSAResultCardHtml(d,opts){
   var sev=(d.severity||'moderate').toLowerCase();
   var originPort=_saExtractPort(d.origin);
   var originCtry=_saExtractCountry(d.origin);
@@ -8531,7 +8711,7 @@ function buildSAResultCardHtml(d){
       +'<div class="sar-action-text">'+escHtml(a)+'</div>'
       +'</div>';
   }).join('');
-  return '<div class="sar-card">'
+  return '<div class="sar-wrap"><div class="sar-card">'
     +'<div class="sar-header">'
     +'<div><div class="sar-header-label">Route Analysis</div><div class="sar-header-id">'+escHtml(d.id||'—')+'</div></div>'
     +'<div class="sar-header-ts">Analyzed just now</div>'
@@ -8540,19 +8720,19 @@ function buildSAResultCardHtml(d){
     +'<div class="sar-section-label">Route</div>'
     +'<div class="sar-route-diagram">'
     +'<div class="sar-route-node">'
-    +'<div class="sar-route-dot"></div>'
+    +'<div class="sar-route-dot sar-route-dot-origin"></div>'
     +'<div class="sar-route-port">'+escHtml(originPort||'Origin')+'</div>'
     +(originCtry?'<div class="sar-route-country">'+escHtml(originCtry)+'</div>':'')
     +'</div>'
     +'<div class="sar-route-line-wrap"><div class="sar-route-line"></div></div>'
     +'<div class="sar-route-node sar-route-node-mid">'
     +'<div class="sar-route-dot sar-route-dot-mid"></div>'
-    +'<div class="sar-route-port">'+escHtml(midLabel)+'</div>'
-    +'<div class="sar-route-country">In Transit</div>'
+    +'<div class="sar-route-port">In transit</div>'
+    +'<div class="sar-route-country">'+escHtml((d.carrier||'')+(d.transit?' · '+d.transit:''))+'</div>'
     +'</div>'
     +'<div class="sar-route-line-wrap"><div class="sar-route-line"></div></div>'
     +'<div class="sar-route-node sar-route-node-right">'
-    +'<div class="sar-route-dot"></div>'
+    +'<div class="sar-route-dot sar-route-dot-dest"></div>'
     +'<div class="sar-route-port">'+escHtml(destPort||'Destination')+'</div>'
     +(destCtry?'<div class="sar-route-country">'+escHtml(destCtry)+'</div>':'')
     +'</div>'
@@ -8574,10 +8754,10 @@ function buildSAResultCardHtml(d){
     +'<div class="sar-actions">'+actions+'</div>'
     +'<div class="sar-divider"></div>'
     +'<div class="sar-footer">'
-    +'<span class="sar-autosave">&#10003; Auto-saved</span>'
+    +'<span class="sar-autosave">'+(opts&&opts.fromHistory?'Loaded from '+(opts.loadedDate||'history'):'&#10003; Auto-saved')+'</span>'
     +'<button class="sar-followup-btn" onclick="saOpenFollowUp()">Ask AI a follow-up &rarr;</button>'
     +'</div>'
-    +'</div>';
+    +'</div></div>';
 }
 
 function _saExtractPort(str){
@@ -8617,10 +8797,15 @@ function saSaveAnalysis(){
   try{
     var hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');
     if(!Array.isArray(hist))hist=[];
+    if(hist.length>0){
+      var last=hist[0].data||{};
+      if(last.id&&last.id===_saCurrentResult.id&&last.origin===_saCurrentResult.origin&&last.destination===_saCurrentResult.destination)return;
+    }
     hist.unshift({ts:Date.now(),data:_saCurrentResult});
-    if(hist.length>10)hist=hist.slice(0,10);
+    if(hist.length>50)hist=hist.slice(0,50);
     localStorage.setItem('risksim_sa_history',JSON.stringify(hist));
     saRenderSidebar();
+    saUpdateHistoryBtn();
   }catch(e){}
 }
 
