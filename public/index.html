@@ -6305,7 +6305,7 @@ function switchModule(name){
     if(typeof initSimulatorData==='function')initSimulatorData();
     if(navBtns[3])navBtns[3].classList.add('active');
   }else if(name==='priceintel'){
-    var _saV2=localStorage.getItem('risksim_shipment_analysis_v2')==='true';
+    var _saV2=localStorage.getItem('risksim_shipment_analysis_v2')!=='false';
     if(_saV2){
       var saEl=document.getElementById('saModule');
       if(saEl){saEl.style.display='flex';saEl.style.flexDirection='column';}
@@ -8158,7 +8158,7 @@ function buildSettingsNotifications(){
   h+='<div style="margin-bottom:16px;"><a href="#" onclick="notifShowEmail2();return false;" id="nt-add-email-link" style="font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.3);text-decoration:none;'+(savedEmail2?'display:none':'')+'">+ Add Another Email</a></div>';
   h+=toggle('nt-weekly','Weekly Risk Digest','Every Monday morning — top alerts, tariff changes, and market summary for your industry',prefs.weeklyDigest);
   h+=toggle('nt-critical','Critical Alert Notifications','Immediate email when critical events affect your sourcing countries (war, sanctions, major shutdowns)',prefs.criticalAlerts);
-  if(localStorage.getItem('risksim_shipment_analysis_v2')==='true'){
+  if(localStorage.getItem('risksim_shipment_analysis_v2')!=='false'){
     h+=toggle('nt-shipdigest','Shipment Digest Emails','Daily summary of your active shipments and any new risk alerts from overnight re-analysis',prefs.shipmentDigest);
     h+='<div class="settings-field"><label>Digest Frequency</label><select id="nt-shipfreq"><option value="daily"'+(prefs.shipmentDigestFrequency==='daily'?' selected':'')+'>Daily</option><option value="weekly"'+(prefs.shipmentDigestFrequency==='weekly'?' selected':'')+'>Weekly</option><option value="off"'+(prefs.shipmentDigestFrequency==='off'?' selected':'')+'>Off</option></select></div>';
   }
@@ -9321,7 +9321,7 @@ var _saSyncTimer=null;
 var _saServerAlerts=[];   // alerts fetched from GET /api/alerts
 
 function _saSyncEmail(){return localStorage.getItem('risksim_email')||localStorage.getItem('risksim_notif_email')||'';}
-function _saFlagOn(){return localStorage.getItem('risksim_shipment_analysis_v2')==='true';}
+function _saFlagOn(){return localStorage.getItem('risksim_shipment_analysis_v2')!=='false';}
 function _saGetDigestPref(){
   try{var p=JSON.parse(localStorage.getItem('risksim_notif_prefs')||'{}');
     return {enabled:p.shipmentDigest!==false,frequency:p.shipmentDigestFrequency||'daily'};}
@@ -9692,7 +9692,7 @@ function saTab2Reset(){
 
 /* Sidebar label swap on page load */
 (function(){
-  if(localStorage.getItem('risksim_shipment_analysis_v2')==='true'){
+  if(localStorage.getItem('risksim_shipment_analysis_v2')!=='false'){
     var el=document.getElementById('sbnav-priceintel');
     if(el)el.innerHTML='<span>Shipment Analysis</span><span class="sb-nav-code">SYS_05</span>';
     // Phase 3: sync local shipments up and pull server alerts on load
