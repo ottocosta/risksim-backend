@@ -2942,6 +2942,13 @@ app.post('/api/admin/send-test-digest', requireDataKey, async (req, res) => {
         res.json({ success: ok });
     } catch (e) { console.error('[Digest] send-test-digest error:', e.message); res.status(500).json({ success: false, error: e.message }); }
 });
+// Daily digest SWEEP for all eligible users — the cron-triggerable counterpart to the
+// in-process poller (unreliable on Render free tier). Respects per-user pref/gating and
+// the digest:sent:{email}:{date} idempotency lock. Returns summary counts only.
+app.post('/api/admin/run-digest-job', requireDataKey, async (req, res) => {
+    try { const summary = await runDigestJob(); res.json({ success: true, ...summary }); }
+    catch (e) { console.error('[Digest] run-digest-job error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
 
 // ---- Scheduled poller (mirrors ALERT_POLLER_ENABLED). Env-gated + Redis day-lock so it
 // runs at most once/day even across cold starts. For free-tier reliability, also point an
