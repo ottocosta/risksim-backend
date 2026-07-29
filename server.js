@@ -68,6 +68,8 @@ const reviewerLimiter = rateLimit({
     max: 5,
     message: { error: 'Too many attempts. Try again in 10 minutes.' }
 });
+// In-memory rate-limit for reviewer Discord notifications: max 1 per IP per 5 min
+const _reviewerNotifyTs = new Map();
 
 // General limit on all routes
 const generalLimiter = rateLimit({
@@ -2182,6 +2184,21 @@ app.post('/api/verify-reviewer', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Incorrect password' });
         }
         console.log('[verify-reviewer] Success from IP:', req.ip);
+        // Discord notification — fire and forget, non-blocking
+        const _whUrl = process.env.DISCORD_WEBHOOK_URL;
+        if (_whUrl) {
+            const _ip = String(req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim();
+            const _now = Date.now();
+            if (_now - (_reviewerNotifyTs.get(_ip) || 0) > 5 * 60 * 1000) {
+                _reviewerNotifyTs.set(_ip, _now);
+                const _ua = sanitizeForDiscord((req.headers['user-agent'] || '').slice(0, 80));
+                axios.post(_whUrl, {
+                    content: 'YC Reviewer just signed in',
+                    embeds: [{ title: 'Reviewer bypass verified', description: `IP: ${_ip}\nUser-Agent: ${_ua}\nTime: ${new Date().toISOString()}`, color: 15158332 }]
+                }, { headers: { 'Content-Type': 'application/json' } })
+                .catch(function(e) { console.error('[reviewer-notify] Discord POST failed:', e.message); });
+            }
+        }
         return res.json({ success: true });
     } catch (err) {
         console.error('[verify-reviewer] Error:', err);
