@@ -12135,6 +12135,7 @@ function lcOnShow(){
   lcRenderCountryInputs();
   if(!_lcRates)lcFetchRates();
   lcLoadLastValues();
+  lcPrefillFromProfile();
 }
 
 function lcFetchRates(){
@@ -12207,6 +12208,20 @@ function lcLoadLastValues(){
     set('lcIncoterms',v.incoterms);set('lcDestination',v.destination);set('lcResultCurrency',v.resultCurrency);
     if(v.countries&&v.countries.length){_lcCountries=v.countries;lcRenderCountryInputs();}
   }catch(e){}
+}
+
+function lcPrefillFromProfile(){
+  if(localStorage.getItem('risksim_cost_engine_v2')!=='true')return;
+  if(localStorage.getItem('lc_last_values'))return;
+  var prof;
+  try{prof=JSON.parse(localStorage.getItem('risksim_profile')||'');}catch(e){return;}
+  if(!prof||!prof.userProfile)return;
+  var up=prof.userProfile;
+  var validCats=['technology','textiles','automotive','food','pharma','rawMaterials','consumerGoods'];
+  if(up.country){var dest=document.getElementById('lcDestination');if(dest)dest.value=up.country;}
+  var sc=prof.selectedSourcingCountries;
+  if(sc&&sc.length){_lcCountries=sc.slice();lcRenderCountryInputs();}
+  if(up.industry&&validCats.indexOf(up.industry)!==-1){var cat=document.getElementById('lcCategory');if(cat)cat.value=up.industry;}
 }
 
 // Main calculate
