@@ -1209,6 +1209,11 @@ INSTRUCTIONS:
 4. List up to 4 "your factors" — company-specific risks derived from the user profile (single-source exposure, inventory buffers, tariff sensitivity for their products, etc.). Skip if no profile.
 5. Generate 3–5 specific, actionable recommended steps for this shipment. Each should be concrete and immediately useful — not generic supply chain advice.
 6. If a field cannot be extracted, use a reasonable placeholder (e.g. "Unknown" for ID, "Estimated" for transit).
+7. Derive four additional normalized fields:
+   - originCountry: the country of origin as a plain English country name (e.g. "China", "Vietnam", "India"). Derive from the origin port/city.
+   - destinationCountry: the destination country as a plain English country name (e.g. "United States", "Germany"). Derive from the destination port/city.
+   - containerType: one of exactly "lcl", "20ft", "40ft", "40hc". Infer from container ID format or shipment type; default to "lcl" if unclear.
+   - shippingMode: one of exactly "sea", "air", "rail", "road". Infer from context; default to "sea" if unclear.
 
 Return ONLY this JSON structure:
 {
@@ -1219,6 +1224,10 @@ Return ONLY this JSON structure:
   "transit": "~X days or range",
   "eta": "Month Day, Year",
   "severity": "LOW|MODERATE|HIGH|CRITICAL",
+  "originCountry": "plain country name",
+  "destinationCountry": "plain country name",
+  "containerType": "lcl|20ft|40ft|40hc",
+  "shippingMode": "sea|air|rail|road",
   "routeFactors": ["factor 1", "factor 2"],
   "yourFactors": ["company-specific factor 1"],
   "actions": ["action 1", "action 2"]

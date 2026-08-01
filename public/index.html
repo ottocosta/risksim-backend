@@ -8923,6 +8923,7 @@ function buildSAResultCardHtml(d,opts){
     +'<div class="sar-divider"></div>'
     +'<div class="sar-footer">'
     +'<span class="sar-autosave">'+(opts&&opts.fromHistory?'Loaded from '+(opts.loadedDate||'history'):'&#10003; Auto-saved')+'</span>'
+    +((opts&&opts.fromHistory&&localStorage.getItem('risksim_cost_engine_v2')==='true')?'<button class="sa-btn-secondary" onclick="saOpenCostEngine()">Compute landed cost</button>':'')
     +'<button class="sar-followup-btn" onclick="saOpenFollowUp()">Ask AI a follow-up &rarr;</button>'
     +'</div>'
     +'</div></div>';
@@ -8985,6 +8986,18 @@ function saOpenFollowUp(){
     +(d.routeFactors&&d.routeFactors.length?'Route factors: '+d.routeFactors.slice(0,3).join('; ')+'. ':'')
     +(d.actions&&d.actions.length?'Recommended actions so far: '+d.actions[0]+'. ':'');
   if(typeof openChatFullscreen==='function')openChatFullscreen(msg,'shipment_analysis');
+}
+
+function saOpenCostEngine(){
+  var shipment=_saCurrentResult;
+  if(!shipment)return;
+  _lcPrefillFromSA={
+    destinationCountry:shipment.destinationCountry||null,
+    originCountry:shipment.originCountry||null,
+    containerType:shipment.containerType||null,
+    shippingMode:shipment.shippingMode||null
+  };
+  switchModule('costengine');
 }
 
 function saRenderSidebar(){
@@ -12129,6 +12142,7 @@ var _lcCountries=['China','Vietnam','Mexico','India'];
 var _lcResults=null;
 var _lcRates=null;
 var _lcAdvancedOpen=false;
+var _lcPrefillFromSA=null;
 
 // Init on show
 function lcOnShow(){
@@ -12136,6 +12150,7 @@ function lcOnShow(){
   if(!_lcRates)lcFetchRates();
   lcLoadLastValues();
   lcPrefillFromProfile();
+  lcPrefillFromSA();
 }
 
 function lcFetchRates(){
@@ -12222,6 +12237,17 @@ function lcPrefillFromProfile(){
   var sc=prof.selectedSourcingCountries;
   if(sc&&sc.length){_lcCountries=sc.slice();lcRenderCountryInputs();}
   if(up.industry&&validCats.indexOf(up.industry)!==-1){var cat=document.getElementById('lcCategory');if(cat)cat.value=up.industry;}
+}
+
+function lcPrefillFromSA(){
+  if(localStorage.getItem('risksim_cost_engine_v2')!=='true')return;
+  if(!_lcPrefillFromSA)return;
+  var sa=_lcPrefillFromSA;
+  _lcPrefillFromSA=null;
+  if(sa.destinationCountry){var dest=document.getElementById('lcDestination');if(dest)dest.value=sa.destinationCountry;}
+  if(sa.originCountry){_lcCountries=[sa.originCountry];lcRenderCountryInputs();}
+  if(sa.containerType){var validC=['lcl','20ft','40ft','40hc'];if(validC.indexOf(sa.containerType)!==-1){var cont=document.getElementById('lcContainer');if(cont)cont.value=sa.containerType;}}
+  if(sa.shippingMode){var validM=['sea','air','rail','road'];if(validM.indexOf(sa.shippingMode)!==-1){var mode=document.getElementById('lcShippingMode');if(mode)mode.value=sa.shippingMode;}}
 }
 
 // Main calculate
