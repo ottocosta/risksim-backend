@@ -9455,10 +9455,10 @@ function syncShipmentsToServer(){
   if(_saSyncTimer)clearTimeout(_saSyncTimer);
   _saSyncTimer=setTimeout(_saDoSync,5000);
 }
-function _saDoSync(){
+function _saDoSync(onDone){
   try{
-    if(!_saFlagOn())return;
-    var email=_saSyncEmail();if(!email)return;
+    if(!_saFlagOn())return onDone&&onDone(null,null);
+    var email=_saSyncEmail();if(!email)return onDone&&onDone(null,null);
     var hist=[];try{hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
     if(!Array.isArray(hist))hist=[];
     var shipments=hist.map(function(h){return {ts:h.ts,id:h.id||null,shipmentText:h.shipmentText||'',data:h.data||{},notes:h.notes||[],timeline:h.timeline||[],alerts:h.alerts||[],landedCost:h.landedCost||null};});
@@ -9466,15 +9466,22 @@ function _saDoSync(){
       email:email,plan:localStorage.getItem('risksim_plan')||'',optedIn:true,
       profile:_saBuildProfilePayload(),digest:_saGetDigestPref(),shipments:shipments
     })}).then(function(r){return r.json();}).then(function(res){
-      if(!res||!Array.isArray(res.shipments))return;
+      if(!res||!Array.isArray(res.shipments))return onDone&&onDone(null,res);
       var idByTs={};res.shipments.forEach(function(m){idByTs[m.ts]=m.id;});
       var h2=[];try{h2=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');}catch(e){}
-      if(!Array.isArray(h2))return;
+      if(!Array.isArray(h2))return onDone&&onDone(null,res);
       var changed=false;
       h2.forEach(function(h){if(!h.id&&idByTs[h.ts]){h.id=idByTs[h.ts];changed=true;}});
+      if(Array.isArray(res.reanalyzed)&&res.reanalyzed.length){
+        res.reanalyzed.forEach(function(ra){
+          var ridx=h2.findIndex(function(h){return h.ts===ra.ts;});
+          if(ridx>=0){h2[ridx].data=Object.assign({},h2[ridx].data||{},{severity:ra.severity,routeFactors:ra.routeFactors,yourFactors:ra.yourFactors,actions:ra.actions});changed=true;}
+        });
+      }
       if(changed)localStorage.setItem('risksim_sa_history',JSON.stringify(h2));
-    })['catch'](function(){});
-  }catch(e){}
+      onDone&&onDone(null,res);
+    })['catch'](function(e){onDone&&onDone(e,null);});
+  }catch(e){onDone&&onDone(e,null);}
 }
 
 // Pull server-generated alerts and refresh the workspace.
@@ -12382,12 +12389,18 @@ function lcSaveToShipment(){
     hist[idx].landedCost={ts:Date.now(),optimal:_lcResults.optimal||{},results:_lcResults.results||{},payload:_lcPayload||{}};
     hist[idx].timeline=(hist[idx].timeline||[]).concat([{type:'landed_cost_saved',ts:Date.now(),description:'Landed cost computed and saved',meta:{}}]);
     localStorage.setItem('risksim_sa_history',JSON.stringify(hist));
-    if(typeof syncShipmentsToServer==='function')syncShipmentsToServer();
     var savedTs=_lcSourceShipmentTs;
     _lcSourceShipmentTs=null;
     var saveBtn=document.getElementById('lcSaveToShipmentBtn');
     if(saveBtn)saveBtn.style.display='none';
-    lcShowToastWithAction('Saved to shipment','View shipment',function(){lcNavigateToShipment(savedTs);});
+    lcShowToastWithAction('Saved. Re-scoring severity with cost data...','View shipment',function(){lcNavigateToShipment(savedTs);});
+    if(typeof _saSyncTimer!=='undefined'&&_saSyncTimer){clearTimeout(_saSyncTimer);_saSyncTimer=null;}
+    if(typeof _saDoSync==='function'){
+      _saDoSync(function(err){
+        if(err){lcShowToastWithAction('Saved — severity will update on next sync','View shipment',function(){lcNavigateToShipment(savedTs);});}
+        else{lcShowToastWithAction('Severity updated with cost data','View shipment',function(){lcNavigateToShipment(savedTs);});}
+      });
+    }
   }catch(e){lcShowToast('Failed to save');}
 }
 

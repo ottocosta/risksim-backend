@@ -1158,7 +1158,7 @@ Search query: ${searchQuery}`;
 
 app.post('/api/analyze-shipment', async (req, res) => {
     try {
-        let { shipmentText, profile } = req.body;
+        let { shipmentText, profile, landedCost } = req.body;
 
         if (!shipmentText || typeof shipmentText !== 'string' || shipmentText.trim().length === 0)
             return res.status(400).json({ error: 'Shipment text is required' });
@@ -1188,11 +1188,44 @@ app.post('/api/analyze-shipment', async (req, res) => {
             if (profile.enterprise) profileLines += `Enterprise profile summary: ${JSON.stringify(profile.enterprise).slice(0, 600)}\n`;
         }
 
+        let lcLines = '';
+        if (landedCost && landedCost.optimal && landedCost.optimal.country
+                && landedCost.optimal.mode && landedCost.results) {
+            try {
+                const opt = landedCost.optimal;
+                const detail = landedCost.results[opt.country] && landedCost.results[opt.country][opt.mode];
+                if (detail) {
+                    const t = detail.tariffs || {};
+                    const total = detail.total || {};
+                    const effectiveRate = t.effectiveRate != null ? t.effectiveRate.toFixed(1) + '%' : 'unknown';
+                    const mfnRate = t.mfnRate != null ? t.mfnRate.toFixed(1) + '%' : 'unknown';
+                    const addDuty = t.additionalDuty != null ? t.additionalDuty.toFixed(1) + '%' : '0%';
+                    const tariffShare = (t.costPerUnit != null && total.perUnit)
+                        ? ((t.costPerUnit / total.perUnit) * 100).toFixed(0) + '%' : 'unknown';
+                    const costIncrease = total.costIncrease != null ? total.costIncrease.toFixed(0) + '%' : 'unknown';
+                    const currency = detail.resultCurrency || 'USD';
+                    const costPerUnit = opt.costPerUnit != null ? currency + ' ' + opt.costPerUnit.toFixed(2) : 'unknown';
+                    const productCat = (landedCost.payload && landedCost.payload.productCategory) || 'unknown';
+                    const countryRisk = (detail.risk && detail.risk.countryRiskScore != null)
+                        ? detail.risk.countryRiskScore + '/100' : 'unknown';
+                    lcLines = '\nLANDED COST DATA (from user\'s Cost Engine):\n'
+                        + `Optimal origin: ${opt.country} via ${opt.mode} — ${costPerUnit}/unit landed\n`
+                        + `Effective tariff rate: ${effectiveRate} (MFN ${mfnRate} + additional duty ${addDuty})\n`
+                        + `Tariff share of total landed cost: ${tariffShare}\n`
+                        + `Cost increase vs unit price: ${costIncrease} (product + shipping + duties + fees)\n`
+                        + `Product category: ${productCat}\n`
+                        + `CE country risk score for chosen origin: ${countryRisk}\n`;
+                }
+            } catch (e) {
+                lcLines = '';
+            }
+        }
+
         const systemPrompt = `You are a supply chain intelligence analyst at RiskSim AI. Analyze the shipment information the user provides and return structured risk analysis as ONLY valid JSON — no markdown fences, no backticks, no explanatory text outside the JSON.
 
 USER PROFILE:
 ${profileLines || 'No profile provided.'}
-
+${lcLines}
 LIVE TARIFF DATA (from RiskSim pipelines):
 ${tariffCtx}
 
@@ -1204,7 +1237,7 @@ ${alertCtx}
 
 INSTRUCTIONS:
 1. Extract from the user's text: container/booking ID, origin port, destination port, carrier, transit time, and ETA. Make reasonable estimates from context if not explicit.
-2. Assess overall route risk as LOW, MODERATE, HIGH, or CRITICAL — base this on current port conditions, active tariff exposure, carrier performance signals, and any relevant alerts from the pipeline data above.
+2. Assess overall route risk as LOW, MODERATE, HIGH, or CRITICAL — base this on current port conditions, active tariff exposure, carrier performance signals, any relevant alerts from the pipeline data above, and — when landed cost data is provided — the tariff burden, total cost inflation, and the CE country risk score. Cost exposure is a first-class input to severity, not a bonus signal. When landed cost data is not provided, ignore this factor and score as before.
 3. List up to 5 route factors — objective, data-grounded risks specific to this route right now.
 4. List up to 4 "your factors" — company-specific risks derived from the user profile (single-source exposure, inventory buffers, tariff sensitivity for their products, etc.). Skip if no profile.
 5. Generate 3–5 specific, actionable recommended steps for this shipment. Each should be concrete and immediately useful — not generic supply chain advice.
@@ -2713,6 +2746,21 @@ function alertForSeverityChange(shipmentId, prevSeverity, result) {
         `Re-analysis lowered this shipment's risk from ${prevSeverity || 'UNKNOWN'} to ${result.severity}.`,
         firstAction);
 }
+// Returns an alert when severity increased due to landed cost re-analysis; only fires on increases.
+function alertForSeverityChangeFromCost(shipmentId, prevSeverity, result) {
+    if (!result || !result.severity || !prevSeverity) return null;
+    const delta = severityRank(result.severity) - severityRank(prevSeverity);
+    if (delta <= 0) return null;
+    const route = `${result.origin || 'origin'} -> ${result.destination || 'destination'}`;
+    const sevMap = { CRITICAL: 'CRITICAL', HIGH: 'WARNING', MODERATE: 'WATCH', LOW: 'INFO' };
+    const alertSev = sevMap[String(result.severity).toUpperCase()] || 'WATCH';
+    const firstAction = (Array.isArray(result.actions) && result.actions.length) ? result.actions[0] : null;
+    const factor = (Array.isArray(result.routeFactors) && result.routeFactors.length) ? ` Key factor: ${result.routeFactors[0]}` : '';
+    return makeAlert(shipmentId, alertSev,
+        `Risk increased to ${result.severity} — ${route}`,
+        `Landed cost analysis raised this shipment's risk from ${prevSeverity} to ${result.severity}.${factor}`,
+        firstAction);
+}
 // Keep <= MAX_ALERTS, dropping oldest resolved first, then oldest overall.
 function pruneAlerts(alerts) {
     if (alerts.length <= MAX_ALERTS) return alerts;
@@ -2752,7 +2800,7 @@ async function reanalyzeShipment(entry, profile) {
         : reconstructShipmentText(entry.data);
     if (!text) throw new Error('no shipment text available');
     const r = await axios.post(`http://127.0.0.1:${PORT}/api/analyze-shipment`,
-        { shipmentText: text, profile: profile || {} },
+        { shipmentText: text, profile: profile || {}, landedCost: entry.landedCost || null },
         { timeout: 30000, headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.DATA_API_KEY || '' } });
     return r.data;
 }
@@ -2904,22 +2952,69 @@ app.post('/api/shipments/sync', shipmentSyncLimiter, async (req, res) => {
         for (const s of (existing.shipments || [])) if (s.ts != null) prevByTs[s.ts] = s;
 
         const idMap = [];
+        const toReanalyze = [];
         const merged = shipments.slice(0, 100).map(s => {
             const prev = prevByTs[s.ts] || {};
             const id = s.id || prev.id || randomUUID();
             idMap.push({ ts: s.ts, id });
-            return {
+            // Phase 4: server-authoritative merge — server wins on severity/factors when lastAnalyzedAt > client ts
+            const serverIsAuth = prev && prev.lastAnalyzedAt && prev.lastAnalyzedAt > (s.ts || 0);
+            const clientData = s.data || {};
+            const serverData = (prev && prev.data) ? prev.data : {};
+            const mergedData = serverIsAuth
+                ? Object.assign({}, clientData, {
+                    severity:     serverData.severity     || clientData.severity,
+                    routeFactors: serverData.routeFactors || clientData.routeFactors,
+                    yourFactors:  serverData.yourFactors  || clientData.yourFactors,
+                    actions:      serverData.actions      || clientData.actions
+                  })
+                : clientData;
+            // Phase 4: track entries with new/changed landedCost for inline re-analysis
+            const lcNewTs = s.landedCost && s.landedCost.ts;
+            const lcOldTs = prev.landedCost && prev.landedCost.ts;
+            const entry = {
                 id, ts: s.ts || Date.now(),
                 shipmentText: s.shipmentText || prev.shipmentText || '',
-                data: s.data || prev.data || {},
+                data: mergedData,
                 prevSeverity: prev.prevSeverity || (s.data && s.data.severity) || null,
                 lastAnalyzedAt: prev.lastAnalyzedAt || null,
                 notes: s.notes || [], timeline: s.timeline || [], alerts: s.alerts || [],
                 landedCost: s.landedCost || prev.landedCost || null
             };
+            if (lcNewTs && (!lcOldTs || lcNewTs > lcOldTs)) toReanalyze.push(entry);
+            return entry;
         });
         // Phase 3 hardening: authoritative plan from Shopify — the client-asserted `plan` is ignored.
         const verifiedPlan = await verifyShopifyPlan(key);
+        // Phase 4: inline re-analysis for shipments with new/changed landedCost
+        const reanalyzed = [];
+        if (toReanalyze.length > 0) {
+            const reanalysisProfile = (existing && existing.profile) || {};
+            let userAlerts = await getUserAlerts(key);
+            for (const entry of toReanalyze) {
+                try {
+                    const result = await reanalyzeShipment(entry, reanalysisProfile);
+                    if (result && result.severity) {
+                        const prevSev = entry.data && entry.data.severity;
+                        entry.prevSeverity = prevSev || entry.prevSeverity;
+                        entry.lastAnalyzedAt = Date.now();
+                        entry.data = Object.assign({}, entry.data, {
+                            severity: result.severity, routeFactors: result.routeFactors,
+                            yourFactors: result.yourFactors, actions: result.actions
+                        });
+                        reanalyzed.push({ ts: entry.ts, severity: result.severity,
+                            routeFactors: result.routeFactors || [],
+                            yourFactors: result.yourFactors || [],
+                            actions: result.actions || [] });
+                        const alert = alertForSeverityChangeFromCost(entry.id, prevSev, result);
+                        if (alert) userAlerts.unshift(alert);
+                    }
+                } catch (e) {
+                    console.error('[sync] inline re-analysis failed for entry', entry.id, e.message);
+                }
+            }
+            if (reanalyzed.length > 0) await setUserAlerts(key, pruneAlerts(userAlerts));
+        }
         const record = {
             email: key, updatedAt: Date.now(),
             plan: verifiedPlan,
@@ -2929,7 +3024,7 @@ app.post('/api/shipments/sync', shipmentSyncLimiter, async (req, res) => {
             shipments: merged
         };
         await setUserShipments(key, record);
-        res.json({ success: true, count: merged.length, shipments: idMap });
+        res.json({ success: true, count: merged.length, shipments: idMap, reanalyzed });
     } catch (e) {
         console.error('[Shipments] sync error:', e.message);
         res.status(500).json({ error: 'Sync failed' });
