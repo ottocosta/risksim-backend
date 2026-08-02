@@ -2914,7 +2914,8 @@ app.post('/api/shipments/sync', shipmentSyncLimiter, async (req, res) => {
                 data: s.data || prev.data || {},
                 prevSeverity: prev.prevSeverity || (s.data && s.data.severity) || null,
                 lastAnalyzedAt: prev.lastAnalyzedAt || null,
-                notes: s.notes || [], timeline: s.timeline || [], alerts: s.alerts || []
+                notes: s.notes || [], timeline: s.timeline || [], alerts: s.alerts || [],
+                landedCost: s.landedCost || prev.landedCost || null
             };
         });
         // Phase 3 hardening: authoritative plan from Shopify — the client-asserted `plan` is ignored.
