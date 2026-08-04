@@ -2800,6 +2800,9 @@
   .sw-pf-risk-id { font-family:'JetBrains Mono',monospace; font-size:12px; color:rgba(255,255,255,0.85); flex:1; }
   .sw-pf-risk-route { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:6px; }
   .sw-pf-risk-reason { font-size:12px; color:rgba(255,255,255,0.55); line-height:1.5; }
+  .sw-pf-lc-empty { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.28); margin-top:8px; line-height:1.6; }
+  .sw-pf-lc-link { color:rgba(255,255,255,0.5); cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+  .sw-pf-lc-link:hover { color:rgba(255,255,255,0.75); }
   .sw-detail-topbar { padding:12px 28px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.07); flex-shrink:0; gap:12px; }
   .sw-back-btn { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.4); background:none; border:none; cursor:pointer; padding:0; transition:color 0.15s; letter-spacing:0.04em; }
   .sw-back-btn:hover { color:rgba(255,255,255,0.75); }
@@ -3535,6 +3538,15 @@ function _completeReviewerSignIn() {
   localStorage.setItem('risksim_reviewer_password_verified', 'true');
   localStorage.setItem('risksim_onboarding_done', 'true');
   localStorage.setItem('risksim_onboarding_complete', 'true');
+  if(!localStorage.getItem('risksim_sa_history')){
+    var _rn=Date.now();
+    localStorage.setItem('risksim_sa_history',JSON.stringify([
+      {ts:_rn-2*86400000,id:null,shipmentText:'Taipei air freight — urgent PCB assemblies, 80 units, air cargo via EVA Air, TPE to LAWA',data:{id:'EVA-TPE-0804',severity:'low',origin:'Taipei, Taiwan',destination:'Los Angeles, United States',carrier:'EVA Air Cargo',transit:'3 days',eta:'Aug 9, 2026',originCountry:'Taiwan',destinationCountry:'United States',containerType:'Air cargo',shippingMode:'air',routeFactors:['Air freight pricing elevated on transpacific routes','Standard transit risk — no active disruptions'],yourFactors:['Urgent fulfillment order — schedule-critical','Low volume minimizes financial exposure'],actions:['Confirm air cargo booking 48h before ETD','Check customs pre-clearance for PCB classification']},notes:[],timeline:[{type:'analyzed',ts:_rn-2*86400000,description:'Shipment analyzed',meta:{}}],alerts:[],landedCost:null},
+      {ts:_rn-9*86400000,id:null,shipmentText:'Oneyac Shanghai — passive components and connectors, 2000 units, FOB Shanghai, sea LCL to USLAX',data:{id:'ONEYAC-SHA-0827',severity:'moderate',origin:'Shanghai, China',destination:'Los Angeles, United States',carrier:'Maersk',transit:'26 days',eta:'Sep 22, 2026',originCountry:'China',destinationCountry:'United States',containerType:'20ft LCL',shippingMode:'sea',routeFactors:['Moderate US-China tariff exposure on passive components','Shanghai port congestion adding 2-4 day delays'],yourFactors:['Passive component pricing stable — low supplier switch risk','Buffer inventory sufficient to absorb minor delays'],actions:['Monitor Shanghai port congestion weekly','Confirm tariff classification for connector SKUs']},notes:[],timeline:[{type:'analyzed',ts:_rn-9*86400000,description:'Shipment analyzed',meta:{}}],alerts:[],landedCost:{ts:_rn-8*86400000,optimal:{country:'China',mode:'sea',costPerUnit:18.50,currency:'USD'},results:{},payload:{resultCurrency:'USD',unitCount:2000}}},
+      {ts:_rn-14*86400000,id:null,shipmentText:'Oneyac Electronics Shenzhen — SMD components, 1200 units, FOB Shenzhen, ocean FCL to USLAX',data:{id:'ONEYAC-SZX-0814',severity:'critical',origin:'Shenzhen, China',destination:'Los Angeles, United States',carrier:'COSCO',transit:'25 days',eta:'Sep 8, 2026',originCountry:'China',destinationCountry:'United States',containerType:'40ft FCL',shippingMode:'sea',routeFactors:['Section 301 tariff exposure on Chinese electronics up to 145%','In-transit tariff rate change risk — USTR review pending'],yourFactors:['Oneyac is your single lowest-cost China source on 40% of SKUs','No qualified alternate at this price point — 3-4 month qualification window'],actions:['Pre-pay duties at current rate if feasible','Initiate Vietnam supplier qualification for SMD sourcing','Model tariff scenario at 145% before next order']},notes:[],timeline:[{type:'analyzed',ts:_rn-14*86400000,description:'Shipment analyzed',meta:{}}],alerts:[],landedCost:{ts:_rn-13*86400000,optimal:{country:'Vietnam',mode:'sea',costPerUnit:31.40,currency:'USD'},results:{},payload:{resultCurrency:'USD',unitCount:1200}}},
+      {ts:_rn-21*86400000,id:null,shipmentText:'Foxconn Kaohsiung — PCB subassembly Q3 batch, 500 units, FOB Kaohsiung, sea FCL to USLAX',data:{id:'FOXCON-KHH-0821',severity:'high',origin:'Kaohsiung, Taiwan',destination:'Los Angeles, United States',carrier:'Evergreen',transit:'37 days',eta:'Sep 18, 2026',originCountry:'Taiwan',destinationCountry:'United States',containerType:'20ft FCL',shippingMode:'sea',routeFactors:['Taiwan Strait geopolitical tension elevating ocean freight risk','Evergreen capacity constraints on transpacific lanes'],yourFactors:['Foxconn is your critical single-source PCB supplier','40% of Taiwan spend exposed on this lane'],actions:['Confirm cargo insurance given elevated strait risk','Request ETD buffer from Foxconn for port delay tolerance','Qualify secondary Taiwan PCB supplier within 60 days']},notes:[],timeline:[{type:'analyzed',ts:_rn-21*86400000,description:'Shipment analyzed',meta:{}}],alerts:[],landedCost:{ts:_rn-20*86400000,optimal:{country:'China',mode:'sea',costPerUnit:42.17,currency:'USD'},results:{},payload:{resultCurrency:'USD',unitCount:500}}}
+    ]));
+  }
   window.location.reload();
 }
 function openReviewerPasswordStep() {
@@ -9313,6 +9325,54 @@ function saRenderPortfolio(){
       +'<span class="sw-pf-mix-count">'+mix[s]+'</span></div>';
   });
   html+='</div><div class="sw-pf-mix-total">'+hist.length+' shipment'+(hist.length===1?'':'s')+' analyzed</div></div>';
+
+  if(localStorage.getItem('risksim_cost_engine_v2')!=='false'){
+    var lcItems=hist.filter(function(h){return h.landedCost&&h.landedCost.optimal&&h.landedCost.optimal.country;});
+    var lcCount=lcItems.length;
+    html+='<div class="sw-pf-section"><div class="sw-pf-title">Landed cost intelligence</div>';
+    if(lcCount===0){
+      html+='<div class="sw-pf-mix-total">0 of '+hist.length+' shipment'+(hist.length===1?'':'s')+' have cost intelligence</div>';
+      html+='<div class="sw-pf-lc-empty">Compute landed cost on any shipment to see aggregate cost insights here. <span class="sw-pf-lc-link" onclick="_saShowView(\'workspace\')">View shipments →</span></div>';
+    }else{
+      html+='<div class="sw-pf-mix-total" style="margin-bottom:14px;">'+lcCount+' of '+hist.length+' shipment'+(hist.length===1?'':'s')+' have cost intelligence</div>';
+      var _lcByCur={};
+      var _lcModes={};
+      lcItems.forEach(function(h){
+        var _opt=h.landedCost.optimal;
+        var _cur=(h.landedCost.payload&&h.landedCost.payload.resultCurrency)||_opt.currency||'USD';
+        if(!_lcByCur[_cur])_lcByCur[_cur]={sum:0,count:0};
+        if(typeof _opt.costPerUnit==='number'){_lcByCur[_cur].sum+=_opt.costPerUnit;_lcByCur[_cur].count++;}
+        var _mode=(_opt.mode||'').toUpperCase();
+        if(_mode)_lcModes[_mode]=(_lcModes[_mode]||0)+1;
+      });
+      var _topMode='—',_topModeCount=0;
+      Object.keys(_lcModes).forEach(function(m){if(_lcModes[m]>_topModeCount){_topModeCount=_lcModes[m];_topMode=m;}});
+      var _curKeys=Object.keys(_lcByCur);
+      if(_curKeys.length>0){
+        html+='<div class="sw-pf-mix" style="margin-bottom:14px;">';
+        if(_curKeys.length===1){
+          var _c=_curKeys[0];
+          var _avg=_lcByCur[_c].count>0?(_lcByCur[_c].sum/_lcByCur[_c].count):0;
+          html+='<div class="sw-pf-mix-cell"><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">AVG COST / UNIT</span><span class="sw-pf-mix-count">'+escHtml(_c)+' '+_avg.toFixed(2)+'</span></div>';
+        }else{
+          _curKeys.forEach(function(_c){
+            var _avg=_lcByCur[_c].count>0?(_lcByCur[_c].sum/_lcByCur[_c].count):0;
+            html+='<div class="sw-pf-mix-cell"><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">AVG / UNIT ('+escHtml(_c)+')</span><span class="sw-pf-mix-count">'+_avg.toFixed(2)+'</span></div>';
+          });
+        }
+        html+='<div class="sw-pf-mix-cell"><span style="font-family:\'JetBrains Mono\',monospace;font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.35);">TOP MODE</span><span class="sw-pf-mix-count">'+escHtml(_topMode)+'</span><span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:rgba(255,255,255,0.3);">'+_topModeCount+' of '+lcCount+'</span></div>';
+        html+='</div>';
+      }
+      var _lcOrigins={};
+      lcItems.forEach(function(h){var _co=h.landedCost.optimal.country;if(_co)_lcOrigins[_co]=(_lcOrigins[_co]||0)+1;});
+      var _origArr=Object.keys(_lcOrigins).map(function(_co){return{country:_co,count:_lcOrigins[_co]};});
+      _origArr.sort(function(a,b){return b.count-a.count;});
+      _origArr.slice(0,5).forEach(function(o){
+        html+='<div class="sw-pf-lane"><span class="sw-pf-lane-name">'+escHtml(o.country)+'</span><span class="sw-pf-lane-meta">'+o.count+' shipment'+(o.count===1?'':'s')+' \xb7 optimal origin</span></div>';
+      });
+    }
+    html+='</div>';
+  }
 
   html+='<div class="sw-pf-section"><div class="sw-pf-title">Lane exposure</div>';
   laneArr.slice(0,8).forEach(function(l){
