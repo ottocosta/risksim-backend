@@ -2762,6 +2762,7 @@
   .sw-item-body { flex:1; min-width:0; }
   .sw-item-id { font-family:'JetBrains Mono',monospace; font-size:13px; color:rgba(255,255,255,0.82); letter-spacing:0.04em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .sw-item-route { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.33); margin-top:3px; }
+  .sw-item-lc { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.28); margin-top:3px; }
   .sw-item-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
   .sw-item-sev { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.1em; }
   .sw-item-sev.low { color:rgba(100,220,140,0.8); }
@@ -9015,7 +9016,7 @@ function buildSAResultCardHtml(d,opts){
     +'<div class="sar-divider"></div>'
     +'<div class="sar-footer">'
     +'<span class="sar-autosave">'+(opts&&opts.fromHistory?'Loaded from '+(opts.loadedDate||'history'):'&#10003; Auto-saved')+'</span>'
-    +((opts&&opts.fromHistory&&localStorage.getItem('risksim_cost_engine_v2')==='true')?'<button class="sa-btn-secondary" onclick="saOpenCostEngine()">Compute landed cost</button>':'')
+    +((opts&&opts.fromHistory&&localStorage.getItem('risksim_cost_engine_v2')!=='false')?'<button class="sa-btn-secondary" onclick="saOpenCostEngine()">Compute landed cost</button>':'')
     +'<button class="sar-followup-btn" onclick="saOpenFollowUp()">Ask AI a follow-up &rarr;</button>'
     +'</div>'
     +'</div></div>';
@@ -9244,11 +9245,15 @@ function saRenderWorkspace(filter){
     var dest=(d.destination||'').split(',')[0].split('(')[0].trim();
     var ago=_saTimeAgo(item.ts);
     var realIdx=hist.indexOf(item);
+    var _lcOpt=item.landedCost&&item.landedCost.optimal&&item.landedCost.optimal.country?item.landedCost.optimal:null;
+    var _lcCur=_lcOpt?((item.landedCost.payload&&item.landedCost.payload.resultCurrency)||_lcOpt.currency||'USD'):'';
+    var _lcFlagOn=localStorage.getItem('risksim_cost_engine_v2')!=='false';
     return'<div class="sw-item" onclick="saOpenDetail('+realIdx+')">'
       +'<div class="sw-item-dot '+(sev||'low')+'"></div>'
       +'<div class="sw-item-body">'
       +'<div class="sw-item-id">'+escHtml(d.id||'Untitled shipment')+'</div>'
       +(origin||dest?'<div class="sw-item-route">'+escHtml((origin||'?')+' → '+(dest||'?'))+'</div>':'')
+      +(_lcOpt&&_lcFlagOn?'<div class="sw-item-lc">'+escHtml(_lcCur+' '+(typeof _lcOpt.costPerUnit==='number'?_lcOpt.costPerUnit.toFixed(2):'—')+'/unit')+'</div>':'')
       +'</div>'
       +'<div class="sw-item-right">'
       +(sev?'<span class="sw-item-sev '+(sev||'')+'">'+escHtml(sev.toUpperCase())+'</span>':'')
@@ -9519,7 +9524,7 @@ function _saRenderDetailExtras(item){
   var html='';
 
   /* 0 — Landed Cost (flag-gated, only when CE result saved to this shipment) */
-  if(item.landedCost&&item.landedCost.optimal&&item.landedCost.optimal.country&&localStorage.getItem('risksim_cost_engine_v2')==='true'){
+  if(item.landedCost&&item.landedCost.optimal&&item.landedCost.optimal.country&&localStorage.getItem('risksim_cost_engine_v2')!=='false'){
     var _lc=item.landedCost;
     var _opt=_lc.optimal||{};
     var _lcDate=_lc.ts?new Date(_lc.ts).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'';
@@ -12354,7 +12359,7 @@ function lcLoadLastValues(){
 }
 
 function lcPrefillFromProfile(){
-  if(localStorage.getItem('risksim_cost_engine_v2')!=='true')return;
+  if(localStorage.getItem('risksim_cost_engine_v2')==='false')return;
   if(localStorage.getItem('lc_last_values'))return;
   var prof;
   try{prof=JSON.parse(localStorage.getItem('risksim_profile')||'');}catch(e){return;}
@@ -12368,7 +12373,7 @@ function lcPrefillFromProfile(){
 }
 
 function lcPrefillFromSA(){
-  if(localStorage.getItem('risksim_cost_engine_v2')!=='true')return;
+  if(localStorage.getItem('risksim_cost_engine_v2')==='false')return;
   if(!_lcPrefillFromSA)return;
   var sa=_lcPrefillFromSA;
   _lcPrefillFromSA=null;
@@ -12379,7 +12384,7 @@ function lcPrefillFromSA(){
 }
 
 function lcSaveToShipment(){
-  if(localStorage.getItem('risksim_cost_engine_v2')!=='true')return;
+  if(localStorage.getItem('risksim_cost_engine_v2')==='false')return;
   if(!_lcSourceShipmentTs||!_lcResults)return;
   try{
     var hist=JSON.parse(localStorage.getItem('risksim_sa_history')||'[]');
@@ -12580,7 +12585,7 @@ function lcRenderResults(data,payload){
   lcRenderCurrencySlider(data,payload,cur);
   lcRenderTrend(results,opt,cur);
   var _saveBtn=document.getElementById('lcSaveToShipmentBtn');
-  if(_saveBtn){var _canSave=_lcSourceShipmentTs&&localStorage.getItem('risksim_cost_engine_v2')==='true';_saveBtn.style.display=_canSave?'inline-block':'none';}
+  if(_saveBtn){var _canSave=_lcSourceShipmentTs&&localStorage.getItem('risksim_cost_engine_v2')!=='false';_saveBtn.style.display=_canSave?'inline-block':'none';}
 }
 
 // Stacked bar waterfall per country
