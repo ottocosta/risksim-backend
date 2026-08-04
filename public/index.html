@@ -12393,21 +12393,21 @@ function lcSaveToShipment(){
     _lcSourceShipmentTs=null;
     var saveBtn=document.getElementById('lcSaveToShipmentBtn');
     if(saveBtn)saveBtn.style.display='none';
-    lcShowToastWithAction('Saved. Re-scoring severity with cost data...','View shipment',function(){lcNavigateToShipment(savedTs);});
+    lcShowToastWithAction('Saved. Re-scoring severity with cost data...','View shipment',savedTs);
     if(typeof _saSyncTimer!=='undefined'&&_saSyncTimer){clearTimeout(_saSyncTimer);_saSyncTimer=null;}
     if(typeof _saDoSync==='function'){
       _saDoSync(function(err){
-        if(err){lcShowToastWithAction('Saved — severity will update on next sync','View shipment',function(){lcNavigateToShipment(savedTs);});}
-        else{lcShowToastWithAction('Severity updated with cost data','View shipment',function(){lcNavigateToShipment(savedTs);});}
+        if(err){lcShowToastWithAction('Saved — severity will update on next sync','View shipment',savedTs);}
+        else{lcShowToastWithAction('Severity updated with cost data','View shipment',savedTs);}
       });
     }
   }catch(e){lcShowToast('Failed to save');}
 }
 
-function lcShowToastWithAction(msg,actionLabel,actionFn){
+function lcShowToastWithAction(msg,actionLabel,ts){
   var t=document.getElementById('sbToast');
   if(!t)return lcShowToast(msg);
-  t.innerHTML='<span>'+msg+'</span><button class="lc-toast-action" onclick="('+actionFn.toString()+')()">'+actionLabel+'</button>';
+  t.innerHTML='<span>'+msg+'</span><button class="lc-toast-action" onclick="lcNavigateToShipment('+ts+')">'+actionLabel+'</button>';
   t.classList.add('show');
   setTimeout(function(){t.classList.remove('show');t.innerHTML='';},5000);
 }
