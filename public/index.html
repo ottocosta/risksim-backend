@@ -3658,6 +3658,7 @@ document.addEventListener('DOMContentLoaded', function() {
       localStorage.getItem('risksim_reviewer_splash_seen') !== 'true') {
     setTimeout(showReviewerSplash, 300);
   }
+  (function(){var _trEm=localStorage.getItem('risksim_email')||localStorage.getItem('risksim_notif_email');if(_trEm)fetch('/api/track-activity',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_trEm,module:'load'})}).catch(function(){});})();
 });
 </script>
 
@@ -6379,6 +6380,7 @@ function switchModule(name){
   for(var i=0;i<navBtns.length;i++)navBtns[i].classList.remove('active');
 
   _activeModule=name;
+  (function(){var _trEm=localStorage.getItem('risksim_email')||localStorage.getItem('risksim_notif_email');if(_trEm)fetch('/api/track-activity',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:_trEm,module:name})}).catch(function(){});})();
   if(typeof updateSidebarActive==='function')updateSidebarActive(name);
   // Close fullscreen chat on module switch
   if(typeof closeChatFullscreen==='function')closeChatFullscreen();

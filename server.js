@@ -71,6 +71,13 @@ const reviewerLimiter = rateLimit({
 // In-memory rate-limit for reviewer Discord notifications: max 1 per IP per 5 min
 const _reviewerNotifyTs = new Map();
 
+// Activity tracking — 30 req/min per IP
+const trackingLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 30,
+    message: { error: 'Too many requests.' }
+});
+
 // General limit on all routes
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -88,6 +95,7 @@ app.use('/api/demo-request', demoLimiter);
 app.use('/api/send-otp', otpLimiter);
 app.use('/api/verify-otp', otpLimiter);
 app.use('/api/verify-reviewer', reviewerLimiter);
+app.use('/api/track-activity', trackingLimiter);
 
 // Input sanitisation helper — strips HTML tags
 function stripHtml(str) {
@@ -2644,6 +2652,33 @@ async function setUserAlerts(email, alerts) {
     catch (e) { console.error('[Alerts] set error:', e.message); }
 }
 
+// ---- Usage tracking helpers ----
+const USAGE_KEY = e => `usage:${e.toLowerCase()}`;
+const USAGE_INDEX = 'usage:users';
+const USAGE_TTL = 90 * 24 * 3600;   // 90 days, rolling
+
+async function getUsage(email) {
+    if (!redisAvailable) return null;
+    try {
+        const val = await redisCmd(['GET', USAGE_KEY(email)]);
+        return val ? JSON.parse(val) : null;
+    } catch (e) { return null; }
+}
+async function setUsage(email, data) {
+    if (!redisAvailable) return;
+    try {
+        await redisPipeline([
+            ['SET', USAGE_KEY(email), JSON.stringify(data), 'EX', String(USAGE_TTL)],
+            ['SADD', USAGE_INDEX, email.toLowerCase()]
+        ]);
+    } catch (e) { /* best-effort */ }
+}
+async function listUsageEmails() {
+    if (!redisAvailable) return [];
+    try { return (await redisCmd(['SMEMBERS', USAGE_INDEX])) || []; }
+    catch (e) { return []; }
+}
+
 // ---- Phase 3 hardening: verify the enterprise plan against Shopify (cached) ----
 // /api/shipments/sync is unauthenticated (email in body); never trust a client-asserted
 // plan. Verify against real Shopify subscription state, cached 1h since sync runs often.
@@ -3051,6 +3086,43 @@ app.post('/api/alerts/resolve', async (req, res) => {
     res.json({ success: true, resolved: found });
 });
 
+// ---- Activity tracking ----
+const TRACK_MODULES = new Set(['map','audit','warroom','simulator','priceintel','costengine','load']);
+const SESSION_GAP_MS = 30 * 60 * 1000;
+
+app.post('/api/track-activity', async (req, res) => {
+    try {
+        const email = (req.body.email || '').toLowerCase().trim();
+        const mod = (req.body.module || '').toLowerCase().trim();
+        if (!email || !email.includes('@') || !TRACK_MODULES.has(mod)) return res.json({ ok: true });
+        const now = Date.now();
+        const isReviewer = email === 'reviewer@banana-art.example';
+        const existing = await getUsage(email);
+        const rec = existing || {
+            email, isReviewer,
+            firstSeenAt: now, lastActiveAt: now,
+            lastSessionAt: 0, totalSessions: 0,
+            sessionHistory: [],
+            modulesOpened: { map: 0, audit: 0, warroom: 0, simulator: 0, priceintel: 0, costengine: 0 },
+            lastModule: mod, recentActivity: []
+        };
+        const isNewSession = (now - (rec.lastSessionAt || 0)) > SESSION_GAP_MS;
+        if (isNewSession) {
+            rec.totalSessions = (rec.totalSessions || 0) + 1;
+            rec.lastSessionAt = now;
+            rec.sessionHistory = [now, ...(rec.sessionHistory || [])].slice(0, 20);
+        }
+        rec.lastActiveAt = now;
+        rec.lastModule = mod;
+        if (mod !== 'load' && Object.prototype.hasOwnProperty.call(rec.modulesOpened, mod)) {
+            rec.modulesOpened[mod] = (rec.modulesOpened[mod] || 0) + 1;
+        }
+        rec.recentActivity = [{ module: mod, ts: now }, ...(rec.recentActivity || [])].slice(0, 10);
+        await setUsage(email, rec);
+    } catch (e) { /* never surface to client */ }
+    res.json({ ok: true });
+});
+
 // ---- Admin manual triggers (DATA_API_KEY) ----
 app.post('/api/admin/run-analysis-job', requireDataKey, async (req, res) => {
     try { const summary = await runReanalysisJob(); res.json({ success: true, ...summary }); }
@@ -3070,6 +3142,39 @@ app.post('/api/admin/send-test-digest', requireDataKey, async (req, res) => {
 app.post('/api/admin/run-digest-job', requireDataKey, async (req, res) => {
     try { const summary = await runDigestJob(); res.json({ success: true, ...summary }); }
     catch (e) { console.error('[Digest] run-digest-job error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
+app.get('/api/admin/usage', requireDataKey, async (req, res) => {
+    try {
+        const emailParam = (req.query.email || '').toLowerCase().trim();
+        const now = Date.now();
+        const DAY_MS = 86400000;
+        const WEEK_MS = 7 * DAY_MS;
+        function computeFields(rec) {
+            const daysSinceLastActive = Math.floor((now - (rec.lastActiveAt || now)) / DAY_MS);
+            const sessionsLastWeek = (rec.sessionHistory || []).filter(ts => (now - ts) <= WEEK_MS).length;
+            const mods = rec.modulesOpened || {};
+            const modKeys = Object.keys(mods).filter(m => mods[m] > 0);
+            const mostUsedModule = modKeys.length > 0 ? modKeys.reduce((a, b) => mods[a] >= mods[b] ? a : b) : null;
+            return { daysSinceLastActive, sessionsLastWeek, mostUsedModule };
+        }
+        if (emailParam) {
+            const rec = await getUsage(emailParam);
+            if (!rec) return res.json(null);
+            return res.json({ ...rec, computed: computeFields(rec) });
+        }
+        const emails = await listUsageEmails();
+        if (emails.length === 0) return res.json({ totalUsers: 0, activeLast7Days: 0, users: [] });
+        const values = await redisPipeline(emails.map(e => ['GET', USAGE_KEY(e)]));
+        const users = values
+            .map(v => v ? JSON.parse(v) : null).filter(Boolean)
+            .map(rec => ({ ...rec, computed: computeFields(rec) }))
+            .sort((a, b) => (b.lastActiveAt || 0) - (a.lastActiveAt || 0));
+        const activeLast7Days = users.filter(u => !u.isReviewer && (now - (u.lastActiveAt || 0)) <= WEEK_MS).length;
+        res.json({ totalUsers: users.length, activeLast7Days, users });
+    } catch (e) {
+        console.error('[Usage] admin/usage error:', e.message);
+        res.status(500).json({ error: e.message });
+    }
 });
 
 // ---- Scheduled poller (mirrors ALERT_POLLER_ENABLED). Env-gated + Redis day-lock so it
