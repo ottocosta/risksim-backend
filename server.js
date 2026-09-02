@@ -2285,40 +2285,167 @@ async function sendEmail(to, subject, html, text) {
     }
 }
 
-function buildCriticalAlertHtml(alert, subscriber) {
+function buildCriticalAlertHtml(alert, subscriber, matchReasons) {
     const unsubUrl = `https://risksim.ai/api/email/unsubscribe?email=${encodeURIComponent(subscriber.email)}`;
     const linkHtml = alert.link
-        ? `<p style="margin:16px 0"><a href="${escHtml(alert.link)}" style="color:#4a9eff;font-size:13px">Read full report →</a></p>`
+        ? `<p style="margin:0 0 20px"><a href="${escHtml(alert.link)}" style="color:rgba(255,255,255,0.42);font-size:12px;letter-spacing:0.02em">Read source article &rarr;</a></p>`
+        : '';
+    const reasonsHtml = (Array.isArray(matchReasons) && matchReasons.length > 0)
+        ? `<div style="background:rgba(74,158,255,0.08);border-left:3px solid #4a9eff;padding:14px 18px;margin-bottom:28px;border-radius:0 4px 4px 0">
+  <div style="font-size:9px;letter-spacing:0.22em;color:#4a9eff;text-transform:uppercase;margin-bottom:8px">Why this matters for your business</div>
+  <p style="font-size:13px;color:rgba(255,255,255,0.78);margin:0;line-height:1.65">${matchReasons.map(escHtml).join(' &nbsp;&middot;&nbsp; ')}</p>
+</div>`
         : '';
     return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px">
   <div style="font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:28px">RISKSIM AI &middot; CRITICAL SUPPLY CHAIN ALERT</div>
-  <h1 style="font-size:20px;font-weight:700;margin:0 0 12px;line-height:1.35;color:#fff">${escHtml(alert.title)}</h1>
+  ${reasonsHtml}<h1 style="font-size:20px;font-weight:700;margin:0 0 12px;line-height:1.35;color:#fff">${escHtml(alert.title)}</h1>
   <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:24px;letter-spacing:0.05em">${alert.industry ? escHtml(alert.industry.toUpperCase()) + ' &nbsp;&middot;&nbsp; ' : ''}${alert.pubDate ? new Date(alert.pubDate).toUTCString() : ''}</div>
-  <p style="color:rgba(255,255,255,0.65);font-size:14px;line-height:1.75;margin:0 0 8px">This event was flagged by RiskSim's critical alert system. Review your supply chain exposure immediately.</p>
-  ${linkHtml}
+  ${linkHtml}<p style="margin:24px 0 0"><a href="https://risksim.ai" style="display:inline-block;background:#fff;color:#000;padding:11px 22px;font-size:11px;font-family:monospace;letter-spacing:0.12em;text-decoration:none;border-radius:3px;font-weight:700">OPEN RISKSIM TO WORK ON THIS &rarr;</a></p>
   <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:32px 0">
-  <p style="font-size:11px;color:rgba(255,255,255,0.22);line-height:1.6;margin:0">You're receiving this because you subscribed to critical alerts on RiskSim AI.<br><a href="${unsubUrl}" style="color:rgba(255,255,255,0.22)">Unsubscribe</a></p>
+  <p style="font-size:11px;color:rgba(255,255,255,0.22);line-height:1.6;margin:0">You're receiving this because critical alerts are enabled for ${escHtml(subscriber.email)}.<br><a href="${unsubUrl}" style="color:rgba(255,255,255,0.22)">Unsubscribe</a></p>
 </body></html>`;
 }
 
-function buildCriticalAlertText(alert, subscriber) {
+function buildCriticalAlertText(alert, subscriber, matchReasons) {
     const unsubUrl = `https://risksim.ai/api/email/unsubscribe?email=${encodeURIComponent(subscriber.email)}`;
-    const lines = [
-        'RISKSIM AI — CRITICAL SUPPLY CHAIN ALERT',
-        '',
-        alert.title,
+    const lines = ['RISKSIM AI — CRITICAL SUPPLY CHAIN ALERT', ''];
+    if (Array.isArray(matchReasons) && matchReasons.length > 0) {
+        lines.push('Why this matters for your business:', matchReasons.join(' · '), '');
+    }
+    lines.push(
+        alert.title || '',
         alert.industry ? alert.industry.toUpperCase() : '',
         alert.pubDate ? new Date(alert.pubDate).toUTCString() : '',
-        '',
-        "This event was flagged by RiskSim's critical alert system. Review your supply chain exposure immediately."
-    ];
-    if (alert.link) lines.push('', 'Read more: ' + alert.link);
-    lines.push('', '---', 'Unsubscribe: ' + unsubUrl);
+        ''
+    );
+    if (alert.link) lines.push('Source: ' + alert.link, '');
+    lines.push(
+        'Open RiskSim to work on this: https://risksim.ai',
+        '', '---',
+        `You're receiving this because critical alerts are enabled for ${subscriber.email}.`,
+        'Unsubscribe: ' + unsubUrl
+    );
     return lines.join('\n');
 }
 
 const CRITICAL_RE = /\bwar\b|bombing|invasion|military.strike|armed.conflict|port.closure|factory.explosion/i;
+
+// ---- Personalization helpers for critical alerts ----
+
+// Fetch subscriber's extended profile: shipment-sync record first, subscriber sign-up data fallback.
+async function getSubscriberProfile(email, subSourceCountries) {
+    try {
+        const record = await getUserShipments(email);
+        if (record && record.profile) return record.profile;
+    } catch (e) { /* fall through */ }
+    // No shipment record — minimal profile from subscriber sign-up sourcing countries
+    if (Array.isArray(subSourceCountries) && subSourceCountries.length > 0) {
+        return { sourcingCountries: subSourceCountries };
+    }
+    return null;
+}
+
+// Returns true if the profile has at least one matchable term across any dimension.
+function profileHasTerms(profile) {
+    if (!profile) return false;
+    if (Array.isArray(profile.sourcingCountries) && profile.sourcingCountries.length > 0) return true;
+    if (profile.suppliers && typeof profile.suppliers === 'string' && profile.suppliers.trim()) return true;
+    if (profile.enterprise) {
+        const ep = profile.enterprise;
+        if (Array.isArray(ep.suppliers) && ep.suppliers.length > 0) return true;
+        if (Array.isArray(ep.portsOfEntry) && ep.portsOfEntry.length > 0) return true;
+        if (Array.isArray(ep.spendByCountry) && ep.spendByCountry.some(s => s.country && s.pctOfTotal > 0)) return true;
+    }
+    return false;
+}
+
+// Match alert text against all four profile dimensions.
+// alertText is all string fields from the alert object joined and lowercased.
+// Returns { matched: bool, reasons: string[] }.
+function matchAlertToProfile(alertText, profile) {
+    const text = alertText.toLowerCase();
+    const reasons = [];
+    const matchedCountries = new Set(); // dedup country matches across dimensions
+
+    // 1. Sourcing countries (all plans)
+    const sourcingCountries = Array.isArray(profile.sourcingCountries) ? profile.sourcingCountries : [];
+    for (const c of sourcingCountries) {
+        if (c && text.includes(c.toLowerCase())) {
+            reasons.push(`${c} — one of your sourcing countries`);
+            matchedCountries.add(c.toLowerCase());
+        }
+    }
+
+    // 2. Enterprise spend-by-country (deduped against sourcing countries)
+    const spendByCountry = (profile.enterprise && Array.isArray(profile.enterprise.spendByCountry))
+        ? profile.enterprise.spendByCountry : [];
+    for (const s of spendByCountry) {
+        if (!s.country || !(s.pctOfTotal > 0)) continue;
+        const cLower = s.country.toLowerCase();
+        if (!matchedCountries.has(cLower) && text.includes(cLower)) {
+            reasons.push(`${s.country} — one of your sourcing countries`);
+            matchedCountries.add(cLower);
+        }
+    }
+
+    // 3. Enterprise suppliers — name match first, country fallback
+    const epSuppliers = (profile.enterprise && Array.isArray(profile.enterprise.suppliers))
+        ? profile.enterprise.suppliers : [];
+    for (const s of epSuppliers) {
+        const name = (s.name || '').trim();
+        const country = (s.country || '').trim();
+        if (name && text.includes(name.toLowerCase())) {
+            reasons.push(`${name} — one of your listed suppliers`);
+        } else if (country && !matchedCountries.has(country.toLowerCase()) && text.includes(country.toLowerCase())) {
+            reasons.push(`${country} — home country of your supplier ${name || '(unnamed)'}`);
+            matchedCountries.add(country.toLowerCase());
+        }
+    }
+
+    // 4. Basic profile suppliers string (Pro users — split on comma/semicolon/slash)
+    if (profile.suppliers && typeof profile.suppliers === 'string') {
+        const names = profile.suppliers.split(/[,;\/]/).map(n => n.trim()).filter(n => n.length >= 3);
+        for (const name of names) {
+            if (text.includes(name.toLowerCase()) && !reasons.some(r => r.includes(name))) {
+                reasons.push(`${name} — one of your listed suppliers`);
+            }
+        }
+    }
+
+    // 5. Ports of entry (enterprise only)
+    const portsOfEntry = (profile.enterprise && Array.isArray(profile.enterprise.portsOfEntry))
+        ? profile.enterprise.portsOfEntry : [];
+    for (const port of portsOfEntry) {
+        if (port && text.includes(port.toLowerCase())) {
+            reasons.push(`${port} — one of your ports of entry`);
+        }
+    }
+
+    return { matched: reasons.length > 0, reasons };
+}
+
+// Per-subscriber daily cap: max 3 critical alert emails in a rolling 24h window.
+// Returns true (capped) or false (under cap). Never blocks on Redis failure.
+async function checkAndIncrDailyCap(email) {
+    if (!redisAvailable) return false;
+    const today = new Date().toISOString().slice(0, 10);
+    const capKey = `email:daily-cap:${email}:${today}`;
+    try {
+        const results = await redisPipeline([
+            ['INCR', capKey],
+            ['EXPIRE', capKey, '90000']   // 25-hour TTL
+        ]);
+        const count = results[0];
+        if (count > 3) {
+            console.log(`[Email] daily cap hit for ${email} — ${count} critical emails today`);
+            return true;
+        }
+        return false;
+    } catch (e) {
+        return false;   // never block a send on Redis error
+    }
+}
 
 async function processCriticalAlertsNow() {
     const criticalAlerts = [];
@@ -2328,7 +2455,8 @@ async function processCriticalAlertsNow() {
             if (!CRITICAL_RE.test(title)) continue;
             const pubDate = new Date(alert.pubDate || alert.isoDate || 0);
             if ((Date.now() - pubDate.getTime()) / 3600000 > 6) continue;
-            criticalAlerts.push({ title, industry, pubDate: alert.pubDate || alert.isoDate, link: alert.link });
+            // Push full raw alert object enriched with industry for text matching
+            criticalAlerts.push({ ...alert, industry });
         }
     }
 
@@ -2337,23 +2465,49 @@ async function processCriticalAlertsNow() {
         return { sent: 0, skipped: 0, alerts: 0 };
     }
 
+    // Log actual n8n alert fields once per invocation for observability
+    const sampleFields = Object.keys(criticalAlerts[0]).filter(k => k !== 'industry');
+    console.log('[Email] alert fields observed:', sampleFields.join(', '));
+
     const subscribers = await listSubscribers('criticalAlerts');
     if (subscribers.length === 0) {
         console.log('[Email] processCriticalAlertsNow: no criticalAlerts subscribers');
         return { sent: 0, skipped: 0, alerts: criticalAlerts.length };
     }
 
+    // Pre-fetch and validate profiles for all subscribers (one Redis call each, not per alert)
+    const profileCache = new Map();
+    for (const sub of subscribers) {
+        try {
+            const p = await getSubscriberProfile(sub.email, sub.sourcingCountries);
+            profileCache.set(sub.email, p);
+            if (!profileHasTerms(p)) {
+                console.log(`[Email] skip (empty profile): ${sub.email}`);
+            }
+        } catch (e) {
+            profileCache.set(sub.email, null);
+        }
+    }
+
     let sent = 0, skipped = 0;
 
     for (const alert of criticalAlerts) {
-        const alertId = Buffer.from((alert.title + alert.industry).slice(0, 60)).toString('base64').replace(/[+/=]/g, '').slice(0, 24);
+        // Build match text defensively from all string fields in the alert object
+        const alertText = Object.values(alert).filter(v => typeof v === 'string').join(' ');
+        const alertId = Buffer.from((alert.title + alert.industry).slice(0, 60))
+            .toString('base64').replace(/[+/=]/g, '').slice(0, 24);
 
         for (const sub of subscribers) {
-            // Industry filter: skip if alert and subscriber have known, mismatched industries
-            const alertInd = (alert.industry || '').toLowerCase();
-            const subInd = (sub.industry || '').toLowerCase();
-            if (alertInd && alertInd !== 'general' && subInd && alertInd !== subInd) {
+            const profile = profileCache.get(sub.email);
+
+            // Skip subscribers with no matchable profile terms
+            if (!profileHasTerms(profile)) { skipped++; continue; }
+
+            // Profile match across all four dimensions
+            const { matched, reasons } = matchAlertToProfile(alertText, profile);
+            if (!matched) {
                 skipped++;
+                console.log(`[Email] skip (no match): ${sub.email} / "${(alert.title || '').slice(0, 60)}"`);
                 continue;
             }
 
@@ -2366,12 +2520,16 @@ async function processCriticalAlertsNow() {
                 } catch (e) { /* dedup check failed — allow send rather than skip silently */ }
             }
 
-            const subject = `Critical Alert: ${alert.title.slice(0, 80)}`;
+            // Daily cap: max 3 critical emails per subscriber per 24h
+            const capped = await checkAndIncrDailyCap(sub.email);
+            if (capped) { skipped++; continue; }
+
+            const subject = `Critical Alert: ${(alert.title || '').slice(0, 80)}`;
             const ok = await sendEmail(
                 sub.email,
                 subject,
-                buildCriticalAlertHtml(alert, sub),
-                buildCriticalAlertText(alert, sub)
+                buildCriticalAlertHtml(alert, sub, reasons),
+                buildCriticalAlertText(alert, sub, reasons)
             );
             if (ok) {
                 sent++;
