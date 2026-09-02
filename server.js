@@ -2261,6 +2261,10 @@ app.post('/api/verify-reviewer', async (req, res) => {
 // ============================================================
 
 const EMAIL_FROM = 'RiskSim AI <alerts@risksim.ai>';
+// Weekly Brief epoch: existing subscribers before this date use it as their anchor.
+// Set WEEKLY_BRIEF_EPOCH env var on Render BEFORE deploying this build (Kai to handle).
+const BRIEF_EPOCH_MS = new Date(process.env.WEEKLY_BRIEF_EPOCH || '2026-09-02').getTime();
+const BRIEF_TEST_ALLOWLIST = ['risksim.ai@gmail.com', 'eyeamkaip@gmail.com', 'luukasniskanen1@gmail.com'];
 
 function escHtml(s) {
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -2550,7 +2554,7 @@ async function processCriticalAlertsNow() {
 
 // Subscribe / update preferences
 app.post('/api/email/subscribe', async (req, res) => {
-    const { email, industry, sourcingCountries, companyName, preferences } = req.body;
+    const { email, industry, sourcingCountries, companyName, preferences, plan } = req.body;
     if (!email || !email.includes('@')) {
         return res.status(400).json({ error: 'Valid email required' });
     }
@@ -2558,6 +2562,7 @@ app.post('/api/email/subscribe', async (req, res) => {
     const existing = await getSubscriber(key);
     const record = {
         email: key,
+        plan: plan || existing?.plan || null,   // stored for Weekly Brief tier-gating; backfilled at job run time
         industry: industry || 'technology',
         sourcingCountries: sourcingCountries || [],
         companyName: companyName || '',
@@ -2722,6 +2727,31 @@ app.post('/api/subscription/cancel-request', async (req, res) => {
   } catch (err) {
     return res.status(500).json({ success: false, error: 'internal' });
   }
+});
+
+// Shopify subscription-contracts webhook — writes plan to subscriber record for Weekly Brief tier-gating.
+// Register in Shopify admin > Settings > Notifications > Webhooks:
+//   Topics: subscription_contracts/create, subscription_contracts/update, subscription_contracts/cancel
+//   Endpoint: https://risksim.ai/api/shopify/subscription-event
+//   Auth: set DATA_API_KEY as the webhook authentication header value in Shopify.
+app.post('/api/shopify/subscription-event', requireDataKey, async (req, res) => {
+    try {
+        const { customer_email, status, admin_graphql_api_plan_id } = req.body;
+        if (!customer_email || !customer_email.includes('@')) return res.json({ ok: true });
+        const key = customer_email.toLowerCase();
+        const newPlan = SHOPIFY_PLAN_IDS[admin_graphql_api_plan_id] || null;
+        // On cancellation clear the plan; on create/update store the resolved tier.
+        const planToStore = (status === 'CANCELLED' || status === 'cancelled') ? null : newPlan;
+        const sub = await getSubscriber(key);
+        if (sub) {
+            await setSubscriber(key, { ...sub, plan: planToStore, updatedAt: new Date().toISOString() });
+            console.log('[Shopify] subscription-event — email:', key, 'plan:', planToStore, 'status:', status);
+        }
+        res.json({ ok: true });
+    } catch (e) {
+        console.error('[Shopify] subscription-event error:', e.message);
+        res.status(500).json({ error: e.message });
+    }
 });
 
 app.post('/api/demo-request', async (req, res) => {
@@ -3127,6 +3157,215 @@ async function runDigestJob() {
     return summary;
 }
 
+// ============================================================
+// WEEKLY GROUNDED BRIEF — Pro + Enterprise, once per 7 days per subscriber
+// ============================================================
+// Section 1 ("What moved this week"): profile-matched scan of dataStore,
+//   filtered to pubDate >= now - 7 days. Reuses matchAlertToProfile directly.
+// Section 2 ("Top 3 to watch"): unresolved WARNING/CRITICAL alerts from
+//   alerts:{email} — Enterprise only (Pro has no shipment re-analysis running).
+// Dedup key: brief:sent:{email}:{YYYY-MM-DD}, 8-day TTL, NX pattern.
+// Brief day:  modulo-7 from anchor (subscribedAt or BRIEF_EPOCH_MS for pre-deploy subs).
+// ============================================================
+
+function getProfileMatchedDataStoreEvents(profile) {
+    const weekAgo = Date.now() - 7 * 24 * 3600 * 1000;
+    const events = [];
+    for (const [industry, alerts] of Object.entries(dataStore.alertsByIndustry)) {
+        if (!Array.isArray(alerts)) continue;
+        for (const alert of alerts) {
+            const pubMs = new Date(alert.pubDate || alert.isoDate || 0).getTime();
+            if (pubMs < weekAgo) continue;   // older than 7 days — skip
+            const alertText = Object.values(alert).filter(v => typeof v === 'string').join(' ');
+            const { matched, reasons } = matchAlertToProfile(alertText, profile);
+            if (matched) events.push({ ...alert, industry, reasons });
+        }
+    }
+    // Newest first, capped at 15 to keep email scannable
+    return events
+        .sort((a, b) => new Date(b.pubDate || b.isoDate || 0) - new Date(a.pubDate || a.isoDate || 0))
+        .slice(0, 15);
+}
+
+function buildWeeklyBriefHtml(email, dateStr, matchedEvents, openAlerts) {
+    const unsubUrl = `https://risksim.ai/api/email/unsubscribe?email=${encodeURIComponent(email)}`;
+
+    const section1Rows = matchedEvents.length ? matchedEvents.slice(0, 8).map(ev => {
+        const pub = (ev.pubDate || ev.isoDate)
+            ? new Date(ev.pubDate || ev.isoDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            : '';
+        const titleHtml = ev.link
+            ? `<a href="${escHtml(ev.link)}" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;line-height:1.4">${escHtml(ev.title || '')}</a>`
+            : `<span style="color:#fff;font-size:14px;font-weight:600;line-height:1.4">${escHtml(ev.title || '')}</span>`;
+        const reasonsLine = (Array.isArray(ev.reasons) && ev.reasons.length)
+            ? `<div style="font-size:11px;color:#4a9eff;margin-top:5px;line-height:1.5">${ev.reasons.slice(0, 2).map(escHtml).join(' &nbsp;&middot;&nbsp; ')}</div>`
+            : '';
+        const meta = [ev.industry ? ev.industry.toUpperCase() : '', pub].filter(Boolean).join(' &nbsp;&middot;&nbsp; ');
+        return `<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><div style="font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;margin-bottom:5px">${meta}</div>${titleHtml}${reasonsLine}</div>`;
+    }).join('') : '<p style="color:rgba(255,255,255,0.4);font-size:13px;padding:12px 0">No profile-matched events this week.</p>';
+
+    const alertRows = openAlerts.slice(0, 3).map(a => {
+        const c = ALERT_SEV_COLOR[a.severity] || '#4a9eff';
+        const actionHtml = a.action_recommended
+            ? `<div style="font-size:12px;color:rgba(255,255,255,0.6)">&rarr; ${escHtml(a.action_recommended)}</div>`
+            : '';
+        return `<div style="border-left:3px solid ${c};padding:10px 14px;margin:8px 0;background:rgba(255,255,255,0.03);border-radius:0 3px 3px 0"><div style="font-size:9px;letter-spacing:0.15em;color:${c};text-transform:uppercase;margin-bottom:3px">${escHtml(a.severity)}</div><div style="font-size:13px;color:#fff;font-weight:600;margin-bottom:3px">${escHtml(a.title)}</div>${actionHtml}</div>`;
+    }).join('');
+
+    const section2Block = openAlerts.length
+        ? `<div style="margin-bottom:28px"><div style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:8px">TOP 3 TO WATCH</div>${alertRows}</div>`
+        : '';
+
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:32px 24px">
+  <div style="font-size:10px;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:6px">RISKSIM AI &middot; WEEKLY GROUNDED BRIEF</div>
+  <h1 style="font-size:22px;font-weight:700;margin:0 0 6px;color:#fff">Your week in supply chain</h1>
+  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px">${escHtml(dateStr)}</div>
+  <div style="margin-bottom:28px">
+    <div style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:8px">WHAT MOVED THIS WEEK</div>
+    ${section1Rows}
+  </div>
+  ${section2Block}<p style="margin:24px 0 0"><a href="https://risksim.ai" style="display:inline-block;background:#fff;color:#000;padding:11px 22px;font-size:11px;font-family:monospace;letter-spacing:0.12em;text-decoration:none;border-radius:3px;font-weight:700">OPEN RISKSIM TO WORK ON THIS &rarr;</a></p>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:32px 0">
+  <p style="font-size:11px;color:rgba(255,255,255,0.22);line-height:1.6;margin:0">You're receiving this because weekly briefs are enabled for ${escHtml(email)}.<br><a href="${unsubUrl}" style="color:rgba(255,255,255,0.22)">Unsubscribe</a></p>
+</body></html>`;
+}
+
+function buildWeeklyBriefText(email, dateStr, matchedEvents, openAlerts) {
+    const unsubUrl = `https://risksim.ai/api/email/unsubscribe?email=${encodeURIComponent(email)}`;
+    const lines = ['RISKSIM AI — WEEKLY GROUNDED BRIEF', '', `Your week in supply chain — ${dateStr}`, '', '=== WHAT MOVED THIS WEEK ===', ''];
+    if (matchedEvents.length) {
+        matchedEvents.slice(0, 8).forEach(ev => {
+            const pub = (ev.pubDate || ev.isoDate)
+                ? new Date(ev.pubDate || ev.isoDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                : '';
+            lines.push(`[${ev.industry ? ev.industry.toUpperCase() : 'NEWS'}${pub ? ' / ' + pub : ''}]`);
+            lines.push(ev.title || '');
+            if (Array.isArray(ev.reasons) && ev.reasons.length) lines.push('  ' + ev.reasons.slice(0, 2).join(' · '));
+            if (ev.link) lines.push('  ' + ev.link);
+            lines.push('');
+        });
+    } else {
+        lines.push('No profile-matched events this week.', '');
+    }
+    if (openAlerts.length) {
+        lines.push('=== TOP 3 TO WATCH ===', '');
+        openAlerts.slice(0, 3).forEach(a => {
+            lines.push(`[${a.severity}] ${a.title}`);
+            if (a.action_recommended) lines.push('-> ' + a.action_recommended);
+            lines.push('');
+        });
+    }
+    lines.push('Open RiskSim to work on this: https://risksim.ai', '', '---',
+        `You're receiving this because weekly briefs are enabled for ${email}.`,
+        'Unsubscribe: ' + unsubUrl);
+    return lines.join('\n');
+}
+
+function isBriefDayForSubscriber(sub) {
+    const subMs = new Date(sub.subscribedAt || 0).getTime();
+    // Existing subscribers before the epoch use the epoch as their anchor.
+    const anchorMs = subMs < BRIEF_EPOCH_MS ? BRIEF_EPOCH_MS : subMs;
+    const daysSinceAnchor = Math.floor((Date.now() - anchorMs) / (24 * 3600 * 1000));
+    // First brief on day 7, then every 7 days after that.
+    return daysSinceAnchor >= 7 && daysSinceAnchor % 7 === 0;
+}
+
+async function sendWeeklyBrief(sub) {
+    const key = sub.email.toLowerCase();
+
+    // Extended profile: shipments record first, subscriber sourcing countries as fallback.
+    const profile = await getSubscriberProfile(key, sub.sourcingCountries);
+    if (!profileHasTerms(profile)) {
+        console.log('[Brief] skip (empty profile):', key);
+        return false;
+    }
+
+    // Section 1: profile-matched events from this week's dataStore
+    const matchedEvents = getProfileMatchedDataStoreEvents(profile);
+
+    // Section 2: unresolved WARNING/CRITICAL shipment alerts — Enterprise only
+    let openAlerts = [];
+    if (sub.plan === 'enterprise') {
+        try {
+            const all = await getUserAlerts(key);
+            openAlerts = all
+                .filter(a => !a.resolved && (a.severity === 'WARNING' || a.severity === 'CRITICAL'))
+                .sort((a, b) => (ALERT_SEV_RANK[b.severity] || 0) - (ALERT_SEV_RANK[a.severity] || 0))
+                .slice(0, 3);
+        } catch (e) { /* best-effort — never block send */ }
+    }
+
+    // Skip if nothing to surface (empty dataStore post-deploy, no matching profile terms)
+    if (matchedEvents.length === 0 && openAlerts.length === 0) {
+        console.log('[Brief] skip (nothing to surface):', key);
+        return false;
+    }
+
+    const dateStr = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    return await sendEmail(
+        key,
+        `Your weekly supply chain brief — ${dateStr}`,
+        buildWeeklyBriefHtml(key, dateStr, matchedEvents, openAlerts),
+        buildWeeklyBriefText(key, dateStr, matchedEvents, openAlerts)
+    );
+}
+
+async function runWeeklyBriefJob() {
+    const summary = { candidates: 0, sent: 0, skipped: 0, errors: 0, backfilled: 0 };
+    let allSubs = await listSubscribers('weeklyDigest');
+
+    // Test mode: restrict to team allowlist only
+    if (process.env.WEEKLY_BRIEF_TEST_MODE === 'true') {
+        console.log('[Brief] TEST MODE — sending only to allowlist:', BRIEF_TEST_ALLOWLIST.join(', '));
+        allSubs = allSubs.filter(s => BRIEF_TEST_ALLOWLIST.includes(s.email.toLowerCase()));
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    for (const sub of allSubs) {
+        try {
+            // Migration: backfill plan from shipments record if subscriber record has none yet.
+            if (sub.plan == null) {
+                try {
+                    const record = await getUserShipments(sub.email);
+                    if (record && record.plan) {
+                        sub.plan = record.plan;
+                        await setSubscriber(sub.email, { ...sub, updatedAt: new Date().toISOString() });
+                        summary.backfilled++;
+                        console.log('[Brief] backfilled plan:', sub.email, '->', sub.plan);
+                    }
+                } catch (e) { /* best-effort — proceed to plan check */ }
+            }
+
+            // Skip if plan is unresolved (free tier or unknown)
+            if (sub.plan !== 'pro' && sub.plan !== 'enterprise') { summary.skipped++; continue; }
+
+            // Skip if today is not this subscriber's 7-day brief day
+            if (!isBriefDayForSubscriber(sub)) { summary.skipped++; continue; }
+
+            summary.candidates++;
+
+            // Idempotency: NX lock prevents double-send on the same calendar day
+            if (redisAvailable) {
+                try {
+                    const set = await redisCmd(['SET', `brief:sent:${sub.email}:${today}`, '1', 'NX', 'EX', '691200']);
+                    if (set === null) { summary.skipped++; continue; }   // already sent today
+                } catch (e) { /* idempotency check failed — send rather than silently skip */ }
+            }
+
+            const ok = await sendWeeklyBrief(sub);
+            if (ok) summary.sent++; else summary.errors++;
+        } catch (e) {
+            console.error('[Brief] job error for', sub.email, '—', e.message);
+            summary.errors++;
+        }
+    }
+
+    console.log('[Brief] runWeeklyBriefJob summary:', JSON.stringify(summary));
+    return summary;
+}
+
 // ---- Part C: client-facing endpoints ----
 const shipmentSyncLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, max: 120,
@@ -3301,6 +3540,22 @@ app.post('/api/admin/run-digest-job', requireDataKey, async (req, res) => {
     try { const summary = await runDigestJob(); res.json({ success: true, ...summary }); }
     catch (e) { console.error('[Digest] run-digest-job error:', e.message); res.status(500).json({ success: false, error: e.message }); }
 });
+// Send a brief to a single subscriber for targeted testing (bypasses brief-day check and NX lock).
+app.post('/api/admin/send-test-brief', requireDataKey, async (req, res) => {
+    try {
+        const email = (req.body.email || '').toLowerCase();
+        if (!email || !email.includes('@')) return res.status(400).json({ error: 'email required' });
+        const sub = await getSubscriber(email);
+        if (!sub) return res.status(404).json({ error: 'subscriber not found' });
+        const ok = await sendWeeklyBrief(sub);
+        res.json({ success: ok });
+    } catch (e) { console.error('[Brief] send-test-brief error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
+// Weekly Brief SWEEP for all eligible Pro/Enterprise subscribers — cron-triggerable.
+app.post('/api/admin/run-weekly-brief-job', requireDataKey, async (req, res) => {
+    try { const summary = await runWeeklyBriefJob(); res.json({ success: true, ...summary }); }
+    catch (e) { console.error('[Brief] run-weekly-brief-job error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
 app.get('/api/admin/usage', requireDataKey, async (req, res) => {
     try {
         const emailParam = (req.query.email || '').toLowerCase().trim();
@@ -3339,7 +3594,7 @@ app.get('/api/admin/usage', requireDataKey, async (req, res) => {
 // runs at most once/day even across cold starts. For free-tier reliability, also point an
 // external cron at the two /api/admin/* endpoints. ----
 if (process.env.SHIPMENT_JOB_POLLER_ENABLED === 'true') {
-    const REANALYSIS_HOUR = 4, DIGEST_HOUR = 10;   // UTC
+    const REANALYSIS_HOUR = 4, DIGEST_HOUR = 10, BRIEF_HOUR = 12;   // UTC
     setInterval(async () => {
         try {
             if (!redisAvailable) return;
@@ -3352,9 +3607,13 @@ if (process.env.SHIPMENT_JOB_POLLER_ENABLED === 'true') {
                 const lock = await redisCmd(['SET', `job:digest:${day}`, '1', 'NX', 'EX', '82800']);
                 if (lock !== null) { console.log('[Digest] poller: running daily digest'); await runDigestJob(); }
             }
+            if (hour === BRIEF_HOUR) {
+                const lock = await redisCmd(['SET', `job:brief:${day}`, '1', 'NX', 'EX', '82800']);
+                if (lock !== null) { console.log('[Brief] poller: running weekly brief job'); await runWeeklyBriefJob(); }
+            }
         } catch (e) { console.error('[Job] poller error:', e.message); }
     }, 15 * 60 * 1000);   // every 15 minutes
-    console.log('[Job] Shipment job poller enabled — re-analysis 04:00 UTC, digest 10:00 UTC');
+    console.log('[Job] Shipment job poller enabled — re-analysis 04:00 UTC, digest 10:00 UTC, brief 12:00 UTC');
 }
 
 app.listen(PORT, () => console.log(`RiskSim running on ${PORT}`));
