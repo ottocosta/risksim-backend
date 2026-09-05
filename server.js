@@ -5,6 +5,7 @@ const axios = require('axios');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const bcrypt = require('bcryptjs');
+const { runEnrichmentJob, processOneRow: enrichOne, resetStuckJobs: resetOutreach, getMonthlyStats: outreachStats } = require('./agents/outreachEnricher');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -3556,6 +3557,27 @@ app.post('/api/admin/run-weekly-brief-job', requireDataKey, async (req, res) => 
     try { const summary = await runWeeklyBriefJob(); res.json({ success: true, ...summary }); }
     catch (e) { console.error('[Brief] run-weekly-brief-job error:', e.message); res.status(500).json({ success: false, error: e.message }); }
 });
+// ---- Outreach Enrichment Agent — admin triggers ----
+// Trigger full sweep of Notion "To Enrich" DB (same as the 5-min poller, on demand).
+app.post('/api/admin/run-enrichment-job', requireDataKey, async (req, res) => {
+    try { const summary = await runEnrichmentJob(); res.json({ success: true, ...summary }); }
+    catch (e) { console.error('[Outreach] run-enrichment-job error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
+// Enrich a single company without going through Notion (bypasses brief-day gate + status updates).
+// Use for spot-testing enrichment quality on any domain.
+app.post('/api/admin/enrich-one', requireDataKey, async (req, res) => {
+    try {
+        const { company, domain, notes } = req.body;
+        if (!company || !domain) return res.status(400).json({ error: 'company and domain required' });
+        const result = await enrichOne(String(company), String(domain), notes || '');
+        res.json(result);
+    } catch (e) { console.error('[Outreach] enrich-one error:', e.message); res.status(500).json({ success: false, error: e.message }); }
+});
+// Quota counters, key exhaustion status, and monthly cost-call count.
+app.get('/api/admin/enrichment-status', requireDataKey, async (req, res) => {
+    try { res.json(await outreachStats()); }
+    catch (e) { res.status(500).json({ error: e.message }); }
+});
 app.get('/api/admin/usage', requireDataKey, async (req, res) => {
     try {
         const emailParam = (req.query.email || '').toLowerCase().trim();
@@ -3614,6 +3636,14 @@ if (process.env.SHIPMENT_JOB_POLLER_ENABLED === 'true') {
         } catch (e) { console.error('[Job] poller error:', e.message); }
     }, 15 * 60 * 1000);   // every 15 minutes
     console.log('[Job] Shipment job poller enabled — re-analysis 04:00 UTC, digest 10:00 UTC, brief 12:00 UTC');
+}
+
+if (process.env.OUTREACH_POLLER_ENABLED === 'true') {
+    setInterval(async () => {
+        try { await runEnrichmentJob(); }
+        catch (e) { console.error('[Outreach] poller error:', e.message); }
+    }, 5 * 60 * 1000);   // every 5 minutes
+    console.log('[Outreach] Enrichment poller enabled — polling Notion every 5 minutes');
 }
 
 app.listen(PORT, () => console.log(`RiskSim running on ${PORT}`));
