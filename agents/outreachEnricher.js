@@ -232,7 +232,7 @@ async function pollPendingRows() {
     const dbId = process.env.NOTION_TO_ENRICH_DB_ID;
     if (!dbId) throw new Error('NOTION_TO_ENRICH_DB_ID not set');
     // DIAGNOSTIC — remove after debugging
-    const pendingFilter = { property: 'Status', status: { equals: 'Pending' } };
+    const pendingFilter = { property: 'Status', select: { equals: 'Pending' } };
     if (!_pollFilterLogged) { console.log('[Outreach][DIAG] pollPendingRows filter:', JSON.stringify(pendingFilter)); _pollFilterLogged = true; }
     const result = await notionRequest('POST', `/databases/${dbId}/query`, {
         filter:    pendingFilter,
@@ -245,7 +245,7 @@ async function pollPendingRows() {
 
 // Update a row's Status (and optionally Notes) in the To Enrich DB
 async function updateRowStatus(pageId, status, notes) {
-    const props = { Status: { status: { name: status } } };
+    const props = { Status: { select: { name: status } } };
     if (notes) {
         props.Notes = { rich_text: [{ text: { content: String(notes).slice(0, 2000) } }] };
     }
@@ -285,7 +285,7 @@ function buildProspectProperties(schema, data) {
     set('Tariff hook',         { rich_text:  [{ text: { content: (data.tariff_hook  || '').slice(0, 2000) } }] });
     set('Recent news',         { rich_text:  [{ text: { content: (data.recent_news  || '').slice(0, 2000) } }] });
     set('Notes',               { rich_text:  [{ text: { content: (data.notes    || '').slice(0, 2000) } }] });
-    set('Status',              { status:     { name: 'New' } });
+    set('Status',              { select:     { name: 'New' } });
     set('Enriched at',         { date:       { start: new Date().toISOString() } });
 
     if (data.domain)     set('Domain',    { url: data.domain.startsWith('http') ? data.domain : `https://${data.domain}` });
@@ -332,7 +332,7 @@ async function resetStuckJobs() {
     let count = 0;
     try {
         // DIAGNOSTIC — remove after debugging
-        const stuckFilter = { property: 'Status', status: { equals: 'Processing' } };
+        const stuckFilter = { property: 'Status', select: { equals: 'Processing' } };
         if (!_stuckFilterLogged) { console.log('[Outreach][DIAG] resetStuckJobs filter:', JSON.stringify(stuckFilter)); _stuckFilterLogged = true; }
         const result = await notionRequest('POST', `/databases/${dbId}/query`, {
             filter:    stuckFilter,
