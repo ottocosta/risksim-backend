@@ -85,7 +85,13 @@ Constraints:
 - employees_estimate: one of <10, 10-50, 50-200, 200-500, >500  (empty string if unknown)
 - sourcing_countries: array, each from China, Vietnam, Taiwan, Thailand, India, South Korea, Other
 - tariff_hook: 1 sentence referencing specific product + sourcing country + tariff impact; empty string if score = 0
-- reasoning: 1-2 sentences explaining the score`;
+- reasoning: 1-2 sentences explaining the score
+
+CRITICAL OUTPUT RULES:
+- Respond with ONLY the JSON object. No reasoning text, no explanations, no preamble.
+- Do not think out loud. Do not narrate your analysis.
+- First and only character of your response must be an opening brace {.
+- Last character must be a closing brace }.`;
 
 // ============================================================
 // STATE
@@ -606,15 +612,33 @@ async function stepClaudeScore(companyName, domain, enrichedData) {
         model:     'claude-sonnet-4-6',
         max_tokens: 600,
         system:    ICP_SYSTEM,
-        messages:  [{ role: 'user', content: `Score this company:\n${JSON.stringify(context, null, 2)}` }]
+        messages:  [
+            { role: 'user',      content: `Score this company:\n${JSON.stringify(context, null, 2)}` },
+            { role: 'assistant', content: '{' }   // prefill — forces response to begin with {
+        ]
     });
     await trackCostCall();
 
-    const text      = msg.content[0]?.text || '';
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error(`Claude returned non-JSON: ${text.slice(0, 120)}`);
+    const raw  = msg.content[0]?.text || '';
+    const full = '{' + raw;   // restore prefilled opening brace
 
-    const result = JSON.parse(jsonMatch[0]);
+    let result;
+    try {
+        result = JSON.parse(full);
+    } catch (_) {
+        // Fallback: extract first complete {...} block via greedy regex
+        const jsonMatch = full.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            console.error('[Outreach] Claude raw response (no JSON found):', raw.slice(0, 500));
+            throw new Error(`Claude returned no JSON object: ${raw.slice(0, 120)}`);
+        }
+        try {
+            result = JSON.parse(jsonMatch[0]);
+        } catch (parseErr) {
+            console.error('[Outreach] Claude raw response (parse failed):', raw.slice(0, 500));
+            throw new Error(`Claude JSON parse failed: ${parseErr.message} — raw: ${raw.slice(0, 120)}`);
+        }
+    }
     console.log(`[Outreach] Claude ICP: ${companyName} → ${result.fit_score}/10 (${result.industry_match})`);
     return result;
 }
