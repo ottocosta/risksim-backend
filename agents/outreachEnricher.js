@@ -93,6 +93,9 @@ Constraints:
 
 let enrichmentJobRunning = false;
 let prospectsDbSchema    = null;   // { displayName: { id, type } } — cached at startup
+// DIAGNOSTIC — remove after debugging
+let _pollFilterLogged   = false;
+let _stuckFilterLogged  = false;
 
 // ============================================================
 // REDIS — self-contained, does not depend on server.js helpers
@@ -228,8 +231,11 @@ async function loadProspectsSchema() {
 async function pollPendingRows() {
     const dbId = process.env.NOTION_TO_ENRICH_DB_ID;
     if (!dbId) throw new Error('NOTION_TO_ENRICH_DB_ID not set');
+    // DIAGNOSTIC — remove after debugging
+    const pendingFilter = { property: 'Status', status: { equals: 'Pending' } };
+    if (!_pollFilterLogged) { console.log('[Outreach][DIAG] pollPendingRows filter:', JSON.stringify(pendingFilter)); _pollFilterLogged = true; }
     const result = await notionRequest('POST', `/databases/${dbId}/query`, {
-        filter:    { property: 'Status', status: { equals: 'Pending' } },
+        filter:    pendingFilter,
         page_size: 10
     });
     const rows = result.results || [];
@@ -325,8 +331,11 @@ async function resetStuckJobs() {
     if (!dbId) return 0;
     let count = 0;
     try {
+        // DIAGNOSTIC — remove after debugging
+        const stuckFilter = { property: 'Status', status: { equals: 'Processing' } };
+        if (!_stuckFilterLogged) { console.log('[Outreach][DIAG] resetStuckJobs filter:', JSON.stringify(stuckFilter)); _stuckFilterLogged = true; }
         const result = await notionRequest('POST', `/databases/${dbId}/query`, {
-            filter:    { property: 'Status', status: { equals: 'Processing' } },
+            filter:    stuckFilter,
             page_size: 50
         });
         for (const row of (result.results || [])) {
@@ -337,7 +346,10 @@ async function resetStuckJobs() {
                 count++;
             }
         }
-    } catch (e) { console.error('[Outreach] resetStuckJobs error:', e.message); }
+    } catch (e) {
+        const notionError = e.response?.data ? JSON.stringify(e.response.data) : e.message;
+        console.error('[Outreach] resetStuckJobs error:', notionError);
+    }
     return count;
 }
 
@@ -725,7 +737,8 @@ async function runEnrichmentJob() {
         let rows;
         try { rows = await pollPendingRows(); }
         catch (e) {
-            console.error('[Outreach] Notion poll failed:', e.message);
+            const notionError = e.response?.data ? JSON.stringify(e.response.data) : e.message;
+            console.error('[Outreach] Notion poll failed:', notionError);
             return summary;
         }
 
