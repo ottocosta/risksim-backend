@@ -229,15 +229,17 @@ async function pollPendingRows() {
     const dbId = process.env.NOTION_TO_ENRICH_DB_ID;
     if (!dbId) throw new Error('NOTION_TO_ENRICH_DB_ID not set');
     const result = await notionRequest('POST', `/databases/${dbId}/query`, {
-        filter:    { property: 'Status', select: { equals: 'Pending' } },
+        filter:    { property: 'Status', status: { equals: 'Pending' } },
         page_size: 10
     });
-    return result.results || [];
+    const rows = result.results || [];
+    if (!rows.length) console.log('[Outreach] No pending rows found');
+    return rows;
 }
 
 // Update a row's Status (and optionally Notes) in the To Enrich DB
 async function updateRowStatus(pageId, status, notes) {
-    const props = { Status: { select: { name: status } } };
+    const props = { Status: { status: { name: status } } };
     if (notes) {
         props.Notes = { rich_text: [{ text: { content: String(notes).slice(0, 2000) } }] };
     }
@@ -277,7 +279,7 @@ function buildProspectProperties(schema, data) {
     set('Tariff hook',         { rich_text:  [{ text: { content: (data.tariff_hook  || '').slice(0, 2000) } }] });
     set('Recent news',         { rich_text:  [{ text: { content: (data.recent_news  || '').slice(0, 2000) } }] });
     set('Notes',               { rich_text:  [{ text: { content: (data.notes    || '').slice(0, 2000) } }] });
-    set('Status',              { select:     { name: 'New' } });
+    set('Status',              { status:     { name: 'New' } });
     set('Enriched at',         { date:       { start: new Date().toISOString() } });
 
     if (data.domain)     set('Domain',    { url: data.domain.startsWith('http') ? data.domain : `https://${data.domain}` });
@@ -324,7 +326,7 @@ async function resetStuckJobs() {
     let count = 0;
     try {
         const result = await notionRequest('POST', `/databases/${dbId}/query`, {
-            filter:    { property: 'Status', select: { equals: 'Processing' } },
+            filter:    { property: 'Status', status: { equals: 'Processing' } },
             page_size: 50
         });
         for (const row of (result.results || [])) {
