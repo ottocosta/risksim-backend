@@ -487,28 +487,56 @@ async function stepSerpSocials(name, company) {
         { field: 'instagram', q: `"${name}" "${company}" site:instagram.com`,    domains: ['instagram.com'] }
     ];
 
+    let linkedinTimedOut = false;
+    let twitterTimedOut  = false;
+
     for (const qSpec of queries) {
+        // Save quota: skip Instagram if both LinkedIn and Twitter already timed out
+        if (qSpec.field === 'instagram' && linkedinTimedOut && twitterTimedOut) {
+            console.log('[Outreach] SerpAPI: skipping Instagram — LinkedIn and Twitter both timed out');
+            break;
+        }
+
         const picked = await pickKey('serp', keys);
         if (!picked) { console.warn('[Outreach] All SerpAPI keys exhausted'); break; }
         const { key, index } = picked;
+
+        const attempt = () => axios.get('https://serpapi.com/search', {
+            params:  { q: qSpec.q, api_key: key, engine: 'google', num: 5 },
+            timeout: 20000
+        });
+
+        let r = null;
         try {
-            const r = await axios.get('https://serpapi.com/search', {
-                params:  { q: qSpec.q, api_key: key, engine: 'google', num: 5 },
-                timeout: 10000
-            });
-            await incrCallCount('serp', index);
-
-            const url = extractSocialUrl(r.data?.organic_results || [], qSpec.domains);
-            if (url) socials[qSpec.field] = url;
-
-            const count = await getCallCount('serp', index);
-            if (count >= SERP_WARN) {
-                console.warn(`[Outreach] WARN: SerpAPI key ${index} at ${count} monthly searches (approaching 250 quota)`);
+            r = await attempt();
+        } catch (firstErr) {
+            const isTimeout = firstErr.code === 'ECONNABORTED' || firstErr.message.includes('timeout');
+            if (isTimeout) {
+                console.warn(`[Outreach] SerpAPI ${qSpec.field} timeout — retrying once`);
+                try { r = await attempt(); }
+                catch (retryErr) {
+                    if (retryErr.code === 'ECONNABORTED' || retryErr.message.includes('timeout')) {
+                        if (qSpec.field === 'linkedin') linkedinTimedOut = true;
+                        if (qSpec.field === 'twitter')  twitterTimedOut  = true;
+                    }
+                    if (retryErr.response?.status === 429) await markKeyExhausted('serp', index);
+                    console.warn(`[Outreach] SerpAPI ${qSpec.field} failed after retry (non-critical):`, retryErr.message);
+                }
+            } else {
+                if (firstErr.response?.status === 429) await markKeyExhausted('serp', index);
+                console.warn(`[Outreach] SerpAPI ${qSpec.field} search failed (non-critical):`, firstErr.message);
             }
-        } catch (err) {
-            const status = err.response?.status;
-            if (status === 429) await markKeyExhausted('serp', index);
-            console.warn(`[Outreach] SerpAPI ${qSpec.field} search failed (non-critical):`, err.message);
+        }
+
+        if (!r) continue;
+
+        await incrCallCount('serp', index);
+        const url = extractSocialUrl(r.data?.organic_results || [], qSpec.domains);
+        if (url) socials[qSpec.field] = url;
+
+        const count = await getCallCount('serp', index);
+        if (count >= SERP_WARN) {
+            console.warn(`[Outreach] WARN: SerpAPI key ${index} at ${count} monthly searches (approaching 250 quota)`);
         }
     }
     return socials;
@@ -561,15 +589,17 @@ async function stepPerplexityNews(companyName) {
         console.warn(`[Outreach] WARN: Perplexity at ${count} calls — approaching $10 credit cap`);
     }
 
+    const reqBody = {
+        model:      'sonar',
+        max_tokens: 250,
+        messages:   [{
+            role:    'user',
+            content: `Recent news about ${companyName} in the last 30 days related to supply chain, tariffs, funding, hiring, or product launches. Return 1-2 concise sentences of the most relevant news only. If nothing relevant exists, reply with exactly: No recent news found.`
+        }]
+    };
     try {
-        const r = await axios.post('https://api.perplexity.ai/chat/completions', {
-            model:      'sonar-medium-online',
-            max_tokens: 250,
-            messages:   [{
-                role:    'user',
-                content: `Recent news about ${companyName} in the last 30 days related to supply chain, tariffs, funding, hiring, or product launches. Return 1-2 concise sentences of the most relevant news only. If nothing relevant exists, reply with exactly: No recent news found.`
-            }]
-        }, {
+        console.log('[Outreach] Perplexity request — model:', reqBody.model, 'company:', companyName);
+        const r = await axios.post('https://api.perplexity.ai/chat/completions', reqBody, {
             headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
             timeout: 15000
         });
@@ -580,7 +610,8 @@ async function stepPerplexityNews(companyName) {
         if (snippet === 'No recent news found.' || !snippet) return null;
         return snippet;
     } catch (err) {
-        console.warn('[Outreach] Perplexity news failed (non-critical):', err.message);
+        const errBody = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+        console.warn('[Outreach] Perplexity news failed (non-critical):', errBody);
         return null;
     }
 }
@@ -609,25 +640,22 @@ async function stepClaudeScore(companyName, domain, enrichedData) {
     };
 
     const msg = await anthropic.messages.create({
-        model:     'claude-sonnet-4-6',
-        max_tokens: 600,
-        system:    ICP_SYSTEM,
-        messages:  [
-            { role: 'user',      content: `Score this company:\n${JSON.stringify(context, null, 2)}` },
-            { role: 'assistant', content: '{' }   // prefill — forces response to begin with {
-        ]
+        model:          'claude-sonnet-4-6',
+        max_tokens:     600,
+        stop_sequences: ['\n\n', '```'],
+        system:         ICP_SYSTEM,
+        messages:       [{ role: 'user', content: `Score this company:\n${JSON.stringify(context, null, 2)}` }]
     });
     await trackCostCall();
 
-    const raw  = msg.content[0]?.text || '';
-    const full = '{' + raw;   // restore prefilled opening brace
+    const raw = msg.content[0]?.text || '';
 
     let result;
     try {
-        result = JSON.parse(full);
+        result = JSON.parse(raw);
     } catch (_) {
         // Fallback: extract first complete {...} block via greedy regex
-        const jsonMatch = full.match(/\{[\s\S]*\}/);
+        const jsonMatch = raw.match(/\{[\s\S]*\}/);
         if (!jsonMatch) {
             console.error('[Outreach] Claude raw response (no JSON found):', raw.slice(0, 500));
             throw new Error(`Claude returned no JSON object: ${raw.slice(0, 120)}`);
