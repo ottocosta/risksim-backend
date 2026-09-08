@@ -49,6 +49,7 @@ const VALID_INDUSTRIES     = ['Consumer Electronics', 'Kitchen', 'Apparel', 'Hom
 const VALID_REVENUES       = ['<$1M', '$1M-$5M', '$5M-$25M', '$25M-$100M', '>$100M'];
 const VALID_EMPLOYEES      = ['<10', '10-50', '50-200', '200-500', '>500'];
 const VALID_COUNTRIES      = ['China', 'Vietnam', 'Taiwan', 'Thailand', 'India', 'South Korea', 'Other'];
+const VALID_EMAIL_VERIFIED = ['Yes', 'No', 'Unknown'];
 
 const ICP_SYSTEM = `You are an ICP analyst for risksim.ai, a supply chain risk platform targeting US importers.
 
@@ -295,8 +296,9 @@ function buildProspectProperties(schema, data) {
     set('Enriched at',         { date:       { start: new Date().toISOString() } });
 
     if (data.domain)     set('Domain',    { url: data.domain.startsWith('http') ? data.domain : `https://${data.domain}` });
-    if (data.email)      set('Email',     { email: data.email });
-    if (data.phone)      set('Phone',     { phone_number: data.phone });
+    if (data.email)               set('Email',          { email: data.email });
+    if (data.email_verify_status) set('Email verified', { select: { name: coerceSelect(data.email_verify_status, VALID_EMAIL_VERIFIED, 'Unknown') } });
+    if (data.phone)               set('Phone',          { phone_number: data.phone });
     if (data.linkedin)   set('LinkedIn',  { url: data.linkedin });
     if (data.twitter)    set('Twitter',   { url: data.twitter });
     if (data.instagram)  set('Instagram', { url: data.instagram });
@@ -372,15 +374,14 @@ function getTitleRank(title) {
     return 999;
 }
 
-// From Hunter's email array, return the highest-priority decision-maker or null.
-function matchTitlePriority(emails) {
-    if (!emails || !emails.length) return null;
-    let best = null, bestRank = 999;
-    for (const person of emails) {
-        const rank = getTitleRank(person.position || '');
-        if (rank < bestRank) { bestRank = rank; best = person; }
-    }
-    return bestRank < 999 ? best : null;
+// Return all recognized decision-makers sorted by title priority (best first).
+function rankCandidates(emails) {
+    if (!emails || !emails.length) return [];
+    return emails
+        .map(p => ({ person: p, rank: getTitleRank(p.position || '') }))
+        .filter(({ rank }) => rank < 999)
+        .sort((a, b) => a.rank - b.rank)
+        .map(({ person }) => person);
 }
 
 // ============================================================
@@ -414,17 +415,10 @@ async function stepHunterDomainSearch(domain) {
                 console.warn(`[Outreach] WARN: Hunter key ${index} at ${count} monthly calls (approaching 25-find quota)`);
             }
 
-            const contact = matchTitlePriority(emails);
-            if (!contact) return null;
+            const candidates = rankCandidates(emails);
+            if (!candidates.length) return null;
 
-            const name = `${contact.first_name || ''} ${contact.last_name || ''}`.trim();
-            return {
-                name,
-                title:          contact.position || '',
-                email:          contact.value    || '',
-                email_verified: (contact.confidence || 0) >= 90,
-                all_contacts:   emails
-            };
+            return { candidates, all_emails: emails };
         } catch (err) {
             const status = err.response?.status;
             if (status === 429 || status === 403) {
@@ -443,10 +437,11 @@ async function stepHunterDomainSearch(domain) {
 // STEP 2 — HUNTER EMAIL VERIFY  (quota-aware, best-effort)
 // ============================================================
 
+// Returns 'deliverable', 'undeliverable', or 'unknown'.
 async function stepHunterVerify(email) {
     const keys   = getHunterKeys();
     const picked = await pickKey('hunter', keys);
-    if (!picked) return false;
+    if (!picked) return 'unknown';
     const { key, index } = picked;
     try {
         const r = await axios.get('https://api.hunter.io/v2/email-verifier', {
@@ -455,12 +450,14 @@ async function stepHunterVerify(email) {
         });
         await incrCallCount('hunter', index);
         const d = r.data?.data;
-        return d?.result === 'deliverable' || (d?.score || 0) >= 80;
+        if (d?.result === 'deliverable' || (d?.score || 0) >= 80) return 'deliverable';
+        if (d?.result === 'undeliverable') return 'undeliverable';
+        return 'unknown';
     } catch (err) {
         const status = err.response?.status;
         if (status === 429 || status === 403) await markKeyExhausted('hunter', index);
         console.warn('[Outreach] Hunter verify failed (non-critical):', err.message);
-        return false;
+        return 'unknown';
     }
 }
 
@@ -677,16 +674,47 @@ async function stepClaudeScore(companyName, domain, enrichedData) {
 async function enrichCompany(company, domain, notes) {
     console.log(`[Outreach] Enriching: ${company} (${domain})`);
 
-    // Step 1 — CRITICAL
-    const contact = await stepHunterDomainSearch(domain);
-    if (!contact) {
+    // Step 1 — CRITICAL: domain search
+    const hunterResult = await stepHunterDomainSearch(domain);
+    if (!hunterResult) {
         return { success: false, failReason: 'No decision-maker found at company — domain not indexed or no matching titles in Hunter' };
     }
+    const { candidates, all_emails } = hunterResult;
 
-    // Step 2 — verify only if confidence < 90 from domain search
-    let emailVerified = contact.email_verified;
-    if (!emailVerified && contact.email) {
-        emailVerified = await stepHunterVerify(contact.email);
+    // Step 2 — verification: iterate candidates best-first until one passes
+    let contact     = null;
+    let verifyStatus = 'Unknown';   // Notion Select value: 'Yes' | 'No' | 'Unknown'
+
+    for (const candidate of candidates) {
+        const email           = candidate.value || '';
+        const cachedStatus    = (candidate.verification?.status || '').toLowerCase();
+
+        if (cachedStatus === 'deliverable') {
+            // Hunter already verified — trust it
+            console.log(`[Outreach] Email verify: ${email} → deliverable (domain-search cache)`);
+            verifyStatus = 'Yes';
+        } else if (cachedStatus === 'undeliverable') {
+            // Bounce risk confirmed — skip without spending a verifier credit
+            console.log(`[Outreach] Email verify: ${email} → undeliverable (domain-search cache) — skipping`);
+            continue;
+        } else {
+            // 'unknown', 'risky', or missing — call verifier
+            const result = await stepHunterVerify(email);
+            console.log(`[Outreach] Email verify: ${email} → ${result} (verifier)`);
+            if (result === 'undeliverable') continue;   // skip, try next candidate
+            verifyStatus = result === 'deliverable' ? 'Yes' : 'Unknown';
+        }
+
+        contact = {
+            name:  `${candidate.first_name || ''} ${candidate.last_name || ''}`.trim(),
+            title: candidate.position || '',
+            email,
+        };
+        break;
+    }
+
+    if (!contact) {
+        return { success: false, failReason: 'No verified emails available for domain — all contacts undeliverable, safe to retry later' };
     }
 
     // Steps 3-5 — best-effort, never block on failure
@@ -697,15 +725,16 @@ async function enrichCompany(company, domain, notes) {
     ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : (r.reason && console.warn('[Outreach] Best-effort step failed:', r.reason.message), null)));
 
     const enrichedData = {
-        name:         contact.name,
-        title:        contact.title,
-        email:        contact.email,
-        phone:        phone || null,
-        linkedin:     socials?.linkedin    || null,
-        twitter:      socials?.twitter     || null,
-        instagram:    socials?.instagram   || null,
-        recent_news:  recent_news || null,
-        all_contacts: contact.all_contacts
+        name:                contact.name,
+        title:               contact.title,
+        email:               contact.email,
+        email_verify_status: verifyStatus,
+        phone:               phone || null,
+        linkedin:            socials?.linkedin  || null,
+        twitter:             socials?.twitter   || null,
+        instagram:           socials?.instagram || null,
+        recent_news:         recent_news || null,
+        all_contacts:        all_emails
     };
 
     // Step 6 — CRITICAL (retry once after 30s)
@@ -730,25 +759,25 @@ async function enrichCompany(company, domain, notes) {
     return {
         success: true,
         result: {
-            name:               contact.name,
+            name:                contact.name,
             company,
             domain,
             notes,
-            title:              contact.title,
-            fit_score:          scoring.fit_score,
-            email:              contact.email,
-            email_verified:     emailVerified,
-            phone:              phone           || null,
-            linkedin:           socials?.linkedin   || null,
-            twitter:            socials?.twitter    || null,
-            instagram:          socials?.instagram  || null,
-            industry:           scoring.industry_match    || 'Other',
-            sourcing_countries: scoring.sourcing_countries || [],
-            revenue_estimate:   scoring.revenue_estimate  || '',
-            employees_estimate: scoring.employees_estimate || '',
-            tariff_hook:        scoring.tariff_hook       || '',
-            recent_news:        recent_news               || '',
-            all_contacts:       contact.all_contacts
+            title:               contact.title,
+            fit_score:           scoring.fit_score,
+            email:               contact.email,
+            email_verify_status: verifyStatus,
+            phone:               phone               || null,
+            linkedin:            socials?.linkedin   || null,
+            twitter:             socials?.twitter    || null,
+            instagram:           socials?.instagram  || null,
+            industry:            scoring.industry_match    || 'Other',
+            sourcing_countries:  scoring.sourcing_countries || [],
+            revenue_estimate:    scoring.revenue_estimate  || '',
+            employees_estimate:  scoring.employees_estimate || '',
+            tariff_hook:         scoring.tariff_hook       || '',
+            recent_news:         recent_news               || '',
+            all_contacts:        all_emails
         }
     };
 }
