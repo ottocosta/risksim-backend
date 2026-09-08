@@ -640,11 +640,10 @@ async function stepClaudeScore(companyName, domain, enrichedData) {
     };
 
     const msg = await anthropic.messages.create({
-        model:          'claude-sonnet-4-6',
-        max_tokens:     600,
-        stop_sequences: ['\n\n', '```'],
-        system:         ICP_SYSTEM,
-        messages:       [{ role: 'user', content: `Score this company:\n${JSON.stringify(context, null, 2)}` }]
+        model:      'claude-sonnet-4-6',
+        max_tokens: 600,
+        system:     ICP_SYSTEM,
+        messages:   [{ role: 'user', content: `Score this company:\n${JSON.stringify(context, null, 2)}` }]
     });
     await trackCostCall();
 
