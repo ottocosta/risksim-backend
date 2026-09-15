@@ -129,7 +129,7 @@ function getHunterKeys() {
     const keys = [];
     for (let i = 1; i <= 10; i++) {
         const k = process.env[`HUNTER_API_KEY_${i}`];
-        if (!k) break;
+        if (!k) continue;
         keys.push(k);
     }
     return keys;
@@ -139,7 +139,7 @@ function getSerpKeys() {
     const keys = [];
     for (let i = 1; i <= 10; i++) {
         const k = process.env[`SERP_API_KEY_${i}`];
-        if (!k) break;
+        if (!k) continue;
         keys.push(k);
     }
     return keys;
