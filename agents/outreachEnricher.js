@@ -103,6 +103,8 @@ let prospectsDbSchema    = null;   // { displayName: { id, type } } — cached a
 // DIAGNOSTIC — remove after debugging
 let _pollFilterLogged   = false;
 let _stuckFilterLogged  = false;
+let _hunterKeysLogged   = false;
+let _serpKeysLogged     = false;
 
 // ============================================================
 // REDIS — self-contained, does not depend on server.js helpers
@@ -127,20 +129,28 @@ async function redisSafe(command) {
 
 function getHunterKeys() {
     const keys = [];
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 20; i++) {
         const k = process.env[`HUNTER_API_KEY_${i}`];
         if (!k) continue;
-        keys.push(k);
+        keys.push({ key: k, n: i });   // n = env var suffix, stable identity
+    }
+    if (!_hunterKeysLogged) {
+        console.log(`[Outreach] Hunter keys loaded: ${keys.length} (N values: ${keys.map(k => k.n).join(',')})`);
+        _hunterKeysLogged = true;
     }
     return keys;
 }
 
 function getSerpKeys() {
     const keys = [];
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 20; i++) {
         const k = process.env[`SERP_API_KEY_${i}`];
         if (!k) continue;
-        keys.push(k);
+        keys.push({ key: k, n: i });
+    }
+    if (!_serpKeysLogged) {
+        console.log(`[Outreach] SerpAPI keys loaded: ${keys.length} (N values: ${keys.map(k => k.n).join(',')})`);
+        _serpKeysLogged = true;
     }
     return keys;
 }
@@ -151,31 +161,31 @@ function getSerpKeys() {
 
 function monthKey() { return new Date().toISOString().slice(0, 7); }
 
-async function getCallCount(service, index) {
-    const v = await redisSafe(['GET', `outreach:quota:${service}:${index}:${monthKey()}`]);
+async function getCallCount(service, n) {
+    const v = await redisSafe(['GET', `outreach:quota:${service}:${n}:${monthKey()}`]);
     return parseInt(v || '0', 10);
 }
 
-async function incrCallCount(service, index) {
-    await redisSafe(['INCR', `outreach:quota:${service}:${index}:${monthKey()}`]);
+async function incrCallCount(service, n) {
+    await redisSafe(['INCR', `outreach:quota:${service}:${n}:${monthKey()}`]);
 }
 
-async function markKeyExhausted(service, index) {
-    await redisSafe(['SET', `outreach:quota:${service}:${index}:exhausted`, '1', 'EX', '14400']); // 4-hour TTL
+async function markKeyExhausted(service, n) {
+    await redisSafe(['SET', `outreach:quota:${service}:${n}:exhausted`, '1', 'EX', '14400']); // 4-hour TTL
 }
 
-async function isKeyExhausted(service, index) {
-    return (await redisSafe(['GET', `outreach:quota:${service}:${index}:exhausted`])) === '1';
+async function isKeyExhausted(service, n) {
+    return (await redisSafe(['GET', `outreach:quota:${service}:${n}:exhausted`])) === '1';
 }
 
 // Pick the non-exhausted key with the lowest monthly call count.
 async function pickKey(service, keys) {
     if (!keys.length) return null;
     let best = null, bestCount = Infinity;
-    for (let i = 0; i < keys.length; i++) {
-        if (await isKeyExhausted(service, i)) continue;
-        const count = await getCallCount(service, i);
-        if (count < bestCount) { bestCount = count; best = { key: keys[i], index: i }; }
+    for (const { key, n } of keys) {
+        if (await isKeyExhausted(service, n)) continue;
+        const count = await getCallCount(service, n);
+        if (count < bestCount) { bestCount = count; best = { key, n }; }
     }
     return best;   // null if all exhausted
 }
@@ -187,11 +197,11 @@ async function trackCostCall() {
 async function getMonthlyStats() {
     const month = monthKey();
     const stats = { month, hunter: [], serp: [], perplexity: 0, totalCostCalls: 0 };
-    for (const [i, _] of getHunterKeys().entries()) {
-        stats.hunter.push({ index: i, calls: await getCallCount('hunter', i), exhausted: await isKeyExhausted('hunter', i) });
+    for (const { n } of getHunterKeys()) {
+        stats.hunter.push({ n, calls: await getCallCount('hunter', n), exhausted: await isKeyExhausted('hunter', n) });
     }
-    for (const [i, _] of getSerpKeys().entries()) {
-        stats.serp.push({ index: i, calls: await getCallCount('serp', i), exhausted: await isKeyExhausted('serp', i) });
+    for (const { n } of getSerpKeys()) {
+        stats.serp.push({ n, calls: await getCallCount('serp', n), exhausted: await isKeyExhausted('serp', n) });
     }
     stats.perplexity   = await getCallCount('perplexity', 0);
     stats.totalCostCalls = parseInt(await redisSafe(['GET', `outreach:cost:${month}`]) || '0', 10);
@@ -399,20 +409,20 @@ async function stepHunterDomainSearch(domain) {
     for (let attempt = 0; attempt < keys.length; attempt++) {
         const picked = await pickKey('hunter', keys);
         if (!picked) { console.warn('[Outreach] All Hunter keys exhausted'); return null; }
-        const { key, index } = picked;
+        const { key, n } = picked;
         try {
             const r = await axios.get('https://api.hunter.io/v2/domain-search', {
                 params:  { domain, api_key: key, limit: 10 },
                 timeout: 10000
             });
-            await incrCallCount('hunter', index);
+            await incrCallCount('hunter', n);
 
             const emails = r.data?.data?.emails || [];
             console.log(`[Outreach] Hunter domain-search: ${domain} → ${emails.length} emails`);
 
-            const count = await getCallCount('hunter', index);
+            const count = await getCallCount('hunter', n);
             if (count >= HUNTER_FIND_WARN) {
-                console.warn(`[Outreach] WARN: Hunter key ${index} at ${count} monthly calls (approaching 25-find quota)`);
+                console.warn(`[Outreach] WARN: Hunter key ${n} at ${count} monthly calls (approaching 25-find quota)`);
             }
 
             const candidates = rankCandidates(emails);
@@ -422,8 +432,8 @@ async function stepHunterDomainSearch(domain) {
         } catch (err) {
             const status = err.response?.status;
             if (status === 429 || status === 403) {
-                console.warn(`[Outreach] Hunter key ${index} returned ${status} — marking exhausted, trying next`);
-                await markKeyExhausted('hunter', index);
+                console.warn(`[Outreach] Hunter key ${n} returned ${status} — marking exhausted, trying next`);
+                await markKeyExhausted('hunter', n);
                 continue;   // rotate to next key
             }
             console.error('[Outreach] Hunter domain-search error:', err.message);
@@ -442,20 +452,20 @@ async function stepHunterVerify(email) {
     const keys   = getHunterKeys();
     const picked = await pickKey('hunter', keys);
     if (!picked) return 'unknown';
-    const { key, index } = picked;
+    const { key, n } = picked;
     try {
         const r = await axios.get('https://api.hunter.io/v2/email-verifier', {
             params:  { email, api_key: key },
             timeout: 15000   // verification is slower
         });
-        await incrCallCount('hunter', index);
+        await incrCallCount('hunter', n);
         const d = r.data?.data;
         if (d?.result === 'deliverable' || (d?.score || 0) >= 80) return 'deliverable';
         if (d?.result === 'undeliverable') return 'undeliverable';
         return 'unknown';
     } catch (err) {
         const status = err.response?.status;
-        if (status === 429 || status === 403) await markKeyExhausted('hunter', index);
+        if (status === 429 || status === 403) await markKeyExhausted('hunter', n);
         console.warn('[Outreach] Hunter verify failed (non-critical):', err.message);
         return 'unknown';
     }
@@ -496,7 +506,7 @@ async function stepSerpSocials(name, company) {
 
         const picked = await pickKey('serp', keys);
         if (!picked) { console.warn('[Outreach] All SerpAPI keys exhausted'); break; }
-        const { key, index } = picked;
+        const { key, n } = picked;
 
         const attempt = () => axios.get('https://serpapi.com/search', {
             params:  { q: qSpec.q, api_key: key, engine: 'google', num: 5 },
@@ -516,24 +526,24 @@ async function stepSerpSocials(name, company) {
                         if (qSpec.field === 'linkedin') linkedinTimedOut = true;
                         if (qSpec.field === 'twitter')  twitterTimedOut  = true;
                     }
-                    if (retryErr.response?.status === 429) await markKeyExhausted('serp', index);
+                    if (retryErr.response?.status === 429) await markKeyExhausted('serp', n);
                     console.warn(`[Outreach] SerpAPI ${qSpec.field} failed after retry (non-critical):`, retryErr.message);
                 }
             } else {
-                if (firstErr.response?.status === 429) await markKeyExhausted('serp', index);
+                if (firstErr.response?.status === 429) await markKeyExhausted('serp', n);
                 console.warn(`[Outreach] SerpAPI ${qSpec.field} search failed (non-critical):`, firstErr.message);
             }
         }
 
         if (!r) continue;
 
-        await incrCallCount('serp', index);
+        await incrCallCount('serp', n);
         const url = extractSocialUrl(r.data?.organic_results || [], qSpec.domains);
         if (url) socials[qSpec.field] = url;
 
-        const count = await getCallCount('serp', index);
+        const count = await getCallCount('serp', n);
         if (count >= SERP_WARN) {
-            console.warn(`[Outreach] WARN: SerpAPI key ${index} at ${count} monthly searches (approaching 250 quota)`);
+            console.warn(`[Outreach] WARN: SerpAPI key ${n} at ${count} monthly searches (approaching 250 quota)`);
         }
     }
     return socials;
