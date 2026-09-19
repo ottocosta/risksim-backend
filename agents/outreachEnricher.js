@@ -94,6 +94,31 @@ CRITICAL OUTPUT RULES:
 - First and only character of your response must be an opening brace {.
 - Last character must be a closing brace }.`;
 
+// Cheap pre-screen run on company+domain alone, before any Hunter/SerpAPI/Perplexity
+// credit is spent. Deliberately conservative: only skips on high-confidence Tier 1/
+// Tier 3 disqualifiers; defaults to "proceed" when unsure, since Stage 2 (full context,
+// unchanged) is still the final authoritative score after enrichment.
+const ICP_SYSTEM_STAGE1 = `You are an ICP analyst for risksim.ai, a supply chain risk platform targeting US importers.
+
+This is a CHEAP PRE-SCREEN using only company name and domain — no contact, social, or news data yet. Your job is only to catch OBVIOUS disqualifications before we spend API credits on enrichment. Err toward NOT skipping when uncertain — a full-context re-score happens after enrichment.
+
+Auto-skip (fit_score: 0) ONLY if you are confident of one of:
+- Publicly traded company
+- Revenue clearly >$150M or <$1M
+- Software/services/consulting/real estate/finance/healthcare/restaurant business (not physical goods)
+- Not a US company
+- Clearly does not import from Asia (fully domestic supply chain, or not an importer/retailer/manufacturer at all)
+
+If none of the above are clearly true, or you're not sure, respond with fit_score: 5 (proceed to full enrichment — this is a placeholder, not a final score).
+
+Respond ONLY with valid JSON:
+{"fit_score":5,"reasoning":""}
+
+CRITICAL OUTPUT RULES:
+- Respond with ONLY the JSON object. No preamble, no explanation outside the JSON.
+- First and only character of your response must be an opening brace {.
+- Last character must be a closing brace }.`;
+
 // ============================================================
 // STATE
 // ============================================================
@@ -624,6 +649,34 @@ async function stepPerplexityNews(companyName) {
 }
 
 // ============================================================
+// STEP 0 — CLAUDE ICP PRE-SCREEN  (cheap, company+domain only, before enrichment spend)
+// ============================================================
+
+async function stepClaudeScoreStage1(companyName, domain) {
+    const anthropic = new Anthropic({ apiKey: process.env.CLAUDE_API_KEY });
+
+    const msg = await anthropic.messages.create({
+        model:      'claude-sonnet-4-6',
+        max_tokens: 200,
+        system:     ICP_SYSTEM_STAGE1,
+        messages:   [{ role: 'user', content: `Pre-screen this company:\n${JSON.stringify({ company: companyName, domain }, null, 2)}` }]
+    });
+    await trackCostCall();
+
+    const raw = msg.content[0]?.text || '';
+    let result;
+    try {
+        result = JSON.parse(raw);
+    } catch (_) {
+        const jsonMatch = raw.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error(`Claude Stage 1 returned no JSON object: ${raw.slice(0, 120)}`);
+        result = JSON.parse(jsonMatch[0]);
+    }
+    console.log(`[Outreach] Claude ICP Stage 1: ${companyName} → ${result.fit_score === 0 ? 'SKIP' : 'proceed'}`);
+    return result;
+}
+
+// ============================================================
 // STEP 6 — CLAUDE ICP SCORING  (CRITICAL)
 // ============================================================
 
@@ -683,6 +736,19 @@ async function stepClaudeScore(companyName, domain, enrichedData) {
 
 async function enrichCompany(company, domain, notes) {
     console.log(`[Outreach] Enriching: ${company} (${domain})`);
+
+    // Stage 1 — cheap pre-screen before burning Hunter/SerpAPI/Perplexity credits.
+    // Fail-open on error: if the pre-screen call itself breaks, fall back to the old
+    // behavior (full enrichment) rather than skipping every prospect.
+    let stage1 = null;
+    try {
+        stage1 = await stepClaudeScoreStage1(company, domain);
+    } catch (err) {
+        console.warn('[Outreach] Claude Stage 1 pre-screen failed — proceeding to full enrichment:', err.message);
+    }
+    if (stage1 && stage1.fit_score === 0) {
+        return { success: false, failReason: `Fails ICP Tier 1 pre-screen (company-only): ${stage1.reasoning || 'no reasoning given'}` };
+    }
 
     // Step 1 — CRITICAL: domain search
     const hunterResult = await stepHunterDomainSearch(domain);
